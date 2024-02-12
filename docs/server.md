@@ -2,14 +2,92 @@
 ## Server-side
 
 ### Architecture
-```mermaid
-flowchart TD
-    user(User) <--> web
-    web[/Uvicorn ASGI + FastAPI\] <--> redis[(Redis + RQ)]
-    web <--> db[(PostgreSQL)]
-    redis <--> workers[[Workers]]
-    redis <--> db[(PostgreSQL)]
-```
+=== "Graph"
+    ```mermaid
+    flowchart TD
+        user(User) <--> web
+        web[/Uvicorn ASGI + FastAPI\] <--> redis[(Redis + RQ)]
+        web <--> db[(PostgreSQL)]
+        redis <--> workers[[Workers]]
+        redis <--> db[(PostgreSQL)]
+    ```
+=== "Authentication Flow"
+    === "Registration"
+        ```mermaid
+        sequenceDiagram
+            autonumber
+            participant user as User
+            participant web as Uvicorn ASGI + FastAPI
+            participant sql as PostgreSQL
+            user ->> web: Register User
+            web ->> sql: Store User
+        ```
+    === "Authentication"
+        ```mermaid
+        sequenceDiagram
+            autonumber
+            participant user as User
+            participant web as Uvicorn ASGI + FastAPI
+            participant sql as PostgreSQL
+            user ->> web: Authenticate User
+            web ->> sql: Verify Password
+            alt Success
+                web ->> user: JWT Token
+            else Failed
+                web ->> user: Unauthorized
+            end
+        ```
+=== "Job Flow"
+    === "Submission"
+        ```mermaid
+        sequenceDiagram
+            autonumber
+            participant user as User (w/ JWT Token)
+            participant web as Uvicorn ASGI + FastAPI
+            participant redis as Redis + RQ
+            participant worker as RQ Workers
+            participant sql as PostgreSQL
+            loop Listen Job
+            worker ->> redis: Listen Job
+            end
+            user ->> web: Submit Job
+            web ->> redis: Queue Job
+            web ->> sql: Store Job
+            web ->> user: Submitted Job
+            redis ->> worker: Dispatch Job
+            alt Finished
+                worker ->> redis: Finished Job
+            else Failed
+                worker ->> redis: Failed Job
+            end
+            redis ->> sql: Update Job
+        ```
+    === "Retrieval"
+        ```mermaid
+        sequenceDiagram
+            autonumber
+            participant user as User (w/ JWT Token)
+            participant web as Uvicorn ASGI + FastAPI
+            participant sql as PostgreSQL
+            user ->> web: Request Job
+            web ->> sql: Retrieve Job
+            sql ->> web: 
+            web ->> user: Return Job
+        ```
+    === "Cancelation"
+        ```mermaid
+        sequenceDiagram
+            autonumber
+            participant user as User (w/ JWT Token)
+            participant web as Uvicorn ASGI + FastAPI
+            participant sql as PostgreSQL
+            user ->> web: Request Job Cancelation
+            web ->> sql: Cancel Job
+            sql ->> web: 
+            web ->> user: Return Canceled Job
+        ```
+
+
 
 ### Deployment
 The web server for running quantum experiments can be deployed with docker with the following commands:
