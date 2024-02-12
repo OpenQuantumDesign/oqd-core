@@ -128,7 +128,6 @@ class Client:
             headers=self.authorization_header,
         )
         job = Job.model_validate(response.json())
-        print(job.status)
 
         if response.status_code == 200:
             self._jobs[job_id] = job

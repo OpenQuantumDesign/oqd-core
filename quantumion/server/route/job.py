@@ -3,6 +3,7 @@ from typing import Literal
 from fastapi import APIRouter, HTTPException
 from fastapi import status as http_status
 
+from rq import Queue
 from rq.job import Callback
 from rq.job import Job as RQJob
 
@@ -17,8 +18,7 @@ from quantumion.backend.task import Task
 from quantumion.server.route.auth import user_dependency
 from quantumion.server.database import db_dependency, JobInDB
 from quantumion.server.jobqueue import (
-    redis_client,
-    queue,
+    redis_client_dependency,
     report_success,
     report_failure,
     report_stopped,
@@ -36,11 +36,10 @@ async def submit_job(
     backend: Literal["qutip", "tensorcircuit"],
     user: user_dependency,
     db: db_dependency,
+    redis_client: redis_client_dependency,
 ):
-    print(f"Queueing {task} on server {backend} backend. {len(queue)} jobs in queue.")
-
     backends = {"qutip": QutipBackend(), "tensorcircuit": TensorCircuitBackend()}
-    job = queue.enqueue(
+    job = Queue(connection=redis_client).enqueue(
         backends[backend].run,
         task,
         on_success=Callback(report_success),
@@ -79,7 +78,12 @@ async def retrieve_job(job_id: str, user: user_dependency, db: db_dependency):
 
 
 @job_router.delete("/cancel/{job_id}", tags=["Job"])
-async def cancel_job(job_id: str, user: user_dependency, db: db_dependency):
+async def cancel_job(
+    job_id: str,
+    user: user_dependency,
+    db: db_dependency,
+    redis_client: redis_client_dependency,
+):
     query = await db.execute(
         select(JobInDB).filter(
             JobInDB.job_id == job_id,

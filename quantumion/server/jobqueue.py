@@ -1,9 +1,12 @@
 import os
 
-from redis import Redis
-from rq import Queue
+from typing import Annotated
+
+from redis import Redis, ConnectionPool
 
 from sqlalchemy import select
+
+from fastapi import Depends
 
 import asyncio
 
@@ -18,10 +21,20 @@ from quantumion.server.database import get_db, JobInDB
 REDIS_HOST = os.environ["REDIS_HOST"]
 REDIS_PASSWORD = os.environ["REDIS_PASSWORD"]
 
-redis_client = Redis(
+redis_pool = ConnectionPool(
     host=REDIS_HOST, password=REDIS_PASSWORD, port=6379, decode_responses=False
 )
-queue = Queue(connection=redis_client)
+
+
+def get_redis_client():
+    redis_client = Redis.from_pool(redis_pool)
+    try:
+        yield redis_client
+    finally:
+        redis_client.close()
+
+
+redis_client_dependency = Annotated[Redis, Depends(get_redis_client)]
 
 ########################################################################################
 
