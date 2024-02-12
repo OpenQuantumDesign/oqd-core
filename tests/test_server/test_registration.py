@@ -13,7 +13,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "-u",
         "--url",
-        default="http://10.104.2.129:8000",
+        default="http://127.0.0.1:8000",
         type=str,
         help="server URL for job submission",
     )

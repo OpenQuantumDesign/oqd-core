@@ -77,7 +77,7 @@ async def retrieve_job(job_id: str, user: user_dependency, db: db_dependency):
     raise HTTPException(status_code=http_status.HTTP_401_UNAUTHORIZED)
 
 
-@job_router.delete("/cancel/{job_id}", tags=["Job"])
+@job_router.put("/cancel/{job_id}", tags=["Job"])
 async def cancel_job(
     job_id: str,
     user: user_dependency,
