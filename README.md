@@ -32,6 +32,14 @@ Clone the repository using the following command :
 ```bash
 git clone https://github.com/OpenQuantumDesign/quantumion
 ```
+
+Create your own branch and add upstream:
+```bash
+cd quantumion
+git checkout -b quantumion-your-own-branch
+git remote add upstream https://github.com/OpenQuantumDesign/quantumion
+```
+
 Install with pip :
 ```bash
 pip install .
