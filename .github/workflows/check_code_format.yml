@@ -10,6 +10,6 @@ jobs:
       - uses: psf/black@stable
         with:
           options: "--check --verbose"
-          src: "./graphiq"
+          src: "./src"
           jupyter: true
           version: "~= 24.0"
