@@ -11,22 +11,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from .gate import Gate, H, CNOT
-from .register import QuantumBit, ClassicalBit, QuantumRegister, ClassicalRegister
-from .statement import Statement, Measure, Barrier
-from .circuit import DigitalCircuit
-
-__all__ = [
-    "Gate",
-    "H",
-    "CNOT",
-    "QuantumBit",
-    "ClassicalBit",
-    "QuantumRegister",
-    "ClassicalRegister",
-    "Statement",
-    "Measure",
-    "Barrier",
-    "DigitalCircuit",
-]

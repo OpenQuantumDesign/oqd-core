@@ -12,25 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import unittest
-from unittest_prettify.colorize import (
-    colorize,
-    BLUE,
-    RED,
-    MAGENTA,
-)
-
+import pytest
 from oqd_compiler_infrastructure import RewriteRule, WalkBase, Post, Pre, FixedPoint
+from oqd_core.interface.analog import (
+    Annihilation,
+    Creation,
+    Identity,
+    Operator,
+    PauliI,
+    PauliX,
+    PauliY,
+    PauliZ,
+)
+from oqd_core.compiler.analog.rewrite.canonicalize import (
+    GatherMathExpr,
+    GatherPauli,
+    NormalOrder,
+    OperatorDistribute,
+    PauliAlgebra,
+    ProperOrder,
+    PruneIdentity,
+    ScaleTerms,
+    SortedOrder,
+)
+from oqd_core.interface.math import MathStr
 
-########################################################################################
-
-from oqd_core.interface.analog import *
-from oqd_core.compiler.analog.rewrite.canonicalize import *
-from oqd_core.interface.math import *
-
-########################################################################################
-
-X, Y, Z, I, A, C, LI = (
+X, Y, Z, PI, A, C, LI = (
     PauliX(),
     PauliY(),
     PauliZ(),
@@ -41,243 +48,227 @@ X, Y, Z, I, A, C, LI = (
 )
 
 
-def test_function(operator: Operator, rule: RewriteRule, walk_method: WalkBase = Post):
+def canonicalize_operator(
+    operator: Operator, rule: RewriteRule, walk_method: WalkBase = Post
+):
     return FixedPoint(walk_method(rule))(operator)
 
 
-@colorize(color=BLUE)
-class TestOperatorDistribute(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = OperatorDistribute()
-
-    def test_simple(self):
-        """Simple test"""
-        op = X @ (X + Y)
-        expected = X @ X + X @ Y
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_no_effect(self):
-        """Distribution does not do anything as GatherMathExpr required"""
-        op = 2 * (X @ Y) * (3 * (I @ I))
-        expected = 2 * (X @ Y) * (3 * (I @ I))
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
+@pytest.fixture
+def operator_distribute_rule():
+    return OperatorDistribute()
 
 
-@colorize(color=BLUE)
-class TestGatherMathExpr(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = GatherMathExpr()
-
-    def test_simple(self):
-        """Simple test"""
-        op = X @ (3 * Y) + (2 * X) @ Z
-        expected = 3 * (X @ Y) + 2 * (X @ Z)
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_complicated(self):
-        """Complicated test"""
-        op = X @ (3 * Y * (3 * Z)) @ (10 * I) + (2 * X) @ Z @ (5 * Y)
-        expected = (MathStr(string="3*3*10")) * ((X @ (Y * Z)) @ I) + MathStr(
-            string="2*5"
-        ) * (X @ Z @ Y)
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_no_effect(self):
-        """GatherMathExpr does not do anything as Distribution required"""
-        op = X @ ((2 * X + 3 * Y))
-        expected = X @ ((2 * X + 3 * Y))
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
+def test_operator_distribute_simple(operator_distribute_rule):
+    op = X @ (X + Y)
+    expected = X @ X + X @ Y
+    assert canonicalize_operator(operator=op, rule=operator_distribute_rule) == expected
 
 
-@colorize(color=BLUE)
-class TestProperOrder(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = ProperOrder()
-
-    def test_simple(self):
-        """Simple test"""
-        op = X @ (Y @ (I @ Z))
-        expected = ((X @ Y) @ I) @ Z
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_complicated(self):
-        """Complicated test with addition and scalar multiplication"""
-        op = X @ (Y @ Z) + 3 * (Z @ (Y @ I))
-        expected = (X @ Y) @ Z + 3 * ((Z @ Y) @ I)
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
+def test_operator_distribute_no_effect(operator_distribute_rule):
+    op = 2 * (X @ Y) * (3 * (PI @ PI))
+    expected = 2 * (X @ Y) * (3 * (PI @ PI))
+    assert canonicalize_operator(operator=op, rule=operator_distribute_rule) == expected
 
 
-@colorize(color=BLUE)
-class TestPauliAlgebra(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = PauliAlgebra()
-
-    def test_simple(self):
-        """Simple test"""
-        op = X * X + Y * Y + Z * I
-        expected = I + I + Z
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_nested_multiplications(self):
-        """Nested Multiplication test"""
-        op = X * X + Y * Y * Z * I
-        expected = I + Z
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_nested_multiplications_complicated(self):
-        """Complicated Nested Multiplication test fails as we need GatherMathExpr after PauliAlgebra"""
-        op = Z * X * X * Y * Y * Z * I
-        expected = I + Z
-        self.assertNotEqual(test_function(operator=op, rule=self.rule), expected)
+@pytest.fixture
+def gather_math_expr_rule():
+    return GatherMathExpr()
 
 
-@colorize(color=BLUE)
-class TestGatherPauli(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = GatherPauli()
-
-    def test_simple(self):
-        """Simple test"""
-        op = X @ A @ Y
-        expected = X @ Y @ A
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_complicated(self):
-        """Complicated test"""
-        op = X @ A @ Y + (A * A * C) @ Y @ Z + X @ Y @ Z
-        expected = X @ Y @ A + Y @ Z @ (A * A * C) + X @ Y @ Z
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
+def test_gather_math_expr_simple(gather_math_expr_rule):
+    op = X @ (3 * Y) + (2 * X) @ Z
+    expected = 3 * (X @ Y) + 2 * (X @ Z)
+    assert canonicalize_operator(operator=op, rule=gather_math_expr_rule) == expected
 
 
-@colorize(color=BLUE)
-class TestNormalOrder(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = NormalOrder()
-
-    def test_simple(self):
-        """Simple test"""
-        op = (A * C) @ (A * C)
-        expected = (C * A + LI) @ (C * A + LI)
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_simple_fail(self):
-        """Simple test fail as distribution required"""
-        op = 1 * (A * A * C)
-        expected = 1 * (C * A * A + LI * A + A * LI)
-        self.assertNotEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_inside_pauli(self):
-        """Simple test with Pauli"""
-        op = X @ (A * C) @ Y
-        expected = X @ (C * A + LI) @ Y
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
+def test_gather_math_expr_complicated(gather_math_expr_rule):
+    op = X @ (3 * Y * (3 * Z)) @ (10 * PI) + (2 * X) @ Z @ (5 * Y)
+    expected = (MathStr(string="3*3*10")) * ((X @ (Y * Z)) @ PI) + MathStr(
+        string="2*5"
+    ) * (X @ Z @ Y)
+    assert canonicalize_operator(operator=op, rule=gather_math_expr_rule) == expected
 
 
-@colorize(color=BLUE)
-class TestPruneIdentity(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = PruneIdentity()
-
-    def test_simple(self):
-        """Simple Test"""
-        op = A * LI * C * LI * LI
-        expected = A * C
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_simple_nested(self):
-        """Simple nested"""
-        op = (A * LI * C * A * LI * C) @ LI @ (A * LI)
-        expected = (A * C * A * C) @ LI @ (A)
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
+def test_gather_math_expr_no_effect(gather_math_expr_rule):
+    op = X @ (2 * X + 3 * Y)
+    expected = X @ (2 * X + 3 * Y)
+    assert canonicalize_operator(operator=op, rule=gather_math_expr_rule) == expected
 
 
-@colorize(color=BLUE)
-class TestSortedOrder(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = SortedOrder()
-
-    def test_simple(self):
-        """Simple Test"""
-        op = X @ Y + X @ Z + I @ Z
-        expected = I @ Z + X @ Y + X @ Z
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_terminals(self):
-        """Simple Test with terminals"""
-        op = X + Z + Y + I
-        expected = I + X + Y + Z
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
-
-    def test_ladder(self):
-        """Simple Test with ladder"""
-        op = X @ (C * A * A) + X @ (C * A)
-        expected = X @ (C * A) + X @ (C * A * A)
-        self.assertEqual(test_function(operator=op, rule=self.rule), expected)
+@pytest.fixture
+def proper_order_rule():
+    return ProperOrder()
 
 
-@colorize(color=BLUE)
-class TestScaleTerms(unittest.TestCase):
-    maxDiff = None
-
-    def __init__(self, methodName: str = "runTest") -> None:
-        super().__init__(methodName)
-        self.rule = ScaleTerms()
-
-    def test_simple(self):
-        """Simple test"""
-        op = X @ (Y @ Z) + (Z @ (Y @ I))
-        expected = MathStr(string="1") * (X @ (Y @ Z)) + MathStr(string="1") * (
-            Z @ (Y @ I)
-        )
-        self.assertEqual(
-            test_function(operator=op, rule=self.rule, walk_method=Pre), expected
-        )
-
-    def test_single_term(self):
-        """Single term sorted order"""
-        op = X @ (Y @ Z)
-        expected = MathStr(string="1") * (X @ (Y @ Z))
-        self.assertEqual(
-            test_function(operator=op, rule=self.rule, walk_method=Pre), expected
-        )
-
-    def test_terminals(self):
-        """Terminal term sorted order"""
-        op = X + Y + Z + I
-        expected = (
-            MathStr(string="1") * X
-            + MathStr(string="1") * Y
-            + MathStr(string="1") * Z
-            + MathStr(string="1") * I
-        )
-        self.assertEqual(
-            test_function(operator=op, rule=self.rule, walk_method=Pre), expected
-        )
+def test_proper_order_simple(proper_order_rule):
+    op = X @ (Y @ (PI @ Z))
+    expected = ((X @ Y) @ PI) @ Z
+    assert canonicalize_operator(operator=op, rule=proper_order_rule) == expected
 
 
-if __name__ == "__main__":
-    unittest.main()
+def test_proper_order_complicated(proper_order_rule):
+    op = X @ (Y @ Z) + 3 * (Z @ (Y @ PI))
+    expected = (X @ Y) @ Z + 3 * ((Z @ Y) @ PI)
+    assert canonicalize_operator(operator=op, rule=proper_order_rule) == expected
+
+
+@pytest.fixture
+def pauli_algebra_rule():
+    return PauliAlgebra()
+
+
+def test_simple_pauli(pauli_algebra_rule):
+    """Simple test"""
+    op = X * X + Y * Y + Z * PI
+    expected = PI + PI + Z
+    assert canonicalize_operator(operator=op, rule=pauli_algebra_rule) == expected
+
+
+def test_nested_multiplications(pauli_algebra_rule):
+    """Nested Multiplication test"""
+    op = X * X + Y * Y * Z * PI
+    expected = PI + Z
+    assert canonicalize_operator(operator=op, rule=pauli_algebra_rule) == expected
+
+
+@pytest.mark.xfail(strict=True)
+def test_nested_multiplications_complicated(pauli_algebra_rule):
+    """Complicated Nested Multiplication test fails as we need GatherMathExpr after PauliAlgebra"""
+    op = Z * X * X * Y * Y * Z * PI
+    expected = PI + Z
+    assert (
+        canonicalize_operator(operator=op, rule=pauli_algebra_rule) == expected
+    )  # check fails
+
+
+@pytest.fixture
+def pauli_gather_rule():
+    return GatherPauli()
+
+
+def test_simple_pauli_gather(pauli_gather_rule):
+    """Simple test"""
+    op = X @ A @ Y
+    expected = X @ Y @ A
+    assert canonicalize_operator(operator=op, rule=pauli_gather_rule) == expected
+
+
+def test_complicated_pauli_gather(pauli_gather_rule):
+    """Complicated test"""
+    op = X @ A @ Y + (A * A * C) @ Y @ Z + X @ Y @ Z
+    expected = X @ Y @ A + Y @ Z @ (A * A * C) + X @ Y @ Z
+    assert canonicalize_operator(operator=op, rule=pauli_gather_rule) == expected
+
+
+@pytest.fixture
+def normal_order_rule():
+    return NormalOrder()
+
+
+def test_normal_order_simple(normal_order_rule):
+    """Simple test"""
+    op = (A * C) @ (A * C)
+    expected = (C * A + LI) @ (C * A + LI)
+    assert canonicalize_operator(operator=op, rule=normal_order_rule) == expected
+
+
+def test_normal_order_simple_fail(normal_order_rule):
+    """Simple test fail as distribution required"""
+    op = 1 * (A * A * C)
+    expected = 1 * (C * A * A + LI * A + A * LI)
+    assert canonicalize_operator(operator=op, rule=normal_order_rule) != expected
+
+
+def test_normal_order_inside_pauli(normal_order_rule):
+    """Simple test with Pauli"""
+    op = X @ (A * C) @ Y
+    expected = X @ (C * A + LI) @ Y
+    assert canonicalize_operator(operator=op, rule=normal_order_rule) == expected
+
+
+@pytest.fixture
+def prune_identity_rule():
+    return PruneIdentity()
+
+
+def test_prune_identity_simple(prune_identity_rule):
+    """Simple Test"""
+    op = A * LI * C * LI * LI
+    expected = A * C
+    assert canonicalize_operator(operator=op, rule=prune_identity_rule) == expected
+
+
+def test_prune_identity_simple_nested(prune_identity_rule):
+    """Simple nested"""
+    op = (A * LI * C * A * LI * C) @ LI @ (A * LI)
+    expected = (A * C * A * C) @ LI @ (A)
+    assert canonicalize_operator(operator=op, rule=prune_identity_rule) == expected
+
+
+@pytest.fixture
+def sorted_order_rule():
+    return SortedOrder()
+
+
+def test_sorted_order_simple(sorted_order_rule):
+    """Simple Test"""
+    op = X @ Y + X @ Z + PI @ Z
+    expected = PI @ Z + X @ Y + X @ Z
+    assert canonicalize_operator(operator=op, rule=sorted_order_rule) == expected
+
+
+def test_sorted_order_terminals(sorted_order_rule):
+    """Simple Test with terminals"""
+    op = X + Z + Y + PI
+    expected = PI + X + Y + Z
+    assert canonicalize_operator(operator=op, rule=sorted_order_rule) == expected
+
+
+def test_sorted_order_ladder(sorted_order_rule):
+    """Simple Test with ladder"""
+    op = X @ (C * A * A) + X @ (C * A)
+    expected = X @ (C * A) + X @ (C * A * A)
+    assert canonicalize_operator(operator=op, rule=sorted_order_rule) == expected
+
+
+@pytest.fixture
+def scale_terms_rule():
+    return ScaleTerms()
+
+
+def test_scale_terms_simple(scale_terms_rule):
+    """Simple test"""
+    op = X @ (Y @ Z) + (Z @ (Y @ PI))
+    expected = MathStr(string="1") * (X @ (Y @ Z)) + MathStr(string="1") * (
+        Z @ (Y @ PI)
+    )
+    assert (
+        canonicalize_operator(operator=op, rule=scale_terms_rule, walk_method=Pre)
+        == expected
+    )
+
+
+def test_scale_terms_single_term(scale_terms_rule):
+    """Single term sorted order"""
+    op = X @ (Y @ Z)
+    expected = MathStr(string="1") * (X @ (Y @ Z))
+    assert (
+        canonicalize_operator(operator=op, rule=scale_terms_rule, walk_method=Pre)
+        == expected
+    )
+
+
+def test_scale_terms_terminals(scale_terms_rule):
+    """Terminal term sorted order"""
+    op = X + Y + Z + PI
+    expected = (
+        MathStr(string="1") * X
+        + MathStr(string="1") * Y
+        + MathStr(string="1") * Z
+        + MathStr(string="1") * PI
+    )
+    assert (
+        canonicalize_operator(operator=op, rule=scale_terms_rule, walk_method=Pre)
+        == expected
+    )

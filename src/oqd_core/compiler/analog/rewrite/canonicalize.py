@@ -106,7 +106,6 @@ class OperatorDistribute(RewriteRule):
         return None
 
     def map_OperatorScalarMul(self, model: OperatorScalarMul):
-
         if isinstance(model.op, (OperatorAdd, OperatorSub)):
             return model.op.__class__(
                 op1=OperatorScalarMul(op=model.op.op1, expr=model.expr),
@@ -140,7 +139,6 @@ class GatherMathExpr(RewriteRule):
     """
 
     def map_OperatorScalarMul(self, model: OperatorScalarMul):
-
         if isinstance(model.op, OperatorScalarMul):
             return model.expr * model.op.expr * model.op.op
 

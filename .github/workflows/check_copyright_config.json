@@ -1,0 +1,13 @@
+[
+    {
+        "include": [
+            "src/**",
+            "tests/**"
+        ],
+        "exclude": [
+            "docs/**",
+            "**/*.ini"
+        ],
+        "license": ".github/workflows/copyright.txt"
+    }
+]

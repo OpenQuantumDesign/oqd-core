@@ -48,7 +48,7 @@ class Gate(VisitableBaseModel):
         if isinstance(self.qreg, QuantumBit):
             _str += f"{self.qreg.id}[{self.qreg.index}]"
         elif isinstance(self.qreg, QuantumRegister):
-            _str += f",".join([f"{reg.id}[{reg.index}]" for reg in self.qreg.reg])
+            _str += ",".join([f"{reg.id}[{reg.index}]" for reg in self.qreg.reg])
         _str += ";\n"
         return _str
 

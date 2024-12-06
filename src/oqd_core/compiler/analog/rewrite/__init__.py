@@ -24,3 +24,16 @@ from .canonicalize import (
     ScaleTerms,
     SortedOrder,
 )
+
+__all__ = [
+    "AssignAnalogIRDim",
+    "OperatorDistribute",
+    "GatherMathExpr",
+    "GatherPauli",
+    "PruneIdentity",
+    "PauliAlgebra",
+    "NormalOrder",
+    "ProperOrder",
+    "ScaleTerms",
+    "SortedOrder",
+]
