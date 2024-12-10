@@ -1,1 +1,0 @@
-python -m unittest discover tests/test_analog -v

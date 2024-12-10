@@ -18,7 +18,6 @@ from typing import List, Union, Literal, Dict, Annotated
 
 import numpy as np
 
-from oqd_compiler_infrastructure import VisitableBaseModel
 
 ########################################################################################
 

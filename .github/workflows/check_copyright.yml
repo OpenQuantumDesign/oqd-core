@@ -1,0 +1,15 @@
+name: Copyright Header Check
+
+on: pull_request
+
+jobs:
+  copyright_header_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Check license & copyright headers
+        uses: viperproject/check-license-header@v2
+        with:
+          path: 
+          config: .github/workflows/check_copyright_config.json
+          # strict: true

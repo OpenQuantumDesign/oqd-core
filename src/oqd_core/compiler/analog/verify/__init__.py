@@ -28,3 +28,18 @@ from .task import (
     VerifyAnalogArgsDim,
 )
 from .operator import VerifyHilberSpaceDim
+
+__all__ = [
+    "CanVerPauliAlgebra",
+    "CanVerGatherMathExpr",
+    "CanVerOperatorDistribute",
+    "CanVerProperOrder",
+    "CanVerPruneIdentity",
+    "CanVerGatherPauli",
+    "CanVerNormalOrder",
+    "CanVerSortedOrder",
+    "CanVerScaleTerm",
+    "VerifyAnalogCircuitDim",
+    "VerifyAnalogArgsDim",
+    "VerifyHilberSpaceDim",
+]

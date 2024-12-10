@@ -13,14 +13,12 @@
 # limitations under the License.
 
 from typing import List, Literal, Union
-from pydantic import Field
-from pydantic.types import Annotated
 from pydantic.types import NonNegativeInt
 
 # %%
 from oqd_compiler_infrastructure import VisitableBaseModel, TypeReflectBaseModel
 
-from oqd_core.interface.analog.operator import Operator, OperatorSubtypes
+from oqd_core.interface.analog.operator import OperatorSubtypes
 
 
 __all__ = [
