@@ -1,4 +1,4 @@
-name: CI
+name: CI - Pytest
 
 on:
   push:
@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   build:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -19,23 +20,25 @@ jobs:
           - "3.10"
           - "3.11"
           - "3.12"
-        os:
-          - ubuntu-latest
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
         arch:
           - x64
-    name: Python ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
-    runs-on: ${{ matrix.os }}
+    name: Test ${{ matrix.version }} on ${{ matrix.os }} (${{ matrix.arch }})
+
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.version }}
-          cache: "pip"
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install .[test]
-      - name: Run unittest
-        run: |
-          bash tests/test.sh
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        # with:
+          # enable-cache: true
+
+      - name: Install the project
+        run: uv pip install .[test] --system
+
+      - name: Run tests
+        run: uv run pytest tests

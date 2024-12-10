@@ -21,7 +21,7 @@ from oqd_compiler_infrastructure import VisitableBaseModel
 
 from .gate import Gate
 from .register import QuantumRegister, ClassicalRegister
-from .statement import Statement, Measure
+from .statement import Statement
 
 ########################################################################################
 

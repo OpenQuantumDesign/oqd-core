@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_compiler_infrastructure import Post, Chain
+from oqd_compiler_infrastructure import Post
 
 ########################################################################################
 

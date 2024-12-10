@@ -43,3 +43,32 @@ from oqd_core.interface.analog.operation import (
     Evolve,
     Measure,
 )
+
+
+__all__ = [
+    "OperatorSubtypes",
+    "Operator",
+    "OperatorTerminal",
+    "Pauli",
+    "PauliI",
+    "PauliX",
+    "PauliY",
+    "PauliZ",
+    "PauliPlus",
+    "PauliMinus",
+    "Ladder",
+    "Creation",
+    "Annihilation",
+    "Identity",
+    "OperatorBinaryOp",
+    "OperatorAdd",
+    "OperatorSub",
+    "OperatorMul",
+    "OperatorScalarMul",
+    "OperatorKron",
+    "AnalogCircuit",
+    "AnalogGate",
+    "AnalogOperation",
+    "Evolve",
+    "Measure",
+]

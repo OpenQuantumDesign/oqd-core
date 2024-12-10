@@ -81,7 +81,7 @@ class MathExpr(TypeReflectBaseModel):
     def __mul__(self, other):
         try:
             return MathMul(expr1=self, expr2=other)
-        except:
+        except TypeError:  # make sure this is the right error to catch
             return other * self
 
     def __truediv__(self, other):

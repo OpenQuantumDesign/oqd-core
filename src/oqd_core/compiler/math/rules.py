@@ -241,14 +241,12 @@ class PartitionMathExpr(RewriteRule):
 
     def map_MathAdd(self, model):
         if not (
-            (
-                isinstance(model.expr2, MathImag)
-                or (
-                    isinstance(model.expr2, MathMul)
-                    and isinstance(model.expr2.expr1, MathImag)
-                )
-                or isinstance(model.expr2, MathAdd)
+            isinstance(model.expr2, MathImag)
+            or (
+                isinstance(model.expr2, MathMul)
+                and isinstance(model.expr2.expr1, MathImag)
             )
+            or isinstance(model.expr2, MathAdd)
         ):
             return MathAdd(expr1=model.expr2, expr2=model.expr1)
 

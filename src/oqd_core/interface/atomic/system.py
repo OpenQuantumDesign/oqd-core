@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Literal, Optional
+from typing import List, Optional
 from typing_extensions import Annotated
 from pydantic import (
-    PositiveInt,
     NonNegativeInt,
     AfterValidator,
     NonNegativeFloat,
-    model_validator,
 )
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel

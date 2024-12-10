@@ -19,7 +19,20 @@ from oqd_compiler_infrastructure import RewriteRule
 ########################################################################################
 
 
-from oqd_core.interface.analog import *
+from oqd_core.interface.analog import (
+    Annihilation,
+    Creation,
+    Identity,
+    Ladder,
+    OperatorAdd,
+    OperatorKron,
+    OperatorMul,
+    OperatorTerminal,
+    PauliI,
+    PauliX,
+    PauliY,
+    PauliZ,
+)
 
 ########################################################################################
 
@@ -92,7 +105,6 @@ class TermIndex(RewriteRule):
         self.term_idx.append([])
 
     def map_OperatorMul(self, model):
-
         if isinstance(model.op1, Ladder) and isinstance(model.op2, Ladder):
             if self._potential_terminal:
                 self.term_idx[-1] = []
