@@ -15,6 +15,7 @@
 import math
 from typing import Union
 
+import numpy as np
 from oqd_compiler_infrastructure import ConversionRule, RewriteRule
 
 ########################################################################################
@@ -349,7 +350,15 @@ class SimplifyMathExpr(RewriteRule):
 
     def map_MathFunc(self, model):
         if isinstance(model.expr, MathNum):
-            return MathNum(value=getattr(math, model.func)(model.expr.value))
+            if getattr(math, model.func, None):
+                value = getattr(math, model.func)(model.expr.value)
+
+            if model.func == "heaviside":
+                value = np.heaviside(model.expr.value, 1)
+
+            if model.func == "conj":
+                value = np.conj(model.expr.value)
+            return MathNum(value=value)
 
 
 ########################################################################################
@@ -370,7 +379,14 @@ class EvaluateMathExpr(ConversionRule):
         return complex("1j")
 
     def map_MathFunc(self, model: MathFunc, operands):
-        return getattr(math, model.func)(operands["expr"])
+        if getattr(math, model.func, None):
+            return getattr(math, model.func)(operands["expr"])
+
+        if model.func == "heaviside":
+            return np.heaviside(operands["expr"], 1)
+
+        if model.func == "conj":
+            return np.conj(operands["expr"])
 
     def map_MathAdd(self, model: MathAdd, operands):
         return operands["expr1"] + operands["expr2"]

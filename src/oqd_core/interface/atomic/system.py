@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Optional
+from typing import Annotated, List, Literal, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import (
@@ -20,7 +20,6 @@ from pydantic import (
     NonNegativeFloat,
     NonNegativeInt,
 )
-from typing_extensions import Annotated
 
 ########################################################################################
 
@@ -69,6 +68,7 @@ class Level(TypeReflectBaseModel):
     Class representing an electronic energy level of an ion.
 
     Attributes:
+        label: Label for the Level
         principal: Principal quantum number.
         spin: Spin of an electron.
         orbital: Orbital angular momentum of an electron.
@@ -80,13 +80,14 @@ class Level(TypeReflectBaseModel):
 
     """
 
-    principal: Optional[NonNegativeInt] = None
-    spin: Optional[NonNegativeAngularMomentumNumber] = None
-    orbital: Optional[NonNegativeAngularMomentumNumber] = None
-    nuclear: Optional[NonNegativeAngularMomentumNumber] = None
-    spin_orbital: Optional[NonNegativeAngularMomentumNumber] = None
-    spin_orbital_nuclear: Optional[NonNegativeAngularMomentumNumber] = None
-    spin_orbital_nuclear_magnetization: Optional[AngularMomentumNumber] = None
+    label: str
+    principal: NonNegativeInt
+    spin: NonNegativeAngularMomentumNumber
+    orbital: NonNegativeAngularMomentumNumber
+    nuclear: NonNegativeAngularMomentumNumber
+    spin_orbital: NonNegativeAngularMomentumNumber
+    spin_orbital_nuclear: NonNegativeAngularMomentumNumber
+    spin_orbital_nuclear_magnetization: AngularMomentumNumber
     energy: float
 
     # @model_validator(mode="after")
@@ -129,15 +130,18 @@ class Transition(TypeReflectBaseModel):
     Class representing a transition between electronic states of an ion.
 
     Attributes:
-        level1: Energy level 1.
-        level2: Energy level 2.
+        label: Label for the Transition
+        level1: Label for energy level 1.
+        level2: Label for energy level 2.
         einsteinA: Einstein A coefficient that characterizes the strength of coupling between energy level 1 and 2.
 
     """
 
-    level1: Level
-    level2: Level
+    label: str
+    level1: Union[str, Level]
+    level2: Union[str, Level]
     einsteinA: float
+    multipole: Literal["E1", "E2", "M1"]
 
 
 class Ion(TypeReflectBaseModel):

@@ -65,6 +65,7 @@ analog_circuit.measure()
 ########################################################################################
 
 downstate = Level(
+    label="q0",
     principal=6,
     spin=1 / 2,
     orbital=0,
@@ -75,6 +76,7 @@ downstate = Level(
     energy=2 * np.pi * 0,
 )
 upstate = Level(
+    label="q1",
     principal=6,
     spin=1 / 2,
     orbital=0,
@@ -85,6 +87,7 @@ upstate = Level(
     energy=2 * np.pi * 10,
 )
 estate = Level(
+    label="e0",
     principal=5,
     spin=1 / 2,
     orbital=1,
@@ -95,6 +98,7 @@ estate = Level(
     energy=2 * np.pi * 100,
 )
 estate2 = Level(
+    label="e1",
     principal=5,
     spin=1 / 2,
     orbital=1,
@@ -107,26 +111,30 @@ estate2 = Level(
 
 transitions = [
     Transition(
-        level1=downstate,
-        level2=estate,
+        label="q0->e0",
+        level1="q0",
+        level2="e0",
         einsteinA=1,
         multipole="E1",
     ),
     Transition(
-        level1=downstate,
-        level2=estate2,
+        label="q0->e1",
+        level1="q0",
+        level2="e1",
         einsteinA=1,
         multipole="E1",
     ),
     Transition(
-        level1=upstate,
-        level2=estate,
+        label="q1->e0",
+        level1="q1",
+        level2="e0",
         einsteinA=1,
         multipole="E1",
     ),
     Transition(
-        level1=upstate,
-        level2=estate2,
+        label="q1->e1",
+        level1="q1",
+        level2="e1",
         einsteinA=1,
         multipole="E1",
     ),
@@ -152,7 +160,7 @@ system = System(
 )
 
 beam = Beam(
-    transition=transitions[0],
+    transition="q0->e0",
     rabi=2 * np.pi * 1,
     detuning=0,
     phase=0,
@@ -162,7 +170,7 @@ beam = Beam(
 )
 
 beam2 = Beam(
-    transition=transitions[0],
+    transition="q0->e0",
     rabi=2 * np.pi * 5,
     detuning=2 * np.pi * 25,
     phase=0,
@@ -172,7 +180,7 @@ beam2 = Beam(
 )
 
 beam3 = Beam(
-    transition=transitions[2],
+    transition="q1->e0",
     rabi=2 * np.pi * 5,
     detuning=2 * np.pi * 25,
     phase=0,

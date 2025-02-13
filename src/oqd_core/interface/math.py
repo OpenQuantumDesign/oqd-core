@@ -141,6 +141,7 @@ Functions = Literal[
     "asinh",
     "acosh",
     "heaviside",
+    "conj",
 ]
 
 
