@@ -59,6 +59,9 @@ include = ["oqd_core*"]
 select = ["E4", "E7", "E9", "F", "I"]
 fixable = ["ALL"]
 
+[dependency-groups]
+dev = []
+
 
 [project.urls]
 Homepage = "https://github.com/OpenQuantumDesign/oqd-core"

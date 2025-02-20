@@ -176,4 +176,6 @@ _scripts/
 # ignore copied examples files when building docs
 docs/examples/
 tests/test.bat
-uv.lock
+
+
+.pre-commit-config.yaml
