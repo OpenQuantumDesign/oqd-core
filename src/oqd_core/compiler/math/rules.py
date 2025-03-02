@@ -358,6 +358,9 @@ class SimplifyMathExpr(RewriteRule):
 
             if model.func == "conj":
                 value = np.conj(model.expr.value)
+
+            if model.func == "abs":
+                value = np.abs(model.expr.value)
             return MathNum(value=value)
 
 
@@ -387,6 +390,9 @@ class EvaluateMathExpr(ConversionRule):
 
         if model.func == "conj":
             return np.conj(operands["expr"])
+
+        if model.func == "abs":
+            return np.abs(operands["expr"])
 
     def map_MathAdd(self, model: MathAdd, operands):
         return operands["expr1"] + operands["expr2"]
