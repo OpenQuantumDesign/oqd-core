@@ -29,6 +29,14 @@ class TestYb171IIBuilder:
     def printer(self):
         return Post(PrettyPrint())
 
+    def test_show(self, builder):
+        print()
+        builder.show()
+
+    def test_show_verbose(self, builder):
+        print()
+        builder.show(verbose=True)
+
     def test_qubit(self, builder, printer):
         ion = builder.build(levels=["q0", "q1"])
         print()

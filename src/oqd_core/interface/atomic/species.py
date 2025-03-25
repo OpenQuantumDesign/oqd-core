@@ -15,6 +15,7 @@
 from abc import ABC, abstractmethod
 
 import numpy as np
+from oqd_compiler_infrastructure import Post, PrettyPrint
 
 from oqd_core.interface.atomic.system import Ion, Level, Transition
 
@@ -23,7 +24,7 @@ from oqd_core.interface.atomic.system import Ion, Level, Transition
 
 class IonBuilder(ABC):
     @abstractmethod
-    def build(self, levels=None, excluded_transitions=[]):
+    def build(self, levels=None, excluded_transitions=[], position=[0, 0, 0]):
         pass
 
     @property
@@ -35,6 +36,35 @@ class IonBuilder(ABC):
     @abstractmethod
     def _transitions(self):
         pass
+
+    @property
+    def _level_labels(self):
+        return list(map(lambda x: x.label, self._levels))
+
+    @property
+    def _transition_labels(self):
+        return list(map(lambda x: x.label, self._transitions))
+
+    def show(self, *, verbose=False):
+        printer = Post(PrettyPrint())
+
+        s = "{:=^80}\n".format(" Yb171+ Ion ")
+
+        s += "{:-^80}\n".format(" Levels ")
+
+        if verbose:
+            s += printer(self._levels)
+        else:
+            s += printer(self._level_labels)
+
+        s += "\n{:-^80}\n".format(" Transitions ")
+
+        if verbose:
+            s += printer(self._transitions)
+        else:
+            s += printer(self._transition_labels)
+
+        print(s)
 
 
 class Yb171IIBuilder(IonBuilder):
