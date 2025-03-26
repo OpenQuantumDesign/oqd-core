@@ -56,7 +56,7 @@ class IonBuilder(ABC):
     def _transition_labels(self):
         return list(map(lambda x: x.label, self._transitions))
 
-    def show(self, *, verbose=False):
+    def summary(self, *, verbose=False):
         printer = Post(PrettyPrint())
 
         s = "{:=^80}\n".format(" Yb171+ Ion ")
