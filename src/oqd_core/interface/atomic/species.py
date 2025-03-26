@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
+from functools import partial
 
 import numpy as np
 from oqd_compiler_infrastructure import Post, PrettyPrint
@@ -35,6 +36,16 @@ class IonBuilder(ABC):
     @property
     @abstractmethod
     def _transitions(self):
+        pass
+
+    @property
+    @abstractmethod
+    def _mass(self):
+        pass
+
+    @property
+    @abstractmethod
+    def _charge(self):
         pass
 
     @property
@@ -66,13 +77,72 @@ class IonBuilder(ABC):
 
         print(s)
 
+    @staticmethod
+    def _angular_momentum(x):
+        return x * (x + 1)
+
+    def _Lande_g(self, level):
+        M = self._mass * 1.66053906892e-27
+        m_e = 9.1093837139e-31
+
+        gL = 1 - m_e / M
+        gS = 2.00231930436092
+
+        S = level.spin
+        L = level.orbital
+        J = level.spin_orbital
+
+        gJ = (
+            gL
+            * (
+                IonBuilder._angular_momentum(J)
+                - IonBuilder._angular_momentum(S)
+                + IonBuilder._angular_momentum(L)
+            )
+            + gS
+            * (
+                IonBuilder._angular_momentum(J)
+                + IonBuilder._angular_momentum(S)
+                - IonBuilder._angular_momentum(L)
+            )
+        ) / (2 * IonBuilder._angular_momentum(J))
+
+        return gS, gL, gJ
+
+    def _apply_zeeman(self, level, magnetic_field):
+        mu_B = 9.2740100657e-24
+        hbar = 1.054571817e-34
+
+        zeeman = (
+            mu_B
+            * magnetic_field
+            * level.spin_orbital_nuclear_magnetization
+            * self._Lande_g(level)[-1]
+            / hbar
+        )
+
+        _level = level.model_copy()
+        _level.energy = _level.energy + zeeman
+        return _level
+
 
 class Yb171IIBuilder(IonBuilder):
-    def build(self, levels=None, *, excluded_transitions=[], position=[0, 0, 0]):
+    def build(
+        self,
+        levels=None,
+        magnetic_field=1e-4,
+        *,
+        excluded_transitions=[],
+        position=[0, 0, 0],
+    ):
         if levels is None:
             _levels = self._levels
         else:
             _levels = list(filter(lambda x: x.label in levels, self._levels))
+
+        _levels = list(
+            map(partial(self._apply_zeeman, magnetic_field=magnetic_field), _levels)
+        )
 
         _level_labels = list(map(lambda x: x.label, _levels))
 
@@ -86,17 +156,24 @@ class Yb171IIBuilder(IonBuilder):
         )
 
         return Ion(
-            mass=171,
-            charge=1,
+            mass=self._mass,
+            charge=self._charge,
             levels=_levels,
             transitions=_transitions,
             position=position,
         )
 
     @property
+    def _mass(self):
+        return 171
+
+    @property
+    def _charge(self):
+        return 1
+
+    @property
     def _levels(self):
         qubit = 2 * np.pi * 12.6428 * 1e9
-        z_split = 2 * np.pi * 6 * 1e6
         laser = 2 * np.pi * (811.2888 * 1e12 + 210 * 1e6)
         pump = 2 * np.pi * 2.106 * 1e9
         return [
@@ -130,7 +207,7 @@ class Yb171IIBuilder(IonBuilder):
                 spin_orbital=1 / 2,
                 spin_orbital_nuclear=1,
                 spin_orbital_nuclear_magnetization=1,
-                energy=qubit + z_split,
+                energy=qubit,
                 label="zp",
             ),
             Level(
@@ -141,7 +218,7 @@ class Yb171IIBuilder(IonBuilder):
                 spin_orbital=1 / 2,
                 spin_orbital_nuclear=1,
                 spin_orbital_nuclear_magnetization=-1,
-                energy=qubit - z_split,
+                energy=qubit,
                 label="zm",
             ),
             Level(
@@ -163,7 +240,7 @@ class Yb171IIBuilder(IonBuilder):
                 spin_orbital=1 / 2,
                 spin_orbital_nuclear=1,
                 spin_orbital_nuclear_magnetization=-1,
-                energy=qubit + laser + pump - 10 / 6 * z_split,
+                energy=qubit + laser + pump,
                 label="e1m",
             ),
             Level(
@@ -185,7 +262,7 @@ class Yb171IIBuilder(IonBuilder):
                 spin_orbital=1 / 2,
                 spin_orbital_nuclear=1,
                 spin_orbital_nuclear_magnetization=1,
-                energy=qubit + laser + pump + 10 / 6 * z_split,
+                energy=qubit + laser + pump,
                 label="e1p",
             ),
         ]

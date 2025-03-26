@@ -47,6 +47,11 @@ class TestYb171IIBuilder:
         print()
         print(printer(ion))
 
+    def test_zeeman(self, builder, printer):
+        ion = builder.build(levels=["q0", "zm", "q1", "zp"])
+        print()
+        print(printer(ion))
+
     def test_lambda_system(self, builder, printer):
         ion = builder.build(levels=["q0", "q1", "e0"])
         print()
