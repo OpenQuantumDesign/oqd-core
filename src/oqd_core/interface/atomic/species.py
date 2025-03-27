@@ -13,20 +13,106 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
-from functools import partial
 
 import numpy as np
-from oqd_compiler_infrastructure import Post, PrettyPrint
+from oqd_compiler_infrastructure import Post, Pre, PrettyPrint, RewriteRule
+from scipy.constants import physical_constants
 
 from oqd_core.interface.atomic.system import Ion, Level, Transition
 
 ########################################################################################
 
 
+class ZeemanShift(RewriteRule):
+    def __init__(self, magnetic_field):
+        super().__init__()
+
+        self.magnetic_field = magnetic_field
+
+    @staticmethod
+    def _angular_momentum(x):
+        return x * (x + 1)
+
+    def _Lande_g(self, level):
+        gL = 1 - physical_constants["electron mass"][0] / self._mass
+        gS = 2.00231930436092
+
+        S = level.spin
+        L = level.orbital
+        J = level.spin_orbital
+
+        gJ = (
+            gL
+            * (
+                ZeemanShift._angular_momentum(J)
+                - ZeemanShift._angular_momentum(S)
+                + ZeemanShift._angular_momentum(L)
+            )
+            + gS
+            * (
+                ZeemanShift._angular_momentum(J)
+                + ZeemanShift._angular_momentum(S)
+                - ZeemanShift._angular_momentum(L)
+            )
+        ) / (2 * ZeemanShift._angular_momentum(J))
+
+        return gS, gL, gJ
+
+    def map_Ion(self, model):
+        self._mass = model.mass * physical_constants["atomic mass constant"][0]
+
+    def map_Level(self, model):
+        zeeman = (
+            physical_constants["Bohr magneton"][0]
+            * self.magnetic_field
+            * model.spin_orbital_nuclear_magnetization
+            * self._Lande_g(model)[-1]
+            / physical_constants["reduced Planck constant"][0]
+        )
+
+        level = model.model_copy()
+        level.energy = level.energy + zeeman
+        return level
+
+
+########################################################################################
+
+
 class IonBuilder(ABC):
-    @abstractmethod
-    def build(self, levels=None, excluded_transitions=[], position=[0, 0, 0]):
-        pass
+    def build(
+        self,
+        levels=None,
+        magnetic_field=1e-4,
+        *,
+        excluded_transitions=[],
+        position=[0, 0, 0],
+    ):
+        if levels is None:
+            _levels = self._levels
+        else:
+            _levels = list(filter(lambda x: x.label in levels, self._levels))
+
+        _level_labels = list(map(lambda x: x.label, _levels))
+        _transitions = list(
+            filter(
+                lambda x: x.label not in excluded_transitions
+                and x.level1 in _level_labels
+                and x.level2 in _level_labels,
+                self._transitions,
+            )
+        )
+
+        ion = Ion(
+            mass=self._mass,
+            charge=self._charge,
+            levels=_levels,
+            transitions=_transitions,
+            position=position,
+        )
+
+        ion = Pre(ZeemanShift(magnetic_field=magnetic_field))(ion)
+
+        return ion
 
     @property
     @abstractmethod
@@ -77,95 +163,11 @@ class IonBuilder(ABC):
 
         print(s)
 
-    @staticmethod
-    def _angular_momentum(x):
-        return x * (x + 1)
-
-    def _Lande_g(self, level):
-        M = self._mass * 1.66053906892e-27
-        m_e = 9.1093837139e-31
-
-        gL = 1 - m_e / M
-        gS = 2.00231930436092
-
-        S = level.spin
-        L = level.orbital
-        J = level.spin_orbital
-
-        gJ = (
-            gL
-            * (
-                IonBuilder._angular_momentum(J)
-                - IonBuilder._angular_momentum(S)
-                + IonBuilder._angular_momentum(L)
-            )
-            + gS
-            * (
-                IonBuilder._angular_momentum(J)
-                + IonBuilder._angular_momentum(S)
-                - IonBuilder._angular_momentum(L)
-            )
-        ) / (2 * IonBuilder._angular_momentum(J))
-
-        return gS, gL, gJ
-
-    def _apply_zeeman(self, level, magnetic_field):
-        mu_B = 9.2740100657e-24
-        hbar = 1.054571817e-34
-
-        zeeman = (
-            mu_B
-            * magnetic_field
-            * level.spin_orbital_nuclear_magnetization
-            * self._Lande_g(level)[-1]
-            / hbar
-        )
-
-        _level = level.model_copy()
-        _level.energy = _level.energy + zeeman
-        return _level
-
 
 class Yb171IIBuilder(IonBuilder):
-    def build(
-        self,
-        levels=None,
-        magnetic_field=1e-4,
-        *,
-        excluded_transitions=[],
-        position=[0, 0, 0],
-    ):
-        if levels is None:
-            _levels = self._levels
-        else:
-            _levels = list(filter(lambda x: x.label in levels, self._levels))
-
-        _levels = list(
-            map(partial(self._apply_zeeman, magnetic_field=magnetic_field), _levels)
-        )
-
-        _level_labels = list(map(lambda x: x.label, _levels))
-
-        _transitions = list(
-            filter(
-                lambda x: x.label not in excluded_transitions
-                and x.level1 in _level_labels
-                and x.level2 in _level_labels,
-                self._transitions,
-            )
-        )
-
-        return Ion(
-            mass=self._mass,
-            charge=self._charge,
-            levels=_levels,
-            transitions=_transitions,
-            position=position,
-        )
-
     @property
     def _mass(self):
-        return 171
+        return 170.936331515
 
     @property
     def _charge(self):
