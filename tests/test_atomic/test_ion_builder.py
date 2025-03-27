@@ -15,7 +15,7 @@
 import pytest
 from oqd_compiler_infrastructure import Post, PrettyPrint
 
-from oqd_core.interface.atomic import Yb171IIBuilder
+from oqd_core.interface.atomic import Ba133IIBuilder, Yb171IIBuilder
 
 ########################################################################################
 
@@ -24,6 +24,44 @@ class TestYb171IIBuilder:
     @pytest.fixture
     def builder(self):
         return Yb171IIBuilder()
+
+    @pytest.fixture
+    def printer(self):
+        return Post(PrettyPrint())
+
+    def test_summary(self, builder):
+        print()
+        builder.summary()
+
+    def test_summary_verbose(self, builder):
+        print()
+        builder.summary(verbose=True)
+
+    def test_qubit(self, builder, printer):
+        ion = builder.build(levels=["q0", "q1"])
+        print()
+        print(printer(ion))
+
+    def test_exclusion(self, builder, printer):
+        ion = builder.build(levels=["q0", "q1"], excluded_transitions=["q0->q1"])
+        print()
+        print(printer(ion))
+
+    def test_zeeman(self, builder, printer):
+        ion = builder.build(levels=["q0", "zm", "q1", "zp"])
+        print()
+        print(printer(ion))
+
+    def test_lambda_system(self, builder, printer):
+        ion = builder.build(levels=["q0", "q1", "e0"])
+        print()
+        print(printer(ion))
+
+
+class TestBa133IIBuilder:
+    @pytest.fixture
+    def builder(self):
+        return Ba133IIBuilder()
 
     @pytest.fixture
     def printer(self):

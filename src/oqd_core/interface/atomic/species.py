@@ -164,6 +164,9 @@ class IonBuilder(ABC):
         print(s)
 
 
+########################################################################################
+
+
 class Yb171IIBuilder(IonBuilder):
     @property
     def _mass(self):
@@ -360,6 +363,211 @@ class Yb171IIBuilder(IonBuilder):
                 level1="zp",
                 level2="e1p",
                 einsteinA=1 / (3 * 8.12 * 1e-9),
+                multipole="E1",
+                label="zp->e1p",
+            ),
+        ]
+
+
+########################################################################################
+
+
+class Ba133IIBuilder(IonBuilder):
+    @property
+    def _mass(self):
+        return 132.9060074
+
+    @property
+    def _charge(self):
+        return 1
+
+    @property
+    def _levels(self):
+        qubit = -2 * np.pi * 9.9186137 * 1e9
+        laser = 2 * np.pi * (607.605 * 1e12 + 1.3800825 * 1e9)
+        pump = -2 * np.pi * 1.84011 * 1e9
+        return [
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=0,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=0,
+                spin_orbital_nuclear_magnetization=0,
+                energy=0,
+                label="q0",
+            ),
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=0,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=0,
+                energy=qubit,
+                label="q1",
+            ),
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=0,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=1,
+                energy=qubit,
+                label="zp",
+            ),
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=0,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=-1,
+                energy=qubit,
+                label="zm",
+            ),
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=1,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=0,
+                spin_orbital_nuclear_magnetization=0,
+                energy=qubit + laser,
+                label="e0",
+            ),
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=1,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=-1,
+                energy=qubit + laser + pump,
+                label="e1m",
+            ),
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=1,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=0,
+                energy=qubit + laser + pump,
+                label="e10",
+            ),
+            Level(
+                principal=6,
+                spin=1 / 2,
+                orbital=1,
+                nuclear=1 / 2,
+                spin_orbital=1 / 2,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=1,
+                energy=qubit + laser + pump,
+                label="e1p",
+            ),
+        ]
+
+    @property
+    def _transitions(self):
+        return [
+            Transition(
+                level1="q0",
+                level2="q1",
+                einsteinA=2 * np.pi / (60 * 60),
+                multipole="M1",
+                label="q0->q1",
+            ),
+            Transition(
+                level1="q1",
+                level2="e0",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="q1->e0",
+            ),
+            Transition(
+                level1="zp",
+                level2="e0",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="zp->e0",
+            ),
+            Transition(
+                level1="zm",
+                level2="e0",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="zm->e0",
+            ),
+            Transition(
+                level1="q0",
+                level2="e10",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="q0->e10",
+            ),
+            Transition(
+                level1="zp",
+                level2="e10",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="zp->e10",
+            ),
+            Transition(
+                level1="zm",
+                level2="e10",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="zm->e10",
+            ),
+            Transition(
+                level1="q0",
+                level2="e1m",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="q0->e1m",
+            ),
+            Transition(
+                level1="q1",
+                level2="e1m",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="q1->e1m",
+            ),
+            Transition(
+                level1="zm",
+                level2="e1m",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="zm->e1m",
+            ),
+            Transition(
+                level1="q0",
+                level2="e1p",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="q0->e1p",
+            ),
+            Transition(
+                level1="q1",
+                level2="e1p",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
+                multipole="E1",
+                label="q1->e1p",
+            ),
+            Transition(
+                level1="zp",
+                level2="e1p",
+                einsteinA=1 / (3 * 7.9 * 1e-9),
                 multipole="E1",
                 label="zp->e1p",
             ),

@@ -14,7 +14,7 @@
 
 from .circuit import AtomicCircuit
 from .protocol import Beam, ParallelProtocol, Protocol, Pulse, SequentialProtocol
-from .species import IonBuilder, Yb171IIBuilder
+from .species import Ba133IIBuilder, IonBuilder, Yb171IIBuilder
 from .system import Ion, Level, Phonon, System, Transition
 
 __all__ = [
@@ -31,4 +31,5 @@ __all__ = [
     "AtomicCircuit",
     "IonBuilder",
     "Yb171IIBuilder",
+    "Ba133IIBuilder",
 ]
