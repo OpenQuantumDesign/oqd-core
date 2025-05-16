@@ -70,7 +70,8 @@ h1, h2, h3, h4, h5, h6,
 [data-md-color-scheme="slate"] .md-typeset h4,
 [data-md-color-scheme="slate"] .md-typeset h5,
 [data-md-color-scheme="slate"] .md-typeset h6 {
-  color: #F19D19; /* Deep red for dark mode */
+  /* color: #F19D19; Deep red for dark mode */
+  color: #E45B68; /* Deep red for dark mode */
 }
 
 

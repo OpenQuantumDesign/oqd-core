@@ -3,7 +3,7 @@ site_name: "Open Quantum Design - Core"
 repo_name: OpenQuantumDesign/oqd-core
 repo_url: https://github.com/OpenQuantumDesign/oqd-core
 
-copyright: Copyright &copy; 2024 Open Quantum Design
+copyright: Copyright &copy; 2024-2025 Open Quantum Design
 
 use_directory_urls: true
 
@@ -46,8 +46,8 @@ nav:
 
 theme:
   name: material
-  logo: img/oqd-logo.png
-  favicon: img/oqd-logo.png
+  logo: img/oqd-icon.png
+  favicon: img/oqd-icon.png
 
   palette:
     - media: "(prefers-color-scheme: light)"
@@ -151,3 +151,4 @@ extra_css:
   - stylesheets/headers.css
   - stylesheets/admonitions.css
   - stylesheets/brand.css
+  - stylesheets/logo.css
