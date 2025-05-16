@@ -1,8 +1,8 @@
 # 
 
 <p align="center">
-  <img src="./img/oqd-logo-black.png#only-light" alt="Logo" style="max-height: 200px;">
-  <img src="./img/oqd-logo-white.png#only-dark" alt="Logo" style="max-height: 200px;">
+  <img src="img/oqd-logo-black.png#only-light" alt="Logo" style="max-height: 200px;">
+  <img src="img/oqd-logo-white.png#only-dark" alt="Logo" style="max-height: 200px;">
 </p>
 
 <div align="center">
