@@ -14,6 +14,7 @@
 
 ## Installation <a name="installation"></a>
 
+### Using pip
 ```bash
 pip install oqd-core
 ```
@@ -23,7 +24,25 @@ or through `git`,
 pip install git+https://github.com/OpenQuantumDesign/oqd-core.git
 ```
 
-To develop, clone the repository locally:
+### Using Nix
+If you have Nix installed with flakes enabled, you can create a development environment with all dependencies using:
+
+```bash
+# Clone the repository
+git clone https://github.com/OpenQuantumDesign/oqd-core
+cd oqd-core
+
+# Enter the development shell with all dependencies
+nix develop
+
+# The development environment includes:
+# - Python with all required dependencies
+# - Development tools (black, isort, mypy)
+# - Documentation tools
+```
+
+### Development Installation
+To develop without Nix, clone the repository locally:
 
 ```bash
 git clone https://github.com/OpenQuantumDesign/oqd-core
@@ -152,4 +171,3 @@ block-beta
    
    class Interface,IRAnalog,IRAtomic highlight
 ```
-The stack components highlighted in red are contained in this repository.
