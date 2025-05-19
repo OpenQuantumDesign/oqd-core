@@ -37,6 +37,7 @@ buildPythonPackage rec {
   propagatedBuildInputs = [
     pydantic
     numpy
+    oqd-compiler-infrastructure
   ];
 
   checkInputs = [
@@ -56,7 +57,7 @@ buildPythonPackage rec {
   meta = with lib; {
     description = "OpenQuantum Design Core Library";
     homepage = "https://github.com/OpenQuantumDesign/oqd-core";
-    license = licenses.apache20;
+    license = licenses.asl20;
     maintainers = with maintainers; [ ];
   };
 }
