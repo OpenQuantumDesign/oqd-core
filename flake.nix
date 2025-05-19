@@ -29,9 +29,13 @@
         pkgs = nixpkgs.legacyPackages.${system};
         python = pkgs.python311;
         pythonPackages = python.pkgs;
+        oqdCompilerInfra = oqd-compiler-infrastructure.packages.${system}.default;
       in
       {
-        packages.default = pythonPackages.callPackage ./pkgs/derivation.nix { };
+        packages.default = pythonPackages.callPackage ./pkgs/derivation.nix {
+          inherit (pythonPackages) setuptools;
+          oqd-compiler-infrastructure = oqdCompilerInfra;
+        };
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
@@ -57,6 +61,7 @@
               isort
               mypy
             ]))
+            oqdCompilerInfra
 
             # Additional development tools
             git

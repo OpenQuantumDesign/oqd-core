@@ -60,11 +60,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1747594837,
-        "narHash": "sha256-q9NKZ017hv5YlTlYFfWtyP0GIRcF11lLceoO6Ctzoac=",
+        "lastModified": 1747621390,
+        "narHash": "sha256-YYxFPAphpqajFHphLy2Yr1GHxd7h9D64xuqiMj8Oo+g=",
         "owner": "OpenQuantumDesign",
         "repo": "oqd-compiler-infrastructure",
-        "rev": "b03a9327296fc82a2b510a716e20fa381405502a",
+        "rev": "9ea0186801d21f3f21bcd43e5c82b8083decc222",
         "type": "github"
       },
       "original": {

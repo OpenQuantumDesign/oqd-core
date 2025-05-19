@@ -23,6 +23,8 @@
 , mkdocs-material
 , mkdocstrings-python
 , mdx-truly-sane-lists
+, oqd-compiler-infrastructure
+, setuptools
 }:
 
 buildPythonPackage rec {
@@ -50,6 +52,7 @@ buildPythonPackage rec {
     mkdocs-material
     mkdocstrings-python
     mdx-truly-sane-lists
+    setuptools
   ];
 
   pythonImportsCheck = [ "oqd_core" ];
