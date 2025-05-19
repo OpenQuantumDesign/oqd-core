@@ -35,11 +35,22 @@ cd oqd-core
 # Enter the development shell with all dependencies
 nix develop
 
+# You can also directly develop without cloning using:
+nix develop github:OpenQuantumDesign/oqd-core
+
+# Once in the development shell, you can:
+# 1. Run tests: pytest
+# 2. Build documentation: mkdocs serve
+# 3. Use the package directly in Python
+
 # The development environment includes:
 # - Python with all required dependencies
-# - Development tools (black, isort, mypy)
-# - Documentation tools
+# - Development tools (ruff, black, isort, mypy)
+# - Documentation tools (mkdocs)
+# - Testing tools (pytest)
 ```
+
+The `nix develop` command will create an isolated development environment with all the necessary dependencies. This is the recommended way to develop and contribute to the project, as it ensures a consistent development environment across all contributors.
 
 ### Development Installation
 To develop without Nix, clone the repository locally:
