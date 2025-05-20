@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import backend, compiler, interface
+from . import analysis, backend, compiler, interface
 
-__all__ = ["interface", "compiler", "backend"]
+__all__ = ["analysis", "backend", "compiler", "interface"]
