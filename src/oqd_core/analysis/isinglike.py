@@ -135,12 +135,10 @@ def _build_coupling_matrix(
     """
     coupling_matrices: dict[str, NDArray[np.complex128]] = {}
 
-    for two_weight in two_weights:
+    for pair in two_weights:
         # this sorting guarantees that (pauli_term_min, pauli_term_max) is one of
         #     (X, Y), (X, Y), (X, Z), (Y, Y), (Y, Z), (Z, Z)
-        pauli_term_min, pauli_term_max = sorted(
-            [two_weight.pauli_term0, two_weight.pauli_term1]
-        )
+        pauli_term_min, pauli_term_max = sorted([pair.pauli_term0, pair.pauli_term1])
         i_min, pauli_str_min = pauli_term_min.index_and_string()
         i_max, pauli_str_max = pauli_term_max.index_and_string()
 
@@ -152,10 +150,10 @@ def _build_coupling_matrix(
             )
 
         if pauli_str_min == pauli_str_max:
-            coupling_matrices[matrix_key][i_min, i_max] = two_weight.coefficient
-            coupling_matrices[matrix_key][i_max, i_min] = two_weight.coefficient
+            coupling_matrices[matrix_key][i_min, i_max] = pair.coefficient
+            coupling_matrices[matrix_key][i_max, i_min] = pair.coefficient
         else:
-            coupling_matrices[matrix_key][i_min, i_max] = two_weight.coefficient
+            coupling_matrices[matrix_key][i_min, i_max] = pair.coefficient
 
     return coupling_matrices
 
