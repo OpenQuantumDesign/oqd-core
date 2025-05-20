@@ -16,18 +16,11 @@ import pytest
 
 from typing import Optional
 
-from numpy.typing import NDArray
 import numpy as np
 
-from oqd_core.compiler.math.passes import evaluate_math_expr
 from oqd_core.interface.analog import AnalogGate
 from oqd_core.interface.analog.operator import OperatorSubtypes
-from oqd_core.interface.analog.operator import OperatorBinaryOp
-from oqd_core.interface.analog.operator import OperatorTerminal
 from oqd_core.interface.analog.operator import OperatorAdd
-from oqd_core.interface.analog.operator import OperatorSub
-from oqd_core.interface.analog.operator import OperatorKron
-from oqd_core.interface.analog.operator import OperatorScalarMul
 from oqd_core.interface.analog.operator import Annihilation
 from oqd_core.interface.analog.operator import Creation
 from oqd_core.interface.analog.operator import Identity
@@ -37,24 +30,22 @@ from oqd_core.interface.analog.operator import PauliX
 from oqd_core.interface.analog.operator import PauliY
 from oqd_core.interface.analog.operator import PauliZ
 from oqd_core.interface.math import MathExprSubtypes
-from oqd_core.interface.math import MathTerminal
 from oqd_core.interface.math import MathVar
 from oqd_core.interface.math import MathAdd
 from oqd_core.interface.math import MathNum
-from oqd_core.interface.math import MathUnaryOp
-from oqd_core.interface.math import MathBinaryOp
 
 from oqd_core.analysis.isinglike import isinglike_analysis
+from oqd_core.analysis.isinglike import _ALLOWED_ISINGLIKE_TERMS
 from oqd_core.analysis.isinglike import _are_all_pauli_strings_the_same_length
 from oqd_core.analysis.isinglike import _build_coupling_matrix
 from oqd_core.analysis.isinglike import _get_pauli_string_two_weight_info
 from oqd_core.analysis.isinglike import _has_bosonic_operator
 from oqd_core.analysis.isinglike import _has_mathvar
 from oqd_core.analysis.isinglike import _pauli_to_char
-from oqd_core.analysis.isinglike import _rescale_all_coefficients
 from oqd_core.analysis.isinglike import _PauliStringTerm
 from oqd_core.analysis.isinglike import _PauliTermInfo
 from oqd_core.analysis.isinglike import _PauliStringTwoWeightInfo
+from oqd_core.analysis.isinglike import _rescale_all_coefficients
 
 
 I = Identity()
@@ -214,14 +205,14 @@ def test_pauli_to_char(pauli: Pauli, expected: str) -> None:
 
 
 def test_build_coupling_matrix_empty() -> None:
-    assert _build_coupling_matrix([], 2) == {}
+    assert _build_coupling_matrix([], 2, set(_ALLOWED_ISINGLIKE_TERMS)) == {}
 
 
 def test_build_coupling_matrix_same_pauli_one_term() -> None:
     PTI = _PauliTermInfo
     PSTWI = _PauliStringTwoWeightInfo
     two_weights = [PSTWI(np.complex128(1.0, 2.0), PTI(0, X), PTI(1, X))]
-    output = _build_coupling_matrix(two_weights, 2)
+    output = _build_coupling_matrix(two_weights, 2, set(_ALLOWED_ISINGLIKE_TERMS))
 
     assert "XX" in output
     assert np.allclose(
@@ -238,7 +229,7 @@ def test_build_coupling_matrix_same_pauli_three_term() -> None:
         PSTWI(np.complex128(3.0, 4.0), PTI(1, X), PTI(2, X)),
         PSTWI(np.complex128(5.0, 6.0), PTI(0, X), PTI(2, X)),
     ]
-    output = _build_coupling_matrix(two_weights, 3)
+    output = _build_coupling_matrix(two_weights, 3, set(_ALLOWED_ISINGLIKE_TERMS))
 
     assert "XX" in output
     assert np.allclose(
@@ -258,90 +249,43 @@ class Test_isinglike_analysis:
     def test_xx_2_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=X @ X)
         output = isinglike_analysis(gate)
-        
+
         assert "XX" in output
-        assert np.allclose(
-            output["XX"],
-            np.array(
-                [
-                    [0.0, 1.0],
-                    [1.0, 0.0]
-                ]
-            )
-        )
-        
+        assert np.allclose(output["XX"], np.array([[0.0, 1.0], [1.0, 0.0]]))
+
     def test_xx_3_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=X @ X @ ID)
         output = isinglike_analysis(gate)
-        
+
         assert "XX" in output
         assert np.allclose(
-            output["XX"],
-            np.array(
-                [
-                    [0.0, 1.0, 0.0],
-                    [1.0, 0.0, 0.0],
-                    [0.0, 0.0, 0.0]
-                ]
-            )
+            output["XX"], np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
         )
-        
+
     def test_xy_2_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=2.0 * X @ Y)
         output = isinglike_analysis(gate)
-        
+
         assert "XY" in output
-        assert np.allclose(
-            output["XY"],
-            np.array(
-                [
-                    [0.0, 2.0],
-                    [0.0, 0.0]
-                ]
-            )
-        )
-        
+        assert np.allclose(output["XY"], np.array([[0.0, 2.0], [0.0, 0.0]]))
+
     def test_yx_2_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=2.0 * Y @ X)
         output = isinglike_analysis(gate)
-        
+
         assert "XY" in output
-        assert np.allclose(
-            output["XY"],
-            np.array(
-                [
-                    [0.0, 0.0],
-                    [2.0, 0.0]
-                ]
-            )
-        )
-        
+        assert np.allclose(output["XY"], np.array([[0.0, 0.0], [2.0, 0.0]]))
+
     def test_yx_zz_2_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=2.0 * Y @ X + 3.0 * Z @ Z)
-        output = isinglike_analysis(gate)
-        
+        output = isinglike_analysis(gate, allowed_terms=["XY", "ZZ"])
+
         assert "XY" in output
-        assert np.allclose(
-            output["XY"],
-            np.array(
-                [
-                    [0.0, 0.0],
-                    [2.0, 0.0]
-                ]
-            )
-        )
-        
+        assert np.allclose(output["XY"], np.array([[0.0, 0.0], [2.0, 0.0]]))
+
         assert "ZZ" in output
-        assert np.allclose(
-            output["ZZ"],
-            np.array(
-                [
-                    [0.0, 3.0],
-                    [3.0, 0.0]
-                ]
-            )
-        )
-    
+        assert np.allclose(output["ZZ"], np.array([[0.0, 3.0], [3.0, 0.0]]))
+
     def test_multiterm_4_qubits(self) -> None:
         """
         This test makes sure that it is possible to get all 6 kinds of terms
@@ -360,9 +304,9 @@ class Test_isinglike_analysis:
                       - 9.0 * ID @ ID @ Z @ Z
         )
         # fmt: on
-        
+
         output = isinglike_analysis(gate)
-        
+
         assert "XX" in output
         assert np.allclose(
             output["XX"],
@@ -373,9 +317,9 @@ class Test_isinglike_analysis:
                     [2.0, 0.0, 0.0, 3.0],
                     [0.0, 0.0, 3.0, 0.0],
                 ]
-            )
+            ),
         )
-        
+
         assert "XY" in output
         assert np.allclose(
             output["XY"],
@@ -386,9 +330,9 @@ class Test_isinglike_analysis:
                     [4.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0],
                 ]
-            )
+            ),
         )
-        
+
         assert "XZ" in output
         assert np.allclose(
             output["XZ"],
@@ -399,9 +343,9 @@ class Test_isinglike_analysis:
                     [-5.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0],
                 ]
-            )
+            ),
         )
-        
+
         assert "YY" in output
         assert np.allclose(
             output["YY"],
@@ -412,9 +356,9 @@ class Test_isinglike_analysis:
                     [0.0, 0.0, 0.0, -8.0],
                     [0.0, 0.0, -8.0, 0.0],
                 ]
-            )
+            ),
         )
-        
+
         assert "YZ" in output
         assert np.allclose(
             output["YZ"],
@@ -425,9 +369,9 @@ class Test_isinglike_analysis:
                     [0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0],
                 ]
-            )
+            ),
         )
-        
+
         assert "ZZ" in output
         assert np.allclose(
             output["ZZ"],
@@ -438,9 +382,9 @@ class Test_isinglike_analysis:
                     [0.0, 0.0, 0.0, -9.0],
                     [0.0, 0.0, -9.0, 0.0],
                 ]
-            )
+            ),
         )
-    
+
     def test_raises_bosonic_operator(self) -> None:
         gate = AnalogGate(hamiltonian=1.0 * X @ C)
 
@@ -452,6 +396,24 @@ class Test_isinglike_analysis:
 
         with pytest.raises(RuntimeError):
             isinglike_analysis(gate)
+
+    def test_raises_invalid_allowed_term(self) -> None:
+        gate = AnalogGate(hamiltonian=2.0 * X @ Y)
+
+        with pytest.raises(RuntimeError):
+            isinglike_analysis(gate, allowed_terms=["ABCD"])
+
+    def test_raises_unallowed_term_found(self) -> None:
+        gate = AnalogGate(hamiltonian=2.0 * X @ Y + 1.0 * X @ X)
+
+        with pytest.raises(RuntimeError):
+            isinglike_analysis(gate, allowed_terms=["XX"])
+
+    def test_raises_unallowed_term_found(self) -> None:
+        gate = AnalogGate(hamiltonian=2.0 * X @ Y + 1.0 * X @ X + 3.0 * Z @ Y)
+
+        with pytest.raises(RuntimeError):
+            isinglike_analysis(gate, allowed_terms=["XX", "XY"])
 
     @pytest.mark.parametrize(
         "op",

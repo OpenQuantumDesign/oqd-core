@@ -50,6 +50,9 @@ __all__ = [
 ]
 
 
+_ALLOWED_ISINGLIKE_TERMS: list[str] = ["XX", "XY", "XZ", "YY", "YZ", "ZZ"]
+
+
 @dataclass
 class _PauliStringTerm:
     coefficient: np.complex128
@@ -77,12 +80,23 @@ class _PauliStringTwoWeightInfo:
     pauli_term1: _PauliTermInfo
 
 
-def isinglike_analysis(gate: AnalogGate) -> dict[str, NDArray[np.complex128]]:
+def isinglike_analysis(
+    gate: AnalogGate,
+    *,
+    allowed_terms: Optional[list[str]] = None,
+) -> dict[str, NDArray[np.complex128]]:
     """
     Creating the dictionary of coupling matrices for an `AnalogGate` instance that
     implements an Ising-like Hamiltonian.
 
+    Args:
+        gate: the gate that implements the Ising-like Hamiltonian
+        allowed_terms: a list of the allowed Ising-like coupling terms; only six values
+            are allowed, and they are: 'XX', 'XY, 'XZ', 'YY', 'YZ', 'ZZ'
+
     Raises a RuntimeError in any of the following cases:
+        - if any of the allowed terms are invalid
+        - if any terms not in the list of allowed terms are present in the final result
         - a bosonic mode operator is found in Hamiltonian expression
         - a time-dependent parameter is found in Hamiltonian expression
         - at least one Pauli string is not a two-weight Pauli string
@@ -93,6 +107,12 @@ def isinglike_analysis(gate: AnalogGate) -> dict[str, NDArray[np.complex128]]:
     """
     if _has_bosonic_operator(gate.hamiltonian):
         raise RuntimeError("ERROR: found bosonic mode operator in Hamiltonian")
+
+    if allowed_terms is not None:
+        _verify_allowed_terms(allowed_terms)
+        allowed_terms_set = set(allowed_terms)
+    else:
+        allowed_terms_set = set(_ALLOWED_ISINGLIKE_TERMS)
 
     try:
         canonicalized: AnalogGate = analog_operator_canonicalization(gate)
@@ -116,11 +136,19 @@ def isinglike_analysis(gate: AnalogGate) -> dict[str, NDArray[np.complex128]]:
 
     n_qubits = len(pauli_strings[0].operators)
 
-    return _build_coupling_matrix(two_weights, n_qubits)
+    return _build_coupling_matrix(two_weights, n_qubits, allowed_terms_set)
+
+
+def _verify_allowed_terms(terms: list[str]) -> None:
+    for term in terms:
+        if term not in _ALLOWED_ISINGLIKE_TERMS:
+            raise RuntimeError(f"ERROR: invalid value in `allowed_terms`: {term}")
 
 
 def _build_coupling_matrix(
-    two_weights: list[_PauliStringTwoWeightInfo], n_qubits: int
+    two_weights: list[_PauliStringTwoWeightInfo],
+    n_qubits: int,
+    allowed_terms_set: set[str],
 ) -> dict[str, NDArray[np.complex128]]:
     """
     Creating the dictionary of coupling matrices from the two-weight information.
@@ -143,6 +171,9 @@ def _build_coupling_matrix(
         i_max, pauli_str_max = pauli_term_max.index_and_string()
 
         matrix_key = f"{pauli_str_min}{pauli_str_max}"
+
+        if matrix_key not in allowed_terms_set:
+            raise RuntimeError(f"ERROR: found a disallowed term: {matrix_key}")
 
         if matrix_key not in coupling_matrices:
             coupling_matrices[matrix_key] = np.zeros(
