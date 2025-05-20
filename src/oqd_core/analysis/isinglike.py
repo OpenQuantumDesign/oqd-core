@@ -63,7 +63,7 @@ class _PauliTermInfo:
 
     def index_and_string(self) -> tuple[int, str]:
         return self.index, _pauli_to_char(self.term)
-    
+
     def __lt__(self, other) -> bool:
         if not isinstance(other, _PauliTermInfo):
             return NotImplemented
@@ -75,7 +75,6 @@ class _PauliStringTwoWeightInfo:
     coefficient: np.complex128
     pauli_term0: _PauliTermInfo
     pauli_term1: _PauliTermInfo
-
 
 
 def isinglike_analysis(gate: AnalogGate) -> dict[str, NDArray[np.complex128]]:
@@ -102,7 +101,7 @@ def isinglike_analysis(gate: AnalogGate) -> dict[str, NDArray[np.complex128]]:
 
     pauli_strings = _traverse(canonicalized.hamiltonian)
     if len(pauli_strings) == 0:
-        return _empty_coupling_matrix_dict(0)
+        return {}
 
     if not _are_all_pauli_strings_the_same_length(pauli_strings):
         raise RuntimeError("ERROR: the Pauli strings are not all the same length\n")
@@ -120,7 +119,9 @@ def isinglike_analysis(gate: AnalogGate) -> dict[str, NDArray[np.complex128]]:
     return _build_coupling_matrix(two_weights, n_qubits)
 
 
-def _build_coupling_matrix(two_weights: list[_PauliStringTwoWeightInfo], n_qubits: int) -> dict[str, NDArray[np.complex128]]:
+def _build_coupling_matrix(
+    two_weights: list[_PauliStringTwoWeightInfo], n_qubits: int
+) -> dict[str, NDArray[np.complex128]]:
     """
     Creating the dictionary of coupling matrices from the two-weight information.
 
@@ -132,17 +133,24 @@ def _build_coupling_matrix(two_weights: list[_PauliStringTwoWeightInfo], n_qubit
     Returns:
         dict[str, NDArray[np.complex128]]: the coupling matrices for the two-weight Pauli strings
     """
-    coupling_matrices = _empty_coupling_matrix_dict(n_qubits)
+    coupling_matrices: dict[str, NDArray[np.complex128]] = {}
 
     for two_weight in two_weights:
         # this sorting guarantees that (pauli_term_min, pauli_term_max) is one of
         #     (X, Y), (X, Y), (X, Z), (Y, Y), (Y, Z), (Z, Z)
-        pauli_term_min, pauli_term_max = sorted([two_weight.pauli_term0, two_weight.pauli_term1])
+        pauli_term_min, pauli_term_max = sorted(
+            [two_weight.pauli_term0, two_weight.pauli_term1]
+        )
         i_min, pauli_str_min = pauli_term_min.index_and_string()
         i_max, pauli_str_max = pauli_term_max.index_and_string()
-        
+
         matrix_key = f"{pauli_str_min}{pauli_str_max}"
-        
+
+        if matrix_key not in coupling_matrices:
+            coupling_matrices[matrix_key] = np.zeros(
+                (n_qubits, n_qubits), dtype=np.complex128
+            )
+
         if pauli_str_min == pauli_str_max:
             coupling_matrices[matrix_key][i_min, i_max] = two_weight.coefficient
             coupling_matrices[matrix_key][i_max, i_min] = two_weight.coefficient
@@ -179,7 +187,7 @@ def _traverse(op: OperatorSubtypes) -> list[_PauliStringTerm]:
           - if the recursive traversal function to collect the Pauli strings found
             an operator that it could not evaluate
           - if a math expression could not be cast to a `np.complex128`
-        
+
     Returns:
         list[_PauliStringTerm]: a sequence of all the Pauli strings and the coefficients
     """
@@ -217,29 +225,14 @@ def _traverse(op: OperatorSubtypes) -> list[_PauliStringTerm]:
         raise RuntimeError(f"ERROR: cannot handle the following operator: {type(op)}")
 
 
-def _empty_coupling_matrix_dict(size: int) -> dict[str, NDArray]:
-    """
-    Create the default dictionary that maps the Pauli operator pairs to their respective
-    coupling matrices.
-    """
-    return {
-        "XX": np.zeros((size, size), dtype=np.complex128),
-        "XY": np.zeros((size, size), dtype=np.complex128),
-        "XZ": np.zeros((size, size), dtype=np.complex128),
-        "YY": np.zeros((size, size), dtype=np.complex128),
-        "YZ": np.zeros((size, size), dtype=np.complex128),
-        "ZZ": np.zeros((size, size), dtype=np.complex128),
-    }
-
-
 def _are_all_pauli_strings_the_same_length(strings: list[_PauliStringTerm]) -> bool:
     """
     Returns whether or not all Pauli strings in `strings` are the same length.
     """
-    
+
     if len(strings) == 0:
         assert False, "unreachable; there must be at least one Pauli string"
-        
+
     if len(strings) == 1:
         return True
     else:
@@ -287,7 +280,7 @@ def _get_pauli_string_two_weight_info(
     If the Pauli string is a valid two-weight Pauli string, this functions returns an object
     that holds the string's coefficient, and the indices and Pauli operator types of the
     two non-identity Pauli operators.
-    
+
     If the Pauli string is not a two-weight Pauli string, this function returns None.
 
     Args:
@@ -344,4 +337,6 @@ def _evaluate_math_expr_to_complex_float(expr: MathExprSubtypes) -> np.complex12
     if isinstance(value, int) or isinstance(value, float):
         return np.complex128(value, 0.0)
     else:
-        raise RuntimeError("ERROR: unable to cast math expression to a `np.complex128`.")
+        raise RuntimeError(
+            "ERROR: unable to cast math expression to a `np.complex128`."
+        )
