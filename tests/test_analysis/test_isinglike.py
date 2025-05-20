@@ -40,12 +40,15 @@ from oqd_core.interface.analog.operator import PauliZ
 from oqd_core.interface.math import MathExprSubtypes
 from oqd_core.interface.math import MathTerminal
 from oqd_core.interface.math import MathVar
+from oqd_core.interface.math import MathAdd
+from oqd_core.interface.math import MathNum
 from oqd_core.interface.math import MathUnaryOp
 from oqd_core.interface.math import MathBinaryOp
 
 from oqd_core.analysis.isinglike import isinglike_analysis
 from oqd_core.analysis.isinglike import _get_pauli_string_two_weight_info
 from oqd_core.analysis.isinglike import _rescale_all_coefficients
+from oqd_core.analysis.isinglike import _has_mathvar
 from oqd_core.analysis.isinglike import _PauliStringTerm
 from oqd_core.analysis.isinglike import _PauliTermInfo
 from oqd_core.analysis.isinglike import _PauliStringTwoWeightInfo
@@ -146,3 +149,14 @@ def test_get_pauli_string_two_weight_info(
         assert actual is expected
     else:
         assert actual == expected
+
+
+@pytest.mark.parametrize(
+    "expr, expected",
+    [
+        (MathAdd(expr1=MathNum(value=1), expr2=MathNum(value=2)), False),
+        (MathAdd(expr1=MathNum(value=1), expr2=MathVar(name="x")), True),
+    ]
+)
+def test_has_mathvar(expr: MathExprSubtypes, expected: bool) -> None:
+    assert _has_mathvar(expr) == expected

@@ -203,7 +203,7 @@ def _traverse(op: OperatorSubtypes) -> list[_PauliStringTerm]:
         right = _rescale_all_coefficients(right, -1)
         return left + right
     elif isinstance(op, OperatorScalarMul):
-        if _has_time_dependent_parameter(op.expr):
+        if _has_mathvar(op.expr):
             raise RuntimeError("ERROR: time-dependent parameter in Hamiltonian.\n")
         value = _evaluate_math_expr_to_complex_float(op.expr)
         products = _traverse(op.op)
@@ -255,18 +255,16 @@ def _has_bosonic_operator(op: OperatorSubtypes) -> bool:
         assert False, "unreachable; all OperatorSubtypes accounted for"
 
 
-def _has_time_dependent_parameter(expr: MathExprSubtypes) -> bool:
+def _has_mathvar(expr: MathExprSubtypes) -> bool:
     """
     Recursively traverses the math expression tree and checks if `MathVar` is present.
     """
     if isinstance(expr, MathTerminal):
         return isinstance(expr, MathVar)
     elif isinstance(expr, MathUnaryOp):
-        return _has_time_dependent_parameter(expr.expr)
+        return _has_mathvar(expr.expr)
     elif isinstance(expr, MathBinaryOp):
-        return _has_time_dependent_parameter(
-            expr.expr1
-        ) or _has_time_dependent_parameter(expr.expr2)
+        return _has_mathvar(expr.expr1) or _has_mathvar(expr.expr2)
     else:
         assert False, "unreachable; all MathExprSubtypes accounted for"
 
