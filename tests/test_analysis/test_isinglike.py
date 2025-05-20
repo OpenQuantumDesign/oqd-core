@@ -70,28 +70,10 @@ def default_pauli_strings() -> list[_PauliStringTerm]:
 @pytest.mark.parametrize(
     "value, expected",
     [
-        # fmt: off
-        (
-            1,
-            (np.complex128(1.0, 0.0), np.complex128(2.0, 0.0), np.complex128(3.0, 1.0)),
-        ),
-        (
-            2,
-            (np.complex128(2.0, 0.0), np.complex128(4.0, 0.0), np.complex128(6.0, 2.0)),
-        ),
-        (
-            3.0,
-            (np.complex128(3.0, 0.0), np.complex128(6.0, 0.0), np.complex128(9.0, 3.0)),
-        ),
-        (
-            np.complex128(2.0, 3.0),
-            (
-                np.complex128(2.0, 3.0),
-                np.complex128(4.0, 6.0),
-                np.complex128(3.0, 11.0),
-            ),
-        ),
-        # fmt: on
+        (1, ((1.0 + 0.0j), (2.0 + 0.0j), (3.0 + 1.0j))),
+        (2, ((2.0 + 0.0j), (4.0 + 0.0j), (6.0 + 2.0j))),
+        (3, ((3.0 + 0.0j), (6.0 + 0.0j), (9.0 + 3.0j))),
+        (2.0 + 3.0j, ((2.0 + 3.0j), (4.0 + 6.0j), (3.0 + 11.0j))),
     ],
 )
 def test_rescale_all_coefficients(
@@ -109,7 +91,6 @@ def test_rescale_all_coefficients(
 @pytest.mark.parametrize(
     "pauli_string, expected",
     [
-        # fmt: off
         (
             _PauliStringTerm(1.0, [X, Y]),
             _PauliStringTwoWeightInfo(
@@ -145,7 +126,6 @@ def test_rescale_all_coefficients(
         (_PauliStringTerm(1.0, [ID, X, ID]), None),
         (_PauliStringTerm(1.0, [X, Y, Z]), None),
         (_PauliStringTerm(1.0, [ID, X, ID, Y, Z]), None),
-        # fmt: on
     ],
 )
 def test_get_pauli_string_two_weight_info(
@@ -403,7 +383,7 @@ class Test_isinglike_analysis:
             isinglike_analysis(gate)
 
     def test_raises_time_dependent_operator(self) -> None:
-        gate = AnalogGate(hamiltonian=MathVar(name="t") * X @ C)
+        gate = AnalogGate(hamiltonian=MathVar(name="t") * X @ Y)
 
         with pytest.raises(RuntimeError):
             isinglike_analysis(gate)

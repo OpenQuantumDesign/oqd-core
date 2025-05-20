@@ -86,7 +86,7 @@ def isinglike_analysis(
     allowed_terms: Optional[list[str]] = None,
 ) -> dict[str, NDArray[np.complex128]]:
     """
-    Creating the dictionary of coupling matrices for an `AnalogGate` instance that
+    Creates the dictionary of coupling matrices for an `AnalogGate` instance that
     implements an Ising-like Hamiltonian.
 
     Args:
