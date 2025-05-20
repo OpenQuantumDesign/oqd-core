@@ -71,10 +71,26 @@ def default_pauli_strings() -> list[_PauliStringTerm]:
     "value, expected",
     [
         # fmt: off
-        (1, (np.complex128(1.0, 0.0), np.complex128(2.0, 0.0), np.complex128(3.0, 1.0))),
-        (2, (np.complex128(2.0, 0.0), np.complex128(4.0, 0.0), np.complex128(6.0, 2.0))),
-        (3.0, (np.complex128(3.0, 0.0), np.complex128(6.0, 0.0), np.complex128(9.0, 3.0))),
-        (np.complex128(2.0, 3.0), (np.complex128(2.0, 3.0), np.complex128(4.0, 6.0), np.complex128(3.0, 11.0))),
+        (
+            1,
+            (np.complex128(1.0, 0.0), np.complex128(2.0, 0.0), np.complex128(3.0, 1.0)),
+        ),
+        (
+            2,
+            (np.complex128(2.0, 0.0), np.complex128(4.0, 0.0), np.complex128(6.0, 2.0)),
+        ),
+        (
+            3.0,
+            (np.complex128(3.0, 0.0), np.complex128(6.0, 0.0), np.complex128(9.0, 3.0)),
+        ),
+        (
+            np.complex128(2.0, 3.0),
+            (
+                np.complex128(2.0, 3.0),
+                np.complex128(4.0, 6.0),
+                np.complex128(3.0, 11.0),
+            ),
+        ),
         # fmt: on
     ],
 )
@@ -96,44 +112,39 @@ def test_rescale_all_coefficients(
         # fmt: off
         (
             _PauliStringTerm(1.0, [X, Y]),
-            _PauliStringTwoWeightInfo(np.complex128(1.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(1, Y))
+            _PauliStringTwoWeightInfo(
+                np.complex128(1.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(1, Y)
+            ),
         ),
         (
             _PauliStringTerm(2.0, [X, Y]),
-            _PauliStringTwoWeightInfo(np.complex128(2.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(1, Y))
+            _PauliStringTwoWeightInfo(
+                np.complex128(2.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(1, Y)
+            ),
         ),
         (
             _PauliStringTerm(1.0, [X, Z]),
-            _PauliStringTwoWeightInfo(np.complex128(1.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(1, Z))
+            _PauliStringTwoWeightInfo(
+                np.complex128(1.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(1, Z)
+            ),
         ),
         (
             _PauliStringTerm(1.0, [X, ID, Z]),
-            _PauliStringTwoWeightInfo(np.complex128(1.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(2, Z))
+            _PauliStringTwoWeightInfo(
+                np.complex128(1.0, 0.0), _PauliTermInfo(0, X), _PauliTermInfo(2, Z)
+            ),
         ),
         (
             _PauliStringTerm(1.0, [ID, ID, Y, ID, X, ID, ID, ID]),
-            _PauliStringTwoWeightInfo(np.complex128(1.0, 0.0), _PauliTermInfo(2, Y), _PauliTermInfo(4, X))
+            _PauliStringTwoWeightInfo(
+                np.complex128(1.0, 0.0), _PauliTermInfo(2, Y), _PauliTermInfo(4, X)
+            ),
         ),
-        (
-            _PauliStringTerm(1.0, [X]),
-            None
-        ),
-        (
-            _PauliStringTerm(1.0, [X, ID]),
-            None
-        ),
-        (
-            _PauliStringTerm(1.0, [ID, X, ID]),
-            None
-        ),
-        (
-            _PauliStringTerm(1.0, [X, Y, Z]),
-            None
-        ),
-        (
-            _PauliStringTerm(1.0, [ID, X, ID, Y, Z]),
-            None
-        ),
+        (_PauliStringTerm(1.0, [X]), None),
+        (_PauliStringTerm(1.0, [X, ID]), None),
+        (_PauliStringTerm(1.0, [ID, X, ID]), None),
+        (_PauliStringTerm(1.0, [X, Y, Z]), None),
+        (_PauliStringTerm(1.0, [ID, X, ID, Y, Z]), None),
         # fmt: on
     ],
 )
