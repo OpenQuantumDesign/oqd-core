@@ -34,8 +34,8 @@ class ZeemanShift(RewriteRule):
         return x * (x + 1)
 
     def _Lande_g(self, level):
-        gL = 1 - physical_constants["electron mass"][0] / self._mass
-        gS = 2.00231930436092
+        gL = 1
+        gS = 2
 
         S = level.spin
         L = level.orbital
@@ -57,9 +57,6 @@ class ZeemanShift(RewriteRule):
         ) / (2 * ZeemanShift._angular_momentum(J))
 
         return gS, gL, gJ
-
-    def map_Ion(self, model):
-        self._mass = model.mass * physical_constants["atomic mass constant"][0]
 
     def map_Level(self, model):
         zeeman = (
@@ -383,7 +380,7 @@ class Ba133IIBuilder(IonBuilder):
 
     @property
     def _levels(self):
-        qubit = -2 * np.pi * 9.9186137 * 1e9
+        qubit = -2 * np.pi * 9.9254535544 * 1e9
         laser = 2 * np.pi * (607.605 * 1e12 + 1.3800825 * 1e9)
         pump = -2 * np.pi * 1.84011 * 1e9
         return [
