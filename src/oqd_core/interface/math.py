@@ -126,6 +126,7 @@ def is_varname(value: str) -> str:
 
 VarName = Annotated[str, AfterValidator(is_varname)]
 Functions = Literal[
+    "abs",
     "sin",
     "cos",
     "tan",
