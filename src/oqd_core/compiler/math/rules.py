@@ -408,3 +408,15 @@ class EvaluateMathExpr(ConversionRule):
 
     def map_MathPow(self, model: MathPow, operands):
         return operands["expr1"] ** operands["expr2"]
+
+
+########################################################################################
+
+
+class IsConstant(RewriteRule):
+    def map_MathExpr(self, model):
+        if getattr(self, "isconstant", None) is None:
+            self.isconstant = True
+
+    def map_MathVar(self, model):
+        self.isconstant = False
