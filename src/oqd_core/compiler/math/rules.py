@@ -343,6 +343,8 @@ class SimplifyMathExpr(RewriteRule):
     def map_MathMul(self, model):
         if isinstance(model.expr1, MathNum) and isinstance(model.expr2, MathNum):
             return MathNum(value=model.expr1.value * model.expr2.value)
+        if isinstance(model.expr1, MathImag) and isinstance(model.expr2, MathImag):
+            return MathNum(value=-1)
 
     def map_MathPow(self, model):
         if isinstance(model.expr1, MathNum) and isinstance(model.expr2, MathNum):
