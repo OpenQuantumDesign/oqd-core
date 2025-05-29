@@ -20,29 +20,21 @@ import itertools
 from numpy.typing import NDArray
 import numpy as np
 
+from oqd_compiler_infrastructure import ConversionRule
+from oqd_compiler_infrastructure import Post
+
 from oqd_core.compiler.analog.passes import analog_operator_canonicalization
 from oqd_core.compiler.math.passes import evaluate_math_expr
 from oqd_core.interface.analog import AnalogGate
 from oqd_core.interface.analog.operator import OperatorSubtypes
-from oqd_core.interface.analog.operator import OperatorBinaryOp
-from oqd_core.interface.analog.operator import OperatorTerminal
-from oqd_core.interface.analog.operator import OperatorAdd
-from oqd_core.interface.analog.operator import OperatorSub
-from oqd_core.interface.analog.operator import OperatorKron
-from oqd_core.interface.analog.operator import OperatorScalarMul
-from oqd_core.interface.analog.operator import Annihilation
-from oqd_core.interface.analog.operator import Creation
-from oqd_core.interface.analog.operator import Identity
+from oqd_core.interface.analog.operator import Ladder
 from oqd_core.interface.analog.operator import Pauli
 from oqd_core.interface.analog.operator import PauliI
 from oqd_core.interface.analog.operator import PauliX
 from oqd_core.interface.analog.operator import PauliY
 from oqd_core.interface.analog.operator import PauliZ
 from oqd_core.interface.math import MathExprSubtypes
-from oqd_core.interface.math import MathTerminal
 from oqd_core.interface.math import MathVar
-from oqd_core.interface.math import MathUnaryOp
-from oqd_core.interface.math import MathBinaryOp
 
 
 __all__ = [
@@ -181,6 +173,8 @@ def _build_coupling_matrix(
             )
 
         if pauli_str_min == pauli_str_max:
+            # TODO: FIX THIS
+            # divide by 2 to account for double counting of the same term
             coupling_matrices[matrix_key][i_min, i_max] = pair.coefficient
             coupling_matrices[matrix_key][i_max, i_min] = pair.coefficient
         else:
@@ -203,7 +197,7 @@ def _pauli_to_char(pauli: Pauli) -> str:
         assert False, "unreachable; only PauliX, PauliY, and PauliZ can be present"
 
 
-def _traverse(op: OperatorSubtypes) -> list[_PauliStringTerm]:
+def _traverse(operator: OperatorSubtypes) -> list[_PauliStringTerm]:
     """
     Recursively traverse the operator AST and collect all the Pauli strings and their coefficients.
 
@@ -220,38 +214,45 @@ def _traverse(op: OperatorSubtypes) -> list[_PauliStringTerm]:
     Returns:
         list[_PauliStringTerm]: a sequence of all the Pauli strings and the coefficients
     """
-    if isinstance(op, Pauli):
-        return [_PauliStringTerm(np.complex128(1.0, 0.0), [op])]
-    elif isinstance(op, OperatorAdd):
-        left = _traverse(op.op1)
-        right = _traverse(op.op2)
-        return left + right
-    elif isinstance(op, OperatorSub):
-        left = _traverse(op.op1)
-        right = _traverse(op.op2)
-        right = _rescale_all_coefficients(right, -1)
-        return left + right
-    elif isinstance(op, OperatorScalarMul):
-        if _has_mathvar(op.expr):
-            raise RuntimeError("ERROR: time-dependent parameter in Hamiltonian.\n")
-        value = _evaluate_math_expr_to_complex_float(op.expr)
-        products = _traverse(op.op)
-        products = _rescale_all_coefficients(products, value)
-        return products
-    elif isinstance(op, OperatorKron):
-        left_products = _traverse(op.op1)
-        right_products = _traverse(op.op2)
-        products = []
-        for left, right in itertools.product(left_products, right_products):
-            products.append(
-                _PauliStringTerm(
-                    coefficient=left.coefficient * right.coefficient,
-                    operators=left.operators + right.operators,
+
+    class _PauliStringTermAccumulator(ConversionRule):
+        def map_Pauli(self, model, operands) -> list[_PauliStringTerm]:
+            return [_PauliStringTerm(np.complex128(1.0, 0.0), [model])]
+
+        def map_OperatorAdd(self, model, operands) -> list[_PauliStringTerm]:
+            left = operands["op1"]
+            right = operands["op2"]
+            return left + right
+
+        def map_OperatorSub(self, model, operands) -> list[_PauliStringTerm]:
+            left = operands["op1"]
+            right = operands["op2"]
+            right = _rescale_all_coefficients(right, -1)
+            return left + right
+
+        def map_OperatorScalarMul(self, model, operands) -> list[_PauliStringTerm]:
+            if _has_mathvar(model.expr):
+                raise RuntimeError("ERROR: time-dependent parameter in Hamiltonian.\n")
+            value = _evaluate_math_expr_to_complex_float(model.expr)
+            products = operands["op"]
+            products = _rescale_all_coefficients(products, value)
+            return products
+
+        def map_OperatorKron(self, model, operands) -> list[_PauliStringTerm]:
+            left_products = operands["op1"]
+            right_products = operands["op2"]
+            products = []
+            for left, right in itertools.product(left_products, right_products):
+                products.append(
+                    _PauliStringTerm(
+                        coefficient=left.coefficient * right.coefficient,
+                        operators=left.operators + right.operators,
+                    )
                 )
-            )
-        return products
-    else:
-        raise RuntimeError(f"ERROR: cannot handle the following operator: {type(op)}")
+            return products
+
+    traverser = Post(_PauliStringTermAccumulator())
+    return traverser(operator)
 
 
 def _are_all_pauli_strings_the_same_length(strings: list[_PauliStringTerm]) -> bool:
@@ -274,28 +275,38 @@ def _has_bosonic_operator(op: OperatorSubtypes) -> bool:
     Recursively traverses the tree and checks if any of the Annihilation, Creation, or Identity
     operators are present.
     """
-    if isinstance(op, OperatorTerminal):
-        return isinstance(op, (Annihilation, Creation, Identity))
-    elif isinstance(op, OperatorBinaryOp):
-        return _has_bosonic_operator(op.op1) or _has_bosonic_operator(op.op2)
-    elif isinstance(op, OperatorScalarMul):
-        return _has_bosonic_operator(op.op)
-    else:
-        assert False, "unreachable; all OperatorSubtypes accounted for"
+
+    class _BosonicOperatorFinder(ConversionRule):
+        def map_OperatorTerminal(self, model, operands) -> bool:
+            return isinstance(model, Ladder)
+
+        def map_OperatorBinaryOp(self, model, operands) -> bool:
+            return operands["op1"] or operands["op2"]
+
+        def map_OperatorScalarMul(self, model, operands) -> bool:
+            return operands["op"]
+
+    traverser = Post(_BosonicOperatorFinder())
+    return traverser(op)
 
 
 def _has_mathvar(expr: MathExprSubtypes) -> bool:
     """
     Recursively traverses the math expression tree and checks if `MathVar` is present.
     """
-    if isinstance(expr, MathTerminal):
-        return isinstance(expr, MathVar)
-    elif isinstance(expr, MathUnaryOp):
-        return _has_mathvar(expr.expr)
-    elif isinstance(expr, MathBinaryOp):
-        return _has_mathvar(expr.expr1) or _has_mathvar(expr.expr2)
-    else:
-        assert False, "unreachable; all MathExprSubtypes accounted for"
+
+    class _MathVarFinder(ConversionRule):
+        def map_MathTerminal(self, model, operands) -> bool:
+            return isinstance(model, MathVar)
+
+        def map_MathUnaryOp(self, model, operands) -> bool:
+            return operands["expr"]
+
+        def map_MathBinaryOp(self, model, operands) -> bool:
+            return operands["expr1"] or operands["expr2"]
+
+    traverser = Post(_MathVarFinder())
+    return traverser(expr)
 
 
 def _get_pauli_string_two_weight_info(
@@ -316,6 +327,7 @@ def _get_pauli_string_two_weight_info(
     if any([not isinstance(op, Pauli) for op in pauli_string.operators]):
         assert False, "unreachable; only Pauli operators should be in the Pauli string"
 
+    # NOTE: could be simplified with list comprehension, but then we lose the short-circuiting
     paulis: list[_PauliTermInfo] = []
     for i, op in enumerate(pauli_string.operators):
         if isinstance(op, PauliI):
