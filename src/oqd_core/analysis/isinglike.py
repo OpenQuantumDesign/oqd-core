@@ -252,7 +252,7 @@ def _traverse(operator: OperatorSubtypes) -> list[_PauliStringTerm]:
             return products
 
     traverser = Post(_PauliStringTermAccumulator())
-    return traverser(operator)
+    return traverser(operator)  # type: ignore
 
 
 def _are_all_pauli_strings_the_same_length(strings: list[_PauliStringTerm]) -> bool:
@@ -287,7 +287,7 @@ def _has_bosonic_operator(op: OperatorSubtypes) -> bool:
             return operands["op"]
 
     traverser = Post(_BosonicOperatorFinder())
-    return traverser(op)
+    return traverser(op)  # type: ignore
 
 
 def _has_mathvar(expr: MathExprSubtypes) -> bool:
@@ -306,7 +306,7 @@ def _has_mathvar(expr: MathExprSubtypes) -> bool:
             return operands["expr1"] or operands["expr2"]
 
     traverser = Post(_MathVarFinder())
-    return traverser(expr)
+    return traverser(expr)  # type: ignore
 
 
 def _get_pauli_string_two_weight_info(

@@ -243,7 +243,7 @@ class Test_isinglike_analysis:
 
         assert "XX" in output
         assert np.allclose(output["XX"], np.array([[0.0, 1.0], [1.0, 0.0]]))
-        
+
     def test_xx_minus_yy_2_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=X @ X - Y @ Y)
         output = isinglike_analysis(gate)
