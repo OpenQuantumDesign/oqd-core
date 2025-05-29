@@ -208,7 +208,7 @@ def test_build_coupling_matrix_same_pauli_one_term() -> None:
     assert "XX" in output
     assert np.allclose(
         output["XX"],
-        np.array([[0.0, 1.0 + 2.0j], [1.0 + 2.0j, 0.0]], dtype=np.complex128),
+        0.5 * np.array([[0.0, 1.0 + 2.0j], [1.0 + 2.0j, 0.0]], dtype=np.complex128),
     )
 
 
@@ -225,7 +225,8 @@ def test_build_coupling_matrix_same_pauli_three_term() -> None:
     assert "XX" in output
     assert np.allclose(
         output["XX"],
-        np.array(
+        0.5
+        * np.array(
             [
                 [0.0 + 0.0j, 1.0 + 2.0j, 5.0 + 6.0j],
                 [1.0 + 2.0j, 0.0 + 0.0j, 3.0 + 4.0j],
@@ -242,16 +243,16 @@ class Test_isinglike_analysis:
         output = isinglike_analysis(gate)
 
         assert "XX" in output
-        assert np.allclose(output["XX"], np.array([[0.0, 1.0], [1.0, 0.0]]))
+        assert np.allclose(output["XX"], 0.5 * np.array([[0.0, 1.0], [1.0, 0.0]]))
 
     def test_xx_minus_yy_2_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=X @ X - Y @ Y)
         output = isinglike_analysis(gate)
 
         assert "XX" in output
-        assert np.allclose(output["XX"], np.array([[0.0, 1.0], [1.0, 0.0]]))
+        assert np.allclose(output["XX"], 0.5 * np.array([[0.0, 1.0], [1.0, 0.0]]))
         assert "YY" in output
-        assert np.allclose(output["YY"], np.array([[0.0, -1.0], [-1.0, 0.0]]))
+        assert np.allclose(output["YY"], 0.5 * np.array([[0.0, -1.0], [-1.0, 0.0]]))
 
     def test_xx_3_qubits(self) -> None:
         gate = AnalogGate(hamiltonian=X @ X @ ID)
@@ -259,7 +260,8 @@ class Test_isinglike_analysis:
 
         assert "XX" in output
         assert np.allclose(
-            output["XX"], np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 0.0]])
+            output["XX"],
+            0.5 * np.array([[0.0, 1.0, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 0.0]]),
         )
 
     def test_xy_2_qubits(self) -> None:
@@ -284,7 +286,7 @@ class Test_isinglike_analysis:
         assert np.allclose(output["XY"], np.array([[0.0, 0.0], [2.0, 0.0]]))
 
         assert "ZZ" in output
-        assert np.allclose(output["ZZ"], np.array([[0.0, 3.0], [3.0, 0.0]]))
+        assert np.allclose(output["ZZ"], 0.5 * np.array([[0.0, 3.0], [3.0, 0.0]]))
 
     def test_multiterm_4_qubits(self) -> None:
         """
@@ -310,7 +312,8 @@ class Test_isinglike_analysis:
         assert "XX" in output
         assert np.allclose(
             output["XX"],
-            np.array(
+            0.5
+            * np.array(
                 [
                     [0.0, 1.0, 2.0, 0.0],
                     [1.0, 0.0, 0.0, 0.0],
@@ -349,7 +352,8 @@ class Test_isinglike_analysis:
         assert "YY" in output
         assert np.allclose(
             output["YY"],
-            np.array(
+            0.5
+            * np.array(
                 [
                     [0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0],
@@ -375,7 +379,8 @@ class Test_isinglike_analysis:
         assert "ZZ" in output
         assert np.allclose(
             output["ZZ"],
-            np.array(
+            0.5
+            * np.array(
                 [
                     [0.0, 0.0, 0.0, 0.0],
                     [0.0, 0.0, 0.0, 0.0],

@@ -173,10 +173,9 @@ def _build_coupling_matrix(
             )
 
         if pauli_str_min == pauli_str_max:
-            # TODO: FIX THIS
             # divide by 2 to account for double counting of the same term
-            coupling_matrices[matrix_key][i_min, i_max] = pair.coefficient
-            coupling_matrices[matrix_key][i_max, i_min] = pair.coefficient
+            coupling_matrices[matrix_key][i_min, i_max] = 0.5 * pair.coefficient
+            coupling_matrices[matrix_key][i_max, i_min] = 0.5 * pair.coefficient
         else:
             coupling_matrices[matrix_key][i_min, i_max] = pair.coefficient
 
