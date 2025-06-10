@@ -37,7 +37,8 @@ classifiers = [
 dependencies = [
     "pydantic>=2.10.6",
     "oqd-compiler-infrastructure@git+https://github.com/openquantumdesign/oqd-compiler-infrastructure",
-    "numpy",
+    "numpy>=2.2.3",
+    "matplotlib",
 ]
 
 [project.optional-dependencies]
