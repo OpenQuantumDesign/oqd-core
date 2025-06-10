@@ -413,12 +413,3 @@ class EvaluateMathExpr(ConversionRule):
 
 
 ########################################################################################
-
-
-class IsConstant(RewriteRule):
-    def map_MathExpr(self, model):
-        if getattr(self, "isconstant", None) is None:
-            self.isconstant = True
-
-    def map_MathVar(self, model):
-        self.isconstant = False

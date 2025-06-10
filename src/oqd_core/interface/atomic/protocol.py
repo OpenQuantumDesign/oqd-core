@@ -19,9 +19,8 @@ from typing import List, Tuple, Union
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import conlist
 
-########################################################################################
 from oqd_core.interface.atomic.system import Transition
-from oqd_core.interface.math import CastMathExpr
+from oqd_core.interface.math import CastMathExpr, ConstantMathExpr
 
 ########################################################################################
 
@@ -54,8 +53,12 @@ class Beam(TypeReflectBaseModel):
     rabi: CastMathExpr
     detuning: CastMathExpr
     phase: CastMathExpr
-    polarization: conlist(CastMathExpr, max_length=3, min_length=3)
-    wavevector: conlist(CastMathExpr, max_length=3, min_length=3)
+    polarization: conlist(
+        ConstantMathExpr,
+        max_length=3,
+        min_length=3,
+    )  # type: ignore
+    wavevector: conlist(ConstantMathExpr, max_length=3, min_length=3)  # type: ignore
     target: int
 
 

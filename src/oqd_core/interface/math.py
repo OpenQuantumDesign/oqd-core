@@ -18,7 +18,12 @@ import ast
 from typing import Annotated, Any, Literal, Union
 
 import numpy as np
-from oqd_compiler_infrastructure import ConversionRule, TypeReflectBaseModel
+from oqd_compiler_infrastructure import (
+    ConversionRule,
+    Post,
+    RewriteRule,
+    TypeReflectBaseModel,
+)
 from pydantic import AfterValidator, BeforeValidator
 
 ########################################################################################
@@ -39,6 +44,8 @@ __all__ = [
     "MathDiv",
     "MathPow",
     "MathExprSubtypes",
+    "ConstantMathExpr",
+    "CastMathExpr",
 ]
 
 ########################################################################################
@@ -149,7 +156,7 @@ Functions = Literal[
 ########################################################################################
 
 
-class AST_to_MathExpr(ConversionRule):
+class _AST_to_MathExpr(ConversionRule):
     def generic_map(self, model: Any, operands):
         raise TypeError
 
@@ -194,7 +201,7 @@ class AST_to_MathExpr(ConversionRule):
 
 
 def MathStr(*, string):
-    return AST_to_MathExpr()(ast.parse(string))
+    return _AST_to_MathExpr()(ast.parse(string))
 
 
 ########################################################################################
@@ -348,3 +355,37 @@ Alias for the union of concrete MathExpr subtypes
 """
 
 CastMathExpr = Annotated[MathExprSubtypes, BeforeValidator(MathExpr.cast)]
+"""
+Annotated type that cast typical numeric python types to MathExpr
+"""
+
+########################################################################################
+
+
+class _MathExprIsConstant(RewriteRule):
+    def map_MathExpr(self, model):
+        if getattr(self, "isconstant", None) is None:
+            self.isconstant = True
+
+    def map_MathVar(self, model):
+        self.isconstant = False
+
+
+def _isconstant(model):
+    constant_analysis = _MathExprIsConstant()
+
+    Post(constant_analysis)(model)
+
+    if constant_analysis.isconstant:
+        return model
+
+    raise ValueError("MathExpr is not a constant")
+
+
+ConstantMathExpr = Annotated[
+    CastMathExpr,
+    AfterValidator(_isconstant),
+]
+"""
+Annotated type for constant MathExpr
+"""
