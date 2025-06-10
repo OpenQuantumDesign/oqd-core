@@ -14,4 +14,4 @@
 
 from . import backend, compiler, interface, visualizations
 
-__all__ = ["interface", "compiler","backend" "visualizations"]
+__all__ = ["interface", "compiler", "backend", "visualizations"]

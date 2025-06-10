@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import matplotlib.pyplot as plt
-from matplotlib.figure import Figure
-import numpy as np
 from typing import Dict, List
 
+import matplotlib.pyplot as plt
+from matplotlib.figure import Figure
+
 # Actual imports from oqd_core
-from oqd_core.interface.atomic import Ion, Level, Transition
+from oqd_core.interface.atomic import Ion, Level
 
 
 def get_orbital_label(l_value: float) -> str:
@@ -159,7 +159,7 @@ def generate_energy_level_plot(ion: Ion, **plot_kwargs) -> Figure:
     
     if sorted_orbitals:
         ax.set_xticks(list(orbital_x_coords.values()))
-        ax.set_xticklabels([get_orbital_label(l) for l in sorted_orbitals])
+        ax.set_xticklabels([get_orbital_label(l_val) for l_val in sorted_orbitals])
     else:
         ax.set_xticks([])
 

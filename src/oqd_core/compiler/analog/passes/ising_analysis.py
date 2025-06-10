@@ -15,32 +15,32 @@
 from __future__ import annotations
 
 from typing import Dict, List, Set, Tuple
-import numpy as np
 
 from oqd_compiler_infrastructure import ConversionRule, Post
+
 from oqd_core.interface.analog.operation import AnalogGate
 from oqd_core.interface.analog.operator import (
+    Annihilation,
+    Creation,
+    Identity,
+    Ladder,
     Operator,
     OperatorAdd,
-    OperatorSub, 
     OperatorKron,
     OperatorScalarMul,
+    OperatorSub,
     PauliI,
-    PauliX, 
+    PauliX,
     PauliY,
     PauliZ,
-    Creation,
-    Annihilation,
-    Identity,
-    Ladder
 )
-from oqd_core.interface.math import MathExpr, MathNum, MathImag, MathMul
+from oqd_core.interface.math import MathExpr, MathImag, MathMul, MathNum
 
 from .ising_types import (
-    PauliString,
-    IsingCouplingMatrices,
     IsingAnalysisResult,
-    IsingValidationError
+    IsingCouplingMatrices,
+    IsingValidationError,
+    PauliString,
 )
 
 __all__ = [

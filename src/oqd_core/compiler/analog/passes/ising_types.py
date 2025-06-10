@@ -14,9 +14,11 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
+
 import numpy as np
 from oqd_compiler_infrastructure import TypeReflectBaseModel
+
 from oqd_core.interface.analog.operator import OperatorSubtypes
 
 __all__ = [

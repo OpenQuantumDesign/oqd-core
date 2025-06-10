@@ -12,24 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pytest
 import numpy as np
 
+from oqd_core.compiler.analog.passes import analyze_ising_gate
 from oqd_core.interface.analog import (
     AnalogGate,
-    PauliI,
-    PauliX,
-    PauliY, 
-    PauliZ,
+    Creation,
     OperatorAdd,
     OperatorKron,
     OperatorScalarMul,
-    Creation,
-    Annihilation
+    PauliI,
+    PauliX,
+    PauliY,
+    PauliZ,
 )
 from oqd_core.interface.math import MathNum
-from oqd_core.compiler.analog.passes import analyze_ising_gate
-from oqd_core.compiler.analog.passes.ising_types import IsingAnalysisResult
 
 
 class TestIsingAnalysis:
