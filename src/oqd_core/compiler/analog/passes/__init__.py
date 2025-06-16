@@ -15,6 +15,7 @@
 from .analysis import analysis_canonical_hamiltonian_dim, analysis_term_index
 from .assign import assign_analog_circuit_dim, verify_analog_args_dim
 from .canonicalize import analog_operator_canonicalization
+from .ising_analysis import analyze_ising_gate
 
 __all__ = [
     "assign_analog_circuit_dim",
@@ -22,4 +23,5 @@ __all__ = [
     "analog_operator_canonicalization",
     "analysis_canonical_hamiltonian_dim",
     "analysis_term_index",
+    "analyze_ising_gate",
 ]
