@@ -526,12 +526,12 @@ requires-dist = [
     { name = "mkdocs-material", marker = "extra == 'docs'" },
     { name = "mkdocstrings", marker = "extra == 'docs'" },
     { name = "mkdocstrings-python", marker = "extra == 'docs'" },
-    { name = "numpy", specifier = ">=2.2.3" },
+    { name = "numpy" },
     { name = "oqd-compiler-infrastructure", git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure" },
     { name = "pydantic", specifier = ">=2.10.6" },
     { name = "pymdown-extensions", marker = "extra == 'docs'" },
     { name = "pytest", marker = "extra == 'tests'" },
-    { name = "scipy", specifier = ">=1.15.2" },
+    { name = "scipy" },
 ]
 
 [package.metadata.requires-dev]
