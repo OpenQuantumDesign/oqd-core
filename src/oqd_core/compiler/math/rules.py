@@ -327,6 +327,16 @@ class ProperOrderMathExpr(RewriteRule):
 class PruneMathExpr(RewriteRule):
     """
     This is constant fold operation where scalar addition, multiplication and power are simplified
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
+
     """
 
     def map_MathAdd(self, model):
@@ -359,6 +369,20 @@ class PruneMathExpr(RewriteRule):
 
 
 class SubstituteMathVar(RewriteRule):
+    """
+    This rule substitutes a MathVar with another MathExpr
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
+
+    """
+
     def __init__(self, variable, substitution):
         super().__init__()
 
@@ -381,11 +405,22 @@ class SubstituteMathVar(RewriteRule):
 
 class EvaluateMathExpr(ConversionRule):
     """
-    This evalaluates MathExpr objects
+    This evaluates MathExpr objects and raises a type error if a MathVar exist in the AST.
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
     """
 
     def map_MathVar(self, model: MathVar, operands):
-        raise TypeError
+        raise TypeError(
+            "Evaluation requires the substitution of all MathVar to constants"
+        )
 
     def map_MathNum(self, model: MathNum, operands):
         return model.value
@@ -427,8 +462,26 @@ class EvaluateMathExpr(ConversionRule):
 
 class SimplifyMathExpr(RewriteRule):
     """
-    This simplified MathExpr objects
+    This simplifies MathExpr objects by evaluating all constants in the AST.
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
+
     """
+
+    def map_MathNum(self, model):
+        # This empty function overrides the map_MathExpr definition for child class MathNum
+        pass
+
+    def map_MathImag(self, model):
+        # This empty function overrides the map_MathExpr definition for child class MathImag
+        pass
 
     def map_MathExpr(self, model):
         try:
@@ -449,9 +502,3 @@ class SimplifyMathExpr(RewriteRule):
 
         except ValidationError:
             return model
-
-    def map_MathNum(self, model):
-        pass
-
-    def map_MathImag(self, model):
-        pass

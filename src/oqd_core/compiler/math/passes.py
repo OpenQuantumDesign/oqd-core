@@ -66,3 +66,7 @@ canonicalize_math_expr = Chain(
     FixedPoint(Post(PartitionMathExpr())),
     simplify_math_expr,
 )
+
+"""
+Pass for canonicalizing math expression
+"""
