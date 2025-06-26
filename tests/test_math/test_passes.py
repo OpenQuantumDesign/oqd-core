@@ -43,11 +43,11 @@ class TestEvaluate:
             [MathStr(string="heaviside(cos(0))"), 1],
         ],
     )
-    def test_evaluate_constants(self, expr, target):
+    def test_evaluate(self, expr, target):
         assert evaluate_math_expr(expr) == target
 
 
-class TestEvaluateConstants:
+class TestSimplify:
     @pytest.mark.parametrize(
         ("expr", "target"),
         [
@@ -73,7 +73,7 @@ class TestEvaluateConstants:
             ],
         ],
     )
-    def test_evaluate_constants(self, expr, target):
+    def test_simplify(self, expr, target):
         assert simplify_math_expr(expr) == target
 
 
@@ -110,7 +110,9 @@ class TestCanonicalizeMath:
                 MathStr(string="1j * t * 2"),
                 MathImag() * MathNum(value=2) * MathVar(name="t"),
             ],
+            [MathStr(string="0**0"), MathNum(value=1)],
+            [MathStr(string="(cos(0)-cos(0))**sin(0)"), MathNum(value=1)],
         ],
     )
-    def test_evaluate_constants(self, expr, target):
+    def test_canonicalize(self, expr, target):
         assert canonicalize_math_expr(expr) == target

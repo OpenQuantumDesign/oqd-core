@@ -23,7 +23,6 @@ from oqd_core.compiler.math.rules import (
     PrintMathExpr,
     ProperOrderMathExpr,
     PruneMathExpr,
-    PruneZeroPowers,
     SimplifyMathExpr,
 )
 
@@ -58,7 +57,6 @@ canonicalize_math_expr = Chain(
         Post(
             Chain(
                 PruneMathExpr(),
-                PruneZeroPowers(),
                 SimplifyMathExpr(),
                 DistributeMathExpr(),
                 ProperOrderMathExpr(),

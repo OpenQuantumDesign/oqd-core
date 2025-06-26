@@ -47,7 +47,6 @@ __all__ = [
     "SimplifyMathExpr",
     "EvaluateMathExpr",
     "PruneMathExpr",
-    "PruneZeroPowers",
 ]
 
 ########################################################################################
@@ -349,11 +348,9 @@ class PruneMathExpr(RewriteRule):
         if model.expr1 == MathNum(value=1) or model.expr2 == MathNum(value=1):
             return model.expr1
 
+        if model.expr2 == MathNum(value=0):
+            return MathNum(value=1)
 
-class PruneZeroPowers(RewriteRule):
-    """Prunes a MathExpr AST by MathPow when base is zero"""
-
-    def map_MathPow(self, model):
         if model.expr1 == MathNum(value=0):
             return MathNum(value=0)
 
