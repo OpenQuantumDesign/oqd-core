@@ -27,6 +27,16 @@ from oqd_core.interface.math import MathVar
 class UnrollLevelLabel(RewriteRule):
     """
     Unrolls the [`Level`][oqd_core.interface.atomic.system.Level] labels present in [`Transitions`][oqd_core.interface.atomic.system.Transition].
+
+    Args:
+        model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
+
+    Returns:
+        model (AtomicCircuit):
+
+    Assumptions:
+        None
+
     """
 
     def map_Ion(self, model):
@@ -58,6 +68,15 @@ class UnrollLevelLabel(RewriteRule):
 class UnrollTransitionLabel(RewriteRule):
     """
     Unrolls the [`Transition`][oqd_core.interface.atomic.system.Transition] labels present in [`Beams`][oqd_core.interface.atomic.protocol.Beam].
+
+    Args:
+        model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
+
+    Returns:
+        model (AtomicCircuit):
+
+    Assumptions:
+        None
     """
 
     def map_System(self, model):
@@ -90,6 +109,19 @@ class UnrollTransitionLabel(RewriteRule):
 
 
 class ResolveNestedProtocol(RewriteRule):
+    """
+    Unfolds nested protocols into a standard form with only 2 hierarchy levels, a sequential protocol of parallel protocols.
+
+    Args:
+        model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
+
+    Returns:
+        model (AtomicCircuit):
+
+    Assumptions:
+        None
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -205,6 +237,19 @@ class ResolveNestedProtocol(RewriteRule):
 
 
 class ResolveRelativeTime(RewriteRule):
+    """
+    Handles conversion of relative time to absolute time.
+
+    Args:
+        model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
+
+    Returns:
+        model (AtomicCircuit):
+
+    Assumptions:
+        None
+    """
+
     def __init__(self):
         super().__init__()
 
@@ -256,9 +301,15 @@ unroll_label_pass = Chain(
     Pre(UnrollLevelLabel()),
     Pre(UnrollTransitionLabel()),
 )
+"""
+Pass that unrolls the references to levels and transitions
+"""
 
 
 def canonicalize_atomic_circuit_factory():
+    """
+    Factory for creating a pass for canonicalizing an atomic circuit.
+    """
     return Chain(
         unroll_label_pass,
         Post(ResolveRelativeTime()),
