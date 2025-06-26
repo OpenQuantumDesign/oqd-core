@@ -343,6 +343,8 @@ class SimplifyMathExpr(RewriteRule):
     def map_MathMul(self, model):
         if isinstance(model.expr1, MathNum) and isinstance(model.expr2, MathNum):
             return MathNum(value=model.expr1.value * model.expr2.value)
+        if isinstance(model.expr1, MathImag) and isinstance(model.expr2, MathImag):
+            return MathNum(value=-1)
 
     def map_MathPow(self, model):
         if isinstance(model.expr1, MathNum) and isinstance(model.expr2, MathNum):
@@ -358,6 +360,9 @@ class SimplifyMathExpr(RewriteRule):
 
             if model.func == "conj":
                 value = np.conj(model.expr.value)
+
+            if model.func == "abs":
+                value = np.abs(model.expr.value)
             return MathNum(value=value)
 
 
@@ -388,6 +393,9 @@ class EvaluateMathExpr(ConversionRule):
         if model.func == "conj":
             return np.conj(operands["expr"])
 
+        if model.func == "abs":
+            return np.abs(operands["expr"])
+
     def map_MathAdd(self, model: MathAdd, operands):
         return operands["expr1"] + operands["expr2"]
 
@@ -402,3 +410,6 @@ class EvaluateMathExpr(ConversionRule):
 
     def map_MathPow(self, model: MathPow, operands):
         return operands["expr1"] ** operands["expr2"]
+
+
+########################################################################################

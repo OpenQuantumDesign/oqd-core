@@ -35,9 +35,10 @@ classifiers = [
 ]
 
 dependencies = [
-    "pydantic>=2.10.6",
-    "oqd-compiler-infrastructure@git+https://github.com/openquantumdesign/oqd-compiler-infrastructure",
-    "numpy",
+  "pydantic>=2.10.6",
+  "oqd-compiler-infrastructure@git+https://github.com/openquantumdesign/oqd-compiler-infrastructure",
+  "numpy",
+  "scipy",
 ]
 
 [project.optional-dependencies]
@@ -60,9 +61,7 @@ select = ["E4", "E7", "E9", "F", "I"]
 fixable = ["ALL"]
 
 [dependency-groups]
-dev = [
-    "pre-commit>=4.1.0",
-]
+dev = ["pre-commit>=4.1.0"]
 
 
 [project.urls]
