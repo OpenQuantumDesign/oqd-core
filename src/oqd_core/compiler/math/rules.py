@@ -16,13 +16,15 @@ import math
 from typing import Union
 
 import numpy as np
-from oqd_compiler_infrastructure import ConversionRule, RewriteRule
+from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule
+from pydantic import TypeAdapter, ValidationError
 
-########################################################################################
 from oqd_core.interface.math import (
+    ConstantMathExpr,
     MathAdd,
     MathBinaryOp,
     MathDiv,
+    MathExpr,
     MathFunc,
     MathImag,
     MathMul,
@@ -44,6 +46,7 @@ __all__ = [
     "PruneMathExpr",
     "SimplifyMathExpr",
     "EvaluateMathExpr",
+    "PruneMathExpr",
 ]
 
 ########################################################################################
@@ -239,15 +242,31 @@ class PartitionMathExpr(RewriteRule):
     """
 
     def map_MathAdd(self, model):
-        if not (
-            isinstance(model.expr2, MathImag)
-            or (
-                isinstance(model.expr2, MathMul)
-                and isinstance(model.expr2.expr1, MathImag)
-            )
-            or isinstance(model.expr2, MathAdd)
+        priority = dict(
+            MathImag=5, MathNum=4, MathVar=3, MathFunc=2, MathPow=1, MathMul=0
+        )
+
+        if isinstance(
+            model.expr2, (MathImag, MathNum, MathVar, MathFunc, MathPow, MathMul)
         ):
-            return MathAdd(expr1=model.expr2, expr2=model.expr1)
+            if isinstance(model.expr1, MathAdd):
+                if (
+                    priority[model.expr2.__class__.__name__]
+                    > priority[model.expr1.expr2.__class__.__name__]
+                ):
+                    return MathAdd(
+                        expr1=MathAdd(expr1=model.expr1.expr1, expr2=model.expr2),
+                        expr2=model.expr1.expr2,
+                    )
+            else:
+                if (
+                    priority[model.expr2.__class__.__name__]
+                    > priority[model.expr1.__class__.__name__]
+                ):
+                    return MathAdd(
+                        expr1=model.expr2,
+                        expr2=model.expr1,
+                    )
 
     def map_MathMul(self, model: MathMul):
         priority = dict(MathImag=4, MathNum=3, MathVar=2, MathFunc=1, MathPow=0)
@@ -271,7 +290,6 @@ class PartitionMathExpr(RewriteRule):
                         expr1=model.expr2,
                         expr2=model.expr1,
                     )
-        pass
 
 
 class ProperOrderMathExpr(RewriteRule):
@@ -309,6 +327,16 @@ class ProperOrderMathExpr(RewriteRule):
 class PruneMathExpr(RewriteRule):
     """
     This is constant fold operation where scalar addition, multiplication and power are simplified
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
+
     """
 
     def map_MathAdd(self, model):
@@ -330,40 +358,46 @@ class PruneMathExpr(RewriteRule):
         if model.expr1 == MathNum(value=1) or model.expr2 == MathNum(value=1):
             return model.expr1
 
+        if model.expr2 == MathNum(value=0):
+            return MathNum(value=1)
 
-class SimplifyMathExpr(RewriteRule):
+        if model.expr1 == MathNum(value=0):
+            return MathNum(value=0)
+
+
+########################################################################################
+
+
+class SubstituteMathVar(RewriteRule):
     """
-    This simplified MathExpr objects
+    This rule substitutes a MathVar with another MathExpr
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
+
     """
 
-    def map_MathAdd(self, model):
-        if isinstance(model.expr1, MathNum) and isinstance(model.expr2, MathNum):
-            return MathNum(value=model.expr1.value + model.expr2.value)
+    def __init__(self, variable, substitution):
+        super().__init__()
 
-    def map_MathMul(self, model):
-        if isinstance(model.expr1, MathNum) and isinstance(model.expr2, MathNum):
-            return MathNum(value=model.expr1.value * model.expr2.value)
-        if isinstance(model.expr1, MathImag) and isinstance(model.expr2, MathImag):
-            return MathNum(value=-1)
+        if not isinstance(variable, MathVar):
+            raise TypeError("Variable must be a MathVar")
 
-    def map_MathPow(self, model):
-        if isinstance(model.expr1, MathNum) and isinstance(model.expr2, MathNum):
-            return MathNum(value=model.expr1.value**model.expr2.value)
+        if not isinstance(variable, MathExpr):
+            raise TypeError("Substituted value must be a MathExpr")
 
-    def map_MathFunc(self, model):
-        if isinstance(model.expr, MathNum):
-            if getattr(math, model.func, None):
-                value = getattr(math, model.func)(model.expr.value)
+        self.variable = variable
+        self.substitution = substitution
 
-            if model.func == "heaviside":
-                value = np.heaviside(model.expr.value, 1)
-
-            if model.func == "conj":
-                value = np.conj(model.expr.value)
-
-            if model.func == "abs":
-                value = np.abs(model.expr.value)
-            return MathNum(value=value)
+    def map_MathVar(self, model):
+        if model == self.variable:
+            return self.substitution
 
 
 ########################################################################################
@@ -371,11 +405,22 @@ class SimplifyMathExpr(RewriteRule):
 
 class EvaluateMathExpr(ConversionRule):
     """
-    This evalaluates MathExpr objects
+    This evaluates MathExpr objects and raises a type error if a MathVar exist in the AST.
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
     """
 
     def map_MathVar(self, model: MathVar, operands):
-        raise TypeError
+        raise TypeError(
+            "Evaluation requires the substitution of all MathVar to constants"
+        )
 
     def map_MathNum(self, model: MathNum, operands):
         return model.value
@@ -413,3 +458,47 @@ class EvaluateMathExpr(ConversionRule):
 
 
 ########################################################################################
+
+
+class SimplifyMathExpr(RewriteRule):
+    """
+    This simplifies MathExpr objects by evaluating all constants in the AST.
+
+    Args:
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+
+    Returns:
+        model (MathExpr):
+
+    Assumptions:
+        None
+
+    """
+
+    def map_MathNum(self, model):
+        # This empty function overrides the map_MathExpr definition for child class MathNum
+        pass
+
+    def map_MathImag(self, model):
+        # This empty function overrides the map_MathExpr definition for child class MathImag
+        pass
+
+    def map_MathExpr(self, model):
+        try:
+            TypeAdapter(ConstantMathExpr).validate_python(model)
+
+            value = Post(EvaluateMathExpr())(model)
+
+            if isinstance(value, (int, float)):
+                return MathNum(value=value)
+            elif value == 1j:
+                return MathImag()
+            elif value.real == 0:
+                return MathImag() * MathNum(value=value.imag)
+            else:
+                return MathNum(value=value.real) + MathImag() * MathNum(
+                    value=value.imag
+                )
+
+        except ValidationError:
+            return model

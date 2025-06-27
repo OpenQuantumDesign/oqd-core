@@ -12,12 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_compiler_infrastructure import Post
-
 ########################################################################################
+
+from oqd_compiler_infrastructure import Chain, FixedPoint, Post
+
 from oqd_core.compiler.math.rules import (
+    DistributeMathExpr,
     EvaluateMathExpr,
+    PartitionMathExpr,
     PrintMathExpr,
+    ProperOrderMathExpr,
+    PruneMathExpr,
     SimplifyMathExpr,
 )
 
@@ -27,6 +32,7 @@ __all__ = [
     "evaluate_math_expr",
     "simplify_math_expr",
     "print_math_expr",
+    "canonicalize_math_expr",
 ]
 
 ########################################################################################
@@ -36,7 +42,6 @@ evaluate_math_expr = Post(EvaluateMathExpr())
 Pass for evaluating math expression
 """
 
-
 simplify_math_expr = Post(SimplifyMathExpr())
 """
 Pass for simplifying math expression
@@ -45,4 +50,23 @@ Pass for simplifying math expression
 print_math_expr = Post(PrintMathExpr())
 """
 Pass for printing math expression
+"""
+
+canonicalize_math_expr = Chain(
+    FixedPoint(
+        Post(
+            Chain(
+                PruneMathExpr(),
+                SimplifyMathExpr(),
+                DistributeMathExpr(),
+                ProperOrderMathExpr(),
+            )
+        )
+    ),
+    FixedPoint(Post(PartitionMathExpr())),
+    simplify_math_expr,
+)
+
+"""
+Pass for canonicalizing math expression
 """

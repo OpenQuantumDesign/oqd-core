@@ -38,11 +38,7 @@ from oqd_core.compiler.analog.verify import (
     CanVerSortedOrder,
     VerifyHilberSpaceDim,
 )
-from oqd_core.compiler.math.rules import (
-    DistributeMathExpr,
-    PartitionMathExpr,
-    ProperOrderMathExpr,
-)
+from oqd_core.compiler.math.passes import canonicalize_math_expr
 
 ########################################################################################
 
@@ -75,12 +71,6 @@ normal_order_chain = Chain(
 scale_terms_chain = Chain(
     FixedPoint(Pre(ScaleTerms())),
     FixedPoint(Post(GatherMathExpr())),
-)
-
-math_chain = Chain(
-    FixedPoint(Post(DistributeMathExpr())),
-    FixedPoint(Post(ProperOrderMathExpr())),
-    FixedPoint(Post(PartitionMathExpr())),
 )
 
 verify_canonicalization = Chain(
@@ -128,6 +118,6 @@ def analog_operator_canonicalization(model):
         FixedPoint(Post(PruneIdentity())),
         FixedPoint(scale_terms_chain),
         FixedPoint(Post(SortedOrder())),
-        math_chain,
+        canonicalize_math_expr,
         verify_canonicalization,
     )(model=model)
