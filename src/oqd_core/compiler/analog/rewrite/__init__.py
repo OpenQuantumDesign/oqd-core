@@ -21,6 +21,7 @@ from .canonicalize import (
     PauliAlgebra,
     ProperOrder,
     PruneIdentity,
+    PruneZeros,
     ScaleTerms,
     SortedOrder,
 )
@@ -36,4 +37,5 @@ __all__ = [
     "ProperOrder",
     "ScaleTerms",
     "SortedOrder",
+    "PruneZeros",
 ]
