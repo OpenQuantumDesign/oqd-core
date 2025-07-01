@@ -156,9 +156,9 @@ def PauliPlus():
     Function that constructs the Pauli + operator
     """
     return OperatorAdd(
-        op1=PauliX(),
+        op1=OperatorScalarMul(op=PauliX(), expr=MathNum(value=0.5)),
         op2=OperatorScalarMul(
-            op=PauliY(), expr=MathMul(expr1=MathImag(), expr2=MathNum(value=1))
+            op=PauliY(), expr=MathMul(expr1=MathImag(), expr2=MathNum(value=0.5))
         ),
     )
 
@@ -168,9 +168,9 @@ def PauliMinus():
     Function that constructs the Pauli - operator
     """
     return OperatorAdd(
-        op1=PauliX(),
+        op1=OperatorScalarMul(op=PauliX(), expr=MathNum(value=0.5)),
         op2=OperatorScalarMul(
-            op=PauliY(), expr=MathMul(expr1=MathImag(), expr2=MathNum(value=-1))
+            op=PauliY(), expr=MathMul(expr1=MathImag(), expr2=MathNum(value=-0.5))
         ),
     )
 
