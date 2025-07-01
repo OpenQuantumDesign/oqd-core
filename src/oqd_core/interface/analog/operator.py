@@ -74,12 +74,12 @@ class Operator(TypeReflectBaseModel):
         return OperatorSub(op1=self, op2=other)
 
     def __matmul__(self, other):
-        if isinstance(other, MathExpr):
-            raise TypeError(
-                "Tried Kron product between Operator and MathExpr. "
-                + "Scalar multiplication of MathExpr and Operator should be bracketed when perfoming Kron product."
-            )
-        return OperatorKron(op1=self, op2=other)
+        if isinstance(other, Operator):
+            return OperatorKron(op1=self, op2=other)
+
+        raise TypeError(
+            f"Attempted Kron product between Operator and {type(other)}. Double check brackets."
+        )
 
     def __mul__(self, other):
         if isinstance(other, Operator):
@@ -92,7 +92,9 @@ class Operator(TypeReflectBaseModel):
         other = MathExpr.cast(other)
         return self * other
 
-    pass
+    def __truediv__(self, other):
+        other = MathExpr.cast(other)
+        return OperatorScalarMul(op=self, expr=1 / other)
 
 
 ########################################################################################
