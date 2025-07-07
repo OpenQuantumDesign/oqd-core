@@ -32,7 +32,6 @@ from oqd_core.interface.math import (
     MathPow,
     MathSub,
     MathTerminal,
-    MathUnaryOp,
     MathVar,
 )
 
@@ -161,12 +160,12 @@ class PrintMathExpr(ConversionRule):
     def _map_MathBinaryOp(self, model: MathBinaryOp, operands):
         s1 = (
             f"({operands['expr1']})"
-            if not isinstance(model.expr1, (MathTerminal, MathUnaryOp))
+            if not isinstance(model.expr1, (MathTerminal, MathFunc))
             else operands["expr1"]
         )
         s2 = (
             f"({operands['expr2']})"
-            if not isinstance(model.expr2, (MathTerminal, MathUnaryOp))
+            if not isinstance(model.expr2, (MathTerminal, MathFunc))
             else operands["expr2"]
         )
         operator_dict = dict(
