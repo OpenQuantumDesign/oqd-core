@@ -429,6 +429,9 @@ class EvaluateMathExpr(ConversionRule):
 
     def map_MathFunc(self, model: MathFunc, operands):
         if getattr(math, model.func, None):
+            if isinstance(operands["expr"], list):
+                return getattr(math, model.func)(*operands["expr"])
+
             return getattr(math, model.func)(operands["expr"])
 
         if model.func == "heaviside":

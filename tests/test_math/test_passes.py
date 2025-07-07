@@ -14,6 +14,7 @@
 
 ########################################################################################
 
+import numpy as np
 import pytest
 
 from oqd_core.compiler.math.passes import (
@@ -41,6 +42,10 @@ class TestEvaluate:
             [MathStr(string="cos(0)"), 1],
             [MathStr(string="heaviside(-2)"), 0],
             [MathStr(string="heaviside(cos(0))"), 1],
+            [MathStr(string="atan2(0, 1)"), 0],
+            [MathStr(string="atan2(1, 0)"), np.pi / 2],
+            [MathStr(string="atan2(1, -1)"), 3 * np.pi / 4],
+            [MathStr(string="atan2(-1, -1)"), -3 * np.pi / 4],
         ],
     )
     def test_evaluate(self, expr, target):
