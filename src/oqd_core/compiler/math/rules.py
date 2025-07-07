@@ -434,14 +434,16 @@ class EvaluateMathExpr(ConversionRule):
 
             return getattr(math, model.func)(operands["expr"])
 
+        if model.func in ["conj", "abs", "imag", "real"]:
+            if isinstance(operands["expr"], list):
+                return getattr(np, model.func)(*operands["expr"])
+
+            return getattr(np, model.func)(operands["expr"])
+
         if model.func == "heaviside":
             return np.heaviside(operands["expr"], 1)
 
-        if model.func == "conj":
-            return np.conj(operands["expr"])
-
-        if model.func == "abs":
-            return np.abs(operands["expr"])
+        raise ValueError("Unsupported function")
 
     def map_MathAdd(self, model: MathAdd, operands):
         return operands["expr1"] + operands["expr2"]

@@ -194,6 +194,8 @@ SupportedFuncNames = Literal[
     "acosh",
     "heaviside",
     "conj",
+    "real",
+    "imag",
     "atan2",
 ]
 """
@@ -240,6 +242,8 @@ class MathFunc(MathExpr):
             "acosh",
             "heaviside",
             "conj",
+            "real",
+            "imag",
         ]:
             if isinstance(data["expr"], list):
                 assert (
