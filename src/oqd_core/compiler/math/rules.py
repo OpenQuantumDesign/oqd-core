@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import math
 from typing import Union
 
 import numpy as np
@@ -428,13 +427,27 @@ class EvaluateMathExpr(ConversionRule):
         return complex("1j")
 
     def map_MathFunc(self, model: MathFunc, operands):
-        if getattr(math, model.func, None):
-            if isinstance(operands["expr"], list):
-                return getattr(math, model.func)(*operands["expr"])
-
-            return getattr(math, model.func)(operands["expr"])
-
-        if model.func in ["conj", "abs", "imag", "real"]:
+        if model.func in [
+            "abs",
+            "sin",
+            "cos",
+            "tan",
+            "exp",
+            "log",
+            "sinh",
+            "cosh",
+            "tanh",
+            "atan",
+            "acos",
+            "asin",
+            "atanh",
+            "asinh",
+            "acosh",
+            "conj",
+            "real",
+            "imag",
+            "atan2",
+        ]:
             if isinstance(operands["expr"], list):
                 return getattr(np, model.func)(*operands["expr"])
 
