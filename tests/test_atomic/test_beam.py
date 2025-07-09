@@ -14,8 +14,10 @@
 
 import numpy as np
 import pytest
+from oqd_compiler_infrastructure import Post
 
-from oqd_core.interface.atomic import Beam
+from oqd_core.compiler.atomic.verify import VerifyBeam
+from oqd_core.interface.atomic import Beam, Level, Transition
 from oqd_core.interface.atomic.species import Yb171IIBuilder
 from oqd_core.interface.math import MathStr
 
@@ -27,7 +29,7 @@ def ion():
     return Yb171IIBuilder().build()
 
 
-class TestBeam:
+class TestBeamDef:
     def test_zero_beam(self, ion):
         Beam(
             transition=ion.transitions[0],
@@ -191,3 +193,93 @@ class TestBeam:
             wavevector=wavevector,
             target=0,
         )
+
+
+class TestBeamVerify:
+    @pytest.fixture
+    def verify_pass(self):
+        return Post(VerifyBeam())
+
+    @pytest.fixture
+    def transition_polarization(self, request):
+        level1 = Level(
+            label="0",
+            principal=1,
+            spin=0.5,
+            orbital=0,
+            nuclear=0.5,
+            spin_orbital=0.5,
+            spin_orbital_nuclear=0,
+            spin_orbital_nuclear_magnetization=0,
+            energy=0,
+        )
+
+        if request.param[0] == "M1":
+            level2 = Level(
+                label="1",
+                principal=1,
+                spin=0.5,
+                orbital=0,
+                nuclear=0.5,
+                spin_orbital=0.5,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=0,
+                energy=1,
+            )
+
+        elif request.param[0] == "E1":
+            level2 = Level(
+                label="1",
+                principal=1,
+                spin=0.5,
+                orbital=1,
+                nuclear=0.5,
+                spin_orbital=0.5,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=0,
+                energy=1,
+            )
+
+        elif request.param[0] == "E2":
+            level2 = Level(
+                label="1",
+                principal=1,
+                spin=0.5,
+                orbital=2,
+                nuclear=0.5,
+                spin_orbital=1.5,
+                spin_orbital_nuclear=1,
+                spin_orbital_nuclear_magnetization=0,
+                energy=1,
+            )
+
+        return Transition(
+            label="0->1",
+            level1=level1,
+            level2=level2,
+            einsteinA=1,
+            multipole=request.param[0],
+        ), request.param[1]
+
+    @pytest.mark.parametrize(
+        ("transition_polarization"),
+        [
+            ("M1", [0, 1, 0]),
+            ("E1", [0, 0, 1]),
+            ("E2", [1, 0, 0]),
+        ],
+        indirect=True,
+    )
+    def test_verify_pass(self, transition_polarization, verify_pass):
+        transition, polarization = transition_polarization
+        beam = Beam(
+            transition=transition,
+            detuning=0,
+            rabi=1,
+            phase=0,
+            polarization=polarization,
+            wavevector=[1, 0, 0],
+            target=0,
+        )
+
+        verify_pass(beam)
