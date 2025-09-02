@@ -37,7 +37,6 @@ class IonVisualization(ConversionRule):
         transition_labelgen_whitelist=None,
         scale_cutoff=10,
         relative_scale_jump=1.5,
-        orbital_displacement=3,
         transition_whitelist=None,
         transition_blacklist=None,
     ):
@@ -48,7 +47,6 @@ class IonVisualization(ConversionRule):
         self.transition_labelgen_whitelist = transition_labelgen_whitelist
         self.scale_cutoff = scale_cutoff
         self.relative_scale_jump = relative_scale_jump
-        self.orbital_displacement = orbital_displacement
         self.transition_whitelist = transition_whitelist
         self.transition_blacklist = transition_blacklist
 
@@ -124,6 +122,28 @@ class IonVisualization(ConversionRule):
 
         return position
 
+    def levelgroups(self, levels):
+        groups = np.stack(
+            list(
+                map(
+                    lambda x: np.array(
+                        [
+                            x.principal,
+                            x.spin,
+                            x.orbital,
+                            x.nuclear,
+                            x.spin_orbital,
+                            x.spin_orbital_nuclear,
+                            x.spin_orbital_nuclear_magnetization,
+                        ]
+                    ),
+                    levels,
+                )
+            )
+        )
+
+        return groups
+
     def map_Ion(self, model, operands):
         energies = np.array(list(map(lambda level: level.energy, model.levels)))
 
@@ -132,6 +152,18 @@ class IonVisualization(ConversionRule):
         levels = np.array(model.levels)[order]
         level_labels = np.array(list(map(lambda level: level.label, levels)))
         plot_level_labels = np.array(operands["levels"])[order]
+        levelgroups = self.levelgroups(levels)[order]
+
+        orbital_xshifts = np.cumsum(
+            [
+                levelgroups[:, 5][levelgroups[:, 2] == i].max()
+                if i == 0
+                else levelgroups[:, 5][levelgroups[:, 2] == i - 1].max()
+                + levelgroups[:, 5][levelgroups[:, 2] == i].max()
+                + 1
+                for i in np.arange(levelgroups[:, 2].max() + 1)
+            ],
+        )
 
         pos = self._get_level_position(levels)
 
@@ -141,7 +173,7 @@ class IonVisualization(ConversionRule):
                 + 1.5
                 * (
                     levels[n].spin_orbital_nuclear_magnetization
-                    + self.orbital_displacement * levels[n].orbital
+                    + orbital_xshifts[int(levels[n].orbital)]
                 ),
                 pos[n] * np.ones(2),
                 color="black",
@@ -153,7 +185,7 @@ class IonVisualization(ConversionRule):
                 + 1.5
                 * (
                     levels[n].spin_orbital_nuclear_magnetization
-                    + self.orbital_displacement * levels[n].orbital
+                    + orbital_xshifts[int(levels[n].orbital)]
                 ),
                 pos[n],
                 plot_level_labels[n],
@@ -213,13 +245,13 @@ class IonVisualization(ConversionRule):
                     + 1.5
                     * (
                         levels[n1].spin_orbital_nuclear_magnetization
-                        + self.orbital_displacement * levels[n1].orbital
+                        + orbital_xshifts[int(levels[n1].orbital)]
                     ),
                     0.5
                     + 1.5
                     * (
                         levels[n2].spin_orbital_nuclear_magnetization
-                        + self.orbital_displacement * levels[n2].orbital
+                        + orbital_xshifts[int(levels[n2].orbital)]
                     ),
                 ],
                 [
@@ -237,9 +269,9 @@ class IonVisualization(ConversionRule):
                 + 0.75
                 * (
                     levels[n1].spin_orbital_nuclear_magnetization
-                    + self.orbital_displacement * levels[n1].orbital
+                    + orbital_xshifts[int(levels[n1].orbital)]
                     + levels[n2].spin_orbital_nuclear_magnetization
-                    + self.orbital_displacement * levels[n2].orbital
+                    + orbital_xshifts[int(levels[n2].orbital)]
                 ),
                 0.5 * (pos[n1] + pos[n2]),
                 tl,
