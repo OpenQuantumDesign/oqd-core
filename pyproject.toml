@@ -36,9 +36,10 @@ classifiers = [
 
 dependencies = [
   "pydantic>=2.10.6",
-  "oqd-compiler-infrastructure@git+https://github.com/openquantumdesign/oqd-compiler-infrastructure",
+  "oqd-compiler-infrastructure",
   "numpy",
   "scipy",
+  "matplotlib>=3.10.5",
 ]
 
 [project.optional-dependencies]
@@ -59,6 +60,9 @@ include = ["oqd_core*"]
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]
 fixable = ["ALL"]
+
+[tool.uv.sources]
+oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure", rev = "fix_conversion_rule" }
 
 [dependency-groups]
 dev = [
