@@ -32,7 +32,9 @@ __all__ = [
 class IonVisualization(ConversionRule):
     def __init__(
         self,
-        label_generator=None,
+        level_labelgen=None,
+        transition_labelgen=None,
+        transition_labelgen_whitelist=None,
         scale_cutoff=10,
         relative_scale_jump=1.5,
         orbital_displacement=3,
@@ -41,7 +43,9 @@ class IonVisualization(ConversionRule):
     ):
         super().__init__()
 
-        self.label_generator = label_generator
+        self.level_labelgen = level_labelgen
+        self.transition_labelgen = transition_labelgen
+        self.transition_labelgen_whitelist = transition_labelgen_whitelist
         self.scale_cutoff = scale_cutoff
         self.relative_scale_jump = relative_scale_jump
         self.orbital_displacement = orbital_displacement
@@ -53,7 +57,7 @@ class IonVisualization(ConversionRule):
         self.ax.set_axis_off()
 
     @staticmethod
-    def term_label_generator(level):
+    def term_level_labelgen(level):
         N = str(int(level.principal))
         S = str(int(2 * level.spin + 1))
         L = ["S", "P", "D"][int(level.orbital)]
@@ -126,15 +130,19 @@ class IonVisualization(ConversionRule):
         order = np.argsort(energies)
         energies = energies[order]
         levels = np.array(model.levels)[order]
-        labels = np.array(operands["levels"])[order]
+        level_labels = np.array(list(map(lambda level: level.label, levels)))
+        plot_level_labels = np.array(operands["levels"])[order]
 
         pos = self._get_level_position(levels)
 
         for n in range(len(levels)):
             self.ax.plot(
                 np.arange(2)
-                + 1.5 * levels[n].spin_orbital_nuclear_magnetization
-                + 1.5 * self.orbital_displacement * levels[n].orbital,
+                + 1.5
+                * (
+                    levels[n].spin_orbital_nuclear_magnetization
+                    + self.orbital_displacement * levels[n].orbital
+                ),
                 pos[n] * np.ones(2),
                 color="black",
                 zorder=3,
@@ -142,101 +150,121 @@ class IonVisualization(ConversionRule):
 
             self.ax.text(
                 0.5
-                + 1.5 * levels[n].spin_orbital_nuclear_magnetization
-                + 1.5 * self.orbital_displacement * levels[n].orbital,
+                + 1.5
+                * (
+                    levels[n].spin_orbital_nuclear_magnetization
+                    + self.orbital_displacement * levels[n].orbital
+                ),
                 pos[n],
-                labels[n],
+                plot_level_labels[n],
                 ha="center",
                 va="top",
                 zorder=2,
             )
 
-        level_labels = np.array(list(map(lambda level: level.label, levels)))
-        for t in model.transitions:
-            n1 = (
-                np.where(level_labels == t.level1)[0]
-                if isinstance(t.level1, str)
-                else np.where(levels == t.level1)[0]
-            ).item()
-            n2 = (
-                np.where(level_labels == t.level2)[0]
-                if isinstance(t.level1, str)
-                else np.where(levels == t.level1)[0]
-            ).item()
+        plot_transition_labels = np.array(operands["transitions"])
+        included_transitions = map(
+            lambda t: (
+                t[0],
+                (
+                    np.where(level_labels == t[0].level1)[0]
+                    if isinstance(t[0].level1, str)
+                    else np.where(levels == t[0].level1)[0]
+                ).item(),
+                (
+                    np.where(level_labels == t[0].level2)[0]
+                    if isinstance(t[0].level2, str)
+                    else np.where(levels == t[0].level2)[0]
+                ).item(),
+                t[1],
+            ),
+            zip(model.transitions, plot_transition_labels),
+        )
 
-            if (
-                self.transition_whitelist
-                and t.label not in self.transition_whitelist
-                and not (
-                    level_labels[n1] in self.transition_whitelist
-                    or level_labels[n2] in self.transition_whitelist
-                )
-            ):
-                continue
+        if self.transition_whitelist:
+            included_transitions = filter(
+                lambda x: x[0].label in self.transition_whitelist
+                or level_labels[x[1]] in self.transition_whitelist
+                or level_labels[x[2]] in self.transition_whitelist,
+                included_transitions,
+            )
 
-            if self.transition_blacklist and (
-                t.label in self.transition_blacklist
-                or (
-                    level_labels[n1] in self.transition_blacklist
-                    or level_labels[n2] in self.transition_blacklist
-                )
-            ):
-                continue
+        if self.transition_blacklist:
+            included_transitions = filter(
+                lambda x: x[0].label not in self.transition_blacklist
+                and level_labels[x[1]] not in self.transition_blacklist
+                and level_labels[x[2]] not in self.transition_blacklist,
+                included_transitions,
+            )
 
+        for t, n1, n2, tl in included_transitions:
             cmap = cm.get_cmap("gist_rainbow")
-            norm = colors.Normalize(400e12 * 2 * np.pi, 790e12 * 2 * np.pi)
+            cnorm = colors.Normalize(400e12 * 2 * np.pi, 790e12 * 2 * np.pi)
+
+            on_off_seq = [
+                *([1, 1] * int(t.multipole[0] == "M") * int(t.multipole[1:])),
+                *([3, 1] * int(t.multipole[0] == "E") * int(t.multipole[1:])),
+            ]
+            on_off_seq[-1] = 5
 
             self.ax.plot(
                 [
                     0.5
-                    + 1.5 * levels[n1].spin_orbital_nuclear_magnetization
-                    + 1.5 * self.orbital_displacement * levels[n1].orbital,
+                    + 1.5
+                    * (
+                        levels[n1].spin_orbital_nuclear_magnetization
+                        + self.orbital_displacement * levels[n1].orbital
+                    ),
                     0.5
-                    + 1.5 * levels[n2].spin_orbital_nuclear_magnetization
-                    + 1.5 * self.orbital_displacement * levels[n2].orbital,
+                    + 1.5
+                    * (
+                        levels[n2].spin_orbital_nuclear_magnetization
+                        + self.orbital_displacement * levels[n2].orbital
+                    ),
                 ],
                 [
                     pos[n1],
                     pos[n2],
                 ],
-                ls=":",
-                color=np.array(cmap(norm(np.abs(energies[n1] - energies[n2])))) * 0.75,
-                alpha=0.5,
+                lw=2,
+                ls=(0, on_off_seq),
+                color=np.array(cmap(cnorm(np.abs(energies[n1] - energies[n2])))) * 0.75,
                 zorder=1,
+            )
+
+            self.ax.text(
+                0.5
+                + 0.75
+                * (
+                    levels[n1].spin_orbital_nuclear_magnetization
+                    + self.orbital_displacement * levels[n1].orbital
+                    + levels[n2].spin_orbital_nuclear_magnetization
+                    + self.orbital_displacement * levels[n2].orbital
+                ),
+                0.5 * (pos[n1] + pos[n2]),
+                tl,
+                ha="center",
+                va="top",
+                zorder=2,
             )
 
         return self.fig, self.ax
 
     def map_Level(self, model, operands):
-        if self.label_generator:
-            return self.label_generator(model)
+        if self.level_labelgen:
+            return self.level_labelgen(model)
         else:
             return rf"$| \mathrm{{{model.label}}} \rangle$"
 
-    # def _levelgroups(self, leveltree):
-    #     idcs = np.lexsort(np.flip(leveltree.transpose(), 0))
+    def map_Transition(self, model, operands):
+        if self.transition_labelgen and (
+            not self.transition_labelgen_whitelist
+            or (
+                model.label in self.transition_labelgen_whitelist
+                or model.level1.label in self.transition_labelgen_whitelist
+                or model.level2.label in self.transition_labelgen_whitelist
+            )
+        ):
+            return self.transition_labelgen(model)
 
-    #     leveltree = leveltree[idcs]
-
-    #     groups = [np.zeros(leveltree.shape[-1]).astype(int)]
-    #     previous = leveltree[0]
-    #     for current in leveltree[1:]:
-    #         groups.append(
-    #             groups[-1]
-    #             + np.logical_or.accumulate(np.logical_not(current == previous))
-    #         )
-    #         previous = current
-
-    #     groups = np.stack(groups)
-    #     return groups[np.argsort(idcs)]
-
-    # leveltree = np.stack(sorted(operands["levels"], key=lambda x: x[-1]))
-    # levelgroups = self._levelgroups(leveltree)
-
-    # orbitalgroups = levelgroups[:, 2]
-    # for i in range(np.max(orbitalgroups.astype(int)) + 1):
-    #     self.ax.text(-2, np.mean(pos[orbitalgroups == i]), ["S", "P", "D"][i])
-
-    # orbitalgroups = levelgroups[:, 2]
-    # for i in range(np.max(orbitalgroups.astype(int)) + 1):
-    #     self.ax.text(-2, np.mean(pos[orbitalgroups == i]), ["S", "P", "D"][i])
+        return ""
