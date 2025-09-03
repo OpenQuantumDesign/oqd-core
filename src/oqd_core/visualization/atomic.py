@@ -85,19 +85,34 @@ class IonVisualization(ConversionRule):
 
         x = deltaE
         energy_scales = [x]
+        if (x == 0).any():
+            x_mask = (x != 0).astype(float)
+            x_mask[np.logical_not(x_mask.astype(bool))] = np.nan
+
+            energy_scales.append(x * x_mask)
+            x = x * x_mask
+
         while not np.isnan(x).all():
             x_mask = (x > np.nanmin(x) * self.scale_cutoff).astype(float)
             x_mask[np.logical_not(x_mask.astype(bool))] = np.nan
 
             energy_scales.append(x * x_mask)
-
             x = x * x_mask
 
         energy_scales = np.stack(energy_scales)
         scale_label = np.logical_not(np.isnan(energy_scales)).sum(0) - 1
 
         scale_displacement = []
-        for i in range(len(energy_scales) - 1):
+        for i in range(1, len(energy_scales) - 1):
+            if (
+                energy_scales[i][
+                    np.isnan(energy_scales[i + 1])
+                    & np.logical_not(np.isnan(energy_scales[i]))
+                ].min()
+                == 0
+            ):
+                continue
+
             scale_displacement.append(
                 energy_scales[i]
                 * np.isnan(energy_scales[i + 1])
