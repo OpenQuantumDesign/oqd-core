@@ -13,9 +13,11 @@
 # limitations under the License.
 
 
+import matplotlib
 import numpy as np
 from matplotlib import cm, colors
 from matplotlib import pyplot as plt
+from matplotlib.collections import LineCollection
 from oqd_compiler_infrastructure import (
     ConversionRule,
 )
@@ -36,7 +38,7 @@ class IonVisualization(ConversionRule):
         transition_labelgen=None,
         transition_labelgen_whitelist=None,
         scale_cutoff=10,
-        relative_scale_jump=1.5,
+        relative_scale_jump=1.1,
         transition_whitelist=None,
         transition_blacklist=None,
     ):
@@ -91,6 +93,9 @@ class IonVisualization(ConversionRule):
 
             x = x * x_mask
 
+        energy_scales = np.stack(energy_scales)
+        scale_label = np.logical_not(np.isnan(energy_scales)).sum(0) - 1
+
         scale_displacement = []
         for i in range(len(energy_scales) - 1):
             scale_displacement.append(
@@ -120,7 +125,7 @@ class IonVisualization(ConversionRule):
         position = scale_displacement.sum(0).cumsum()
         position = np.concatenate([np.zeros(1), position])
 
-        return position
+        return position, scale_label
 
     def levelgroups(self, levels):
         groups = np.stack(
@@ -165,12 +170,35 @@ class IonVisualization(ConversionRule):
             ],
         )
 
-        pos = self._get_level_position(levels)
+        pos, scale_label = self._get_level_position(levels)
+
+        scale_cmap = cm.get_cmap("viridis")
+        scale_c = scale_cmap(np.linspace(0, 1, scale_label.max() + 1))[scale_label]
+        scale_pos = np.stack([-1.5 * np.ones_like(pos), pos], -1)
+        scale_segments = np.concatenate(
+            [scale_pos[:-1][:, None, :], scale_pos[1:][:, None, :]], axis=1
+        )
+        scale_lc = LineCollection(
+            scale_segments, colors=scale_c, linewidths=3, alpha=0.75
+        )
+        self.ax.add_collection(scale_lc)
+
+        self.ax.annotate(
+            "Relative Scale",
+            (-1.5, (pos.min() + pos.max()) / 2),
+            (-3, 0),
+            textcoords="offset points",
+            rotation=90,
+            ha="right",
+            va="center",
+            zorder=2,
+            fontsize=matplotlib.rcParams["font.size"] * 1.5,
+        )
 
         for n in range(len(levels)):
             self.ax.plot(
                 np.arange(2)
-                + 1.5
+                + 1.2
                 * (
                     levels[n].spin_orbital_nuclear_magnetization
                     + orbital_xshifts[int(levels[n].orbital)]
@@ -180,15 +208,19 @@ class IonVisualization(ConversionRule):
                 zorder=3,
             )
 
-            self.ax.text(
-                0.5
-                + 1.5
-                * (
-                    levels[n].spin_orbital_nuclear_magnetization
-                    + orbital_xshifts[int(levels[n].orbital)]
-                ),
-                pos[n],
+            self.ax.annotate(
                 plot_level_labels[n],
+                (
+                    0.5
+                    + 1.2
+                    * (
+                        levels[n].spin_orbital_nuclear_magnetization
+                        + orbital_xshifts[int(levels[n].orbital)]
+                    ),
+                    pos[n],
+                ),
+                (0, -3),
+                textcoords="offset points",
                 ha="center",
                 va="top",
                 zorder=2,
@@ -230,7 +262,7 @@ class IonVisualization(ConversionRule):
             )
 
         for t, n1, n2, tl in included_transitions:
-            cmap = cm.get_cmap("gist_rainbow")
+            ccmap = cm.get_cmap("gist_rainbow")
             cnorm = colors.Normalize(400e12 * 2 * np.pi, 790e12 * 2 * np.pi)
 
             on_off_seq = [
@@ -242,13 +274,13 @@ class IonVisualization(ConversionRule):
             self.ax.plot(
                 [
                     0.5
-                    + 1.5
+                    + 1.2
                     * (
                         levels[n1].spin_orbital_nuclear_magnetization
                         + orbital_xshifts[int(levels[n1].orbital)]
                     ),
                     0.5
-                    + 1.5
+                    + 1.2
                     * (
                         levels[n2].spin_orbital_nuclear_magnetization
                         + orbital_xshifts[int(levels[n2].orbital)]
@@ -260,21 +292,24 @@ class IonVisualization(ConversionRule):
                 ],
                 lw=2,
                 ls=(0, on_off_seq),
-                color=np.array(cmap(cnorm(np.abs(energies[n1] - energies[n2])))) * 0.75,
+                color=np.array(ccmap(cnorm(np.abs(energies[n1] - energies[n2]))))
+                * 0.75,
                 zorder=1,
             )
 
-            self.ax.text(
-                0.5
-                + 0.75
-                * (
-                    levels[n1].spin_orbital_nuclear_magnetization
-                    + orbital_xshifts[int(levels[n1].orbital)]
-                    + levels[n2].spin_orbital_nuclear_magnetization
-                    + orbital_xshifts[int(levels[n2].orbital)]
-                ),
-                0.5 * (pos[n1] + pos[n2]),
+            self.ax.annotate(
                 tl,
+                (
+                    0.5
+                    + 0.6
+                    * (
+                        levels[n1].spin_orbital_nuclear_magnetization
+                        + orbital_xshifts[int(levels[n1].orbital)]
+                        + levels[n2].spin_orbital_nuclear_magnetization
+                        + orbital_xshifts[int(levels[n2].orbital)]
+                    ),
+                    0.5 * (pos[n1] + pos[n2]),
+                ),
                 ha="center",
                 va="top",
                 zorder=2,
