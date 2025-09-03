@@ -38,6 +38,7 @@ class IonVisualization(ConversionRule):
         transition_labelgen=None,
         transition_labelgen_whitelist=None,
         scale_cutoff=10,
+        scale_separation=0.3,
         relative_scale_jump=1.1,
         transition_whitelist=None,
         transition_blacklist=None,
@@ -48,6 +49,7 @@ class IonVisualization(ConversionRule):
         self.transition_labelgen = transition_labelgen
         self.transition_labelgen_whitelist = transition_labelgen_whitelist
         self.scale_cutoff = scale_cutoff
+        self.scale_separation = scale_separation
         self.relative_scale_jump = relative_scale_jump
         self.transition_whitelist = transition_whitelist
         self.transition_blacklist = transition_blacklist
@@ -85,7 +87,7 @@ class IonVisualization(ConversionRule):
 
         x = deltaE
         energy_scales = [x]
-        if (x == 0).any():
+        if (deltaE == 0).any():
             x_mask = (x != 0).astype(float)
             x_mask[np.logical_not(x_mask.astype(bool))] = np.nan
 
@@ -101,9 +103,14 @@ class IonVisualization(ConversionRule):
 
         energy_scales = np.stack(energy_scales)
         scale_label = np.logical_not(np.isnan(energy_scales)).sum(0) - 1
+        scale_ref_index = (
+            np.nanargmin(energy_scales[:-1], axis=-1)[1:]
+            if (deltaE == 0).any()
+            else np.nanargmin(energy_scales[:-1], axis=-1)
+        )
 
         scale_displacement = []
-        for i in range(1, len(energy_scales) - 1):
+        for i in range(len(energy_scales) - 1):
             if (
                 energy_scales[i][
                     np.isnan(energy_scales[i + 1])
@@ -140,7 +147,7 @@ class IonVisualization(ConversionRule):
         position = scale_displacement.sum(0).cumsum()
         position = np.concatenate([np.zeros(1), position])
 
-        return position, scale_label
+        return position, deltaE, scale_label, scale_ref_index
 
     def levelgroups(self, levels):
         groups = np.stack(
@@ -185,7 +192,7 @@ class IonVisualization(ConversionRule):
             ],
         )
 
-        pos, scale_label = self._get_level_position(levels)
+        pos, deltaE, scale_label, scale_ref_index = self._get_level_position(levels)
 
         scale_cmap = cm.get_cmap("viridis")
         scale_c = scale_cmap(np.linspace(0, 1, scale_label.max() + 1))[scale_label]
@@ -198,8 +205,40 @@ class IonVisualization(ConversionRule):
         )
         self.ax.add_collection(scale_lc)
 
+        for n, s in enumerate(scale_ref_index):
+            self.ax.add_collection(
+                LineCollection(
+                    [
+                        scale_segments[s]
+                        - scale_segments[s][0:1,]
+                        + np.array(
+                            [
+                                -2
+                                - self.scale_separation
+                                * (len(scale_ref_index) - (n + 1)),
+                                0,
+                            ]
+                        )[None, :]
+                    ],
+                    colors=scale_c[s],
+                    linewidths=3,
+                    alpha=0.75,
+                    zorder=1,
+                )
+            )
+            self.ax.annotate(
+                f"{deltaE[s]:.3g}",
+                (-2 - self.scale_separation * (len(scale_ref_index) - (n + 1)), 0),
+                (0, -3),
+                textcoords="offset points",
+                rotation=45,
+                ha="right",
+                va="top",
+                zorder=2,
+            )
+
         self.ax.annotate(
-            "Relative Scale",
+            "Scale Type",
             (-1.5, (pos.min() + pos.max()) / 2),
             (-3, 0),
             textcoords="offset points",
