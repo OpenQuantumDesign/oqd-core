@@ -162,6 +162,23 @@ class Ion(TypeReflectBaseModel):
     transitions: List[Transition]
     position: List[float]
 
+    @property
+    def _level_dict(self):
+        return {level.label: level for level in self.levels}
+
+    @property
+    def _transition_dict(self):
+        return {transition.label: transition for transition in self.transitions}
+
+    def __getitem__(self, label):
+        if label in self._level_dict.keys():
+            return self._level_dict[label]
+
+        if label in self._transition_dict.keys():
+            return self._transition_dict[label]
+
+        raise KeyError("Invalid key, label not in levels or transitions.")
+
 
 ########################################################################################
 

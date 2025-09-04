@@ -270,6 +270,9 @@ class ResolveRelativeTime(RewriteRule):
                 [cls._get_duration(p) for p in model.sequence],
             )
         if isinstance(model, ParallelProtocol):
+            if len(model.sequence) == 1:
+                return cls._get_duration(model.sequence[0])
+
             return max(
                 *[cls._get_duration(p) for p in model.sequence],
             )

@@ -30,6 +30,7 @@ __all__ = [
     "Protocol",
     "ParallelProtocol",
     "SequentialProtocol",
+    "MeasurePulse",
 ]
 
 ########################################################################################
@@ -76,6 +77,16 @@ class Pulse(TypeReflectBaseModel):
     duration: float
 
 
+class MeasurePulse(Pulse):
+    """
+    Class representing a fluorescent measurement for some duration.
+
+    Attributes:
+        duration: Period of time to turn the measurement on for.
+
+    """
+
+
 class Protocol(TypeReflectBaseModel):
     """
     Class representing a light-matter interaction protocol/pulse program for the optical channels/beams.
@@ -92,7 +103,7 @@ class ParallelProtocol(Protocol):
         sequence: List of pulses or subprotocols to compose together in a parallel fashion.
     """
 
-    sequence: List[Union[Pulse, ProtocolSubTypes]]
+    sequence: List[Union[PulseSubTypes, ProtocolSubTypes]]
 
 
 class SequentialProtocol(Protocol):
@@ -103,7 +114,8 @@ class SequentialProtocol(Protocol):
         sequence: List of pulses or subprotocols to compose together in a sequntial fashion.
     """
 
-    sequence: List[Union[Pulse, ProtocolSubTypes]]
+    sequence: List[Union[PulseSubTypes, ProtocolSubTypes]]
 
 
 ProtocolSubTypes = Union[SequentialProtocol, ParallelProtocol]
+PulseSubTypes = Union[Pulse, MeasurePulse]

@@ -13,7 +13,14 @@
 # limitations under the License.
 
 from .circuit import AtomicCircuit
-from .protocol import Beam, ParallelProtocol, Protocol, Pulse, SequentialProtocol
+from .protocol import (
+    Beam,
+    MeasurePulse,
+    ParallelProtocol,
+    Protocol,
+    Pulse,
+    SequentialProtocol,
+)
 from .species import Ba133IIBuilder, IonBuilder, Yb171IIBuilder
 from .system import Ion, Level, Phonon, System, Transition
 
@@ -32,4 +39,5 @@ __all__ = [
     "IonBuilder",
     "Yb171IIBuilder",
     "Ba133IIBuilder",
+    "MeasurePulse",
 ]
