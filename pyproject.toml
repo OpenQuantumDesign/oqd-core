@@ -62,13 +62,10 @@ select = ["E4", "E7", "E9", "F", "I"]
 fixable = ["ALL"]
 
 [tool.uv.sources]
-oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure", rev = "fix_conversion_rule" }
+oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure" }
 
 [dependency-groups]
-dev = [
-    "jupyter>=1.1.1",
-    "pre-commit>=4.1.0",
-]
+dev = ["jupyter>=1.1.1", "pre-commit>=4.1.0"]
 
 
 [project.urls]

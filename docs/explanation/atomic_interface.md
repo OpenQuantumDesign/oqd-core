@@ -212,6 +212,25 @@ microwave_pulse = Pulse(
 
 ///
 
+#### Measurement
+
+To perform a measurement, we not only have to turn on an optical channel, we also have to turn on a detector, this is handled by the [`MeasurePulse`][oqd_core.interface.atomic.protocol.MeasurePulse].
+
+<!-- prettier-ignore -->
+/// admonition | Example
+    type: example
+
+Pulse that drives a fluorescent transition and turns on the detector for a duration $T$:
+
+```python
+detection_pulse = MeasurePulse(
+    beam=detection_beam,
+    duration=T,
+)
+```
+
+///
+
 ### Composition of Protocols
 
 The pulse program for a quantum experiment is usually more complex than a pulse of a single beam. This is handled with [`SequentialProtocol`][oqd_core.interface.atomic.protocol.SequentialProtocol] and [`ParallelProtocol`][oqd_core.interface.atomic.protocol.ParallelProtocol].
