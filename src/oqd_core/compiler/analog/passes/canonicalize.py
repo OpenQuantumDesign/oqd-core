@@ -23,6 +23,7 @@ from oqd_core.compiler.analog.rewrite.canonicalize import (
     PauliAlgebra,
     ProperOrder,
     PruneIdentity,
+    PruneZeros,
     ScaleTerms,
     SortedOrder,
 )
@@ -119,5 +120,5 @@ def analog_operator_canonicalization(model):
         FixedPoint(scale_terms_chain),
         FixedPoint(Post(SortedOrder())),
         canonicalize_math_expr,
-        verify_canonicalization,
+        FixedPoint(Post(PruneZeros())),
     )(model=model)

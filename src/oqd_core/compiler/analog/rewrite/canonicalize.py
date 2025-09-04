@@ -16,7 +16,6 @@ from typing import Union
 
 from oqd_compiler_infrastructure import RewriteRule
 
-########################################################################################
 from oqd_core.compiler.analog.passes.analysis import analysis_term_index
 from oqd_core.interface.analog import (
     Annihilation,
@@ -49,6 +48,7 @@ __all__ = [
     "ProperOrder",
     "ScaleTerms",
     "SortedOrder",
+    "PruneZeros",
 ]
 
 ########################################################################################
@@ -499,3 +499,33 @@ class SortedOrder(RewriteRule):
 
             elif term1 < term2:
                 return OperatorAdd(op1=model.op1, op2=model.op2)
+
+
+class PruneZeros(RewriteRule):
+    """
+    Removes operators multiplied by zero
+
+    Args:
+        model (VisitableBaseModel):
+
+    Returns:
+        model (VisitableBaseModel):
+
+    Assumptions:
+        [`GatherMathExpr`][oqd_core.compiler.analog.rewrite.canonicalize.GatherMathExpr],
+        [`OperatorDistribute`][oqd_core.compiler.analog.rewrite.canonicalize.OperatorDistribute],
+        [`ProperOrder`][oqd_core.compiler.analog.rewrite.canonicalize.ProperOrder],
+        [`GatherPauli`][oqd_core.compiler.analog.rewrite.canonicalize.GatherPauli],
+        [`NormalOrder`][oqd_core.compiler.analog.rewrite.canonicalize.NormalOrder]
+        [`PruneIdentity`][oqd_core.compiler.analog.rewrite.canonicalize.PruneIdentity]
+
+    """
+
+    def map_OperatorAdd(self, model):
+        if isinstance(model.op1, OperatorScalarMul) and model.op1.expr == MathNum(
+            value=0
+        ):
+            return model.op2
+
+        if model.op2.expr == MathNum(value=0):
+            return model.op1
