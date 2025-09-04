@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import math
 from typing import Union
 
 import numpy as np
@@ -32,7 +31,6 @@ from oqd_core.interface.math import (
     MathPow,
     MathSub,
     MathTerminal,
-    MathUnaryOp,
     MathVar,
 )
 
@@ -161,12 +159,12 @@ class PrintMathExpr(ConversionRule):
     def _map_MathBinaryOp(self, model: MathBinaryOp, operands):
         s1 = (
             f"({operands['expr1']})"
-            if not isinstance(model.expr1, (MathTerminal, MathUnaryOp))
+            if not isinstance(model.expr1, (MathTerminal, MathFunc))
             else operands["expr1"]
         )
         s2 = (
             f"({operands['expr2']})"
-            if not isinstance(model.expr2, (MathTerminal, MathUnaryOp))
+            if not isinstance(model.expr2, (MathTerminal, MathFunc))
             else operands["expr2"]
         )
         operator_dict = dict(
@@ -429,17 +427,36 @@ class EvaluateMathExpr(ConversionRule):
         return complex("1j")
 
     def map_MathFunc(self, model: MathFunc, operands):
-        if getattr(math, model.func, None):
-            return getattr(math, model.func)(operands["expr"])
+        if model.func in [
+            "abs",
+            "sin",
+            "cos",
+            "tan",
+            "exp",
+            "log",
+            "sinh",
+            "cosh",
+            "tanh",
+            "atan",
+            "acos",
+            "asin",
+            "atanh",
+            "asinh",
+            "acosh",
+            "conj",
+            "real",
+            "imag",
+            "atan2",
+        ]:
+            if isinstance(operands["expr"], list):
+                return getattr(np, model.func)(*operands["expr"])
+
+            return getattr(np, model.func)(operands["expr"])
 
         if model.func == "heaviside":
             return np.heaviside(operands["expr"], 1)
 
-        if model.func == "conj":
-            return np.conj(operands["expr"])
-
-        if model.func == "abs":
-            return np.abs(operands["expr"])
+        raise ValueError("Unsupported function")
 
     def map_MathAdd(self, model: MathAdd, operands):
         return operands["expr1"] + operands["expr2"]

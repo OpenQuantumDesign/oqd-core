@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 import ast
-from typing import Annotated, Any, Literal, Union
+from typing import Annotated, Any, List, Literal, Union
 
 import numpy as np
 from oqd_compiler_infrastructure import (
@@ -24,7 +24,13 @@ from oqd_compiler_infrastructure import (
     RewriteRule,
     TypeReflectBaseModel,
 )
-from pydantic import AfterValidator, BeforeValidator
+from pydantic import (
+    AfterValidator,
+    BeforeValidator,
+    Discriminator,
+    Tag,
+    model_validator,
+)
 
 ########################################################################################
 
@@ -35,7 +41,6 @@ __all__ = [
     "MathNum",
     "MathVar",
     "MathImag",
-    "MathUnaryOp",
     "MathFunc",
     "MathBinaryOp",
     "MathAdd",
@@ -119,90 +124,6 @@ class MathExpr(TypeReflectBaseModel):
         other = MathExpr.cast(other)
         return other / self
 
-    pass
-
-
-########################################################################################
-
-
-def is_varname(value: str) -> str:
-    if not value.isidentifier():
-        raise ValueError
-    return value
-
-
-VarName = Annotated[str, AfterValidator(is_varname)]
-Functions = Literal[
-    "abs",
-    "sin",
-    "cos",
-    "tan",
-    "exp",
-    "log",
-    "sinh",
-    "cosh",
-    "tanh",
-    "atan",
-    "acos",
-    "asin",
-    "atanh",
-    "asinh",
-    "acosh",
-    "heaviside",
-    "conj",
-]
-
-
-########################################################################################
-
-
-class _AST_to_MathExpr(ConversionRule):
-    def generic_map(self, model: Any, operands):
-        raise TypeError
-
-    def map_Module(self, model: ast.Module, operands):
-        if len(model.body) == 1:
-            return self(model.body[0])
-        raise TypeError
-
-    def map_Expr(self, model: ast.Expr, operands):
-        return self(model.value)
-
-    def map_Constant(self, model: ast.Constant, operands):
-        return MathExpr.cast(model.value)
-
-    def map_Name(self, model: ast.Name, operands):
-        return MathVar(name=model.id)
-
-    def map_BinOp(self, model: ast.BinOp, operands):
-        if isinstance(model.op, ast.Add):
-            return MathAdd(expr1=self(model.left), expr2=self(model.right))
-        if isinstance(model.op, ast.Sub):
-            return MathSub(expr1=self(model.left), expr2=self(model.right))
-        if isinstance(model.op, ast.Mult):
-            return MathMul(expr1=self(model.left), expr2=self(model.right))
-        if isinstance(model.op, ast.Div):
-            return MathDiv(expr1=self(model.left), expr2=self(model.right))
-        if isinstance(model.op, ast.Pow):
-            return MathPow(expr1=self(model.left), expr2=self(model.right))
-        raise TypeError
-
-    def map_UnaryOp(self, model: ast.UnaryOp, operands):
-        if isinstance(model.op, ast.USub):
-            return -self(model.operand)
-        if isinstance(model.op, ast.UAdd):
-            return self(model.operand)
-        raise TypeError
-
-    def map_Call(self, model: ast.Call, operands):
-        if len(model.args) == 1:
-            return MathFunc(func=model.func.id, expr=self(model.args[0]))
-        raise TypeError
-
-
-def MathStr(*, string):
-    return _AST_to_MathExpr()(ast.parse(string))
-
 
 ########################################################################################
 
@@ -243,25 +164,104 @@ class MathImag(MathTerminal):
     pass
 
 
-class MathUnaryOp(MathExpr):
-    """
-    Class representing a unary operations on a [`MathExpr`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
-    """
-
-    pass
+def _is_varname(value: str) -> str:
+    if not value.isidentifier():
+        raise ValueError
+    return value
 
 
-class MathFunc(MathUnaryOp):
+VarName = Annotated[str, AfterValidator(_is_varname)]
+
+
+########################################################################################
+
+
+SupportedFuncNames = Literal[
+    "abs",
+    "sin",
+    "cos",
+    "tan",
+    "exp",
+    "log",
+    "sinh",
+    "cosh",
+    "tanh",
+    "atan",
+    "acos",
+    "asin",
+    "atanh",
+    "asinh",
+    "acosh",
+    "heaviside",
+    "conj",
+    "real",
+    "imag",
+    "atan2",
+]
+"""
+List of supported functions
+"""
+
+
+class MathFunc(MathExpr):
     """
     Class representing a named function applied to a [`MathExpr`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
 
     Attributes:
-        func (Literal["sin", "cos", "tan", "exp", "log", "sinh", "cosh", "tanh"]): Named function to apply
-        expr (MathExpr): Argument of the named function
+        func (SupportedFuncNames): Named function to apply
+        expr (Union[CastMathExpr, List[CastMathExpr]]): Arguments of the named function
     """
 
-    func: Functions
-    expr: CastMathExpr
+    func: SupportedFuncNames
+    expr: Annotated[
+        Union[
+            Annotated[CastMathExpr, Tag("MathExpr")],
+            Annotated[List[CastMathExpr], Tag("list")],
+        ],
+        Discriminator(lambda v: "list" if isinstance(v, list) else "MathExpr"),
+    ]
+
+    @model_validator(mode="before")
+    @classmethod
+    def args_validate(cls, data):
+        if data["func"] in [
+            "abs",
+            "sin",
+            "cos",
+            "tan",
+            "exp",
+            "log",
+            "sinh",
+            "cosh",
+            "tanh",
+            "atan",
+            "acos",
+            "asin",
+            "atanh",
+            "asinh",
+            "acosh",
+            "heaviside",
+            "conj",
+            "real",
+            "imag",
+        ]:
+            if isinstance(data["expr"], list):
+                assert (
+                    len(data["expr"]) == 1
+                ), "Attempted to apply unary function on multiple arguments"
+                data["expr"] = data["expr"][0]
+
+        if data["func"] in [
+            "atan2",
+        ]:
+            assert (
+                isinstance(data["expr"], list) and len(data["expr"]) == 2
+            ), "Attempted to apply binary function with incorrect number of arguments"
+
+        return data
+
+
+########################################################################################
 
 
 class MathBinaryOp(MathExpr):
@@ -339,16 +339,21 @@ class MathPow(MathBinaryOp):
 
 ########################################################################################
 
-MathExprSubtypes = Union[
-    MathNum,
-    MathVar,
-    MathImag,
-    MathFunc,
-    MathAdd,
-    MathSub,
-    MathMul,
-    MathDiv,
-    MathPow,
+MathExprSubtypes = Annotated[
+    Union[
+        Annotated[MathNum, Tag("MathNum")],
+        Annotated[MathVar, Tag("MathVar")],
+        Annotated[MathImag, Tag("MathImag")],
+        Annotated[MathFunc, Tag("MathFunc")],
+        Annotated[MathAdd, Tag("MathAdd")],
+        Annotated[MathSub, Tag("MathSub")],
+        Annotated[MathMul, Tag("MathMul")],
+        Annotated[MathDiv, Tag("MathDiv")],
+        Annotated[MathPow, Tag("MathPow")],
+    ],
+    Discriminator(
+        lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")
+    ),
 ]
 """
 Alias for the union of concrete MathExpr subtypes
@@ -389,3 +394,55 @@ ConstantMathExpr = Annotated[
 """
 Annotated type for constant MathExpr
 """
+
+
+########################################################################################
+
+
+class _AST_to_MathExpr(ConversionRule):
+    def generic_map(self, model: Any, operands):
+        raise TypeError
+
+    def map_Module(self, model: ast.Module, operands):
+        if len(model.body) == 1:
+            return self(model.body[0])
+        raise TypeError
+
+    def map_Expr(self, model: ast.Expr, operands):
+        return self(model.value)
+
+    def map_Constant(self, model: ast.Constant, operands):
+        return MathExpr.cast(model.value)
+
+    def map_Name(self, model: ast.Name, operands):
+        return MathVar(name=model.id)
+
+    def map_BinOp(self, model: ast.BinOp, operands):
+        if isinstance(model.op, ast.Add):
+            return MathAdd(expr1=self(model.left), expr2=self(model.right))
+        if isinstance(model.op, ast.Sub):
+            return MathSub(expr1=self(model.left), expr2=self(model.right))
+        if isinstance(model.op, ast.Mult):
+            return MathMul(expr1=self(model.left), expr2=self(model.right))
+        if isinstance(model.op, ast.Div):
+            return MathDiv(expr1=self(model.left), expr2=self(model.right))
+        if isinstance(model.op, ast.Pow):
+            return MathPow(expr1=self(model.left), expr2=self(model.right))
+        raise TypeError
+
+    def map_UnaryOp(self, model: ast.UnaryOp, operands):
+        if isinstance(model.op, ast.USub):
+            return -self(model.operand)
+        if isinstance(model.op, ast.UAdd):
+            return self(model.operand)
+        raise TypeError
+
+    def map_Call(self, model: ast.Call, operands):
+        return MathFunc(
+            func=model.func.id,
+            expr=[self(arg) for arg in model.args],
+        )
+
+
+def MathStr(*, string):
+    return _AST_to_MathExpr()(ast.parse(string))
