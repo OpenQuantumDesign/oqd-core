@@ -101,9 +101,13 @@ The compatible operators for the math interface consist of:
 The compatible named functions include:
 
 - trigonometric (`sin`, `cos`, `tan`)
+- inverse trigonometric functions (`asin`, `acos`, `atan`, `atan2`)
 - hyperbolic trigonometric (`sinh`, `cosh`, `tanh`)
+- inverse hyperbolic trigonometric functions (`asinh`, `acosh`, `atanh`)
 - exponential (`exp`)
 - logarithm (`log`)
+- complex number functions (`real`, `imag`, `conj`, `abs`)
+- step function (`heaviside`)
 
 ///
 
