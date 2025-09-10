@@ -39,6 +39,7 @@ dependencies = [
   "oqd-compiler-infrastructure",
   "numpy",
   "scipy",
+  "matplotlib>=3.10.5",
 ]
 
 [project.optional-dependencies]
@@ -64,10 +65,7 @@ fixable = ["ALL"]
 oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure" }
 
 [dependency-groups]
-dev = [
-    "jupyter>=1.1.1",
-    "pre-commit>=4.1.0",
-]
+dev = ["jupyter>=1.1.1", "pre-commit>=4.1.0"]
 
 
 [project.urls]
