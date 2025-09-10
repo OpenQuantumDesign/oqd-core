@@ -24,7 +24,7 @@ from oqd_core.interface.analog.operator import OperatorSubtypes
 
 __all__ = [
     "Expectation",
-    "EntanglementEntropyReyni",
+    "EntanglementEntropyRenyi",
     "EntanglementEntropyVN",
 ]
 
@@ -40,10 +40,10 @@ class EntanglementEntropyVN(VisitableBaseModel):
     qmode: List[NonNegativeInt] = []
 
 
-class EntanglementEntropyReyni(VisitableBaseModel):
+class EntanglementEntropyRenyi(VisitableBaseModel):
     alpha: NonNegativeInt = 1
     qreg: List[NonNegativeInt] = []
     qmode: List[NonNegativeInt] = []
 
 
-Metric = Union[EntanglementEntropyVN, EntanglementEntropyReyni, Expectation]
+Metric = Union[EntanglementEntropyVN, EntanglementEntropyRenyi, Expectation]
