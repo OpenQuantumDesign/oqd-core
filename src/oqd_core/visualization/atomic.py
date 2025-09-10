@@ -34,6 +34,7 @@ __all__ = [
 class IonVisualization(ConversionRule):
     def __init__(
         self,
+        ax=None,
         level_labelgen=None,
         transition_labelgen=None,
         transition_labelgen_whitelist=None,
@@ -54,8 +55,10 @@ class IonVisualization(ConversionRule):
         self.transition_whitelist = transition_whitelist
         self.transition_blacklist = transition_blacklist
 
-        self.fig, self.ax = plt.subplots(1, 1)
-        plt.close(self.fig)
+        if ax:
+            self.fig, self.ax = ax.figure, ax
+        else:
+            self.fig, self.ax = plt.subplots(1, 1)
         self.ax.set_axis_off()
 
     @staticmethod
