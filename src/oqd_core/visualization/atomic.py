@@ -88,6 +88,7 @@ class IonVisualization(ConversionRule):
         Es = np.array(list(map(lambda x: x.energy, levels)))
         deltaE = Es[1:] - Es[:-1]
 
+        # Calculates the different scales
         x = deltaE
         energy_scales = [x]
         if (deltaE == 0).any():
@@ -105,6 +106,8 @@ class IonVisualization(ConversionRule):
             x = x * x_mask
 
         energy_scales = np.stack(energy_scales)
+
+        # Get scale labels
         scale_label = np.logical_not(np.isnan(energy_scales)).sum(0) - 1
         scale_ref_index = (
             np.nanargmin(energy_scales[:-1], axis=-1)[1:]
@@ -112,6 +115,7 @@ class IonVisualization(ConversionRule):
             else np.nanargmin(energy_scales[:-1], axis=-1)
         )
 
+        # Calculate position of each level
         scale_displacement = []
         for i in range(len(energy_scales) - 1):
             if (
@@ -177,6 +181,7 @@ class IonVisualization(ConversionRule):
     def map_Ion(self, model, operands):
         energies = np.array(list(map(lambda level: level.energy, model.levels)))
 
+        # Reorder levels in ascending energy
         order = np.argsort(energies)
         energies = energies[order]
         levels = np.array(model.levels)[order]
@@ -184,6 +189,7 @@ class IonVisualization(ConversionRule):
         plot_level_labels = np.array(operands["levels"])[order]
         levelgroups = self.levelgroups(levels)[order]
 
+        # Calculate x shift of all levels due to orbital
         orbital_xshifts = np.cumsum(
             [
                 levelgroups[:, 5][levelgroups[:, 2] == i].max()
@@ -195,8 +201,10 @@ class IonVisualization(ConversionRule):
             ],
         )
 
+        # Calculate y position of all levels and description of scales
         pos, deltaE, scale_label, scale_ref_index = self._get_level_position(levels)
 
+        # Plot scales and scale labels
         scale_cmap = cm.get_cmap("viridis")
         scale_c = scale_cmap(np.linspace(0, 1, scale_label.max() + 1))[scale_label]
         scale_pos = np.stack([-1.5 * np.ones_like(pos), pos], -1)
@@ -208,6 +216,18 @@ class IonVisualization(ConversionRule):
         )
         self.ax.add_collection(scale_lc)
 
+        self.ax.annotate(
+            "Scale Type",
+            (-1.5, (pos.min() + pos.max()) / 2),
+            (5, 0),
+            textcoords="offset points",
+            rotation=90,
+            ha="left",
+            va="center",
+            zorder=2,
+            fontsize=matplotlib.rcParams["font.size"] * 1.5,
+        )
+
         for n, s in enumerate(scale_ref_index):
             self.ax.add_collection(
                 LineCollection(
@@ -216,9 +236,9 @@ class IonVisualization(ConversionRule):
                         - scale_segments[s][0:1,]
                         + np.array(
                             [
-                                -2
+                                -1.5
                                 - self.scale_separation
-                                * (len(scale_ref_index) - (n + 1)),
+                                * (1 + len(scale_ref_index) - (n + 1)),
                                 0,
                             ]
                         )[None, :]
@@ -231,27 +251,33 @@ class IonVisualization(ConversionRule):
             )
             self.ax.annotate(
                 f"{deltaE[s]:.3g}",
-                (-2 - self.scale_separation * (len(scale_ref_index) - (n + 1)), 0),
-                (0, -3),
+                (
+                    -1.5 - self.scale_separation * (1 + len(scale_ref_index) - (n + 1)),
+                    scale_segments[s][1, 1] - scale_segments[s][0, 1],
+                ),
+                (0, 0),
                 textcoords="offset points",
-                rotation=45,
-                ha="right",
-                va="top",
+                rotation=-45,
+                ha="center",
+                va="bottom",
                 zorder=2,
             )
 
         self.ax.annotate(
-            "Scale Type",
-            (-1.5, (pos.min() + pos.max()) / 2),
-            (-3, 0),
+            "Scales",
+            (
+                -1.8 - self.scale_separation * (len(scale_ref_index) - 1) / 2,
+                0,
+            ),
+            (0, -3),
             textcoords="offset points",
-            rotation=90,
-            ha="right",
-            va="center",
+            ha="center",
+            va="top",
             zorder=2,
             fontsize=matplotlib.rcParams["font.size"] * 1.5,
         )
 
+        # Plot energy levels
         for n in range(len(levels)):
             self.ax.plot(
                 np.arange(2)
@@ -283,6 +309,7 @@ class IonVisualization(ConversionRule):
                 zorder=2,
             )
 
+        # Plot transitions
         plot_transition_labels = np.array(operands["transitions"])
         included_transitions = map(
             lambda t: (
