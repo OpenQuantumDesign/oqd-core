@@ -1461,7 +1461,7 @@ wheels = [
 [[package]]
 name = "oqd-compiler-infrastructure"
 version = "0.1.0"
-source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure#b744a07a769e3a4107a128acb662586156608526" }
+source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure#bba1bb47c3fdde9c10be1ab373abf3a223b4c339" }
 dependencies = [
     { name = "pydantic" },
 ]
