@@ -31,7 +31,7 @@ from oqd_core.interface.analog.operator import (
     OperatorMul,
     OperatorScalarMul,
     OperatorSub,
-    OperatorSubtypes,
+    OperatorSubTypes,
     OperatorTerminal,
     Pauli,
     PauliI,
@@ -43,7 +43,7 @@ from oqd_core.interface.analog.operator import (
 )
 
 __all__ = [
-    "OperatorSubtypes",
+    "OperatorSubTypes",
     "Operator",
     "OperatorTerminal",
     "Pauli",

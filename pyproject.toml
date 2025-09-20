@@ -67,6 +67,7 @@ oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-
 dev = [
     "jupyter>=1.1.1",
     "pre-commit>=4.1.0",
+    "ruff>=0.13.1",
 ]
 
 
