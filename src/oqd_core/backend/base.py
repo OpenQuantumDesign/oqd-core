@@ -13,14 +13,55 @@
 # limitations under the License.
 
 
+import inspect
+import warnings
 from abc import ABC, abstractmethod
+from typing import Any
 
 ########################################################################################
 
 
+class MetaBackendRegistry(type):
+    def __new__(cls, clsname, superclasses, attributedict):
+        attributedict["backends"] = dict()
+        return super().__new__(cls, clsname, superclasses, attributedict)
+
+    def register(cls, backend):
+        if not issubclass(backend, BackendBase):
+            raise TypeError("You may only register subclasses of BackendBase.")
+
+        if backend.__name__ in cls.backends.keys():
+            warnings.warn("Overiding previously registered backend with the same name.")
+
+        cls.backends[backend.__name__] = backend
+
+
+class BackendRegistry(metaclass=MetaBackendRegistry):
+    pass
+
+
 class BackendBase(ABC):
     @abstractmethod
-    def run(self, task):
+    def run(self, program, args):
         pass
 
-    pass
+    def __init_subclass__(cls):
+        super().__init_subclass__()
+
+        args = inspect.getfullargspec(cls.run)
+
+        if "program" not in args.annotations:
+            warnings.warn(
+                f"Misisng type hint for argument `program` in run method of {cls.__name__}. Defaults to Any."
+            )
+
+            cls.run.__annotations__["program"] = Any
+
+        if "args" not in args.annotations:
+            warnings.warn(
+                f"Misisng type hint for argument `args` in run method of {cls.__name__}. Defaults to Any."
+            )
+
+            cls.run.__annotations__["args"] = Any
+
+        BackendRegistry.register(cls)
