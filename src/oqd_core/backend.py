@@ -39,7 +39,11 @@ class MetaBackendRegistry(type):
             raise TypeError("You may only register subclasses of BackendBase.")
 
         if backend.__name__ in cls.backends.keys():
-            warnings.warn("Overiding previously registered backend with the same name.")
+            warnings.warn(
+                f"Overwriting previously registered backend `{backend.__name__}` of the same name.",
+                UserWarning,
+                stacklevel=2,
+            )
 
         cls.backends[backend.__name__] = backend
 

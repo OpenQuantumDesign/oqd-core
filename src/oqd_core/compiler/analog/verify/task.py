@@ -14,7 +14,6 @@
 
 from oqd_compiler_infrastructure import RewriteRule
 
-from oqd_core.backend.metric import Expectation
 from oqd_core.compiler.analog.passes.analysis import analysis_canonical_hamiltonian_dim
 
 ########################################################################################
@@ -24,7 +23,6 @@ from oqd_core.interface.analog import AnalogGate
 
 __all__ = [
     "VerifyAnalogCircuitDim",
-    "VerifyAnalogArgsDim",
 ]
 
 ########################################################################################
@@ -51,32 +49,6 @@ class VerifyAnalogCircuitDim(RewriteRule):
         self._dim: tuple = (n_qreg, n_qmode)
 
     def map_AnalogGate(self, model: AnalogGate):
-        assert self._dim == analysis_canonical_hamiltonian_dim(model.hamiltonian), (
-            "Inconsistent Hilbert space dimension between Analog Gates"
-        )
-
-
-class VerifyAnalogArgsDim(RewriteRule):
-    """
-    Checks whether hilbert space dimensions are consistent between Expectation in args
-    and whether they match the n_qreg and n_qmode given as input.
-
-    Args:
-        model (VisitableBaseModel):
-            The rule only verfies Expectation inside TaskArgsAnalog in Analog layer
-
-    Returns:
-        model (VisitableBaseModel): unchanged
-
-    Assumptions:
-        All [`Operator`][oqd_core.interface.analog.operator.Operator] inside  [`AnalogCircuit`][oqd_core.interface.analog.operations.AnalogCircuit] are canonicalized
-    """
-
-    def __init__(self, n_qreg, n_qmode):
-        super().__init__()
-        self._dim: tuple = (n_qreg, n_qmode)
-
-    def map_Expectation(self, model: Expectation):
-        assert self._dim == analysis_canonical_hamiltonian_dim(model.operator), (
-            "Inconsistent Hilbert space dimension in Expectation metric"
-        )
+        assert self._dim == analysis_canonical_hamiltonian_dim(
+            model.hamiltonian
+        ), "Inconsistent Hilbert space dimension between Analog Gates"

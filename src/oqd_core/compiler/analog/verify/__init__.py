@@ -25,7 +25,6 @@ from .canonicalize import (
 )
 from .operator import VerifyHilberSpaceDim
 from .task import (
-    VerifyAnalogArgsDim,
     VerifyAnalogCircuitDim,
 )
 
@@ -40,6 +39,5 @@ __all__ = [
     "CanVerSortedOrder",
     "CanVerScaleTerm",
     "VerifyAnalogCircuitDim",
-    "VerifyAnalogArgsDim",
     "VerifyHilberSpaceDim",
 ]

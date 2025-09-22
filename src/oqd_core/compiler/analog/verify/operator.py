@@ -71,9 +71,6 @@ class VerifyHilberSpaceDim(RewriteRule):
     def map_AnalogGate(self, model):
         self._reset()
 
-    def map_Expectation(self, model):
-        self._reset()
-
     def _get_dim(self, model):
         if isinstance(model, Pauli):
             return (1, 0)
@@ -103,14 +100,14 @@ class VerifyHilberSpaceDim(RewriteRule):
             assert self._term_dim == new, "Incorrect Hilbert space dimension"
 
         if isinstance(model.op1, Union[OperatorTerminal, OperatorMul]):
-            assert self._term_dim == self._get_dim(model.op1), (
-                "Incorrect Hilbert space dimension"
-            )
+            assert self._term_dim == self._get_dim(
+                model.op1
+            ), "Incorrect Hilbert space dimension"
         elif isinstance(model.op1, OperatorScalarMul):
             if isinstance(model.op1.op, Union[OperatorTerminal, OperatorMul]):
-                assert self._term_dim == self._get_dim(model.op1.op), (
-                    "Incorrect Hilbert space dimension"
-                )
+                assert self._term_dim == self._get_dim(
+                    model.op1.op
+                ), "Incorrect Hilbert space dimension"
 
         if not isinstance(model.op1, OperatorAdd):
             self._final_add_term = True
