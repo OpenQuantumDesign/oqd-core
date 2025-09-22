@@ -14,10 +14,10 @@
 
 from __future__ import annotations
 
-from typing import List, Tuple, Union
+from typing import Annotated, List, Tuple, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from pydantic import conlist
+from pydantic import Discriminator, conlist
 
 from oqd_core.interface.atomic.system import Transition
 from oqd_core.interface.math import CastMathExpr, ConstantMathExpr
@@ -103,7 +103,7 @@ class ParallelProtocol(Protocol):
         sequence: List of pulses or subprotocols to compose together in a parallel fashion.
     """
 
-    sequence: List[Union[PulseSubTypes, ProtocolSubTypes]]
+    sequence: List[ProtocolPulseSubTypes]
 
 
 class SequentialProtocol(Protocol):
@@ -114,8 +114,16 @@ class SequentialProtocol(Protocol):
         sequence: List of pulses or subprotocols to compose together in a sequntial fashion.
     """
 
-    sequence: List[Union[PulseSubTypes, ProtocolSubTypes]]
+    sequence: List[ProtocolPulseSubTypes]
 
 
-ProtocolSubTypes = Union[SequentialProtocol, ParallelProtocol]
-PulseSubTypes = Union[Pulse, MeasurePulse]
+ProtocolSubTypes = Annotated[
+    Union[SequentialProtocol, ParallelProtocol], Discriminator(discriminator="class_")
+]
+PulseSubTypes = Annotated[
+    Union[Pulse, MeasurePulse], Discriminator(discriminator="class_")
+]
+ProtocolPulseSubTypes = Annotated[
+    Union[SequentialProtocol, ParallelProtocol, Pulse, MeasurePulse],
+    Discriminator(discriminator="class_"),
+]

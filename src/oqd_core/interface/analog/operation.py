@@ -12,13 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Literal, Optional, Union
+from __future__ import annotations
 
-# %%
-from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
+from typing import Annotated, List, Optional, Union
+
+from oqd_compiler_infrastructure import TypeReflectBaseModel
+from pydantic import Discriminator
 from pydantic.types import NonNegativeInt
 
-from oqd_core.interface.analog.operator import OperatorSubtypes
+from oqd_core.interface.analog.operator import OperatorSubTypes
 
 __all__ = [
     "AnalogCircuit",
@@ -33,6 +35,17 @@ __all__ = [
 ########################################################################################
 
 
+class AnalogOperation(TypeReflectBaseModel):
+    """
+    Class representing an analog operation applied to the quantum system
+    """
+
+    pass
+
+
+########################################################################################
+
+
 class AnalogGate(TypeReflectBaseModel):
     """
     Class representing an analog gate composed of Hamiltonian terms and dissipation terms
@@ -41,16 +54,7 @@ class AnalogGate(TypeReflectBaseModel):
         hamiltonian (Operator): Hamiltonian terms of the gate
     """
 
-    hamiltonian: OperatorSubtypes
-
-
-# %%
-class AnalogOperation(VisitableBaseModel):
-    """
-    Class representing an analog operation applied to the quantum system
-    """
-
-    pass
+    hamiltonian: OperatorSubTypes
 
 
 class Evolve(AnalogOperation):
@@ -62,9 +66,11 @@ class Evolve(AnalogOperation):
         gate (AnalogGate): Analog gate to evolve by
     """
 
-    key: Literal["evolve"] = "evolve"
     duration: float
-    gate: Union[AnalogGate, str]
+    gate: AnalogGate
+
+
+########################################################################################
 
 
 class Measure(AnalogOperation):
@@ -72,7 +78,6 @@ class Measure(AnalogOperation):
     Class representing a measurement in the analog circuit
     """
 
-    key: Literal["measure"] = "measure"
     targets: Optional[List[int]] = None
 
 
@@ -81,14 +86,20 @@ class Initialize(AnalogOperation):
     Class representing a initialization in the analog circuit
     """
 
-    key: Literal["initialize"] = "initialize"
     targets: Optional[List[int]] = None
 
+
+########################################################################################
 
 """
 Union of classes
 """
-Statement = Union[Measure, Evolve, Initialize]
+AnalogOperationSubTypes = Annotated[
+    Union[Measure, Evolve, Initialize], Discriminator(discriminator="class_")
+]
+
+
+########################################################################################
 
 
 class AnalogCircuit(AnalogOperation):
@@ -100,7 +111,7 @@ class AnalogCircuit(AnalogOperation):
 
     """
 
-    sequence: List[Statement] = []
+    sequence: List[AnalogOperationSubTypes] = []
 
     n_qreg: Union[NonNegativeInt, None] = None
     n_qmode: Union[NonNegativeInt, None] = None
