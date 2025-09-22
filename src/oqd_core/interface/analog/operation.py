@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Literal, Union
+from typing import List, Literal, Optional, Union
 
 # %%
 from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
@@ -73,6 +73,7 @@ class Measure(AnalogOperation):
     """
 
     key: Literal["measure"] = "measure"
+    targets: Optional[List[int]] = None
 
 
 class Initialize(AnalogOperation):
@@ -81,10 +82,11 @@ class Initialize(AnalogOperation):
     """
 
     key: Literal["initialize"] = "initialize"
+    targets: Optional[List[int]] = None
 
 
 """
-Union of classes 
+Union of classes
 """
 Statement = Union[Measure, Evolve, Initialize]
 
@@ -106,8 +108,8 @@ class AnalogCircuit(AnalogOperation):
     def evolve(self, gate: AnalogGate, duration: float):
         self.sequence.append(Evolve(duration=duration, gate=gate))
 
-    def initialize(self):
-        self.sequence.append(Initialize())
+    def initialize(self, targets=None):
+        self.sequence.append(Initialize(targets=targets))
 
-    def measure(self):
-        self.sequence.append(Measure())
+    def measure(self, targets=None):
+        self.sequence.append(Measure(targets=targets))
