@@ -57,8 +57,8 @@ class BackendBase(ABC):
     def run(self, program, args):
         pass
 
-    def __init_subclass__(cls):
-        super().__init_subclass__()
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
 
         args = inspect.getfullargspec(cls.run)
 
