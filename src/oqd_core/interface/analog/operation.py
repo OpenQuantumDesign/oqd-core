@@ -17,9 +17,12 @@ from typing import List, Literal, Union
 # %%
 from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
 from pydantic.types import NonNegativeInt
+########################################################################################
+from .register import ClassicalRegister, ClassicalRef, QuantumRegister, QuantumBit
+from .declaration import QuantumDeclaration, ClassicalDeclaration, OperatorDeclaration, AliasDeclaration
+from .operator import OperatorSubtypes
 
-from oqd_core.interface.analog.operator import OperatorSubtypes
-
+########################################################################################
 __all__ = [
     "AnalogCircuit",
     "AnalogGate",
@@ -27,6 +30,8 @@ __all__ = [
     "Evolve",
     "Measure",
     "Initialize",
+    "IfElse",
+    "While"
 ]
 
 
@@ -64,7 +69,7 @@ class Evolve(AnalogOperation):
 
     key: Literal["evolve"] = "evolve"
     duration: float
-    gate: Union[AnalogGate, str]
+    gate: Union[str, AnalogGate]
 
 
 class Measure(AnalogOperation):
@@ -82,11 +87,29 @@ class Initialize(AnalogOperation):
 
     key: Literal["initialize"] = "initialize"
 
-
+class IfElse(AnalogOperation):
+    """
+    Class representing a conditional branch in the analog circuit
+    """
+    key: Literal["if_else"] = "if_else"
+    condition: Union[ClassicalRegister, ClassicalRef]
+    then_branch: List["Statement"] = []
+    else_branch: List["Statement"] = []
+    
+class While(AnalogOperation):
+    """
+    Class representing a while loop in the analog circuit
+    """
+    key: Literal["while"] = "while"
+    condition : Union[ClassicalRegister, ClassicalRef]
+    body: List["Statement"] = []
+    
+    
 """
 Union of classes 
 """
-Statement = Union[Measure, Evolve, Initialize]
+Statement = Union[Measure, Evolve, Initialize, IfElse, While]
+Declaration = Union[QuantumDeclaration, ClassicalDeclaration, AliasDeclaration, OperatorDeclaration]
 
 
 class AnalogCircuit(AnalogOperation):
@@ -97,17 +120,19 @@ class AnalogCircuit(AnalogOperation):
         sequence (List[Union[Measure, Evolve, Initialize]]): Sequence of statements, including initialize, evolve, measure
 
     """
-
+    qreg: List[QuantumRegister] = []
+    creg: List[ClassicalRegister] = []
+    declarations: List[Declaration] = []
     sequence: List[Statement] = []
 
     n_qreg: Union[NonNegativeInt, None] = None
     n_qmode: Union[NonNegativeInt, None] = None
 
-    def evolve(self, gate: AnalogGate, duration: float):
-        self.sequence.append(Evolve(duration=duration, gate=gate))
+    def evolve(self, gate: AnalogGate, duration: float, qreg):
+        self.sequence.append(Evolve(duration=duration, gate=gate, qreg=qreg))
 
-    def initialize(self):
-        self.sequence.append(Initialize())
+    def initialize(self, qreg):
+        self.sequence.append(Initialize(qreg=qreg))
 
-    def measure(self):
-        self.sequence.append(Measure())
+    def measure(self, qreg, creg):
+        self.sequence.append(Measure(qreg=qreg, creg=creg))

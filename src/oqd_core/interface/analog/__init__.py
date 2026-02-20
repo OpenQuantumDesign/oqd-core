@@ -12,12 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from oqd_core.interface.analog.declaration import (
+    AliasDeclaration,
+    ClassicalDeclaration,
+    OperatorDeclaration,
+    QuantumDeclaration,
+)
 from oqd_core.interface.analog.operation import (
     AnalogCircuit,
     AnalogGate,
     AnalogOperation,
     Evolve,
     Measure,
+    IfElse,
+    While,
 )
 from oqd_core.interface.analog.operator import (
     Annihilation,
@@ -68,4 +76,10 @@ __all__ = [
     "AnalogOperation",
     "Evolve",
     "Measure",
+    "IfElse",
+    "While",
+    "AliasDeclaration",
+    "ClassicalDeclaration",
+    "OperatorDeclaration",
+    "QuantumDeclaration",
 ]
