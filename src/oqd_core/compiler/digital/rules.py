@@ -36,9 +36,6 @@ class ResolveQuantumRef(RewriteRule):
 
     Returns:
         model (DigitalCircuit): All QuantumRef nodes are replaced with concrete registers.
-
-    Assumptions:
-        Lookup table has been built via [`BuildLookup`][oqd_core.compiler.digital.analysis.BuildLookup].
     """
 
     def __init__(self, lookup):
@@ -65,9 +62,6 @@ class ResolveClassicalRef(RewriteRule):
 
     Returns:
         model (DigitalCircuit): All ClassicalRef nodes are replaced with concrete registers.
-
-    Assumptions:
-        Lookup table has been built via [`BuildLookup`][oqd_core.compiler.digital.analysis.BuildLookup].
     """
 
     def __init__(self, lookup):
@@ -93,10 +87,6 @@ class VerifyNoUnresolvedRefs(RewriteRule):
 
     Returns:
         model (DigitalCircuit): unchanged
-
-    Assumptions:
-        [`ResolveQuantumRef`][oqd_core.compiler.digital.rules.ResolveQuantumRef],
-        [`ResolveClassicalRef`][oqd_core.compiler.digital.rules.ResolveClassicalRef]
 
     Example:
         QuantumRef(name="q", index=0) => raises ValueError

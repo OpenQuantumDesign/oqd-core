@@ -45,17 +45,12 @@ def resolve_declarations(model):
 
     Returns:
         model (DigitalCircuit): Circuit with all references resolved to concrete registers.
-
-    Assumptions:
-        None
     """
     lookup_builder = BuildLookup()
     Post(lookup_builder)(model)
 
     resolved_sequence = Post(ResolveQuantumRef(lookup_builder.lookup))(model.sequence)
-    resolved_sequence = Post(ResolveClassicalRef(lookup_builder.lookup))(
-        resolved_sequence
-    )
+    resolved_sequence = Post(ResolveClassicalRef(lookup_builder.lookup))(resolved_sequence)
 
     Post(VerifyNoUnresolvedRefs())(resolved_sequence)
 

@@ -39,9 +39,6 @@ class BuildLookup(RewriteRule):
     Returns:
         model (DigitalCircuit)
 
-    Assumptions:
-        None
-
     Example:
         QuantumDeclaration(name="q", size=5) => lookup["q"] = QuantumRegister(id="q", reg=5)
     """
