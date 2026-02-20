@@ -12,17 +12,21 @@
 
 from typing import Optional, Union
 from oqd_compiler_infrastructure import VisitableBaseModel
+from oqd_core.interface.math import MathExprSubtypes
 
 ########################################################################################
 from .operator import OperatorSubtypes
 from .register import QuantumRef, ClassicalRef
+from .bool import BoolExprSubtypes
 
 ########################################################################################
 __all__ = [
     "QuantumDeclaration",
     "ClassicalDeclaration",
     "AliasDeclaration",
-    "OperatorDeclaration"
+    "OperatorDeclaration",
+    "BoolDeclaration",
+    "MathExprDeclaration"
 ]
 
 ########################################################################################
@@ -44,3 +48,11 @@ class AliasDeclaration(VisitableBaseModel):
 class OperatorDeclaration(VisitableBaseModel):
     name: str
     operator: OperatorSubtypes
+
+class BoolDeclaration(VisitableBaseModel):
+    name: str
+    expr: BoolExprSubtypes
+
+class MathExprDeclaration(VisitableBaseModel):
+    name: str
+    expr: MathExprSubtypes

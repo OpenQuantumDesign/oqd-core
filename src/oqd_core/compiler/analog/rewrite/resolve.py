@@ -20,6 +20,7 @@ from oqd_core.interface.analog.register import (
     ClassicalRegister,
     QuantumRegister,
 )
+from oqd_core.interface.math import MathRef
 
 ########################################################################################
 
@@ -27,6 +28,8 @@ __all__ = [
     "BuildAnalogLookup",
     "ResolveAnalogQuantumRef",
     "ResolveAnalogClassicalRef",
+    "ResolveAnalogBoolRef",
+    "ResolveAnalogMathRef",
     "VerifyNoUnresolvedAnalogRefs",
 ]
 
@@ -71,6 +74,17 @@ class BuildAnalogLookup(RewriteRule):
         if model.name in self.lookup:
             raise ValueError(f"Duplicate declaration: {model.name}")
         self.lookup[model.name] = model.operator
+    
+    def map_BoolDeclaration(self, model):
+        if model.name in self.lookup:
+            raise ValueError(f"Duplicate declaration: {model.name}")
+        self.lookup[model.name] = model.expr
+
+
+    def map_MathExprDeclaration(self, model):
+        if model.name in self.lookup:
+            raise ValueError(f"Duplicate declaration: {model.name}")
+        self.lookup[model.name] = model.expr
 
 
 class ResolveAnalogQuantumRef(RewriteRule):
@@ -106,7 +120,46 @@ class ResolveAnalogClassicalRef(RewriteRule):
             return reg[model.index]
         return reg
 
+
+class ResolveAnalogBoolRef(RewriteRule):
+    """
+    Resolves BoolRef nodes to the declared BoolExpr
+    """
+
+    def __init__(self, lookup):
+        super().__init__()
+        self.lookup = lookup
+
+    def map_BoolRef(self, model):
+        expr = self.lookup.get(model.name)
+        if expr is None:
+            raise ValueError(f"Undefined boolean reference: {model.name}")
+        return expr
+
+
+class ResolveAnalogMathRef(RewriteRule):
+    """
+    Resolves MathRef nodes to the declared MathExpr
+    """
+
+    def __init__(self, lookup):
+        super().__init__()
+        self.lookup = lookup
+
+    def map_MathRef(self, model):
+        expr = self.lookup.get(model.name)
+        if expr is None:
+            raise ValueError(f"Undefined MathExpr reference: {model.name}")
+        return expr
+
+
 class VerifyNoUnresolvedAnalogRefs(RewriteRule):
+    def map_BoolRef(self, model):
+        raise ValueError(f"Unresolved boolean reference: {model.name}")
+    
+    def map_MathRef(self, model):
+        raise ValueError(f"Unresolved MathExpr reference: {model.name}")
+    
     def map_QuantumRef(self, model):
         raise ValueError(f"Unresolved quantum reference: {model.name}")
 

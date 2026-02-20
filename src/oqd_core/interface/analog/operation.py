@@ -19,8 +19,16 @@ from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
 from pydantic.types import NonNegativeInt
 ########################################################################################
 from .register import ClassicalRegister, ClassicalRef, QuantumRegister, QuantumBit
-from .declaration import QuantumDeclaration, ClassicalDeclaration, OperatorDeclaration, AliasDeclaration
+from .declaration import (
+    QuantumDeclaration, 
+    ClassicalDeclaration, 
+    OperatorDeclaration, 
+    AliasDeclaration,
+    BoolDeclaration,
+    MathExprDeclaration,
+)
 from .operator import OperatorSubtypes
+from .bool import BoolExprSubtypes
 
 ########################################################################################
 __all__ = [
@@ -92,7 +100,7 @@ class IfElse(AnalogOperation):
     Class representing a conditional branch in the analog circuit
     """
     key: Literal["if_else"] = "if_else"
-    condition: Union[ClassicalRegister, ClassicalRef]
+    condition: BoolExprSubtypes
     then_branch: List["Statement"] = []
     else_branch: List["Statement"] = []
     
@@ -101,7 +109,7 @@ class While(AnalogOperation):
     Class representing a while loop in the analog circuit
     """
     key: Literal["while"] = "while"
-    condition : Union[ClassicalRegister, ClassicalRef]
+    condition : BoolExprSubtypes
     body: List["Statement"] = []
     
     
@@ -109,7 +117,14 @@ class While(AnalogOperation):
 Union of classes 
 """
 Statement = Union[Measure, Evolve, Initialize, IfElse, While]
-Declaration = Union[QuantumDeclaration, ClassicalDeclaration, AliasDeclaration, OperatorDeclaration]
+Declaration = Union[
+    QuantumDeclaration, 
+    ClassicalDeclaration, 
+    AliasDeclaration, 
+    OperatorDeclaration,
+    BoolDeclaration,
+    MathExprDeclaration,
+]
 
 
 class AnalogCircuit(AnalogOperation):

@@ -40,6 +40,7 @@ __all__ = [
     "MathStr",
     "MathNum",
     "MathVar",
+    "MathRef",
     "MathImag",
     "MathFunc",
     "MathBinaryOp",
@@ -147,6 +148,8 @@ class MathVar(MathTerminal):
 
     name: VarName
 
+class MathRef(MathTerminal):
+    name: VarName
 
 class MathNum(MathTerminal):
     """
@@ -343,6 +346,7 @@ MathExprSubtypes = Annotated[
     Union[
         Annotated[MathNum, Tag("MathNum")],
         Annotated[MathVar, Tag("MathVar")],
+        Annotated[MathRef, Tag("MathRef")],
         Annotated[MathImag, Tag("MathImag")],
         Annotated[MathFunc, Tag("MathFunc")],
         Annotated[MathAdd, Tag("MathAdd")],
@@ -373,6 +377,9 @@ class _MathExprIsConstant(RewriteRule):
             self.isconstant = True
 
     def map_MathVar(self, model):
+        self.isconstant = False
+    
+    def map_MathRef(self, model):
         self.isconstant = False
 
 

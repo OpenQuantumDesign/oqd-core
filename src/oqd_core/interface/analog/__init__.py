@@ -17,7 +17,21 @@ from oqd_core.interface.analog.declaration import (
     ClassicalDeclaration,
     OperatorDeclaration,
     QuantumDeclaration,
+    BoolDeclaration,
+    MathExprDeclaration,
 )
+
+from oqd_core.interface.analog.bool import (
+    BoolAnd,
+    BoolExpr,
+    BoolExprSubtypes,
+    BoolNot,
+    BoolOr,
+    BoolRef,
+    BitEquals,
+    RegisterNonZero,
+)
+
 from oqd_core.interface.analog.operation import (
     AnalogCircuit,
     AnalogGate,
@@ -27,6 +41,7 @@ from oqd_core.interface.analog.operation import (
     IfElse,
     While,
 )
+
 from oqd_core.interface.analog.operator import (
     Annihilation,
     Creation,
@@ -82,4 +97,14 @@ __all__ = [
     "ClassicalDeclaration",
     "OperatorDeclaration",
     "QuantumDeclaration",
+    "BoolDeclaration",
+    "MathExprDeclaration",
+    "BoolExpr",
+    "BoolExprSubtypes",
+    "RegisterNonZero",
+    "BitEquals",
+    "BoolAnd",
+    "BoolOr",
+    "BoolNot",
+    "BoolRef"
 ]

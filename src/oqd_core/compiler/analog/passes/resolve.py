@@ -19,6 +19,8 @@ from oqd_core.compiler.analog.rewrite.resolve import (
     BuildAnalogLookup,
     ResolveAnalogClassicalRef,
     ResolveAnalogQuantumRef,
+    ResolveAnalogBoolRef,
+    ResolveAnalogMathRef,
     VerifyNoUnresolvedAnalogRefs,
 )
 
@@ -36,8 +38,10 @@ def resolve_analog_declarations(model):
     """
     lookup_builder = BuildAnalogLookup()
     Post(lookup_builder)(model)
-
-    resolved_sequence = Post(ResolveAnalogQuantumRef(lookup_builder.lookup))(model.sequence)
+    
+    resolved_sequence = Post(ResolveAnalogBoolRef(lookup_builder.lookup))(model.sequence)
+    resolved_sequence = Post(ResolveAnalogMathRef(lookup_builder.lookup))(resolved_sequence)
+    resolved_sequence = Post(ResolveAnalogQuantumRef(lookup_builder.lookup))(resolved_sequence)
     resolved_sequence = Post(ResolveAnalogClassicalRef(lookup_builder.lookup))(resolved_sequence)
 
     Post(VerifyNoUnresolvedAnalogRefs())(resolved_sequence)
