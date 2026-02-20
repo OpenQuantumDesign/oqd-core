@@ -14,7 +14,8 @@
 
 from .circuit import DigitalCircuit
 from .gate import CNOT, Gate, H
-from .register import ClassicalBit, ClassicalRegister, QuantumBit, QuantumRegister
+from .register import ClassicalBit, ClassicalRegister, ClassicalRef, QuantumBit, QuantumRegister, QuantumRef
+from .declaration import QuantumDeclaration, ClassicalDeclaration, AliasDeclaration
 from .statement import Barrier, Measure, Statement
 
 __all__ = [
@@ -25,8 +26,13 @@ __all__ = [
     "ClassicalBit",
     "QuantumRegister",
     "ClassicalRegister",
+    "QuantumRef",
+    "ClassicalRef",
     "Statement",
     "Measure",
     "Barrier",
     "DigitalCircuit",
+    "QuantumDeclaration",
+    "ClassicalDeclaration",
+    "AliasDeclaration",
 ]

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List
+from typing import List, Optional
 
 from oqd_compiler_infrastructure import VisitableBaseModel
 from pydantic import ValidationInfo, conint, field_validator
@@ -24,10 +24,19 @@ __all__ = [
     "ClassicalBit",
     "QuantumRegister",
     "ClassicalRegister",
+    "QuantumRef",
+    "ClassicalRef"
 ]
 
 ########################################################################################
 
+class QuantumRef(VisitableBaseModel):
+    name: str
+    index: Optional[conint(ge=0)] = None
+
+class ClassicalRef(VisitableBaseModel):
+    name: str
+    index: Optional[conint(ge=0)] = None
 
 class QuantumBit(VisitableBaseModel):
     id: str

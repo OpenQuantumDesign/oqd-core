@@ -21,6 +21,7 @@ from pydantic import ConfigDict, field_validator, model_validator
 from .gate import Gate
 from .register import ClassicalRegister, QuantumRegister
 from .statement import Statement
+from .declaration import QuantumDeclaration, ClassicalDeclaration, AliasDeclaration
 
 ########################################################################################
 
@@ -30,6 +31,7 @@ __all__ = [
 
 ########################################################################################
 
+Declaration = Union[QuantumDeclaration, ClassicalDeclaration, AliasDeclaration]
 
 class DigitalCircuit(VisitableBaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -37,7 +39,7 @@ class DigitalCircuit(VisitableBaseModel):
     qreg: List[QuantumRegister] = []
     creg: List[ClassicalRegister] = []
 
-    declarations: List = []
+    declarations: List[Declaration] = []
     sequence: List[Union[Gate, Statement]] = []
 
     @field_validator("creg", mode="before")
@@ -91,8 +93,13 @@ class DigitalCircuit(VisitableBaseModel):
         for creg in self.creg:
             qasm_str += f"creg {creg.id}[{len(creg.reg)}];\n"
 
-        # for decl in self.declarations:
-        #     qasm_str += ""
+        for decl in self.declarations:
+            if isinstance(decl, QuantumDeclaration):
+                qasm_str += f"qreg {decl.name}[{decl.size}];\n"
+            elif isinstance(decl, ClassicalDeclaration):
+                qasm_str += f"creg {decl.name}[{decl.size}];\n"
+            elif isinstance(decl, AliasDeclaration):
+                qasm_str += f"let {decl.name} = {decl.target.name}[{decl.begin}:{decl.end}];\n"
 
         for op in self.sequence:
             if isinstance(op, Gate):

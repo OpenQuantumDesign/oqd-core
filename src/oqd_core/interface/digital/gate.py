@@ -20,8 +20,10 @@ from oqd_compiler_infrastructure import VisitableBaseModel
 from .register import (
     ClassicalBit,
     ClassicalRegister,
+    ClassicalRef,
     QuantumBit,
     QuantumRegister,
+    QuantumRef,
 )
 
 ########################################################################################
@@ -37,8 +39,8 @@ class GateParameters(VisitableBaseModel):
 
 class Gate(VisitableBaseModel):
     name: str
-    qreg: Optional[Union[QuantumRegister, QuantumBit]] = None
-    creg: Optional[Union[ClassicalRegister, ClassicalBit]] = None
+    qreg: Optional[Union[QuantumRegister, QuantumBit, QuantumRef]] = None
+    creg: Optional[Union[ClassicalRegister, ClassicalBit, ClassicalRef]] = None
     params: Optional[GateParameters] = None
 
     @property
@@ -48,6 +50,8 @@ class Gate(VisitableBaseModel):
             _str += f"{self.qreg.id}[{self.qreg.index}]"
         elif isinstance(self.qreg, QuantumRegister):
             _str += ",".join([f"{reg.id}[{reg.index}]" for reg in self.qreg.reg])
+        elif isinstance(self.qreg, QuantumRef):
+            _str += f"{self.qreg.name}[{self.qreg.index}]"
         _str += ";\n"
         return _str
 

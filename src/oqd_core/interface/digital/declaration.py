@@ -12,35 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Literal, Union
-
+from typing import Optional, Union
 from oqd_compiler_infrastructure import VisitableBaseModel
 
 ########################################################################################
-from .register import ClassicalRegister, QuantumRegister, ClassicalRef, QuantumRef
+from .register import QuantumRef, ClassicalRef
 
 ########################################################################################
-
 __all__ = [
-    "Statement",
-    "Barrier",
+    "QuantumDeclaration",
+    "ClassicalDeclaration",
+    "AliasDeclaration"
 ]
 
 ########################################################################################
 
+class QuantumDeclaration(VisitableBaseModel):
+    name: str
+    size: int
 
-class Barrier(VisitableBaseModel):
-    statement: Literal["barrier"] = "barrier"
-    reg: Union[QuantumRegister, ClassicalRegister, QuantumRef, ClassicalRef]
+class ClassicalDeclaration(VisitableBaseModel):
+    name: str
+    size: int
 
-
-class Measure(VisitableBaseModel):
-    statement: Literal["measure"] = "measure"
-    qreg: Union[QuantumRegister, QuantumRef] = None
-
-    @property
-    def qasm(self):
-        return f"{self.statement};\n"
-
-
-Statement = Union[Barrier, Measure]
+class AliasDeclaration(VisitableBaseModel):
+    name: str
+    target: Union[QuantumRef, ClassicalRef]
+    begin: Optional[int] = None
+    end: Optional[int] = None
