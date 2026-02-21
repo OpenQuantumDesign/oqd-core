@@ -41,6 +41,7 @@ __all__ = [
     "MathNum",
     "MathVar",
     "MathRef",
+    "SSAValMath",
     "MathImag",
     "MathFunc",
     "MathBinaryOp",
@@ -150,6 +151,9 @@ class MathVar(MathTerminal):
 
 class MathRef(MathTerminal):
     name: VarName
+
+class SSAValMath(MathTerminal):
+    name: str
 
 class MathNum(MathTerminal):
     """
@@ -347,6 +351,7 @@ MathExprSubtypes = Annotated[
         Annotated[MathNum, Tag("MathNum")],
         Annotated[MathVar, Tag("MathVar")],
         Annotated[MathRef, Tag("MathRef")],
+        Annotated[SSAValMath, Tag("SSAValMath")],
         Annotated[MathImag, Tag("MathImag")],
         Annotated[MathFunc, Tag("MathFunc")],
         Annotated[MathAdd, Tag("MathAdd")],

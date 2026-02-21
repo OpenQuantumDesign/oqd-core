@@ -26,6 +26,7 @@ __all__ = [
     "BoolOr",
     "BoolNot",
     "BoolRef",
+    "SSAValBool",
     "BoolExprSubtypes",
 ]
 
@@ -56,6 +57,9 @@ class BoolNot(BoolExpr):
 class BoolRef(BoolExpr):
     name: str
 
+class SSAValBool(BoolExpr):
+    name: str
+
 BoolExprSubtypes = Union[
     RegisterNonZero,
     BitEquals,
@@ -63,5 +67,6 @@ BoolExprSubtypes = Union[
     BoolOr,
     BoolNot,
     BoolRef,
+    SSAValBool,
 ]
 

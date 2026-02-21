@@ -30,6 +30,18 @@ from oqd_core.interface.analog.bool import (
     BoolRef,
     BitEquals,
     RegisterNonZero,
+    SSAValBool,
+)
+
+from oqd_core.interface.analog.ssa import (
+    AnalogCircuitSSA,
+    Block,
+    Branch,
+    CondBranch,
+    Exit,
+    SSADefBool,
+    SSADefMath,
+    Terminator,
 )
 
 from oqd_core.interface.analog.operation import (
@@ -106,5 +118,14 @@ __all__ = [
     "BoolAnd",
     "BoolOr",
     "BoolNot",
-    "BoolRef"
+    "BoolRef",
+    "SSAValBool",
+    "SSADefBool",
+    "SSADefMath",
+    "Terminator",
+    "Branch",
+    "CondBranch",
+    "Exit",
+    "Block",
+    "AnalogCircuitSSA",
 ]
