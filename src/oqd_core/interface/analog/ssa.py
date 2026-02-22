@@ -14,13 +14,13 @@
 
 from __future__ import annotations
 
-from typing import List, Literal, Union
+from typing import List, Union
 
-from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
+from oqd_compiler_infrastructure import VisitableBaseModel
 
 ########################################################################################
-from oqd_core.interface.math import MathExprSubtypes, SSAValMath
-from .bool import BoolExprSubtypes, SSAValBool
+from oqd_core.interface.math import MathExprSubtypes
+from .bool import BoolExprSubtypes
 from .operation import Evolve, Initialize, Measure, Declaration
 from .register import QuantumRegister, ClassicalRegister
 

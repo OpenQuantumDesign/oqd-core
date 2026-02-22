@@ -19,7 +19,8 @@ from oqd_compiler_infrastructure import RewriteRule
 from oqd_core.compiler.analog.passes.analysis import analysis_canonical_hamiltonian_dim
 
 ########################################################################################
-from oqd_core.interface.analog import AnalogCircuit
+from oqd_core.interface.analog import AnalogCircuit, AnalogCircuitSSA
+from oqd_core.interface.analog.operation import Evolve
 
 ########################################################################################
 
@@ -57,3 +58,23 @@ class AssignAnalogIRDim(RewriteRule):
     def map_AnalogGate(self, model):
         if self.dim is None:
             self.dim = analysis_canonical_hamiltonian_dim(model.hamiltonian)
+    
+    def map_AnalogCircuitSSA(self, model: AnalogCircuitSSA):
+        if self.dim is None:
+            for block in model.blocks:
+                for item in block.body:
+                    if isinstance(item, Evolve) and hasattr(item.gate, "hamiltonian"):
+                        self.dim = analysis_canonical_hamiltonian_dim(item.gate.hamiltonian)
+                        break
+                if self.dim is not None:
+                    break
+        if self.dim is None:
+            raise ValueError("No Evolve with hamiltonian found to determine dimensions")
+        return model.__class__(
+            qreg=model.qreg,
+            creg=model.creg,
+            declarations=model.declarations,
+            blocks=model.blocks,
+            n_qreg=self.dim[0],
+            n_qmode=self.dim[1],
+        )

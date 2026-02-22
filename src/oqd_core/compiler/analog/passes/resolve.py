@@ -23,11 +23,14 @@ from oqd_core.compiler.analog.rewrite.resolve import (
     ResolveAnalogMathRef,
     VerifyNoUnresolvedAnalogRefs,
 )
+from oqd_core.interface.analog import AnalogCircuitSSA
+from oqd_core.compiler.analog.rewrite.ssa import resolve_analog_ssa
 
 ########################################################################################
 
 __all__ = [
     "resolve_analog_declarations",
+    "resolve_analog",
 ]
 
 ########################################################################################
@@ -54,3 +57,13 @@ def resolve_analog_declarations(model):
         n_qreg=model.n_qreg,
         n_qmode=model.n_qmode,
     )
+
+def resolve_analog(model):
+    """
+    Resolves references in analog circuits. Dispatches on circuit type.
+    - AnalogCircuit: tree form (sequence, IfElse, While)
+    - AnalogCircuitSSA: block form
+    """
+    if isinstance(model, AnalogCircuitSSA):
+        return resolve_analog_ssa(model)
+    return resolve_analog_declarations(model)

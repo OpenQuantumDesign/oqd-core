@@ -25,6 +25,7 @@ from .canonicalize import (
     ScaleTerms,
     SortedOrder,
 )
+from .ssa import resolve_analog_ssa
 
 __all__ = [
     "AssignAnalogIRDim",
@@ -38,4 +39,5 @@ __all__ = [
     "ScaleTerms",
     "SortedOrder",
     "PruneZeros",
+    "resolve_analog_ssa",
 ]
