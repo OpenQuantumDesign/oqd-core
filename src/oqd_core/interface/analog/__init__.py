@@ -50,6 +50,7 @@ from oqd_core.interface.analog.operation import (
     AnalogOperation,
     Evolve,
     Measure,
+    Initialize,
     IfElse,
     While,
 )
@@ -103,6 +104,7 @@ __all__ = [
     "AnalogOperation",
     "Evolve",
     "Measure",
+    "Initialize",
     "IfElse",
     "While",
     "AliasDeclaration",

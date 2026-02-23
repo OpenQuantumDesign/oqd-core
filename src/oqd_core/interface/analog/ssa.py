@@ -13,9 +13,7 @@
 # limitations under the License.
 
 from __future__ import annotations
-
 from typing import List, Union
-
 from oqd_compiler_infrastructure import VisitableBaseModel
 
 ########################################################################################
@@ -41,10 +39,12 @@ __all__ = [
 
 class SSADefBool(VisitableBaseModel):
     name: str
+    version: int = 0
     expr: BoolExprSubtypes
 
 class SSADefMath(VisitableBaseModel):
     name: str
+    version: int = 0
     expr: MathExprSubtypes
 
 class Terminator(VisitableBaseModel):

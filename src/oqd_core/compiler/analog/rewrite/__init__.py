@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .assign import AssignAnalogIRDim
+from .lower import lower_analog_circuit
 from .canonicalize import (
     GatherMathExpr,
     GatherPauli,
@@ -40,4 +41,5 @@ __all__ = [
     "SortedOrder",
     "PruneZeros",
     "resolve_analog_ssa",
+    "lower_analog_circuit",
 ]
