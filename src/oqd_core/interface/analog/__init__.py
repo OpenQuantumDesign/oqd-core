@@ -30,7 +30,10 @@ from oqd_core.interface.analog.operation import (
     MyList,
     QuantumBit,
     QuantumRegister,
-    Access
+    Access,
+    IfElse,
+    While,
+    restricted_type
 )
 from oqd_core.interface.analog.operator import (
     Annihilation,
@@ -92,4 +95,7 @@ __all__ = [
     "BoolNot",
     "BoolOr",
     "BoolRef",
+    "restricted_type",
+    "IfElse",
+    "While"
 ]

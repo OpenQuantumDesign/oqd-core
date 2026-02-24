@@ -38,6 +38,8 @@ __all__ = [
     "Access",
     "AtomicTypes",
     "restricted_type",
+    "IfElse",
+    "While"
 ]
 
 ########################################################################################
@@ -105,11 +107,25 @@ class Initialize(TypeReflectBaseModel):
 
     pass
 
+class IfElse(TypeReflectBaseModel):
+    """
+    Class representing a conditional branch in the analog circuit
+    """
+    condition: BoolExprSubtypes
+    then_branch: List[Statement] = []
+    else_branch: List[Statement] = []
+    
+class While(TypeReflectBaseModel):
+    """
+    Class representing a while loop in the analog circuit
+    """
+    condition : BoolExprSubtypes
+    body: List[Statement] = []
 
 """
 Union of classes 
 """
-Statement = Union[Declaration, Measure, Evolve, Initialize]
+Statement = Union[Declaration, Measure, Evolve, Initialize, IfElse, While]
 
 
 class AnalogCircuit(TypeReflectBaseModel):
