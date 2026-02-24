@@ -12,61 +12,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
 from typing import Union
-from oqd_compiler_infrastructure import VisitableBaseModel
-########################################################################################
-from .register import ClassicalRef, ClassicalRegister
+from oqd_compiler_infrastructure import TypeReflectBaseModel
 
 ########################################################################################
 __all__ = [
     "BoolExpr",
-    "RegisterNonZero",
-    "BitEquals",
     "BoolAnd",
     "BoolOr",
     "BoolNot",
     "BoolRef",
-    "SSAValBool",
     "BoolExprSubtypes",
 ]
 
 ########################################################################################
 
-class BoolExpr(VisitableBaseModel):
+class BoolExpr(TypeReflectBaseModel):
     pass
-
-class RegisterNonZero(BoolExpr):
-    creg: Union[ClassicalRegister, ClassicalRef]
-
-class BitEquals(BoolExpr):
-    creg: Union[ClassicalRegister, ClassicalRef]
-    index: int
-    value: int
     
 class BoolAnd(BoolExpr):
-    left: "BoolExprSubtypes"
-    right: "BoolExprSubtypes"
+    left: BoolExprSubtypes
+    right: BoolExprSubtypes
 
 class BoolOr(BoolExpr):
-    left: "BoolExprSubtypes"
-    right: "BoolExprSubtypes"
+    left: BoolExprSubtypes
+    right: BoolExprSubtypes
     
 class BoolNot(BoolExpr):
-    expr: "BoolExprSubtypes"
+    expr: BoolExprSubtypes
 
 class BoolRef(BoolExpr):
     name: str
 
-class SSAValBool(BoolExpr):
-    name: str
-
 BoolExprSubtypes = Union[
-    RegisterNonZero,
-    BitEquals,
     BoolAnd,
     BoolOr,
     BoolNot,
     BoolRef,
-    SSAValBool,
 ]
 

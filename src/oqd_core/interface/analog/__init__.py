@@ -14,10 +14,15 @@
 
 from oqd_core.interface.analog.operation import (
     AnalogCircuit,
-    AnalogGate,
-    AnalogOperation,
     Evolve,
     Measure,
+    Initialize,
+    AtomicTypes,
+    Declaration,
+    MyList,
+    QuantumBit,
+    QuantumRegister,
+    Access
 )
 from oqd_core.interface.analog.operator import (
     Annihilation,
@@ -64,8 +69,13 @@ __all__ = [
     "OperatorScalarMul",
     "OperatorKron",
     "AnalogCircuit",
-    "AnalogGate",
-    "AnalogOperation",
     "Evolve",
     "Measure",
+    "Initialize",
+    "AtomicTypes",
+    "Declaration",
+    "MyList",
+    "QuantumBit",
+    "QuantumRegister",
+    "Access"
 ]

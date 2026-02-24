@@ -12,14 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import List, Literal, Union
+from __future__ import annotations
+from typing import List, Union, Annotated
 
-# %%
-from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
+from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic.types import NonNegativeInt
+from pydantic import AfterValidator
 
-from oqd_core.interface.analog.operator import OperatorSubtypes
+########################################################################################
+from .bool import BoolExprSubtypes
+from .operator import OperatorSubtypes
 
+########################################################################################
 __all__ = [
     "AnalogCircuit",
     "AnalogGate",
@@ -27,69 +31,88 @@ __all__ = [
     "Evolve",
     "Measure",
     "Initialize",
+    "QuantumBit",
+    "QuantumRegister",
+    "Declaration",
+    "MyList",
+    "Access",
+    "AtomicTypes",
+    "restricted_type",
 ]
-
 
 ########################################################################################
 
+def _is_varname(value: str) -> str:
+    if not value.isidentifier():
+        raise ValueError(f"{value!r} is not a valid identifier")
+    return value
 
-class AnalogGate(TypeReflectBaseModel):
+
+restricted_type = Annotated[str, AfterValidator(_is_varname)]
+
+class QuantumBit(TypeReflectBaseModel):
+    name: str
+    index: NonNegativeInt
+
+
+class QuantumRegister(TypeReflectBaseModel):
+    size: NonNegativeInt
+
+
+class Access(TypeReflectBaseModel):
+    name: restricted_type
+
+
+class MyList(TypeReflectBaseModel):
+    values: List[AtomicTypes]
+
+
+AtomicTypes = Union[QuantumBit, QuantumRegister, MyList, Access]
+
+
+class Declaration(TypeReflectBaseModel):
+    name: restricted_type
+    value: Union[AtomicTypes, BoolExprSubtypes, OperatorSubtypes]
+
+
+class Evolve(TypeReflectBaseModel):
     """
-    Class representing an analog gate composed of Hamiltonian terms and dissipation terms
+    Class representing an evolution by an analog gate in the analog circuit
 
     Attributes:
-        hamiltonian (Operator): Hamiltonian terms of the gate
+        hamiltonian (OperatorSubtypes): Function to evolve by
+        duration (float): Duration of the evolution
+        targets (AtomicTypes): Indices and Quanutm objects on which to apply the Hamiltonian
     """
 
     hamiltonian: OperatorSubtypes
+    duration: float
+    targets: AtomicTypes
 
 
-# %%
-class AnalogOperation(VisitableBaseModel):
+class Measure(TypeReflectBaseModel):
     """
-    Class representing an analog operation applied to the quantum system
+    Class representing a measurement in the analog circuit
     """
 
     pass
 
 
-class Evolve(AnalogOperation):
-    """
-    Class representing an evolution by an analog gate in the analog circuit
-
-    Attributes:
-        duration (float): Duration of the evolution
-        gate (AnalogGate): Analog gate to evolve by
-    """
-
-    key: Literal["evolve"] = "evolve"
-    duration: float
-    gate: Union[AnalogGate, str]
-
-
-class Measure(AnalogOperation):
-    """
-    Class representing a measurement in the analog circuit
-    """
-
-    key: Literal["measure"] = "measure"
-
-
-class Initialize(AnalogOperation):
+class Initialize(TypeReflectBaseModel):
     """
     Class representing a initialization in the analog circuit
     """
 
-    key: Literal["initialize"] = "initialize"
+    pass
 
 
 """
 Union of classes 
 """
-Statement = Union[Measure, Evolve, Initialize]
+Statement = Union[Declaration, Measure, Evolve, Initialize]
 
 
-class AnalogCircuit(AnalogOperation):
+class AnalogCircuit(TypeReflectBaseModel):
     """
     Class representing a quantum information experiment represented in terms of analog operations.
 
@@ -100,11 +123,8 @@ class AnalogCircuit(AnalogOperation):
 
     sequence: List[Statement] = []
 
-    n_qreg: Union[NonNegativeInt, None] = None
-    n_qmode: Union[NonNegativeInt, None] = None
-
-    def evolve(self, gate: AnalogGate, duration: float):
-        self.sequence.append(Evolve(duration=duration, gate=gate))
+    def evolve(self, hamiltonian: OperatorSubtypes, duration: float, targets: AtomicTypes):
+        self.sequence.append(Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets))
 
     def initialize(self):
         self.sequence.append(Initialize())
