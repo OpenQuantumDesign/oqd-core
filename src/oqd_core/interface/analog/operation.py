@@ -18,9 +18,9 @@ from typing import List, Union, Annotated
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic.types import NonNegativeInt
 from pydantic import AfterValidator
+from oqd_core.interface.bool import BoolExprSubtypes
 
 ########################################################################################
-from .bool import BoolExprSubtypes
 from .operator import OperatorSubtypes
 
 ########################################################################################
@@ -37,7 +37,7 @@ __all__ = [
     "MyList",
     "Access",
     "AtomicTypes",
-    "restricted_type",
+    "Identifier",
     "IfElse",
     "While"
 ]
@@ -50,7 +50,7 @@ def _is_varname(value: str) -> str:
     return value
 
 
-restricted_type = Annotated[str, AfterValidator(_is_varname)]
+Identifier = Annotated[str, AfterValidator(_is_varname)]
 
 class QuantumBit(TypeReflectBaseModel):
     name: str
@@ -62,7 +62,7 @@ class QuantumRegister(TypeReflectBaseModel):
 
 
 class Access(TypeReflectBaseModel):
-    name: restricted_type
+    name: Identifier
 
 
 class MyList(TypeReflectBaseModel):
@@ -73,7 +73,7 @@ AtomicTypes = Union[QuantumBit, QuantumRegister, MyList, Access]
 
 
 class Declaration(TypeReflectBaseModel):
-    name: restricted_type
+    name: Identifier
     value: Union[AtomicTypes, BoolExprSubtypes, OperatorSubtypes]
 
 

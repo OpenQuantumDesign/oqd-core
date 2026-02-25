@@ -12,14 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_core.interface.analog.bool import (
-    BoolAnd,
-    BoolExpr,
-    BoolExprSubtypes,
-    BoolNot,
-    BoolOr,
-    BoolRef,
-)
 from oqd_core.interface.analog.operation import (
     AnalogCircuit,
     Evolve,
@@ -33,7 +25,7 @@ from oqd_core.interface.analog.operation import (
     Access,
     IfElse,
     While,
-    restricted_type
+    Identifier
 )
 from oqd_core.interface.analog.operator import (
     Annihilation,
@@ -89,13 +81,7 @@ __all__ = [
     "QuantumBit",
     "QuantumRegister",
     "Access",
-    "BoolAnd",
-    "BoolExpr",
-    "BoolExprSubtypes",
-    "BoolNot",
-    "BoolOr",
-    "BoolRef",
-    "restricted_type",
+    "Identifier",
     "IfElse",
     "While"
 ]
