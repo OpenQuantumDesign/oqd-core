@@ -26,8 +26,6 @@ from .operator import OperatorSubtypes
 ########################################################################################
 __all__ = [
     "AnalogCircuit",
-    "AnalogGate",
-    "AnalogOperation",
     "Evolve",
     "Measure",
     "Initialize",
