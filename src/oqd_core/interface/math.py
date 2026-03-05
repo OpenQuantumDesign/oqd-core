@@ -165,8 +165,8 @@ class MathImag(MathTerminal):
 
 
 def _is_varname(value: str) -> str:
-    if not value.isidentifier():
-        raise ValueError
+    if not value.startswith("#") or len(value) < 2 or not value[1:].isidentifier():
+        raise ValueError("MathVar variable must start with a '#', followed by a valid identifier")
     return value
 
 
