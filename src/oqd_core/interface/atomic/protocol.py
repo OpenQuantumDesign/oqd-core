@@ -22,6 +22,8 @@ from pydantic import conlist
 from oqd_core.interface.atomic.system import Transition
 from oqd_core.interface.math import CastMathExpr, ConstantMathExpr
 
+from .system import AtomicTypes
+
 ########################################################################################
 
 __all__ = [
@@ -29,7 +31,6 @@ __all__ = [
     "Pulse",
     "Protocol",
     "ParallelProtocol",
-    "SequentialProtocol",
     "MeasurePulse",
 ]
 
@@ -47,7 +48,6 @@ class Beam(TypeReflectBaseModel):
         phase: Phase relative to the ion's clock.
         polarization: Polarization of the beam.
         wavevector: Wavevector of the beam.
-        target: Index of the target ion of the beam.
     """
 
     transition: Union[str, Tuple[str, int], Transition]
@@ -60,7 +60,6 @@ class Beam(TypeReflectBaseModel):
         min_length=3,
     )  # type: ignore
     wavevector: conlist(ConstantMathExpr, max_length=3, min_length=3)  # type: ignore
-    target: int
 
 
 class Pulse(TypeReflectBaseModel):
@@ -70,11 +69,12 @@ class Pulse(TypeReflectBaseModel):
     Attributes:
         beam: Optical channel/beam to turn on.
         duration: Period of time to turn the optical channel on for.
-
+        target: AtomicType of the target ion of the beam.
     """
 
     beam: Beam
     duration: float
+    target: AtomicTypes
 
 
 class MeasurePulse(Pulse):
@@ -87,15 +87,7 @@ class MeasurePulse(Pulse):
     """
 
 
-class Protocol(TypeReflectBaseModel):
-    """
-    Class representing a light-matter interaction protocol/pulse program for the optical channels/beams.
-    """
-
-    pass
-
-
-class ParallelProtocol(Protocol):
+class ParallelProtocol(TypeReflectBaseModel):
     """
     Class representing the parallel composition of a list of pulses or subprotocols.
 
@@ -103,19 +95,5 @@ class ParallelProtocol(Protocol):
         sequence: List of pulses or subprotocols to compose together in a parallel fashion.
     """
 
-    sequence: List[Union[PulseSubTypes, ProtocolSubTypes]]
+    sequence: List[Union[Pulse, MeasurePulse]]
 
-
-class SequentialProtocol(Protocol):
-    """
-    Class representing the sequential composition of a list of pulses or subprotocols.
-
-    Attributes:
-        sequence: List of pulses or subprotocols to compose together in a sequntial fashion.
-    """
-
-    sequence: List[Union[PulseSubTypes, ProtocolSubTypes]]
-
-
-ProtocolSubTypes = Union[SequentialProtocol, ParallelProtocol]
-PulseSubTypes = Union[Pulse, MeasurePulse]

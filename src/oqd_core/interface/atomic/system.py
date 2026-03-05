@@ -22,7 +22,6 @@ from pydantic import (
     NonNegativeInt,
 )
 from oqd_core.interface.bool import BoolExprSubtypes
-from .protocol import PulseSubTypes
 
 ########################################################################################
 
@@ -32,6 +31,7 @@ __all__ = [
     "Ion",
     "Phonon",
     "System",
+    "IonQubit",
     "IonRegister",
     "Declaration",
     "MyList",
@@ -197,6 +197,11 @@ class Ion(TypeReflectBaseModel):
         raise KeyError("Invalid key, label not in levels or transitions.")
 
 
+class IonQubit(TypeReflectBaseModel):
+    access: Access
+    index: NonNegativeInt
+
+
 class IonRegister(TypeReflectBaseModel):
     size: NonNegativeInt
 
@@ -209,12 +214,12 @@ class MyList(TypeReflectBaseModel):
     values: List[AtomicTypes]
 
 
-AtomicTypes = Union[Ion, IonRegister, MyList, Access]
+AtomicTypes = Union[IonQubit, IonRegister, MyList, Access]
 
 
 class Declaration(TypeReflectBaseModel):
     name: Identifier
-    value: Union[AtomicTypes, BoolExprSubtypes, PulseSubTypes]
+    value: Union[AtomicTypes, BoolExprSubtypes]
 
 
 ########################################################################################
