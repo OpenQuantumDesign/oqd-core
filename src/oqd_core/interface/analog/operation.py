@@ -51,7 +51,7 @@ def _is_varname(value: str) -> str:
 Identifier = Annotated[str, AfterValidator(_is_varname)]
 
 class QuantumBit(TypeReflectBaseModel):
-    name: str
+    access: Access
     index: NonNegativeInt
 
 
@@ -82,7 +82,7 @@ class Evolve(TypeReflectBaseModel):
     Attributes:
         hamiltonian (OperatorSubtypes): Function to evolve by
         duration (float): Duration of the evolution
-        targets (AtomicTypes): Indices and Quanutm objects on which to apply the Hamiltonian
+        targets (AtomicTypes): Indices and Quantum objects on which to apply the Hamiltonian
     """
 
     hamiltonian: OperatorSubtypes
