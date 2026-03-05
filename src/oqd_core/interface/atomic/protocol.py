@@ -88,10 +88,10 @@ class MeasurePulse(Pulse):
 
 class ParallelProtocol(TypeReflectBaseModel):
     """
-    Class representing the parallel composition of a list of pulses or subprotocols.
+    Class representing the parallel composition of a list of pulses.
 
     Attributes:
-        sequence: List of pulses or subprotocols to compose together in a parallel fashion.
+        sequence: List of pulses to compose together in a parallel fashion.
     """
 
     sequence: List[Union[Pulse, MeasurePulse]]
