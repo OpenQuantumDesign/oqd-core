@@ -29,7 +29,6 @@ from .system import AtomicTypes
 __all__ = [
     "Beam",
     "Pulse",
-    "Protocol",
     "ParallelProtocol",
     "MeasurePulse",
 ]

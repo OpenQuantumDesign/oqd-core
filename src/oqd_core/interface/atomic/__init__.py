@@ -17,12 +17,23 @@ from .protocol import (
     Beam,
     MeasurePulse,
     ParallelProtocol,
-    Protocol,
     Pulse,
-    SequentialProtocol,
 )
 from .species import Ba133IIBuilder, IonBuilder, Yb171IIBuilder
-from .system import Ion, Level, Phonon, System, Transition
+from .system import (
+    Ion, 
+    Level, 
+    Phonon, 
+    System, 
+    Transition,
+    IonQubit,
+    IonRegister,
+    Declaration,
+    MyList,
+    Access,
+    AtomicTypes,
+    Identifier,
+)
 
 __all__ = [
     "System",
@@ -32,12 +43,17 @@ __all__ = [
     "Transition",
     "Beam",
     "Pulse",
-    "Protocol",
     "ParallelProtocol",
-    "SequentialProtocol",
     "AtomicCircuit",
     "IonBuilder",
     "Yb171IIBuilder",
     "Ba133IIBuilder",
     "MeasurePulse",
+    "IonQubit",
+    "IonRegister",
+    "Declaration",
+    "MyList",
+    "Access",
+    "AtomicTypes",
+    "Identifier",
 ]
