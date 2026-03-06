@@ -1,0 +1,11 @@
+// analog circuit example
+
+r = register 3;
+q0 = r[0];
+targets = [r[0], r[1]];
+#t = 1.0;
+H_rabi = 0.5 * %X + 0.5 * %Y;
+
+initialize;
+evolve H_rabi for t on targets;
+measure;

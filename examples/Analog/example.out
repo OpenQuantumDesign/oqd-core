@@ -1,0 +1,115 @@
+└── program
+   ├── statement
+   │  └── declaration
+   │     ├── "r" (ID)
+   │     ├── "=" (EQ)
+   │     └── decl_value
+   │        └── atomic_type
+   │           └── quantum_register
+   │              ├── "register" (REGISTER)
+   │              └── "3" (INT)
+   ├── ";
+" (EOL)
+   ├── statement
+   │  └── declaration
+   │     ├── "q0" (ID)
+   │     ├── "=" (EQ)
+   │     └── decl_value
+   │        └── atomic_type
+   │           └── quantum_bit
+   │              ├── "r" (ID)
+   │              ├── "[" (SQUARELBRACKET)
+   │              ├── "0" (INT)
+   │              └── "]" (SQUARERBRACKET)
+   ├── ";
+" (EOL)
+   ├── statement
+   │  └── declaration
+   │     ├── "targets" (ID)
+   │     ├── "=" (EQ)
+   │     └── decl_value
+   │        └── atomic_type
+   │           └── my_list
+   │              ├── "[" (SQUARELBRACKET)
+   │              ├── atomic_type
+   │              │  └── quantum_bit
+   │              │     ├── "r" (ID)
+   │              │     ├── "[" (SQUARELBRACKET)
+   │              │     ├── "0" (INT)
+   │              │     └── "]" (SQUARERBRACKET)
+   │              ├── "," (COMMA)
+   │              ├── atomic_type
+   │              │  └── quantum_bit
+   │              │     ├── "r" (ID)
+   │              │     ├── "[" (SQUARELBRACKET)
+   │              │     ├── "1" (INT)
+   │              │     └── "]" (SQUARERBRACKET)
+   │              └── "]" (SQUARERBRACKET)
+   ├── ";
+" (EOL)
+   ├── statement
+   │  └── declaration
+   │     ├── "#t" (MATH_VAR)
+   │     ├── "=" (EQ)
+   │     └── decl_value
+   │        └── math_expr
+   │           └── math_terminal
+   │              └── "1.0" (FLOAT)
+   ├── ";
+" (EOL)
+   ├── statement
+   │  └── declaration
+   │     ├── "H_rabi" (ID)
+   │     ├── "=" (EQ)
+   │     └── decl_value
+   │        └── operator_expr
+   │           ├── math_expr
+   │           │  └── math_terminal
+   │           │     └── "0.5" (FLOAT)
+   │           ├── "*" (MULT)
+   │           └── operator_expr
+   │              ├── operator_expr
+   │              │  └── operator_terminal
+   │              │     └── pauli_op
+   │              │        └── "%X" (PAULI_X)
+   │              ├── "+" (PLUS)
+   │              └── operator_expr
+   │                 ├── math_expr
+   │                 │  └── math_terminal
+   │                 │     └── "0.5" (FLOAT)
+   │                 ├── "*" (MULT)
+   │                 └── operator_expr
+   │                    └── operator_terminal
+   │                       └── pauli_op
+   │                          └── "%Y" (PAULI_Y)
+   ├── ";
+
+" (EOL)
+   ├── statement
+   │  └── init_stmt
+   │     └── "initialize" (INITIALIZE)
+   ├── ";
+" (EOL)
+   ├── statement
+   │  └── evolve_stmt
+   │     ├── "evolve" (EVOLVE)
+   │     ├── operator_expr
+   │     │  └── access
+   │     │     └── "H_rabi" (ID)
+   │     ├── "for" (FOR)
+   │     ├── math_expr
+   │     │  └── math_terminal
+   │     │     └── "t" (ID)
+   │     ├── "on" (ON)
+   │     └── targets
+   │        └── atomic_type
+   │           └── access
+   │              └── "targets" (ID)
+   ├── ";
+" (EOL)
+   ├── statement
+   │  └── measure_stmt
+   │     └── "measure" (MEASURE)
+   ├── ";
+" (EOL)
+   └── "<EOF>"
