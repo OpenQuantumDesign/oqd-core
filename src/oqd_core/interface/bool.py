@@ -15,7 +15,7 @@
 from __future__ import annotations
 from typing import Union
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-
+from .math import MathExprSubtypes
 ########################################################################################
 __all__ = [
     "BoolExpr",
@@ -24,6 +24,7 @@ __all__ = [
     "BoolNot",
     "BoolRef",
     "BoolExprSubtypes",
+    "BoolEq"
 ]
 
 ########################################################################################
@@ -45,10 +46,15 @@ class BoolNot(BoolExpr):
 class BoolRef(BoolExpr):
     name: str
 
+class BoolEq(BoolExpr):
+    left: MathExprSubtypes
+    right: MathExprSubtypes
+
 BoolExprSubtypes = Union[
     BoolAnd,
     BoolOr,
     BoolNot,
     BoolRef,
+    BoolEq
 ]
 
