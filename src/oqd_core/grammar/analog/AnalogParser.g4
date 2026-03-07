@@ -39,12 +39,14 @@ while_stmt: WHILE LBRACKET bool_expr RBRACKET LBRACE EOL? (statement EOL)* state
 bool_and_op: AND | AND2;
 bool_or_op: OR | OR2;
 bool_not_op: NOT | NOT2;
+bool_ref: ID;
 
 bool_expr
     : bool_expr bool_or_op bool_expr
     | bool_expr bool_and_op bool_expr
     | bool_not_op bool_expr
-    | access
+    | math_expr EQUALITY math_expr
+    | bool_ref
     | LBRACKET bool_expr RBRACKET
     ;
 
