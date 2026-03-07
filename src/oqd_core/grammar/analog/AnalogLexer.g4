@@ -9,7 +9,7 @@ COMMENT: '//' ~[\n\r]* NEWLINE -> skip;
 
 /** ================================================================================= */
 
-// Statements
+// Statement keyword
 EVOLVE: 'evolve';
 MEASURE: 'measure';
 INITIALIZE: 'initialize';
@@ -17,6 +17,16 @@ IF: 'if';
 ELSE: 'else';
 WHILE: 'while';
 WITH: 'with';
+FOR: 'for'
+
+/** ================================================================================= */
+
+// Identifier
+
+fragment ID_START: [a-zA-Z_];
+fragment ID_CONTINUE: [a-zA-Z0-9_];
+
+ID: ID_START ID_CONTINUE*;
 
 /** ================================================================================= */
 
@@ -30,16 +40,11 @@ NOT2: '!';
 
 /** ================================================================================= */
 
+// Register
+
 QUANTUMREGISTER: 'qreg';
 MODEREGISTER: 'qmode';
-CREATION: '%C';
-ANNIHILATION: '%A';
-IDENTITY_OP: '%J';
 
-PAULI_I: '%I';
-PAULI_X: '%X';
-PAULI_Y: '%Y';
-PAULI_Z: '%Z';
 
 /** ================================================================================= */
 
@@ -53,16 +58,27 @@ SQUARELBRACKET: '[';
 SQUARERBRACKET: ']';
 LBRACE: '{';
 RBRACE: '}';
-AT: '@';
 
+// Operator
+
+AT: '@';
 MULT: '*';
 DIV: '/';
 PLUS: '+';
 MINUS: '-';
 POWER: '^';
-EQ: '=';
+ASSIGN: '=';
+EQ: '==';
+NEQ: '!=';
+LT: '<';
+LTE '<=';
+GT: '>';
+GTE '>=';
+
 
 /** ================================================================================= */
+
+// Math
 
 fragment NONZERODIGIT: [1-9];
 fragment ZERO: '0';
@@ -75,8 +91,8 @@ FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? INT)?
      | INT '.' (DIGITSEQ)? (('e' | 'E') (PLUS | MINUS)? INT)?
      | INT (('e' | 'E') (PLUS | MINUS)? INT);
 
-MATH_VAR: '#' [a-zA-Z] [a-zA-Z0-9_]*;
-IMAG: INT? '.'? DIGITSEQ? 'j' | INT 'j';
+MATH_VAR: '#' ID;
+IMAG: '1j';
 
 // Math functions
 ABS: 'abs';
@@ -100,7 +116,16 @@ REAL: 'real';
 IMAG_FN: 'imag';
 ATAN2: 'atan2';
 
-fragment ID_START: [a-zA-Z_];
-fragment ID_CONTINUE: [a-zA-Z0-9_];
 
-ID: ID_START ID_CONTINUE*;
+/** ================================================================================= */
+
+// Quantum Operator
+
+PAULI_I: '%I';
+PAULI_X: '%X';
+PAULI_Y: '%Y';
+PAULI_Z: '%Z';
+
+CREATION: '%C';
+ANNIHILATION: '%A';
+IDENTITY_OP: '%J';

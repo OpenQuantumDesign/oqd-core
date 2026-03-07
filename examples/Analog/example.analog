@@ -1,11 +1,11 @@
 // analog circuit example
 
-q = qreg[3];
-q0 = q[0];
-targets = [q0, q[1]];
-H_rabi = (0.5 * #t) * %X + 0.5 * %Y;
+q = qreg(3); // allocate quantum register with 3 qubits
+q0 = q[0]; // index into first qubit
+targets = [q0, q[1]]; // collate multiple targets
+H_rabi = (0.5 * #t) * (%X @ %I) + 0.5 * (%I @ %Y); \\ Hamiltonian for 0.5t X_0 + 0.5 Y_1
 
 
-initialize q;
-evolve q with H_rabi;
-measure q;
+initialize q; \\ initialize entire quantum register
+evolve targets with H_rabi; \\ evolve targets with hamiltonain H_rabi
+measure q; \\ measure entire quantum register
