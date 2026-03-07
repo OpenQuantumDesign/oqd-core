@@ -16,8 +16,7 @@ INITIALIZE: 'initialize';
 IF: 'if';
 ELSE: 'else';
 WHILE: 'while';
-FOR: 'for';
-ON: 'on';
+WITH: 'with';
 
 /** ================================================================================= */
 
@@ -31,11 +30,11 @@ NOT2: '!';
 
 /** ================================================================================= */
 
-REGISTER: 'register';
-CREATION: 'creation';
-A_DAG: 'a_dag';
-ANNIHILATION: 'annihilation';
-IDENTITY_OP: 'identity';
+QUANTUMREGISTER: 'qreg';
+MODEREGISTER: 'qmode';
+CREATION: '%C';
+ANNIHILATION: '%A';
+IDENTITY_OP: '%J';
 
 PAULI_I: '%I';
 PAULI_X: '%X';

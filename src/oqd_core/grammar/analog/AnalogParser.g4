@@ -15,22 +15,21 @@ statement
 
 /** ================================================================================= */
 
-declaration: (ID | MATH_VAR) EQ decl_value;
-decl_value: bool_expr | atomic_type | operator_expr | math_expr;
+declaration: ID EQ atomic_type;
 
 /** ================================================================================= */
 
-atomic_type: quantum_register | quantum_bit | my_list | access;
-quantum_register: REGISTER INT;
-quantum_bit: ID SQUARELBRACKET INT SQUARERBRACKET;
-my_list: SQUARELBRACKET atomic_type (COMMA atomic_type)* SQUARERBRACKET;
+atomic_type: mode_register | quantum_register | extract | my_list | access | bool_expr | operator_expr | math_expr;
+quantum_register: QUANTUMREGISTER LBRACKET INT RBRACKET;
+mode_register: MODEREGISTER LBRACKET INT RBRACKET;
+my_list: SQUARELBRACKET atomic_type? (COMMA atomic_type)* SQUARERBRACKET;
 access: ID;
+extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
-evolve_stmt: EVOLVE operator_expr FOR math_expr ON targets;
+evolve_stmt: EVOLVE targets with atomic_type;
+measure_stmt: MEASURE targets;
+init_stmt: INITIALIZE targets;
 targets: atomic_type;
-
-measure_stmt: MEASURE;
-init_stmt: INITIALIZE;
 
 bool_and_op: AND | AND2;
 bool_or_op: OR | OR2;
@@ -40,15 +39,14 @@ bool_expr
     : bool_expr bool_or_op bool_expr
     | bool_expr bool_and_op bool_expr
     | bool_not_op bool_expr
-    | bool_ref
+    | access
     | LBRACKET bool_expr RBRACKET
     ;
-bool_ref: ID;
 
 /** ================================================================================= */
 
 pauli_op: PAULI_I | PAULI_X | PAULI_Y | PAULI_Z;
-ladder_op: CREATION | A_DAG | ANNIHILATION | IDENTITY_OP;
+ladder_op: CREATION | ANNIHILATION | IDENTITY_OP;
 
 operator_expr
     : operator_expr PLUS operator_expr
