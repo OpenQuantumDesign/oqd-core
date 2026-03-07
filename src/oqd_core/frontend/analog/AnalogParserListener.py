@@ -35,15 +35,6 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#decl_value.
-    def enterDecl_value(self, ctx:AnalogParser.Decl_valueContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#decl_value.
-    def exitDecl_value(self, ctx:AnalogParser.Decl_valueContext):
-        pass
-
-
     # Enter a parse tree produced by AnalogParser#atomic_type.
     def enterAtomic_type(self, ctx:AnalogParser.Atomic_typeContext):
         pass
@@ -62,12 +53,12 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#quantum_bit.
-    def enterQuantum_bit(self, ctx:AnalogParser.Quantum_bitContext):
+    # Enter a parse tree produced by AnalogParser#mode_register.
+    def enterMode_register(self, ctx:AnalogParser.Mode_registerContext):
         pass
 
-    # Exit a parse tree produced by AnalogParser#quantum_bit.
-    def exitQuantum_bit(self, ctx:AnalogParser.Quantum_bitContext):
+    # Exit a parse tree produced by AnalogParser#mode_register.
+    def exitMode_register(self, ctx:AnalogParser.Mode_registerContext):
         pass
 
 
@@ -89,21 +80,21 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AnalogParser#extract.
+    def enterExtract(self, ctx:AnalogParser.ExtractContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#extract.
+    def exitExtract(self, ctx:AnalogParser.ExtractContext):
+        pass
+
+
     # Enter a parse tree produced by AnalogParser#evolve_stmt.
     def enterEvolve_stmt(self, ctx:AnalogParser.Evolve_stmtContext):
         pass
 
     # Exit a parse tree produced by AnalogParser#evolve_stmt.
     def exitEvolve_stmt(self, ctx:AnalogParser.Evolve_stmtContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#targets.
-    def enterTargets(self, ctx:AnalogParser.TargetsContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#targets.
-    def exitTargets(self, ctx:AnalogParser.TargetsContext):
         pass
 
 
@@ -122,6 +113,33 @@ class AnalogParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by AnalogParser#init_stmt.
     def exitInit_stmt(self, ctx:AnalogParser.Init_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#targets.
+    def enterTargets(self, ctx:AnalogParser.TargetsContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#targets.
+    def exitTargets(self, ctx:AnalogParser.TargetsContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#if_else_stmt.
+    def enterIf_else_stmt(self, ctx:AnalogParser.If_else_stmtContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#if_else_stmt.
+    def exitIf_else_stmt(self, ctx:AnalogParser.If_else_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#while_stmt.
+    def enterWhile_stmt(self, ctx:AnalogParser.While_stmtContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#while_stmt.
+    def exitWhile_stmt(self, ctx:AnalogParser.While_stmtContext):
         pass
 
 
@@ -158,15 +176,6 @@ class AnalogParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by AnalogParser#bool_expr.
     def exitBool_expr(self, ctx:AnalogParser.Bool_exprContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#bool_ref.
-    def enterBool_ref(self, ctx:AnalogParser.Bool_refContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#bool_ref.
-    def exitBool_ref(self, ctx:AnalogParser.Bool_refContext):
         pass
 
 

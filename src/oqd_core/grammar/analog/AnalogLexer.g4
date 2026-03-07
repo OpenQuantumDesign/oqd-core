@@ -3,7 +3,7 @@ lexer grammar AnalogLexer;
 /** ================================================================================= */
 
 WHITESPACE: [ \t]+ -> channel(HIDDEN);
-EOL: ';'? [\r\n]+;
+EOL: (';' [\r\n]* | [\r\n]+);
 NEWLINE: [\r\n]+ -> channel(HIDDEN);
 COMMENT: '//' ~[\n\r]* NEWLINE -> skip;
 
@@ -17,6 +17,7 @@ IF: 'if';
 ELSE: 'else';
 WHILE: 'while';
 WITH: 'with';
+FOR: 'for';
 
 /** ================================================================================= */
 

@@ -1,11 +1,10 @@
 // analog circuit example
 
-q = qreg[3];
-q0 = q[0];
-targets = [q0, q[1]];
-H_rabi = (0.5 * #t) * %X + 0.5 * %Y;
+r = qreg(3);
+q0 = r[0];
+targets = [r[0], r[1]];
+H_rabi = 0.5 * %X + 0.5 * %Y;
 
-
-initialize q;
-evolve q with H_rabi;
-measure q;
+initialize targets;
+evolve H_rabi with targets;
+measure targets;

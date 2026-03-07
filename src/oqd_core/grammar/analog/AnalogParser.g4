@@ -11,6 +11,8 @@ statement
     | evolve_stmt
     | measure_stmt
     | init_stmt
+    | if_else_stmt
+    | while_stmt
     ;
 
 /** ================================================================================= */
@@ -26,10 +28,13 @@ my_list: SQUARELBRACKET atomic_type? (COMMA atomic_type)* SQUARERBRACKET;
 access: ID;
 extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
-evolve_stmt: EVOLVE targets with atomic_type;
+evolve_stmt: EVOLVE targets WITH atomic_type;
 measure_stmt: MEASURE targets;
 init_stmt: INITIALIZE targets;
 targets: atomic_type;
+
+if_else_stmt: IF LBRACKET bool_expr RBRACKET LBRACE EOL? (statement EOL)* statement? RBRACE (ELSE LBRACE EOL? (statement EOL)* statement? RBRACE)?;
+while_stmt: WHILE LBRACKET bool_expr RBRACKET LBRACE EOL? (statement EOL)* statement? RBRACE;
 
 bool_and_op: AND | AND2;
 bool_or_op: OR | OR2;
