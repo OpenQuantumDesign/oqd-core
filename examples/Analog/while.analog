@@ -1,0 +1,11 @@
+
+targets = qreg(2);
+initialize targets;
+H_rabi = (0.5 * #t) * (%X @ %I) + 0.5 * (%I @ %Y); // Hamiltonian for 0.5t X_0 + 0.5 Y_1
+
+a = 1;
+
+while (a < 5):
+    evolve targets with H_rabi for 1.0;
+    a = a + 1;
+

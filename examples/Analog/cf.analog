@@ -5,7 +5,7 @@ check = 5 + 5;
 
 if (check == 10):
     initialize targets;
-    evolve H_rabi with targets for 1.0;
+    evolve targets with H_rabi for 1.0;
 else:
     check = 12;
 
