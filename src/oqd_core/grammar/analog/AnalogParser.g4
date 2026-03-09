@@ -4,37 +4,56 @@ options { tokenVocab = AnalogLexer; }
 
 /** ================================================================================= */
 
-program: (statement EOL)* statement? EOF;
+program: block statement? EOF;
 
 statement
     : declaration
     | evolve_stmt
     | measure_stmt
     | init_stmt
-    | if_else_stmt
     | while_stmt
+    | ifelse_stmt
     ;
 
-/** ================================================================================= */
-
-declaration: ID EQ atomic_type;
+block: (statement EOL)*;
 
 /** ================================================================================= */
 
-atomic_type: mode_register | quantum_register | extract | my_list | access | bool_expr | operator_expr | math_expr;
-quantum_register: QUANTUMREGISTER LBRACKET INT RBRACKET;
-mode_register: MODEREGISTER LBRACKET INT RBRACKET;
-my_list: SQUARELBRACKET atomic_type? (COMMA atomic_type)* SQUARERBRACKET;
+atom: mode_register | quantum_register | operator_terminal | math_terminal | access;
+expr: extract | my_list | bool_expr | operator_expr | math_expr | atom;
+my_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
+
+declaration: ID ASSIGN expr;
 access: ID;
 extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
-evolve_stmt: EVOLVE targets WITH atomic_type;
+/** ================================================================================= */
+
+
+// Structural control flow
+
+while_stmt: WHILE WHITESPACE expr WHITESPACE? COLON EOL block;
+
+ifelse_stmt
+    : IF WHITESPACE expr WHITESPACE? COLON EOL block
+    | IF WHITESPACE expr WHITESPACE? COLON EOL block ELSE COLON EOL block;
+
+
+/** ================================================================================= */
+
+// Quantum
+
+quantum_register: QUANTUMREGISTER LBRACKET INT RBRACKET;
+mode_register: MODEREGISTER LBRACKET INT RBRACKET;
+
+evolve_stmt: EVOLVE targets WITH expr FOR expr;
 measure_stmt: MEASURE targets;
 init_stmt: INITIALIZE targets;
-targets: atomic_type;
+targets: expr;
 
-if_else_stmt: IF LBRACKET bool_expr RBRACKET LBRACE EOL? (statement EOL)* statement? RBRACE (ELSE LBRACE EOL? (statement EOL)* statement? RBRACE)?;
-while_stmt: WHILE LBRACKET bool_expr RBRACKET LBRACE EOL? (statement EOL)* statement? RBRACE;
+/** ================================================================================= */
+
+// Boolean
 
 bool_and_op: AND | AND2;
 bool_or_op: OR | OR2;
@@ -45,15 +64,18 @@ bool_expr
     : bool_expr bool_or_op bool_expr
     | bool_expr bool_and_op bool_expr
     | bool_not_op bool_expr
-    | math_expr EQUALITY math_expr
+    | math_expr EQ math_expr
     | bool_ref
     | LBRACKET bool_expr RBRACKET
     ;
 
 /** ================================================================================= */
 
+// Quantum operator
+
 pauli_op: PAULI_I | PAULI_X | PAULI_Y | PAULI_Z;
 ladder_op: CREATION | ANNIHILATION | IDENTITY_OP;
+operator_terminal: pauli_op | ladder_op;
 
 operator_expr
     : operator_expr PLUS operator_expr
@@ -66,9 +88,12 @@ operator_expr
     | access
     | LBRACKET operator_expr RBRACKET
     ;
-operator_terminal: pauli_op | ladder_op;
 
 /** ================================================================================= */
+
+// Math
+
+math_terminal: INT | FLOAT | MATH_VAR | IMAG | ID;
 
 math_expr
     : math_expr PLUS math_expr
@@ -79,9 +104,9 @@ math_expr
     | (PLUS | MINUS) math_expr
     | math_terminal
     | math_func
+    | access
     | LBRACKET math_expr RBRACKET
     ;
-math_terminal: INT | FLOAT | MATH_VAR | IMAG | ID;
 
 math_func_name: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
     | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH
