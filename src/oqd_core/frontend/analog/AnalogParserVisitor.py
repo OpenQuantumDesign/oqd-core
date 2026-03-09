@@ -109,6 +109,36 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by AnalogParser#bool_eq_op.
+    def visitBool_eq_op(self, ctx:AnalogParser.Bool_eq_opContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#bool_not_eq_op.
+    def visitBool_not_eq_op(self, ctx:AnalogParser.Bool_not_eq_opContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#bool_lt_op.
+    def visitBool_lt_op(self, ctx:AnalogParser.Bool_lt_opContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#bool_lte_op.
+    def visitBool_lte_op(self, ctx:AnalogParser.Bool_lte_opContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#bool_gt_op.
+    def visitBool_gt_op(self, ctx:AnalogParser.Bool_gt_opContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#bool_gte_op.
+    def visitBool_gte_op(self, ctx:AnalogParser.Bool_gte_opContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by AnalogParser#bool_expr.
     def visitBool_expr(self, ctx:AnalogParser.Bool_exprContext):
         return self.visitChildren(ctx)

@@ -58,11 +58,24 @@ targets: expr;
 bool_and_op: AND | AND2;
 bool_or_op: OR | OR2;
 bool_not_op: NOT | NOT2;
+bool_eq_op: EQ;
+bool_not_eq_op: NEQ;
+bool_lt_op: LT;
+bool_lte_op: LTE;
+bool_gt_op: GT;
+bool_gte_op: GTE;
 
 bool_expr
     : bool_expr bool_or_op bool_expr
     | bool_expr bool_and_op bool_expr
+    | bool_expr bool_eq_op bool_expr
+    | bool_expr bool_not_eq_op bool_expr
+    | bool_expr bool_lt_op bool_expr
+    | bool_expr bool_lte_op bool_expr
+    | bool_expr bool_gt_op bool_expr
+    | bool_expr bool_gte_op bool_expr
     | bool_not_op bool_expr
+    | access
     | LBRACKET bool_expr RBRACKET
     ;
 

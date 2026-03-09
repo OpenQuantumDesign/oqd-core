@@ -188,6 +188,60 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AnalogParser#bool_eq_op.
+    def enterBool_eq_op(self, ctx:AnalogParser.Bool_eq_opContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#bool_eq_op.
+    def exitBool_eq_op(self, ctx:AnalogParser.Bool_eq_opContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#bool_not_eq_op.
+    def enterBool_not_eq_op(self, ctx:AnalogParser.Bool_not_eq_opContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#bool_not_eq_op.
+    def exitBool_not_eq_op(self, ctx:AnalogParser.Bool_not_eq_opContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#bool_lt_op.
+    def enterBool_lt_op(self, ctx:AnalogParser.Bool_lt_opContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#bool_lt_op.
+    def exitBool_lt_op(self, ctx:AnalogParser.Bool_lt_opContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#bool_lte_op.
+    def enterBool_lte_op(self, ctx:AnalogParser.Bool_lte_opContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#bool_lte_op.
+    def exitBool_lte_op(self, ctx:AnalogParser.Bool_lte_opContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#bool_gt_op.
+    def enterBool_gt_op(self, ctx:AnalogParser.Bool_gt_opContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#bool_gt_op.
+    def exitBool_gt_op(self, ctx:AnalogParser.Bool_gt_opContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#bool_gte_op.
+    def enterBool_gte_op(self, ctx:AnalogParser.Bool_gte_opContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#bool_gte_op.
+    def exitBool_gte_op(self, ctx:AnalogParser.Bool_gte_opContext):
+        pass
+
+
     # Enter a parse tree produced by AnalogParser#bool_expr.
     def enterBool_expr(self, ctx:AnalogParser.Bool_exprContext):
         pass
