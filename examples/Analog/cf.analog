@@ -1,0 +1,14 @@
+// control flow statements and bool
+
+r = qreg(2);
+check = 5 + 5;
+
+if (check == 10):
+    initialize targets;
+    evolve H_rabi with targets for 1.0;
+else:
+    check = 12;
+
+if (a and b):
+    measure targets;
+

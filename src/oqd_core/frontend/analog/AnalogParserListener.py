@@ -53,6 +53,15 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AnalogParser#cond.
+    def enterCond(self, ctx:AnalogParser.CondContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#cond.
+    def exitCond(self, ctx:AnalogParser.CondContext):
+        pass
+
+
     # Enter a parse tree produced by AnalogParser#my_list.
     def enterMy_list(self, ctx:AnalogParser.My_listContext):
         pass

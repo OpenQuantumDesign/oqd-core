@@ -4,7 +4,7 @@ options { tokenVocab = AnalogLexer; }
 
 /** ================================================================================= */
 
-program: block statement? EOF;
+program: block EOF;
 
 statement
     : declaration
@@ -15,12 +15,13 @@ statement
     | ifelse_stmt
     ;
 
-block: (statement EOL)*;
+block: (statement EOL | EOL)* (statement)?;
 
 /** ================================================================================= */
 
 atom: mode_register | quantum_register | operator_terminal | math_terminal | access;
-expr: extract | my_list | aexpr | atom | bool_expr;
+expr: extract | my_list | aexpr | atom;
+cond: bool_expr;
 my_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
 declaration: ID ASSIGN expr;
@@ -32,12 +33,11 @@ extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
 // Structural control flow
 
-while_stmt: WHILE WHITESPACE expr WHITESPACE? COLON EOL block;
+while_stmt: WHILE LBRACKET cond RBRACKET WHITESPACE? COLON EOL block;
 
 ifelse_stmt
-    : IF WHITESPACE expr WHITESPACE? COLON EOL block
-    | IF WHITESPACE expr WHITESPACE? COLON EOL block ELSE COLON EOL block;
-
+    : IF LBRACKET cond RBRACKET WHITESPACE? COLON EOL block
+    | IF LBRACKET cond RBRACKET WHITESPACE? COLON EOL block ELSE COLON EOL block;
 
 /** ================================================================================= */
 
@@ -76,6 +76,7 @@ bool_expr
     | bool_expr bool_gte_op bool_expr
     | bool_not_op bool_expr
     | access
+    | atom
     | LBRACKET bool_expr RBRACKET
     ;
 

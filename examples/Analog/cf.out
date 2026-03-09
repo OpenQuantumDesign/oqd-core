@@ -1,0 +1,163 @@
+└── program
+   ├── block
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "r" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           └── mexpr
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── quantum_register
+   │  │                          ├── "qreg" (QUANTUMREGISTER)
+   │  │                          ├── "(" (LBRACKET)
+   │  │                          ├── "2" (INT)
+   │  │                          └── ")" (RBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "check" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           ├── aexpr
+   │  │           │  └── mexpr
+   │  │           │     └── uexpr
+   │  │           │        └── eexpr
+   │  │           │           └── atom
+   │  │           │              └── math_terminal
+   │  │           │                 └── "5" (INT)
+   │  │           ├── "+" (PLUS)
+   │  │           └── mexpr
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── math_terminal
+   │  │                          └── "5" (INT)
+   │  ├── ";
+
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── bool_expr
+   │  │     │     ├── bool_expr
+   │  │     │     │  └── access
+   │  │     │     │     └── "check" (ID)
+   │  │     │     ├── bool_eq_op
+   │  │     │     │  └── "==" (EQ)
+   │  │     │     └── bool_expr
+   │  │     │        └── atom
+   │  │     │           └── math_terminal
+   │  │     │              └── "10" (INT)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── ":" (COLON)
+   │  │     ├── "
+" (EOL)
+   │  │     ├── block
+   │  │     │  ├── statement
+   │  │     │  │  └── init_stmt
+   │  │     │  │     ├── "initialize" (INITIALIZE)
+   │  │     │  │     └── targets
+   │  │     │  │        └── expr
+   │  │     │  │           └── aexpr
+   │  │     │  │              └── mexpr
+   │  │     │  │                 └── uexpr
+   │  │     │  │                    └── eexpr
+   │  │     │  │                       └── atom
+   │  │     │  │                          └── math_terminal
+   │  │     │  │                             └── "targets" (ID)
+   │  │     │  ├── ";
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── evolve_stmt
+   │  │     │  │     ├── "evolve" (EVOLVE)
+   │  │     │  │     ├── targets
+   │  │     │  │     │  └── expr
+   │  │     │  │     │     └── aexpr
+   │  │     │  │     │        └── mexpr
+   │  │     │  │     │           └── uexpr
+   │  │     │  │     │              └── eexpr
+   │  │     │  │     │                 └── atom
+   │  │     │  │     │                    └── math_terminal
+   │  │     │  │     │                       └── "H_rabi" (ID)
+   │  │     │  │     ├── "with" (WITH)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── aexpr
+   │  │     │  │     │     └── mexpr
+   │  │     │  │     │        └── uexpr
+   │  │     │  │     │           └── eexpr
+   │  │     │  │     │              └── atom
+   │  │     │  │     │                 └── math_terminal
+   │  │     │  │     │                    └── "targets" (ID)
+   │  │     │  │     ├── "for" (FOR)
+   │  │     │  │     └── expr
+   │  │     │  │        └── aexpr
+   │  │     │  │           └── mexpr
+   │  │     │  │              └── uexpr
+   │  │     │  │                 └── eexpr
+   │  │     │  │                    └── atom
+   │  │     │  │                       └── math_terminal
+   │  │     │  │                          └── "1.0" (FLOAT)
+   │  │     │  └── ";
+" (EOL)
+   │  │     ├── "else" (ELSE)
+   │  │     ├── ":" (COLON)
+   │  │     ├── "
+" (EOL)
+   │  │     └── block
+   │  │        ├── statement
+   │  │        │  └── declaration
+   │  │        │     ├── "check" (ID)
+   │  │        │     ├── "=" (ASSIGN)
+   │  │        │     └── expr
+   │  │        │        └── aexpr
+   │  │        │           └── mexpr
+   │  │        │              └── uexpr
+   │  │        │                 └── eexpr
+   │  │        │                    └── atom
+   │  │        │                       └── math_terminal
+   │  │        │                          └── "12" (INT)
+   │  │        ├── ";
+
+" (EOL)
+   │  │        └── statement
+   │  │           └── ifelse_stmt
+   │  │              ├── "if" (IF)
+   │  │              ├── "(" (LBRACKET)
+   │  │              ├── cond
+   │  │              │  └── bool_expr
+   │  │              │     ├── bool_expr
+   │  │              │     │  └── access
+   │  │              │     │     └── "a" (ID)
+   │  │              │     ├── bool_and_op
+   │  │              │     │  └── "and" (AND)
+   │  │              │     └── bool_expr
+   │  │              │        └── access
+   │  │              │           └── "b" (ID)
+   │  │              ├── ")" (RBRACKET)
+   │  │              ├── ":" (COLON)
+   │  │              ├── "
+" (EOL)
+   │  │              └── block
+   │  │                 └── statement
+   │  │                    └── measure_stmt
+   │  │                       ├── "measure" (MEASURE)
+   │  │                       └── targets
+   │  │                          └── expr
+   │  │                             └── aexpr
+   │  │                                └── mexpr
+   │  │                                   └── uexpr
+   │  │                                      └── eexpr
+   │  │                                         └── atom
+   │  │                                            └── math_terminal
+   │  │                                               └── "targets" (ID)
+   │  └── ";
+
+" (EOL)
+   └── "<EOF>"
