@@ -3,9 +3,9 @@
 q = qreg(3); // allocate quantum register with 3 qubits
 q0 = q[0]; // index into first qubit
 targets = [q0, q[1]]; // collate multiple targets
-H_rabi = (0.5 * #t) * (%X @ %I) + 0.5 * (%I @ %Y); \\ Hamiltonian for 0.5t X_0 + 0.5 Y_1
+H_rabi = (0.5 * #t) * (%X @ %I) + 0.5 * (%I @ %Y); // Hamiltonian for 0.5t X_0 + 0.5 Y_1
 
 
-initialize q; \\ initialize entire quantum register
-evolve targets with H_rabi; \\ evolve targets with hamiltonain H_rabi
-measure q; \\ measure entire quantum register
+initialize q; // initialize entire quantum register
+evolve targets with H_rabi for 1.0; // evolve targets with hamiltonain H_rabi
+measure q; // measure entire quantum register

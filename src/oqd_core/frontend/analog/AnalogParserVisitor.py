@@ -19,28 +19,28 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#declaration.
-    def visitDeclaration(self, ctx:AnalogParser.DeclarationContext):
+    # Visit a parse tree produced by AnalogParser#block.
+    def visitBlock(self, ctx:AnalogParser.BlockContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#atomic_type.
-    def visitAtomic_type(self, ctx:AnalogParser.Atomic_typeContext):
+    # Visit a parse tree produced by AnalogParser#atom.
+    def visitAtom(self, ctx:AnalogParser.AtomContext):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#quantum_register.
-    def visitQuantum_register(self, ctx:AnalogParser.Quantum_registerContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#mode_register.
-    def visitMode_register(self, ctx:AnalogParser.Mode_registerContext):
+    # Visit a parse tree produced by AnalogParser#expr.
+    def visitExpr(self, ctx:AnalogParser.ExprContext):
         return self.visitChildren(ctx)
 
 
     # Visit a parse tree produced by AnalogParser#my_list.
     def visitMy_list(self, ctx:AnalogParser.My_listContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#declaration.
+    def visitDeclaration(self, ctx:AnalogParser.DeclarationContext):
         return self.visitChildren(ctx)
 
 
@@ -51,6 +51,26 @@ class AnalogParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by AnalogParser#extract.
     def visitExtract(self, ctx:AnalogParser.ExtractContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#while_stmt.
+    def visitWhile_stmt(self, ctx:AnalogParser.While_stmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#ifelse_stmt.
+    def visitIfelse_stmt(self, ctx:AnalogParser.Ifelse_stmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#quantum_register.
+    def visitQuantum_register(self, ctx:AnalogParser.Quantum_registerContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#mode_register.
+    def visitMode_register(self, ctx:AnalogParser.Mode_registerContext):
         return self.visitChildren(ctx)
 
 
@@ -74,16 +94,6 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#if_else_stmt.
-    def visitIf_else_stmt(self, ctx:AnalogParser.If_else_stmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#while_stmt.
-    def visitWhile_stmt(self, ctx:AnalogParser.While_stmtContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AnalogParser#bool_and_op.
     def visitBool_and_op(self, ctx:AnalogParser.Bool_and_opContext):
         return self.visitChildren(ctx)
@@ -96,11 +106,6 @@ class AnalogParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by AnalogParser#bool_not_op.
     def visitBool_not_op(self, ctx:AnalogParser.Bool_not_opContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#bool_ref.
-    def visitBool_ref(self, ctx:AnalogParser.Bool_refContext):
         return self.visitChildren(ctx)
 
 
@@ -119,18 +124,8 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#operator_expr.
-    def visitOperator_expr(self, ctx:AnalogParser.Operator_exprContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AnalogParser#operator_terminal.
     def visitOperator_terminal(self, ctx:AnalogParser.Operator_terminalContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#math_expr.
-    def visitMath_expr(self, ctx:AnalogParser.Math_exprContext):
         return self.visitChildren(ctx)
 
 
@@ -144,8 +139,33 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#math_func.
-    def visitMath_func(self, ctx:AnalogParser.Math_funcContext):
+    # Visit a parse tree produced by AnalogParser#pexpr.
+    def visitPexpr(self, ctx:AnalogParser.PexprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#fexpr.
+    def visitFexpr(self, ctx:AnalogParser.FexprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#aexpr.
+    def visitAexpr(self, ctx:AnalogParser.AexprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#mexpr.
+    def visitMexpr(self, ctx:AnalogParser.MexprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#uexpr.
+    def visitUexpr(self, ctx:AnalogParser.UexprContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#eexpr.
+    def visitEexpr(self, ctx:AnalogParser.EexprContext):
         return self.visitChildren(ctx)
 
 

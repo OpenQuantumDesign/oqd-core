@@ -21,15 +21,6 @@ FOR: 'for';
 
 /** ================================================================================= */
 
-// Identifier
-
-fragment ID_START: [a-zA-Z_];
-fragment ID_CONTINUE: [a-zA-Z0-9_];
-
-ID: ID_START ID_CONTINUE*;
-
-/** ================================================================================= */
-
 // Boolean
 AND: 'and';
 AND2: '&&';
@@ -59,7 +50,7 @@ SQUARERBRACKET: ']';
 LBRACE: '{';
 RBRACE: '}';
 
-// Operator
+// Math Operators
 
 AT: '@';
 MULT: '*';
@@ -75,6 +66,11 @@ LTE: '<=';
 GT: '>';
 GTE: '>=';
 
+// Analog Operators
+
+OP_ADD: '%+';
+OP_MUL: '%*';
+OP_MINUS: '%-';
 
 /** ================================================================================= */
 
@@ -129,3 +125,13 @@ PAULI_Z: '%Z';
 CREATION: '%C';
 ANNIHILATION: '%A';
 IDENTITY_OP: '%J';
+
+
+/** ================================================================================= */
+
+// Identifier
+
+fragment ID_START: [a-zA-Z_];
+fragment ID_CONTINUE: [a-zA-Z0-9_];
+
+ID: ID_START ID_CONTINUE*;

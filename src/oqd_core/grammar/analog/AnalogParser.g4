@@ -20,7 +20,7 @@ block: (statement EOL)*;
 /** ================================================================================= */
 
 atom: mode_register | quantum_register | operator_terminal | math_terminal | access;
-expr: extract | my_list | bool_expr | operator_expr | math_expr | atom;
+expr: extract | my_list | aexpr | atom | bool_expr;
 my_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
 declaration: ID ASSIGN expr;
@@ -58,14 +58,11 @@ targets: expr;
 bool_and_op: AND | AND2;
 bool_or_op: OR | OR2;
 bool_not_op: NOT | NOT2;
-bool_ref: ID;
 
 bool_expr
     : bool_expr bool_or_op bool_expr
     | bool_expr bool_and_op bool_expr
     | bool_not_op bool_expr
-    | math_expr EQ math_expr
-    | bool_ref
     | LBRACKET bool_expr RBRACKET
     ;
 
@@ -77,40 +74,24 @@ pauli_op: PAULI_I | PAULI_X | PAULI_Y | PAULI_Z;
 ladder_op: CREATION | ANNIHILATION | IDENTITY_OP;
 operator_terminal: pauli_op | ladder_op;
 
-operator_expr
-    : operator_expr PLUS operator_expr
-    | operator_expr MINUS operator_expr
-    | operator_expr AT operator_expr
-    | operator_expr MULT operator_expr
-    | math_expr MULT operator_expr
-    | operator_expr MULT math_expr
-    | operator_terminal
-    | access
-    | LBRACKET operator_expr RBRACKET
-    ;
-
 /** ================================================================================= */
 
 // Math
 
-math_terminal: INT | FLOAT | MATH_VAR | IMAG | ID;
-
-math_expr
-    : math_expr PLUS math_expr
-    | math_expr MINUS math_expr
-    | math_expr MULT math_expr
-    | math_expr DIV math_expr
-    | math_expr POWER math_expr
-    | (PLUS | MINUS) math_expr
-    | math_terminal
-    | math_func
-    | access
-    | LBRACKET math_expr RBRACKET
-    ;
+math_terminal: INT | FLOAT | MATH_VAR | IMAG | ID | pexpr | fexpr;
 
 math_func_name: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
-    | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH
+    | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2
     | HEAVISIDE | CONJ | REAL | IMAG_FN;
 
-math_func: ATAN2 LBRACKET math_expr COMMA math_expr RBRACKET
-    | math_func_name LBRACKET math_expr RBRACKET;
+pexpr: LBRACKET aexpr RBRACKET;
+
+fexpr: math_func_name pexpr;
+
+aexpr: mexpr | aexpr WHITESPACE? (PLUS|MINUS|OP_ADD|OP_MINUS) WHITESPACE? mexpr;
+
+mexpr: uexpr | mexpr WHITESPACE? (MULT|DIV|OP_MUL|AT) WHITESPACE? uexpr;
+
+uexpr: eexpr | (PLUS|MINUS) eexpr;
+
+eexpr: atom | atom WHITESPACE? POWER WHITESPACE? uexpr;
