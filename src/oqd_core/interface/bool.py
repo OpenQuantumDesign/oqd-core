@@ -24,7 +24,12 @@ __all__ = [
     "BoolNot",
     "BoolRef",
     "BoolExprSubtypes",
-    "BoolEq"
+    "BoolEq",
+    "BoolNotEq",
+    "BoolLessThan",
+    "BoolLessThanEq",
+    "BoolGreaterThan",
+    "BoolGreaterThanEq"
 ]
 
 ########################################################################################
@@ -50,11 +55,36 @@ class BoolEq(BoolExpr):
     left: MathExprSubtypes
     right: MathExprSubtypes
 
+class BoolNotEq(BoolExpr):
+    left: MathExprSubtypes
+    right: MathExprSubtypes
+
+class BoolLessThan(BoolExpr):
+    left: MathExprSubtypes
+    right: MathExprSubtypes
+    
+class BoolLessThanEq(BoolExpr):
+    left: MathExprSubtypes
+    right: MathExprSubtypes
+
+class BoolGreaterThan(BoolExpr):
+    left: MathExprSubtypes
+    right: MathExprSubtypes
+
+class BoolGreaterThanEq(BoolExpr):
+    left: MathExprSubtypes
+    right: MathExprSubtypes
+
 BoolExprSubtypes = Union[
     BoolAnd,
     BoolOr,
     BoolNot,
     BoolRef,
-    BoolEq
+    BoolEq,
+    BoolNotEq,
+    BoolLessThan,
+    BoolLessThanEq,
+    BoolGreaterThan,
+    BoolGreaterThanEq
 ]
 
