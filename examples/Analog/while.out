@@ -7,16 +7,12 @@
    │  │     ├── "targets" (ID)
    │  │     ├── "=" (ASSIGN)
    │  │     └── expr
-   │  │        └── aexpr
-   │  │           └── mexpr
-   │  │              └── uexpr
-   │  │                 └── eexpr
-   │  │                    └── atom
-   │  │                       └── quantum_register
-   │  │                          ├── "qreg" (QUANTUMREGISTER)
-   │  │                          ├── "(" (LBRACKET)
-   │  │                          ├── "2" (INT)
-   │  │                          └── ")" (RBRACKET)
+   │  │        └── atom
+   │  │           └── quantum_register
+   │  │              ├── "qreg" (QUANTUMREGISTER)
+   │  │              ├── "(" (LBRACKET)
+   │  │              ├── "2" (INT)
+   │  │              └── ")" (RBRACKET)
    │  ├── ";
 " (EOL)
    │  ├── statement
@@ -24,13 +20,9 @@
    │  │     ├── "initialize" (INITIALIZE)
    │  │     └── targets
    │  │        └── expr
-   │  │           └── aexpr
-   │  │              └── mexpr
-   │  │                 └── uexpr
-   │  │                    └── eexpr
-   │  │                       └── atom
-   │  │                          └── math_terminal
-   │  │                             └── "targets" (ID)
+   │  │           └── atom
+   │  │              └── math_terminal
+   │  │                 └── "targets" (ID)
    │  ├── ";
 " (EOL)
    │  ├── statement
@@ -125,13 +117,9 @@
    │  │     ├── "a" (ID)
    │  │     ├── "=" (ASSIGN)
    │  │     └── expr
-   │  │        └── aexpr
-   │  │           └── mexpr
-   │  │              └── uexpr
-   │  │                 └── eexpr
-   │  │                    └── atom
-   │  │                       └── math_terminal
-   │  │                          └── "1" (INT)
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "1" (INT)
    │  ├── ";
 
 " (EOL)
@@ -160,31 +148,19 @@
    │  │        │     ├── "evolve" (EVOLVE)
    │  │        │     ├── targets
    │  │        │     │  └── expr
-   │  │        │     │     └── aexpr
-   │  │        │     │        └── mexpr
-   │  │        │     │           └── uexpr
-   │  │        │     │              └── eexpr
-   │  │        │     │                 └── atom
-   │  │        │     │                    └── math_terminal
-   │  │        │     │                       └── "targets" (ID)
+   │  │        │     │     └── atom
+   │  │        │     │        └── math_terminal
+   │  │        │     │           └── "targets" (ID)
    │  │        │     ├── "with" (WITH)
    │  │        │     ├── expr
-   │  │        │     │  └── aexpr
-   │  │        │     │     └── mexpr
-   │  │        │     │        └── uexpr
-   │  │        │     │           └── eexpr
-   │  │        │     │              └── atom
-   │  │        │     │                 └── math_terminal
-   │  │        │     │                    └── "H_rabi" (ID)
+   │  │        │     │  └── atom
+   │  │        │     │     └── math_terminal
+   │  │        │     │        └── "H_rabi" (ID)
    │  │        │     ├── "for" (FOR)
    │  │        │     └── expr
-   │  │        │        └── aexpr
-   │  │        │           └── mexpr
-   │  │        │              └── uexpr
-   │  │        │                 └── eexpr
-   │  │        │                    └── atom
-   │  │        │                       └── math_terminal
-   │  │        │                          └── "1.0" (FLOAT)
+   │  │        │        └── atom
+   │  │        │           └── math_terminal
+   │  │        │              └── "1.0" (FLOAT)
    │  │        ├── ";
 " (EOL)
    │  │        └── statement

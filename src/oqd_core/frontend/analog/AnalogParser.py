@@ -60,8 +60,8 @@ def serializedATN():
         100,1,0,0,0,100,5,1,0,0,0,101,107,3,26,13,0,102,107,3,24,12,0,103,
         107,3,60,30,0,104,107,3,62,31,0,105,107,3,16,8,0,106,101,1,0,0,0,
         106,102,1,0,0,0,106,103,1,0,0,0,106,104,1,0,0,0,106,105,1,0,0,0,
-        107,7,1,0,0,0,108,113,3,18,9,0,109,113,3,12,6,0,110,113,3,70,35,
-        0,111,113,3,6,3,0,112,108,1,0,0,0,112,109,1,0,0,0,112,110,1,0,0,
+        107,7,1,0,0,0,108,113,3,18,9,0,109,113,3,12,6,0,110,113,3,6,3,0,
+        111,113,3,70,35,0,112,108,1,0,0,0,112,109,1,0,0,0,112,110,1,0,0,
         0,112,111,1,0,0,0,113,9,1,0,0,0,114,115,3,54,27,0,115,11,1,0,0,0,
         116,118,5,26,0,0,117,119,3,8,4,0,118,117,1,0,0,0,118,119,1,0,0,0,
         119,124,1,0,0,0,120,121,5,23,0,0,121,123,3,8,4,0,122,120,1,0,0,0,
@@ -665,12 +665,12 @@ class AnalogParser ( Parser ):
             return self.getTypedRuleContext(AnalogParser.My_listContext,0)
 
 
-        def aexpr(self):
-            return self.getTypedRuleContext(AnalogParser.AexprContext,0)
-
-
         def atom(self):
             return self.getTypedRuleContext(AnalogParser.AtomContext,0)
+
+
+        def aexpr(self):
+            return self.getTypedRuleContext(AnalogParser.AexprContext,0)
 
 
         def getRuleIndex(self):
@@ -716,13 +716,13 @@ class AnalogParser ( Parser ):
             elif la_ == 3:
                 self.enterOuterAlt(localctx, 3)
                 self.state = 110
-                self.aexpr(0)
+                self.atom()
                 pass
 
             elif la_ == 4:
                 self.enterOuterAlt(localctx, 4)
                 self.state = 111
-                self.atom()
+                self.aexpr(0)
                 pass
 
 

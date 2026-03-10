@@ -5,16 +5,12 @@
    │  │     ├── "q" (ID)
    │  │     ├── "=" (ASSIGN)
    │  │     └── expr
-   │  │        └── aexpr
-   │  │           └── mexpr
-   │  │              └── uexpr
-   │  │                 └── eexpr
-   │  │                    └── atom
-   │  │                       └── quantum_register
-   │  │                          ├── "qreg" (QUANTUMREGISTER)
-   │  │                          ├── "(" (LBRACKET)
-   │  │                          ├── "3" (INT)
-   │  │                          └── ")" (RBRACKET)
+   │  │        └── atom
+   │  │           └── quantum_register
+   │  │              ├── "qreg" (QUANTUMREGISTER)
+   │  │              ├── "(" (LBRACKET)
+   │  │              ├── "3" (INT)
+   │  │              └── ")" (RBRACKET)
    │  ├── ";" (EOL)
    │  ├── statement
    │  │  └── declaration
@@ -36,13 +32,9 @@
    │  │        └── my_list
    │  │           ├── "[" (SQUARELBRACKET)
    │  │           ├── expr
-   │  │           │  └── aexpr
-   │  │           │     └── mexpr
-   │  │           │        └── uexpr
-   │  │           │           └── eexpr
-   │  │           │              └── atom
-   │  │           │                 └── math_terminal
-   │  │           │                    └── "q0" (ID)
+   │  │           │  └── atom
+   │  │           │     └── math_terminal
+   │  │           │        └── "q0" (ID)
    │  │           ├── "," (COMMA)
    │  │           ├── expr
    │  │           │  └── extract
@@ -145,56 +137,36 @@
    │  │     ├── "initialize" (INITIALIZE)
    │  │     └── targets
    │  │        └── expr
-   │  │           └── aexpr
-   │  │              └── mexpr
-   │  │                 └── uexpr
-   │  │                    └── eexpr
-   │  │                       └── atom
-   │  │                          └── math_terminal
-   │  │                             └── "q" (ID)
+   │  │           └── atom
+   │  │              └── math_terminal
+   │  │                 └── "q" (ID)
    │  ├── ";" (EOL)
    │  ├── statement
    │  │  └── evolve_stmt
    │  │     ├── "evolve" (EVOLVE)
    │  │     ├── targets
    │  │     │  └── expr
-   │  │     │     └── aexpr
-   │  │     │        └── mexpr
-   │  │     │           └── uexpr
-   │  │     │              └── eexpr
-   │  │     │                 └── atom
-   │  │     │                    └── math_terminal
-   │  │     │                       └── "targets" (ID)
+   │  │     │     └── atom
+   │  │     │        └── math_terminal
+   │  │     │           └── "targets" (ID)
    │  │     ├── "with" (WITH)
    │  │     ├── expr
-   │  │     │  └── aexpr
-   │  │     │     └── mexpr
-   │  │     │        └── uexpr
-   │  │     │           └── eexpr
-   │  │     │              └── atom
-   │  │     │                 └── math_terminal
-   │  │     │                    └── "H_rabi" (ID)
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── "H_rabi" (ID)
    │  │     ├── "for" (FOR)
    │  │     └── expr
-   │  │        └── aexpr
-   │  │           └── mexpr
-   │  │              └── uexpr
-   │  │                 └── eexpr
-   │  │                    └── atom
-   │  │                       └── math_terminal
-   │  │                          └── "1.0" (FLOAT)
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "1.0" (FLOAT)
    │  ├── ";" (EOL)
    │  ├── statement
    │  │  └── measure_stmt
    │  │     ├── "measure" (MEASURE)
    │  │     └── targets
    │  │        └── expr
-   │  │           └── aexpr
-   │  │              └── mexpr
-   │  │                 └── uexpr
-   │  │                    └── eexpr
-   │  │                       └── atom
-   │  │                          └── math_terminal
-   │  │                             └── "q" (ID)
+   │  │           └── atom
+   │  │              └── math_terminal
+   │  │                 └── "q" (ID)
    │  └── ";" (EOL)
    └── "<EOF>"

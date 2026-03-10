@@ -20,7 +20,7 @@ block: (statement EOL | EOL)* (statement)?;
 /** ================================================================================= */
 
 atom: mode_register | quantum_register | operator_terminal | math_terminal | access;
-expr: extract | my_list | aexpr | atom;
+expr: extract | my_list | atom | aexpr;
 cond: bool_expr;
 my_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
