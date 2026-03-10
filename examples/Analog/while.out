@@ -71,7 +71,7 @@
    │  │           │                    │     │           └── operator_terminal
    │  │           │                    │     │              └── pauli_op
    │  │           │                    │     │                 └── "%X" (PAULI_X)
-   │  │           │                    │     ├── "@" (AT)
+   │  │           │                    │     ├── "%@" (AT)
    │  │           │                    │     └── uexpr
    │  │           │                    │        └── eexpr
    │  │           │                    │           └── atom
@@ -79,7 +79,7 @@
    │  │           │                    │                 └── pauli_op
    │  │           │                    │                    └── "%I" (PAULI_I)
    │  │           │                    └── ")" (RBRACKET)
-   │  │           ├── "+" (PLUS)
+   │  │           ├── "%+" (OP_ADD)
    │  │           └── mexpr
    │  │              ├── mexpr
    │  │              │  └── uexpr
@@ -103,7 +103,7 @@
    │  │                             │     │           └── operator_terminal
    │  │                             │     │              └── pauli_op
    │  │                             │     │                 └── "%I" (PAULI_I)
-   │  │                             │     ├── "@" (AT)
+   │  │                             │     ├── "%@" (AT)
    │  │                             │     └── uexpr
    │  │                             │        └── eexpr
    │  │                             │           └── atom

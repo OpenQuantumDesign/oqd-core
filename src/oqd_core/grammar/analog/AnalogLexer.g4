@@ -52,7 +52,6 @@ RBRACE: '}';
 
 // Math Operators
 
-AT: '@';
 MULT: '*';
 DIV: '/';
 PLUS: '+';
@@ -68,6 +67,7 @@ GTE: '>=';
 
 // Analog Operators
 
+AT: '%@';
 OP_ADD: '%+';
 OP_MUL: '%*';
 OP_MINUS: '%-';
