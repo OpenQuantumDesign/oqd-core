@@ -251,6 +251,15 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AnalogParser#bool_op.
+    def enterBool_op(self, ctx:AnalogParser.Bool_opContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#bool_op.
+    def exitBool_op(self, ctx:AnalogParser.Bool_opContext):
+        pass
+
+
     # Enter a parse tree produced by AnalogParser#bool_expr.
     def enterBool_expr(self, ctx:AnalogParser.Bool_exprContext):
         pass

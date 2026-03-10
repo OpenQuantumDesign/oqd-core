@@ -45,8 +45,9 @@
    │  │     │     ├── bool_expr
    │  │     │     │  └── access
    │  │     │     │     └── "check" (ID)
-   │  │     │     ├── bool_eq_op
-   │  │     │     │  └── "==" (EQ)
+   │  │     │     ├── bool_op
+   │  │     │     │  └── bool_eq_op
+   │  │     │     │     └── "==" (EQ)
    │  │     │     └── bool_expr
    │  │     │        └── atom
    │  │     │           └── math_terminal
@@ -111,8 +112,9 @@
    │  │              │     ├── bool_expr
    │  │              │     │  └── access
    │  │              │     │     └── "a" (ID)
-   │  │              │     ├── bool_and_op
-   │  │              │     │  └── "and" (AND)
+   │  │              │     ├── bool_op
+   │  │              │     │  └── bool_and_op
+   │  │              │     │     └── "and" (AND)
    │  │              │     └── bool_expr
    │  │              │        └── access
    │  │              │           └── "b" (ID)

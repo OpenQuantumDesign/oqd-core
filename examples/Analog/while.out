@@ -132,8 +132,9 @@
    │  │     │     ├── bool_expr
    │  │     │     │  └── access
    │  │     │     │     └── "a" (ID)
-   │  │     │     ├── bool_lt_op
-   │  │     │     │  └── "<" (LT)
+   │  │     │     ├── bool_op
+   │  │     │     │  └── bool_lt_op
+   │  │     │     │     └── "<" (LT)
    │  │     │     └── bool_expr
    │  │     │        └── atom
    │  │     │           └── math_terminal

@@ -1,0 +1,45 @@
+└── program
+   ├── block
+   │  ├── "
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "H" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           ├── aexpr
+   │  │           │  └── mexpr
+   │  │           │     ├── mexpr
+   │  │           │     │  └── uexpr
+   │  │           │     │     └── eexpr
+   │  │           │     │        └── atom
+   │  │           │     │           └── operator_terminal
+   │  │           │     │              └── pauli_op
+   │  │           │     │                 └── "%I" (PAULI_I)
+   │  │           │     ├── "%*" (OP_MUL)
+   │  │           │     └── uexpr
+   │  │           │        └── eexpr
+   │  │           │           └── atom
+   │  │           │              └── operator_terminal
+   │  │           │                 └── ladder_op
+   │  │           │                    └── "%J" (IDENTITY_OP)
+   │  │           ├── "%+" (OP_ADD)
+   │  │           └── mexpr
+   │  │              ├── mexpr
+   │  │              │  └── uexpr
+   │  │              │     └── eexpr
+   │  │              │        └── atom
+   │  │              │           └── operator_terminal
+   │  │              │              └── pauli_op
+   │  │              │                 └── "%X" (PAULI_X)
+   │  │              ├── "%*" (OP_MUL)
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── operator_terminal
+   │  │                          └── ladder_op
+   │  │                             └── "%J" (IDENTITY_OP)
+   │  └── ";
+" (EOL)
+   └── "<EOF>"
