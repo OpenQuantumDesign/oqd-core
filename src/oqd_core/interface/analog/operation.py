@@ -73,7 +73,7 @@ AtomicTypes = Union[QuantumBit, QuantumRegister, MyList, Access]
 
 class Declaration(TypeReflectBaseModel):
     name: Identifier
-    value: Union[AtomicTypes, BoolExprSubtypes, OperatorSubtypes]
+    value: Union[AtomicTypes, BoolExprSubtypes, OperatorSubtypes, MathExprSubtypes]
 
 
 class Evolve(TypeReflectBaseModel):
