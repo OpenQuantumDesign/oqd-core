@@ -19,6 +19,7 @@ from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic.types import NonNegativeInt
 from pydantic import AfterValidator
 from oqd_core.interface.bool import BoolExprSubtypes
+from oqd_core.interface.math import MathExprSubtypes
 
 ########################################################################################
 from .operator import OperatorSubtypes
@@ -72,7 +73,7 @@ AtomicTypes = Union[QuantumBit, QuantumRegister, MyList, Access]
 
 class Declaration(TypeReflectBaseModel):
     name: Identifier
-    value: Union[AtomicTypes, BoolExprSubtypes, OperatorSubtypes]
+    value: Union[AtomicTypes, BoolExprSubtypes, OperatorSubtypes, MathExprSubtypes]
 
 
 class Evolve(TypeReflectBaseModel):
@@ -86,7 +87,7 @@ class Evolve(TypeReflectBaseModel):
     """
 
     hamiltonian: OperatorSubtypes
-    duration: float
+    duration: MathExprSubtypes
     targets: AtomicTypes
 
 
