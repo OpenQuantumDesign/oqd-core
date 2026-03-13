@@ -1,0 +1,430 @@
+{
+  "class_": "AnalogCircuit",
+  "sequence": [
+    {
+      "class_": "Declaration",
+      "name": "r",
+      "value": {
+        "class_": "QuantumRegister",
+        "size": 2
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "q0",
+      "value": {
+        "class_": "QuantumBit",
+        "access": {
+          "class_": "Access",
+          "name": "r"
+        },
+        "index": 0
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "q1",
+      "value": {
+        "class_": "QuantumBit",
+        "access": {
+          "class_": "Access",
+          "name": "r"
+        },
+        "index": 1
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "targets",
+      "value": {
+        "class_": "MyList",
+        "values": [
+          {
+            "class_": "QuantumBit",
+            "access": {
+              "class_": "Access",
+              "name": "r"
+            },
+            "index": 0
+          },
+          {
+            "class_": "QuantumBit",
+            "access": {
+              "class_": "Access",
+              "name": "r"
+            },
+            "index": 1
+          }
+        ]
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "pi",
+      "value": {
+        "class_": "MathNum",
+        "value": 3.14159
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "tau",
+      "value": {
+        "class_": "MathMul",
+        "expr1": {
+          "class_": "MathNum",
+          "value": 2
+        },
+        "expr2": {
+          "class_": "MathNum",
+          "value": 3.14159
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "omega",
+      "value": {
+        "class_": "MathVar",
+        "name": "#omega"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "phase",
+      "value": {
+        "class_": "MathAdd",
+        "expr1": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathVar",
+            "name": "#t"
+          },
+          "expr2": {
+            "class_": "MathVar",
+            "name": "#omega"
+          }
+        },
+        "expr2": {
+          "class_": "MathVar",
+          "name": "#phi"
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "neg",
+      "value": {
+        "class_": "MathMul",
+        "expr1": {
+          "class_": "MathNum",
+          "value": -1
+        },
+        "expr2": {
+          "class_": "MathNum",
+          "value": 1
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "cubed",
+      "value": {
+        "class_": "MathPow",
+        "expr1": {
+          "class_": "MathNum",
+          "value": 2
+        },
+        "expr2": {
+          "class_": "MathNum",
+          "value": 3
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "sine",
+      "value": {
+        "class_": "MathFunc",
+        "func": "sin",
+        "expr": {
+          "class_": "MathNum",
+          "value": 0.5
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "cosed",
+      "value": {
+        "class_": "MathFunc",
+        "func": "cos",
+        "expr": {
+          "class_": "MathAdd",
+          "expr1": {
+            "class_": "MathMul",
+            "expr1": {
+              "class_": "MathVar",
+              "name": "#t"
+            },
+            "expr2": {
+              "class_": "MathVar",
+              "name": "#omega"
+            }
+          },
+          "expr2": {
+            "class_": "MathVar",
+            "name": "#phi"
+          }
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "cplx",
+      "value": {
+        "class_": "MathAdd",
+        "expr1": {
+          "class_": "MathNum",
+          "value": 1.0
+        },
+        "expr2": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathImag"
+          },
+          "expr2": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "X",
+      "value": {
+        "class_": "PauliX"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "Y",
+      "value": {
+        "class_": "PauliY"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "Z",
+      "value": {
+        "class_": "PauliZ"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "I",
+      "value": {
+        "class_": "PauliI"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "C",
+      "value": {
+        "class_": "Creation"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "A",
+      "value": {
+        "class_": "Annihilation"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "J",
+      "value": {
+        "class_": "Identity"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "H_single",
+      "value": {
+        "class_": "OperatorAdd",
+        "op1": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "PauliX"
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        },
+        "op2": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "PauliZ"
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "H_pair",
+      "value": {
+        "class_": "OperatorAdd",
+        "op1": {
+          "class_": "OperatorKron",
+          "op1": {
+            "class_": "PauliX"
+          },
+          "op2": {
+            "class_": "PauliI"
+          }
+        },
+        "op2": {
+          "class_": "OperatorKron",
+          "op1": {
+            "class_": "PauliI"
+          },
+          "op2": {
+            "class_": "PauliX"
+          }
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "H_rabi",
+      "value": {
+        "class_": "OperatorAdd",
+        "op1": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliX"
+            },
+            "op2": {
+              "class_": "PauliI"
+            }
+          },
+          "expr": {
+            "class_": "MathMul",
+            "expr1": {
+              "class_": "MathNum",
+              "value": 0.5
+            },
+            "expr2": {
+              "class_": "MathVar",
+              "name": "#t"
+            }
+          }
+        },
+        "op2": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliI"
+            },
+            "op2": {
+              "class_": "PauliY"
+            }
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "x",
+      "value": {
+        "class_": "MathNum",
+        "value": 1
+      }
+    },
+    {
+      "class_": "IfElse",
+      "condition": {
+        "class_": "BoolGreaterThan",
+        "left": {
+          "class_": "MathNum",
+          "value": 1
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 0
+        }
+      },
+      "then_branch": [
+        {
+          "class_": "Initialize"
+        }
+      ],
+      "else_branch": []
+    },
+    {
+      "class_": "IfElse",
+      "condition": {
+        "class_": "BoolEq",
+        "left": {
+          "class_": "MathNum",
+          "value": 1
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 1
+        }
+      },
+      "then_branch": [
+        {
+          "class_": "Evolve",
+          "hamiltonian": {
+            "class_": "OperatorAdd",
+            "op1": {
+              "class_": "OperatorScalarMul",
+              "op": {
+                "class_": "PauliX"
+              },
+              "expr": {
+                "class_": "MathNum",
+                "value": 0.5
+              }
+            },
+            "op2": {
+              "class_": "OperatorScalarMul",
+              "op": {
+                "class_": "PauliZ"
+              },
+              "expr": {
+                "class_": "MathNum",
+                "value": 0.5
+              }
+            }
+          },
+          "duration": {
+            "class_": "MathNum",
+            "value": 1.0
+          },
+          "targets": {
+            "class_": "QuantumRegister",
+            "size": 2
+          }
+        }
+      ],
+      "else_branch": []
+    }
+  ]
+}

@@ -33,11 +33,11 @@ extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
 // Structural control flow
 
-while_stmt: WHILE LBRACKET cond RBRACKET WHITESPACE? COLON EOL block;
+while_stmt: WHILE LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE;
 
 ifelse_stmt
-    : IF LBRACKET cond RBRACKET WHITESPACE? COLON EOL block
-    | IF LBRACKET cond RBRACKET WHITESPACE? COLON EOL block ELSE COLON EOL block;
+    : IF LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE
+    | IF LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE WHITESPACE? ELSE LBRACE block RBRACE;
 
 /** ================================================================================= */
 
@@ -65,11 +65,9 @@ bool_lte_op: LTE;
 bool_gt_op: GT;
 bool_gte_op: GTE;
 
-bool_op: bool_and_op | bool_or_op | bool_eq_op | bool_not_eq_op 
-    | bool_lt_op | bool_lte_op | bool_gt_op | bool_gte_op;
-
 bool_expr
-    : bool_expr bool_op bool_expr
+    : bool_expr (bool_and_op | bool_or_op | bool_eq_op) bool_expr
+    | bool_expr (bool_not_eq_op | bool_lt_op | bool_lte_op | bool_gt_op | bool_gte_op) bool_expr
     | bool_not_op bool_expr
     | access
     | atom
