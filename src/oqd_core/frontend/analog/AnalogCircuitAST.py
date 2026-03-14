@@ -71,6 +71,8 @@ from oqd_core.interface.bool import (
     BoolLessThanEq,
     BoolGreaterThan,
     BoolGreaterThanEq,
+    BoolFalse,
+    BoolTrue,
 )
 
 ########################################################################################
@@ -341,6 +343,10 @@ class _AnalogASTBuilder(AnalogParserVisitor):
     ## Bool Expressions ##
     
     def _to_math_expr(self, node):
+        if isinstance(node, BoolTrue):
+            return MathNum(value=1)
+        if isinstance(node, BoolFalse):
+            return MathNum(value=0)
         if isinstance(node, BoolRef):
             try:
                 resolved = self._resolve(node.name)
@@ -354,16 +360,27 @@ class _AnalogASTBuilder(AnalogParserVisitor):
     def visitCond(self, ctx: AnalogParser.CondContext):
         return self.visit(ctx.bool_expr())
     
+    def visitBool_literal(self, ctx: AnalogParser.Bool_literalContext):
+        token = ctx.getChild(0).getText()
+        return BoolTrue() if token == 'true' else BoolFalse()
+    
     def visitBool_expr(self, ctx: AnalogParser.Bool_exprContext):
         
         if ctx.bool_not_op():
             return BoolNot(expr=self.visit(ctx.bool_expr(0)))
         
+        if ctx.bool_literal():
+            token = ctx.bool_literal().getChild(0).getText()
+            if token == 'true':
+                return BoolTrue()
+            else:
+                return BoolFalse()
+        
         if ctx.access():
             name = ctx.access().ID().getText()
             try:
                 resolved = self._resolve(name)
-                if isinstance(resolved, (BoolAnd, BoolOr, BoolNot, BoolRef, BoolEq, BoolNotEq,
+                if isinstance(resolved, (BoolAnd, BoolOr, BoolNot, BoolRef, BoolEq, BoolNotEq, BoolTrue, BoolFalse,
                                         BoolLessThan, BoolLessThanEq, BoolGreaterThan, BoolGreaterThanEq)):
                     return resolved
             except NameError:

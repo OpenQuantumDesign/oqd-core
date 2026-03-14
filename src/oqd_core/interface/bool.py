@@ -29,7 +29,9 @@ __all__ = [
     "BoolLessThan",
     "BoolLessThanEq",
     "BoolGreaterThan",
-    "BoolGreaterThanEq"
+    "BoolGreaterThanEq",
+    "BoolTrue",
+    "BoolFalse",
 ]
 
 ########################################################################################
@@ -75,6 +77,12 @@ class BoolGreaterThanEq(BoolExpr):
     left: MathExprSubtypes
     right: MathExprSubtypes
 
+class BoolTrue(BoolExpr):
+    pass
+
+class BoolFalse(BoolExpr):
+    pass
+
 BoolExprSubtypes = Union[
     BoolAnd,
     BoolOr,
@@ -85,6 +93,8 @@ BoolExprSubtypes = Union[
     BoolLessThan,
     BoolLessThanEq,
     BoolGreaterThan,
-    BoolGreaterThanEq
+    BoolGreaterThanEq,
+    BoolTrue,
+    BoolFalse,
 ]
 

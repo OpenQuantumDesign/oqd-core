@@ -20,7 +20,7 @@ block: (statement EOL | EOL)* (statement)?;
 /** ================================================================================= */
 
 atom: mode_register | quantum_register | operator_terminal | math_terminal | access;
-expr: extract | my_list | atom | aexpr;
+expr: extract | my_list | atom | aexpr | bool_literal;
 cond: bool_expr;
 my_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
@@ -37,7 +37,7 @@ while_stmt: WHILE LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE;
 
 ifelse_stmt
     : IF LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE
-    | IF LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE WHITESPACE? ELSE LBRACE block RBRACE;
+    | IF LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE WHITESPACE? EOL? ELSE LBRACE block RBRACE;
 
 /** ================================================================================= */
 
@@ -64,11 +64,13 @@ bool_lt_op: LT;
 bool_lte_op: LTE;
 bool_gt_op: GT;
 bool_gte_op: GTE;
+bool_literal: TRUE | FALSE;
 
 bool_expr
     : bool_expr (bool_and_op | bool_or_op | bool_eq_op) bool_expr
     | bool_expr (bool_not_eq_op | bool_lt_op | bool_lte_op | bool_gt_op | bool_gte_op) bool_expr
     | bool_not_op bool_expr
+    | bool_literal
     | access
     | atom
     | LBRACKET bool_expr RBRACKET
