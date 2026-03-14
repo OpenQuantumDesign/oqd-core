@@ -25,7 +25,9 @@ from oqd_core.interface.analog.operation import (
     Access,
     IfElse,
     While,
-    Identifier
+    Identifier,
+    ModeBit,
+    ModeRegister,
 )
 from oqd_core.interface.analog.operator import (
     Annihilation,
@@ -83,5 +85,7 @@ __all__ = [
     "Access",
     "Identifier",
     "IfElse",
-    "While"
+    "While",
+    "ModeBit",
+    "ModeRegister",
 ]

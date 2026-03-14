@@ -29,6 +29,8 @@ from oqd_core.interface.analog import (
     MyList,
     QuantumBit,
     QuantumRegister,
+    ModeBit,
+    ModeRegister,
     IfElse,
     While,
 )
@@ -202,6 +204,8 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         name = ctx.access().ID().getText()
         index = int(ctx.INT().getText())
         access = self.register_access(name)
+        if isinstance(self._resolve(name), ModeRegister):
+            return ModeBit(access=access, index=index)
         return QuantumBit(access=access, index=index)
     
     def visitMy_list(self, ctx: AnalogParser.My_listContext):
@@ -218,6 +222,9 @@ class _AnalogASTBuilder(AnalogParserVisitor):
     
     def visitQuantum_register(self, ctx: AnalogParser.Quantum_registerContext):
         return QuantumRegister(size=int(ctx.INT().getText()))
+    
+    def visitMode_register(self, ctx: AnalogParser.Mode_registerContext):
+        return ModeRegister(size=int(ctx.INT().getText()))
     
     def visitOperator_terminal(self, ctx: AnalogParser.Operator_terminalContext):
         child = ctx.getChild(0)

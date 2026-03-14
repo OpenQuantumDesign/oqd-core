@@ -11,6 +11,14 @@
     },
     {
       "class_": "Declaration",
+      "name": "s",
+      "value": {
+        "class_": "ModeRegister",
+        "size": 3
+      }
+    },
+    {
+      "class_": "Declaration",
       "name": "q0",
       "value": {
         "class_": "QuantumBit",

@@ -38,7 +38,9 @@ __all__ = [
     "AtomicTypes",
     "Identifier",
     "IfElse",
-    "While"
+    "While",
+    "ModeBit",
+    "ModeRegister",
 ]
 
 ########################################################################################
@@ -59,6 +61,14 @@ class QuantumBit(TypeReflectBaseModel):
 class QuantumRegister(TypeReflectBaseModel):
     size: NonNegativeInt
 
+class ModeBit(TypeReflectBaseModel):
+    access: Access
+    index: NonNegativeInt
+
+
+class ModeRegister(TypeReflectBaseModel):
+    size: NonNegativeInt
+
 
 class Access(TypeReflectBaseModel):
     name: Identifier
@@ -68,7 +78,7 @@ class MyList(TypeReflectBaseModel):
     values: List[AtomicTypes]
 
 
-AtomicTypes = Union[QuantumBit, QuantumRegister, MyList, Access]
+AtomicTypes = Union[QuantumBit, QuantumRegister, ModeBit, ModeRegister, MyList, Access]
 
 
 class Declaration(TypeReflectBaseModel):

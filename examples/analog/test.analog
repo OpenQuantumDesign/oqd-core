@@ -1,6 +1,7 @@
 
 // assignments
 r = qreg(2);
+s = qmode(3);
 q0 = r[0];
 q1 = r[1];
 targets = [q0, q1];
