@@ -59,6 +59,16 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by AnalogParser#break_stmt.
+    def visitBreak_stmt(self, ctx:AnalogParser.Break_stmtContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#continue_stmt.
+    def visitContinue_stmt(self, ctx:AnalogParser.Continue_stmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by AnalogParser#while_stmt.
     def visitWhile_stmt(self, ctx:AnalogParser.While_stmtContext):
         return self.visitChildren(ctx)

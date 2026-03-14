@@ -33,6 +33,8 @@ from oqd_core.interface.analog import (
     ModeRegister,
     IfElse,
     While,
+    Break,
+    Continue,
 )
 from oqd_core.interface.analog.operator import (
     Operator,
@@ -121,6 +123,7 @@ class _AnalogASTBuilder(AnalogParserVisitor):
     """
     def __init__(self):
         self._symbols: Dict[str, Any] = {}
+        self._loop_depth = 0
     
     def _resolve(self, name: str):
         if name not in self._symbols:
@@ -181,9 +184,13 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         return self.visit(ctx.expr())
     
     def visitWhile_stmt(self, ctx: AnalogParser.While_stmtContext):
-        cond = self.visit(ctx.cond())
-        body = self.visit(ctx.block())
-        return While(condition=cond, body=body)
+        self._loop_depth += 1
+        try:
+            cond = self.visit(ctx.cond())
+            body = self.visit(ctx.block())
+            return While(condition=cond, body=body)
+        finally:
+            self._loop_depth -= 1
     
     def visitIfelse_stmt(self, ctx: AnalogParser.Ifelse_stmtContext):
         cond = self.visit(ctx.cond())
@@ -191,6 +198,16 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         then_branch = self.visit(blocks[0]) if blocks else []
         else_branch = self.visit(blocks[1]) if len(blocks) > 1 else []
         return IfElse(condition=cond, then_branch=then_branch, else_branch=else_branch)
+    
+    def visitBreak_stmt(self, ctx):
+        if self._loop_depth == 0:
+            raise SyntaxError("break outside of loop")
+        return Break()
+    
+    def visitContinue_stmt(self, ctx):
+        if self._loop_depth == 0:
+            raise SyntaxError("continue outside of loop")
+        return Continue()
     
     ## Expressions ##
     

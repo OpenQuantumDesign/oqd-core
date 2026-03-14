@@ -577,6 +577,34 @@
       ]
     },
     {
+      "class_": "While",
+      "condition": {
+        "class_": "BoolTrue"
+      },
+      "body": [
+        {
+          "class_": "IfElse",
+          "condition": {
+            "class_": "BoolEq",
+            "left": {
+              "class_": "MathNum",
+              "value": 1
+            },
+            "right": {
+              "class_": "MathNum",
+              "value": 1
+            }
+          },
+          "then_branch": [
+            {
+              "class_": "Break"
+            }
+          ],
+          "else_branch": []
+        }
+      ]
+    },
+    {
       "class_": "Declaration",
       "name": "a",
       "value": {

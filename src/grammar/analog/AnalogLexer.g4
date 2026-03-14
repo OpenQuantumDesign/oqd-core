@@ -18,6 +18,8 @@ ELSE: 'else';
 WHILE: 'while';
 WITH: 'with';
 FOR: 'for';
+BREAK: 'break';
+CONTINUE: 'continue';
 
 /** ================================================================================= */
 

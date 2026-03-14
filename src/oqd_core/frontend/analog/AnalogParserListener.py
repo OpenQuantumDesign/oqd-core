@@ -98,6 +98,24 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AnalogParser#break_stmt.
+    def enterBreak_stmt(self, ctx:AnalogParser.Break_stmtContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#break_stmt.
+    def exitBreak_stmt(self, ctx:AnalogParser.Break_stmtContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#continue_stmt.
+    def enterContinue_stmt(self, ctx:AnalogParser.Continue_stmtContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#continue_stmt.
+    def exitContinue_stmt(self, ctx:AnalogParser.Continue_stmtContext):
+        pass
+
+
     # Enter a parse tree produced by AnalogParser#while_stmt.
     def enterWhile_stmt(self, ctx:AnalogParser.While_stmtContext):
         pass

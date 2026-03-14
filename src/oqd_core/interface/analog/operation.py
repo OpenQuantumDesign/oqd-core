@@ -41,6 +41,8 @@ __all__ = [
     "While",
     "ModeBit",
     "ModeRegister",
+    "Break", 
+    "Continue",
 ]
 
 ########################################################################################
@@ -131,10 +133,22 @@ class While(TypeReflectBaseModel):
     condition : BoolExprSubtypes
     body: List[Statement] = []
 
+class Break(TypeReflectBaseModel):
+    """
+    Class representing a break statement to exit the innermost loop
+    """
+    pass
+
+class Continue(TypeReflectBaseModel):
+    """
+    Class representing a continue statement to jump to the next loop iteration
+    """
+    pass
+
 """
 Union of classes 
 """
-Statement = Union[Declaration, Measure, Evolve, Initialize, IfElse, While]
+Statement = Union[Declaration, Measure, Evolve, Initialize, IfElse, While, Break, Continue]
 
 
 class AnalogCircuit(TypeReflectBaseModel):

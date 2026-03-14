@@ -28,6 +28,8 @@ from oqd_core.interface.analog.operation import (
     Identifier,
     ModeBit,
     ModeRegister,
+    Break, 
+    Continue,
 )
 from oqd_core.interface.analog.operator import (
     Annihilation,
@@ -88,4 +90,6 @@ __all__ = [
     "While",
     "ModeBit",
     "ModeRegister",
+    "Break", 
+    "Continue",
 ]

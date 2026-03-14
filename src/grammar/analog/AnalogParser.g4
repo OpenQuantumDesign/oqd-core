@@ -13,6 +13,8 @@ statement
     | init_stmt
     | while_stmt
     | ifelse_stmt
+    | break_stmt
+    | continue_stmt
     ;
 
 block: (statement EOL | EOL)* (statement)?;
@@ -32,6 +34,9 @@ extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
 
 // Structural control flow
+
+break_stmt: BREAK;
+continue_stmt: CONTINUE;
 
 while_stmt: WHILE LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE;
 
