@@ -40,6 +40,7 @@ from oqd_core.compiler.analog.verify import (
     VerifyHilberSpaceDim,
 )
 from oqd_core.compiler.math.passes import canonicalize_math_expr
+from oqd_core.interface.analog import AnalogCircuit, Declaration, Evolve, Operator
 
 ########################################################################################
 
@@ -109,6 +110,15 @@ def analog_operator_canonicalization(model):
     Acknowledgement:
         This code was inspired by [Liang.jl](https://github.com/Roger-luo/Liang.jl/blob/main/src/canonicalize/entry.jl#L8).
     """
+    
+    if isinstance(model, AnalogCircuit):
+        for stmt in model.sequence:
+            if isinstance(stmt, Evolve):
+                stmt.hamiltonian = analog_operator_canonicalization(stmt.hamiltonian)
+            elif isinstance(stmt, Declaration) and isinstance(stmt.value, Operator):
+                stmt.value = analog_operator_canonicalization(stmt.value)
+        return model
+    
     return Chain(
         FixedPoint(dist_chain),
         FixedPoint(Post(ProperOrder())),
@@ -121,4 +131,5 @@ def analog_operator_canonicalization(model):
         FixedPoint(Post(SortedOrder())),
         canonicalize_math_expr,
         FixedPoint(Post(PruneZeros())),
+        verify_canonicalization,
     )(model=model)

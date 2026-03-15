@@ -383,7 +383,7 @@ class ScaleTerms(RewriteRule):
         super().__init__()
         self.op_add_root = False
 
-    def map_AnalogGate(self, model):
+    def map_Evolve(self, model):
         self.op_add_root = False
 
     def map_Expectation(self, model):

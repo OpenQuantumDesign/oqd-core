@@ -212,7 +212,14 @@
       "class_": "Declaration",
       "name": "X",
       "value": {
-        "class_": "PauliX"
+        "class_": "OperatorScalarMul",
+        "op": {
+          "class_": "PauliX"
+        },
+        "expr": {
+          "class_": "MathNum",
+          "value": 1
+        }
       }
     },
     {
@@ -290,21 +297,35 @@
       "value": {
         "class_": "OperatorAdd",
         "op1": {
-          "class_": "OperatorKron",
-          "op1": {
-            "class_": "PauliX"
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliI"
+            },
+            "op2": {
+              "class_": "PauliX"
+            }
           },
-          "op2": {
-            "class_": "PauliI"
+          "expr": {
+            "class_": "MathNum",
+            "value": 1
           }
         },
         "op2": {
-          "class_": "OperatorKron",
-          "op1": {
-            "class_": "PauliI"
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliX"
+            },
+            "op2": {
+              "class_": "PauliI"
+            }
           },
-          "op2": {
-            "class_": "PauliX"
+          "expr": {
+            "class_": "MathNum",
+            "value": 1
           }
         }
       }
@@ -315,6 +336,22 @@
       "value": {
         "class_": "OperatorAdd",
         "op1": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliI"
+            },
+            "op2": {
+              "class_": "PauliY"
+            }
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        },
+        "op2": {
           "class_": "OperatorScalarMul",
           "op": {
             "class_": "OperatorKron",
@@ -335,22 +372,6 @@
               "class_": "MathVar",
               "name": "#t"
             }
-          }
-        },
-        "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliI"
-            },
-            "op2": {
-              "class_": "PauliY"
-            }
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 0.5
           }
         }
       }
@@ -703,21 +724,35 @@
       "hamiltonian": {
         "class_": "OperatorAdd",
         "op1": {
-          "class_": "OperatorKron",
-          "op1": {
-            "class_": "PauliX"
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliI"
+            },
+            "op2": {
+              "class_": "PauliX"
+            }
           },
-          "op2": {
-            "class_": "PauliI"
+          "expr": {
+            "class_": "MathNum",
+            "value": 1
           }
         },
         "op2": {
-          "class_": "OperatorKron",
-          "op1": {
-            "class_": "PauliI"
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliX"
+            },
+            "op2": {
+              "class_": "PauliI"
+            }
           },
-          "op2": {
-            "class_": "PauliX"
+          "expr": {
+            "class_": "MathNum",
+            "value": 1
           }
         }
       },

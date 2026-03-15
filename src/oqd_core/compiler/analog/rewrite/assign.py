@@ -54,6 +54,6 @@ class AssignAnalogIRDim(RewriteRule):
         model.n_qmode = self.dim[1]
         return model
 
-    # def map_AnalogGate(self, model):
-    #     if self.dim is None:
-    #         self.dim = analysis_canonical_hamiltonian_dim(model.hamiltonian)
+    def map_Evolve(self, model):
+        if self.dim is None:
+            self.dim = analysis_canonical_hamiltonian_dim(model.hamiltonian)

@@ -382,7 +382,7 @@ class CanVerScaleTerm(RewriteRule):
         super().__init__()
         self._single_term_scaling_needed = False
 
-    def map_AnalogGate(self, model):
+    def map_Evolve(self, model):
         self._single_term_scaling_needed = False
 
     def map_Expectation(self, model):
