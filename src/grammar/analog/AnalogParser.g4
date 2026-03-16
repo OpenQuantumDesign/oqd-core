@@ -38,11 +38,11 @@ extract: access SQUARELBRACKET INT SQUARERBRACKET;
 break_stmt: BREAK;
 continue_stmt: CONTINUE;
 
-while_stmt: WHILE LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE;
+while_stmt: WHILE LBRACKET cond RBRACKET LBRACE block RBRACE;
 
 ifelse_stmt
-    : IF LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE
-    | IF LBRACKET cond RBRACKET WHITESPACE? LBRACE block RBRACE WHITESPACE? EOL? ELSE LBRACE block RBRACE;
+    : IF LBRACKET cond RBRACKET LBRACE block RBRACE
+    | IF LBRACKET cond RBRACKET LBRACE block RBRACE EOL? ELSE LBRACE block RBRACE;
 
 /** ================================================================================= */
 
@@ -103,10 +103,10 @@ pexpr: LBRACKET aexpr RBRACKET;
 
 fexpr: math_func_name pexpr;
 
-aexpr: mexpr | aexpr WHITESPACE? (PLUS|MINUS|OP_ADD|OP_MINUS) WHITESPACE? mexpr;
+aexpr: mexpr | aexpr (PLUS|MINUS|OP_ADD|OP_MINUS) mexpr;
 
-mexpr: uexpr | mexpr WHITESPACE? (MULT|DIV|OP_MUL|AT) WHITESPACE? uexpr;
+mexpr: uexpr | mexpr (MULT|DIV|OP_MUL|AT) uexpr;
 
 uexpr: eexpr | (PLUS|MINUS) eexpr;
 
-eexpr: atom | atom WHITESPACE? POWER WHITESPACE? uexpr;
+eexpr: atom | atom POWER uexpr;
