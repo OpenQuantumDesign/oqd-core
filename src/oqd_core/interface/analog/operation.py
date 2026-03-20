@@ -59,12 +59,12 @@ class QuantumBit(Expr):
 class QuantumRegister(Expr):
     size: NonNegativeInt
 
-class ModeBit(TypeReflectBaseModel):
+class ModeBit(Expr):
     access: Access
     index: NonNegativeInt
 
 
-class ModeRegister(TypeReflectBaseModel):
+class ModeRegister(Expr):
     size: NonNegativeInt
 
 
