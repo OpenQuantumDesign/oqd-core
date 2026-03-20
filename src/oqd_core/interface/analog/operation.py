@@ -18,11 +18,8 @@ from typing import List, Union, Annotated
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic.types import NonNegativeInt
 from pydantic import AfterValidator
-from oqd_core.interface.bool import BoolExprSubtypes
-from oqd_core.interface.math import MathExprSubtypes
 
-########################################################################################
-from .operator import OperatorSubtypes
+from .expression import Expr
 
 ########################################################################################
 __all__ = [
@@ -35,8 +32,7 @@ __all__ = [
     "Declaration",
     "MyList",
     "Access",
-    "AtomicTypes",
-    "Identifier",
+    "Identifier", 
     "IfElse",
     "While",
     "ModeBit",
@@ -55,12 +51,12 @@ def _is_varname(value: str) -> str:
 
 Identifier = Annotated[str, AfterValidator(_is_varname)]
 
-class QuantumBit(TypeReflectBaseModel):
+class QuantumBit(Expr):
     access: Access
     index: NonNegativeInt
 
 
-class QuantumRegister(TypeReflectBaseModel):
+class QuantumRegister(Expr):
     size: NonNegativeInt
 
 class ModeBit(TypeReflectBaseModel):
@@ -72,20 +68,17 @@ class ModeRegister(TypeReflectBaseModel):
     size: NonNegativeInt
 
 
-class Access(TypeReflectBaseModel):
+class Access(Expr):
     name: Identifier
 
 
-class MyList(TypeReflectBaseModel):
-    values: List[AtomicTypes]
-
-
-AtomicTypes = Union[QuantumBit, QuantumRegister, ModeBit, ModeRegister, MyList, Access]
+class MyList(Expr):
+    values: List[Expr]
 
 
 class Declaration(TypeReflectBaseModel):
     name: Identifier
-    value: Union[AtomicTypes, BoolExprSubtypes, OperatorSubtypes, MathExprSubtypes]
+    value: Expr
 
 
 class Evolve(TypeReflectBaseModel):
@@ -93,14 +86,14 @@ class Evolve(TypeReflectBaseModel):
     Class representing an evolution by an analog gate in the analog circuit
 
     Attributes:
-        hamiltonian (OperatorSubtypes): Function to evolve by
-        duration (float): Duration of the evolution
-        targets (AtomicTypes): Indices and Quantum objects on which to apply the Hamiltonian
+        hamiltonian (Expr): Function to evolve by
+        duration (Expr): Duration of the evolution
+        targets (Expr): Indices and Quantum objects on which to apply the Hamiltonian
     """
 
-    hamiltonian: OperatorSubtypes
-    duration: MathExprSubtypes
-    targets: AtomicTypes
+    hamiltonian: Expr
+    duration: Expr
+    targets: Expr
 
 
 class Measure(TypeReflectBaseModel):
@@ -122,7 +115,7 @@ class IfElse(TypeReflectBaseModel):
     """
     Class representing a conditional branch in the analog circuit
     """
-    condition: BoolExprSubtypes
+    condition: Expr
     then_branch: List[Statement] = []
     else_branch: List[Statement] = []
     
@@ -130,7 +123,7 @@ class While(TypeReflectBaseModel):
     """
     Class representing a while loop in the analog circuit
     """
-    condition : BoolExprSubtypes
+    condition : Expr
     body: List[Statement] = []
 
 class Break(TypeReflectBaseModel):
@@ -150,7 +143,6 @@ Union of classes
 """
 Statement = Union[Declaration, Measure, Evolve, Initialize, IfElse, While, Break, Continue]
 
-
 class AnalogCircuit(TypeReflectBaseModel):
     """
     Class representing a quantum information experiment represented in terms of analog operations.
@@ -162,7 +154,7 @@ class AnalogCircuit(TypeReflectBaseModel):
 
     sequence: List[Statement] = []
 
-    def evolve(self, hamiltonian: OperatorSubtypes, duration: float, targets: AtomicTypes):
+    def evolve(self, hamiltonian: Expr, duration: Expr, targets: Expr):
         self.sequence.append(Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets))
 
     def initialize(self):

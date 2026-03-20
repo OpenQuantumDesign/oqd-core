@@ -17,7 +17,6 @@ from oqd_core.interface.analog.operation import (
     Evolve,
     Measure,
     Initialize,
-    AtomicTypes,
     Declaration,
     MyList,
     QuantumBit,
@@ -43,7 +42,6 @@ from oqd_core.interface.analog.operator import (
     OperatorMul,
     OperatorScalarMul,
     OperatorSub,
-    OperatorSubtypes,
     OperatorTerminal,
     Pauli,
     PauliI,
@@ -55,7 +53,6 @@ from oqd_core.interface.analog.operator import (
 )
 
 __all__ = [
-    "OperatorSubtypes",
     "Operator",
     "OperatorTerminal",
     "Pauli",
@@ -79,7 +76,6 @@ __all__ = [
     "Evolve",
     "Measure",
     "Initialize",
-    "AtomicTypes",
     "Declaration",
     "MyList",
     "QuantumBit",
