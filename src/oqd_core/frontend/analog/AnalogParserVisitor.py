@@ -159,8 +159,8 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#bool_expr.
-    def visitBool_expr(self, ctx:AnalogParser.Bool_exprContext):
+    # Visit a parse tree produced by AnalogParser#comparators.
+    def visitComparators(self, ctx:AnalogParser.ComparatorsContext):
         return self.visitChildren(ctx)
 
 

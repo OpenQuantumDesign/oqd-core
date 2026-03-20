@@ -278,12 +278,12 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#bool_expr.
-    def enterBool_expr(self, ctx:AnalogParser.Bool_exprContext):
+    # Enter a parse tree produced by AnalogParser#comparators.
+    def enterComparators(self, ctx:AnalogParser.ComparatorsContext):
         pass
 
-    # Exit a parse tree produced by AnalogParser#bool_expr.
-    def exitBool_expr(self, ctx:AnalogParser.Bool_exprContext):
+    # Exit a parse tree produced by AnalogParser#comparators.
+    def exitComparators(self, ctx:AnalogParser.ComparatorsContext):
         pass
 
 

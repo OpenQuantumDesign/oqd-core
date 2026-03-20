@@ -1,921 +1,1194 @@
-{
-  "class_": "AnalogCircuit",
-  "sequence": [
-    {
-      "class_": "Declaration",
-      "name": "r",
-      "value": {
-        "class_": "QuantumRegister",
-        "size": 2
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "s",
-      "value": {
-        "class_": "ModeRegister",
-        "size": 3
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "q0",
-      "value": {
-        "class_": "QuantumBit",
-        "access": {
-          "class_": "Access",
-          "name": "r"
-        },
-        "index": 0
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "q1",
-      "value": {
-        "class_": "QuantumBit",
-        "access": {
-          "class_": "Access",
-          "name": "r"
-        },
-        "index": 1
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "targets",
-      "value": {
-        "class_": "MyList",
-        "values": [
-          {
-            "class_": "QuantumBit",
-            "access": {
-              "class_": "Access",
-              "name": "r"
-            },
-            "index": 0
-          },
-          {
-            "class_": "QuantumBit",
-            "access": {
-              "class_": "Access",
-              "name": "r"
-            },
-            "index": 1
-          }
-        ]
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "pi",
-      "value": {
-        "class_": "MathNum",
-        "value": 3.14159
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "tau",
-      "value": {
-        "class_": "MathMul",
-        "expr1": {
-          "class_": "MathNum",
-          "value": 2
-        },
-        "expr2": {
-          "class_": "MathNum",
-          "value": 3.14159
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "omega",
-      "value": {
-        "class_": "MathVar",
-        "name": "#omega"
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "phase",
-      "value": {
-        "class_": "MathAdd",
-        "expr1": {
-          "class_": "MathMul",
-          "expr1": {
-            "class_": "MathVar",
-            "name": "#t"
-          },
-          "expr2": {
-            "class_": "MathVar",
-            "name": "#omega"
-          }
-        },
-        "expr2": {
-          "class_": "MathVar",
-          "name": "#phi"
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "neg",
-      "value": {
-        "class_": "MathMul",
-        "expr1": {
-          "class_": "MathNum",
-          "value": -1
-        },
-        "expr2": {
-          "class_": "MathNum",
-          "value": 1
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "cubed",
-      "value": {
-        "class_": "MathPow",
-        "expr1": {
-          "class_": "MathNum",
-          "value": 2
-        },
-        "expr2": {
-          "class_": "MathNum",
-          "value": 3
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "sine",
-      "value": {
-        "class_": "MathFunc",
-        "func": "sin",
-        "expr": {
-          "class_": "MathNum",
-          "value": 0.5
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "cosed",
-      "value": {
-        "class_": "MathFunc",
-        "func": "cos",
-        "expr": {
-          "class_": "MathAdd",
-          "expr1": {
-            "class_": "MathMul",
-            "expr1": {
-              "class_": "MathVar",
-              "name": "#t"
-            },
-            "expr2": {
-              "class_": "MathVar",
-              "name": "#omega"
-            }
-          },
-          "expr2": {
-            "class_": "MathVar",
-            "name": "#phi"
-          }
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "cplx",
-      "value": {
-        "class_": "MathAdd",
-        "expr1": {
-          "class_": "MathNum",
-          "value": 1.0
-        },
-        "expr2": {
-          "class_": "MathMul",
-          "expr1": {
-            "class_": "MathImag"
-          },
-          "expr2": {
-            "class_": "MathNum",
-            "value": 0.5
-          }
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "X",
-      "value": {
-        "class_": "OperatorScalarMul",
-        "op": {
-          "class_": "PauliX"
-        },
-        "expr": {
-          "class_": "MathNum",
-          "value": 1
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "Y",
-      "value": {
-        "class_": "PauliY"
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "Z",
-      "value": {
-        "class_": "PauliZ"
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "I",
-      "value": {
-        "class_": "PauliI"
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "C",
-      "value": {
-        "class_": "Creation"
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "A",
-      "value": {
-        "class_": "Annihilation"
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "J",
-      "value": {
-        "class_": "Identity"
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "H_single",
-      "value": {
-        "class_": "OperatorAdd",
-        "op1": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "PauliX"
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 0.5
-          }
-        },
-        "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "PauliZ"
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 0.5
-          }
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "H_pair",
-      "value": {
-        "class_": "OperatorAdd",
-        "op1": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliI"
-            },
-            "op2": {
-              "class_": "PauliX"
-            }
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 1
-          }
-        },
-        "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliX"
-            },
-            "op2": {
-              "class_": "PauliI"
-            }
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 1
-          }
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "H_rabi",
-      "value": {
-        "class_": "OperatorAdd",
-        "op1": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliI"
-            },
-            "op2": {
-              "class_": "PauliY"
-            }
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 0.5
-          }
-        },
-        "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliX"
-            },
-            "op2": {
-              "class_": "PauliI"
-            }
-          },
-          "expr": {
-            "class_": "MathMul",
-            "expr1": {
-              "class_": "MathNum",
-              "value": 0.5
-            },
-            "expr2": {
-              "class_": "MathVar",
-              "name": "#t"
-            }
-          }
-        }
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "x",
-      "value": {
-        "class_": "MathNum",
-        "value": 1
-      }
-    },
-    {
-      "class_": "IfElse",
-      "condition": {
-        "class_": "BoolGreaterThan",
-        "left": {
-          "class_": "MathNum",
-          "value": 1
-        },
-        "right": {
-          "class_": "MathNum",
-          "value": 0
-        }
-      },
-      "then_branch": [
-        {
-          "class_": "Initialize"
-        }
-      ],
-      "else_branch": []
-    },
-    {
-      "class_": "IfElse",
-      "condition": {
-        "class_": "BoolEq",
-        "left": {
-          "class_": "MathNum",
-          "value": 1
-        },
-        "right": {
-          "class_": "MathNum",
-          "value": 1
-        }
-      },
-      "then_branch": [
-        {
-          "class_": "Evolve",
-          "hamiltonian": {
-            "class_": "OperatorAdd",
-            "op1": {
-              "class_": "OperatorScalarMul",
-              "op": {
-                "class_": "PauliX"
-              },
-              "expr": {
-                "class_": "MathNum",
-                "value": 0.5
-              }
-            },
-            "op2": {
-              "class_": "OperatorScalarMul",
-              "op": {
-                "class_": "PauliZ"
-              },
-              "expr": {
-                "class_": "MathNum",
-                "value": 0.5
-              }
-            }
-          },
-          "duration": {
-            "class_": "MathNum",
-            "value": 1.0
-          },
-          "targets": {
-            "class_": "QuantumRegister",
-            "size": 2
-          }
-        }
-      ],
-      "else_branch": [
-        {
-          "class_": "Evolve",
-          "hamiltonian": {
-            "class_": "OperatorAdd",
-            "op1": {
-              "class_": "OperatorKron",
-              "op1": {
-                "class_": "PauliX"
-              },
-              "op2": {
-                "class_": "PauliI"
-              }
-            },
-            "op2": {
-              "class_": "OperatorKron",
-              "op1": {
-                "class_": "PauliI"
-              },
-              "op2": {
-                "class_": "PauliX"
-              }
-            }
-          },
-          "duration": {
-            "class_": "MathNum",
-            "value": 0.5
-          },
-          "targets": {
-            "class_": "QuantumRegister",
-            "size": 2
-          }
-        }
-      ]
-    },
-    {
-      "class_": "Declaration",
-      "name": "n",
-      "value": {
-        "class_": "MathNum",
-        "value": 3
-      }
-    },
-    {
-      "class_": "While",
-      "condition": {
-        "class_": "BoolGreaterThan",
-        "left": {
-          "class_": "MathNum",
-          "value": 3
-        },
-        "right": {
-          "class_": "MathNum",
-          "value": 0
-        }
-      },
-      "body": [
-        {
-          "class_": "Evolve",
-          "hamiltonian": {
-            "class_": "OperatorAdd",
-            "op1": {
-              "class_": "OperatorScalarMul",
-              "op": {
-                "class_": "OperatorKron",
-                "op1": {
-                  "class_": "PauliX"
-                },
-                "op2": {
-                  "class_": "PauliI"
-                }
-              },
-              "expr": {
-                "class_": "MathMul",
-                "expr1": {
-                  "class_": "MathNum",
-                  "value": 0.5
-                },
-                "expr2": {
-                  "class_": "MathVar",
-                  "name": "#t"
-                }
-              }
-            },
-            "op2": {
-              "class_": "OperatorScalarMul",
-              "op": {
-                "class_": "OperatorKron",
-                "op1": {
-                  "class_": "PauliI"
-                },
-                "op2": {
-                  "class_": "PauliY"
-                }
-              },
-              "expr": {
-                "class_": "MathNum",
-                "value": 0.5
-              }
-            }
-          },
-          "duration": {
-            "class_": "MathNum",
-            "value": 0.1
-          },
-          "targets": {
-            "class_": "MyList",
-            "values": [
-              {
-                "class_": "QuantumBit",
-                "access": {
-                  "class_": "Access",
-                  "name": "r"
-                },
-                "index": 0
-              },
-              {
-                "class_": "QuantumBit",
-                "access": {
-                  "class_": "Access",
-                  "name": "r"
-                },
-                "index": 1
-              }
-            ]
-          }
-        },
-        {
-          "class_": "Declaration",
-          "name": "n",
-          "value": {
-            "class_": "MathSub",
-            "expr1": {
-              "class_": "MathNum",
-              "value": 3
-            },
-            "expr2": {
-              "class_": "MathNum",
-              "value": 1
-            }
-          }
-        }
-      ]
-    },
-    {
-      "class_": "While",
-      "condition": {
-        "class_": "BoolTrue"
-      },
-      "body": [
-        {
-          "class_": "IfElse",
-          "condition": {
-            "class_": "BoolEq",
-            "left": {
-              "class_": "MathNum",
-              "value": 1
-            },
-            "right": {
-              "class_": "MathNum",
-              "value": 1
-            }
-          },
-          "then_branch": [
-            {
-              "class_": "Break"
-            }
-          ],
-          "else_branch": []
-        }
-      ]
-    },
-    {
-      "class_": "Declaration",
-      "name": "a",
-      "value": {
-        "class_": "MathNum",
-        "value": 5
-      }
-    },
-    {
-      "class_": "Declaration",
-      "name": "b",
-      "value": {
-        "class_": "MathNum",
-        "value": 3
-      }
-    },
-    {
-      "class_": "IfElse",
-      "condition": {
-        "class_": "BoolGreaterThan",
-        "left": {
-          "class_": "MathNum",
-          "value": 5
-        },
-        "right": {
-          "class_": "MathNum",
-          "value": 3
-        }
-      },
-      "then_branch": [
-        {
-          "class_": "IfElse",
-          "condition": {
-            "class_": "BoolGreaterThan",
-            "left": {
-              "class_": "MathNum",
-              "value": 3
-            },
-            "right": {
-              "class_": "MathNum",
-              "value": 0
-            }
-          },
-          "then_branch": [
-            {
-              "class_": "Initialize"
-            }
-          ],
-          "else_branch": [
-            {
-              "class_": "Measure"
-            }
-          ]
-        }
-      ],
-      "else_branch": []
-    },
-    {
-      "class_": "Initialize"
-    },
-    {
-      "class_": "Evolve",
-      "hamiltonian": {
-        "class_": "OperatorAdd",
-        "op1": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "PauliX"
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 0.5
-          }
-        },
-        "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "PauliZ"
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 0.5
-          }
-        }
-      },
-      "duration": {
-        "class_": "MathNum",
-        "value": 2.0
-      },
-      "targets": {
-        "class_": "QuantumRegister",
-        "size": 2
-      }
-    },
-    {
-      "class_": "Evolve",
-      "hamiltonian": {
-        "class_": "OperatorAdd",
-        "op1": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliI"
-            },
-            "op2": {
-              "class_": "PauliX"
-            }
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 1
-          }
-        },
-        "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliX"
-            },
-            "op2": {
-              "class_": "PauliI"
-            }
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 1
-          }
-        }
-      },
-      "duration": {
-        "class_": "MathNum",
-        "value": 1.0
-      },
-      "targets": {
-        "class_": "MyList",
-        "values": [
-          {
-            "class_": "QuantumBit",
-            "access": {
-              "class_": "Access",
-              "name": "r"
-            },
-            "index": 0
-          },
-          {
-            "class_": "QuantumBit",
-            "access": {
-              "class_": "Access",
-              "name": "r"
-            },
-            "index": 1
-          }
-        ]
-      }
-    },
-    {
-      "class_": "Evolve",
-      "hamiltonian": {
-        "class_": "OperatorScalarMul",
-        "op": {
-          "class_": "PauliX"
-        },
-        "expr": {
-          "class_": "MathNum",
-          "value": 0.5
-        }
-      },
-      "duration": {
-        "class_": "MathNum",
-        "value": 3.14159
-      },
-      "targets": {
-        "class_": "QuantumBit",
-        "access": {
-          "class_": "Access",
-          "name": "r"
-        },
-        "index": 0
-      }
-    },
-    {
-      "class_": "Measure"
-    },
-    {
-      "class_": "Declaration",
-      "name": "flag",
-      "value": {
-        "class_": "MathNum",
-        "value": 1
-      }
-    },
-    {
-      "class_": "IfElse",
-      "condition": {
-        "class_": "BoolNotEq",
-        "left": {
-          "class_": "MathNum",
-          "value": 1
-        },
-        "right": {
-          "class_": "MathNum",
-          "value": 0
-        }
-      },
-      "then_branch": [
-        {
-          "class_": "Declaration",
-          "name": "x",
-          "value": {
-            "class_": "MathNum",
-            "value": 0
-          }
-        }
-      ],
-      "else_branch": []
-    },
-    {
-      "class_": "IfElse",
-      "condition": {
-        "class_": "BoolLessThanEq",
-        "left": {
-          "class_": "MathNum",
-          "value": 0
-        },
-        "right": {
-          "class_": "MathNum",
-          "value": 1
-        }
-      },
-      "then_branch": [
-        {
-          "class_": "Declaration",
-          "name": "x",
-          "value": {
-            "class_": "MathNum",
-            "value": 1
-          }
-        }
-      ],
-      "else_branch": []
-    },
-    {
-      "class_": "IfElse",
-      "condition": {
-        "class_": "BoolGreaterThanEq",
-        "left": {
-          "class_": "MathNum",
-          "value": 1
-        },
-        "right": {
-          "class_": "MathNum",
-          "value": 0
-        }
-      },
-      "then_branch": [
-        {
-          "class_": "Declaration",
-          "name": "x",
-          "value": {
-            "class_": "MathNum",
-            "value": 0
-          }
-        }
-      ],
-      "else_branch": []
-    },
-    {
-      "class_": "Declaration",
-      "name": "a",
-      "value": {
-        "class_": "BoolTrue"
-      }
-    },
-    {
-      "class_": "IfElse",
-      "condition": {
-        "class_": "BoolTrue"
-      },
-      "then_branch": [
-        {
-          "class_": "Declaration",
-          "name": "b",
-          "value": {
-            "class_": "MathNum",
-            "value": 5
-          }
-        }
-      ],
-      "else_branch": []
-    }
-  ]
-}
+└── program
+   ├── block
+   │  ├── "
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "r" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── quantum_register
+   │  │              ├── "qreg" (QUANTUMREGISTER)
+   │  │              ├── "(" (LBRACKET)
+   │  │              ├── "2" (INT)
+   │  │              └── ")" (RBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "s" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── mode_register
+   │  │              ├── "qmode" (MODEREGISTER)
+   │  │              ├── "(" (LBRACKET)
+   │  │              ├── "3" (INT)
+   │  │              └── ")" (RBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "q0" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── extract
+   │  │           ├── access
+   │  │           │  └── "r" (ID)
+   │  │           ├── "[" (SQUARELBRACKET)
+   │  │           ├── "0" (INT)
+   │  │           └── "]" (SQUARERBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "q1" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── extract
+   │  │           ├── access
+   │  │           │  └── "r" (ID)
+   │  │           ├── "[" (SQUARELBRACKET)
+   │  │           ├── "1" (INT)
+   │  │           └── "]" (SQUARERBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "targets" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── my_list
+   │  │           ├── "[" (SQUARELBRACKET)
+   │  │           ├── expr
+   │  │           │  └── atom
+   │  │           │     └── math_terminal
+   │  │           │        └── access
+   │  │           │           └── "q0" (ID)
+   │  │           ├── "," (COMMA)
+   │  │           ├── expr
+   │  │           │  └── atom
+   │  │           │     └── math_terminal
+   │  │           │        └── access
+   │  │           │           └── "q1" (ID)
+   │  │           └── "]" (SQUARERBRACKET)
+   │  ├── ";
+
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "pi" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "3.14159" (FLOAT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "tau" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           └── mexpr
+   │  │              ├── mexpr
+   │  │              │  └── uexpr
+   │  │              │     └── eexpr
+   │  │              │        └── atom
+   │  │              │           └── math_terminal
+   │  │              │              └── "2" (INT)
+   │  │              ├── "*" (MULT)
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── math_terminal
+   │  │                          └── access
+   │  │                             └── "pi" (ID)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "omega" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "#omega" (MATH_VAR)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "phase" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           ├── aexpr
+   │  │           │  └── mexpr
+   │  │           │     ├── mexpr
+   │  │           │     │  └── uexpr
+   │  │           │     │     └── eexpr
+   │  │           │     │        └── atom
+   │  │           │     │           └── math_terminal
+   │  │           │     │              └── "#t" (MATH_VAR)
+   │  │           │     ├── "*" (MULT)
+   │  │           │     └── uexpr
+   │  │           │        └── eexpr
+   │  │           │           └── atom
+   │  │           │              └── math_terminal
+   │  │           │                 └── access
+   │  │           │                    └── "omega" (ID)
+   │  │           ├── "+" (PLUS)
+   │  │           └── mexpr
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── math_terminal
+   │  │                          └── "#phi" (MATH_VAR)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "neg" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           └── mexpr
+   │  │              └── uexpr
+   │  │                 ├── "-" (MINUS)
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── math_terminal
+   │  │                          └── "1" (INT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "cubed" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           └── mexpr
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    ├── atom
+   │  │                    │  └── math_terminal
+   │  │                    │     └── "2" (INT)
+   │  │                    ├── "^" (POWER)
+   │  │                    └── uexpr
+   │  │                       └── eexpr
+   │  │                          └── atom
+   │  │                             └── math_terminal
+   │  │                                └── "3" (INT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "sine" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── fexpr
+   │  │                 ├── math_func_name
+   │  │                 │  └── "sin" (SIN)
+   │  │                 └── pexpr
+   │  │                    ├── "(" (LBRACKET)
+   │  │                    ├── aexpr
+   │  │                    │  └── mexpr
+   │  │                    │     └── uexpr
+   │  │                    │        └── eexpr
+   │  │                    │           └── atom
+   │  │                    │              └── math_terminal
+   │  │                    │                 └── "0.5" (FLOAT)
+   │  │                    └── ")" (RBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "cosed" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── fexpr
+   │  │                 ├── math_func_name
+   │  │                 │  └── "cos" (COS)
+   │  │                 └── pexpr
+   │  │                    ├── "(" (LBRACKET)
+   │  │                    ├── aexpr
+   │  │                    │  └── mexpr
+   │  │                    │     └── uexpr
+   │  │                    │        └── eexpr
+   │  │                    │           └── atom
+   │  │                    │              └── math_terminal
+   │  │                    │                 └── access
+   │  │                    │                    └── "phase" (ID)
+   │  │                    └── ")" (RBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "cplx" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           ├── aexpr
+   │  │           │  └── mexpr
+   │  │           │     └── uexpr
+   │  │           │        └── eexpr
+   │  │           │           └── atom
+   │  │           │              └── math_terminal
+   │  │           │                 └── "1.0" (FLOAT)
+   │  │           ├── "+" (PLUS)
+   │  │           └── mexpr
+   │  │              ├── mexpr
+   │  │              │  └── uexpr
+   │  │              │     └── eexpr
+   │  │              │        └── atom
+   │  │              │           └── math_terminal
+   │  │              │              └── "1j" (IMAG)
+   │  │              ├── "*" (MULT)
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── math_terminal
+   │  │                          └── "0.5" (FLOAT)
+   │  ├── ";
+
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "X" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── operator_terminal
+   │  │              └── pauli_op
+   │  │                 └── "%X" (PAULI_X)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "Y" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── operator_terminal
+   │  │              └── pauli_op
+   │  │                 └── "%Y" (PAULI_Y)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "Z" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── operator_terminal
+   │  │              └── pauli_op
+   │  │                 └── "%Z" (PAULI_Z)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "I" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── operator_terminal
+   │  │              └── pauli_op
+   │  │                 └── "%I" (PAULI_I)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "C" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── operator_terminal
+   │  │              └── ladder_op
+   │  │                 └── "%C" (CREATION)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "A" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── operator_terminal
+   │  │              └── ladder_op
+   │  │                 └── "%A" (ANNIHILATION)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "J" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── operator_terminal
+   │  │              └── ladder_op
+   │  │                 └── "%J" (IDENTITY_OP)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "H_single" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           ├── aexpr
+   │  │           │  └── mexpr
+   │  │           │     ├── mexpr
+   │  │           │     │  └── uexpr
+   │  │           │     │     └── eexpr
+   │  │           │     │        └── atom
+   │  │           │     │           └── math_terminal
+   │  │           │     │              └── "0.5" (FLOAT)
+   │  │           │     ├── "*" (MULT)
+   │  │           │     └── uexpr
+   │  │           │        └── eexpr
+   │  │           │           └── atom
+   │  │           │              └── operator_terminal
+   │  │           │                 └── pauli_op
+   │  │           │                    └── "%X" (PAULI_X)
+   │  │           ├── "+" (PLUS)
+   │  │           └── mexpr
+   │  │              ├── mexpr
+   │  │              │  └── uexpr
+   │  │              │     └── eexpr
+   │  │              │        └── atom
+   │  │              │           └── math_terminal
+   │  │              │              └── "0.5" (FLOAT)
+   │  │              ├── "*" (MULT)
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── operator_terminal
+   │  │                          └── pauli_op
+   │  │                             └── "%Z" (PAULI_Z)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "H_pair" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           ├── aexpr
+   │  │           │  └── mexpr
+   │  │           │     └── uexpr
+   │  │           │        └── eexpr
+   │  │           │           └── atom
+   │  │           │              └── math_terminal
+   │  │           │                 └── pexpr
+   │  │           │                    ├── "(" (LBRACKET)
+   │  │           │                    ├── aexpr
+   │  │           │                    │  └── mexpr
+   │  │           │                    │     ├── mexpr
+   │  │           │                    │     │  └── uexpr
+   │  │           │                    │     │     └── eexpr
+   │  │           │                    │     │        └── atom
+   │  │           │                    │     │           └── operator_terminal
+   │  │           │                    │     │              └── pauli_op
+   │  │           │                    │     │                 └── "%X" (PAULI_X)
+   │  │           │                    │     ├── "%@" (AT)
+   │  │           │                    │     └── uexpr
+   │  │           │                    │        └── eexpr
+   │  │           │                    │           └── atom
+   │  │           │                    │              └── operator_terminal
+   │  │           │                    │                 └── pauli_op
+   │  │           │                    │                    └── "%I" (PAULI_I)
+   │  │           │                    └── ")" (RBRACKET)
+   │  │           ├── "%+" (OP_ADD)
+   │  │           └── mexpr
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── math_terminal
+   │  │                          └── pexpr
+   │  │                             ├── "(" (LBRACKET)
+   │  │                             ├── aexpr
+   │  │                             │  └── mexpr
+   │  │                             │     ├── mexpr
+   │  │                             │     │  └── uexpr
+   │  │                             │     │     └── eexpr
+   │  │                             │     │        └── atom
+   │  │                             │     │           └── operator_terminal
+   │  │                             │     │              └── pauli_op
+   │  │                             │     │                 └── "%I" (PAULI_I)
+   │  │                             │     ├── "%@" (AT)
+   │  │                             │     └── uexpr
+   │  │                             │        └── eexpr
+   │  │                             │           └── atom
+   │  │                             │              └── operator_terminal
+   │  │                             │                 └── pauli_op
+   │  │                             │                    └── "%X" (PAULI_X)
+   │  │                             └── ")" (RBRACKET)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "H_rabi" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── aexpr
+   │  │           ├── aexpr
+   │  │           │  └── mexpr
+   │  │           │     ├── mexpr
+   │  │           │     │  └── uexpr
+   │  │           │     │     └── eexpr
+   │  │           │     │        └── atom
+   │  │           │     │           └── math_terminal
+   │  │           │     │              └── pexpr
+   │  │           │     │                 ├── "(" (LBRACKET)
+   │  │           │     │                 ├── aexpr
+   │  │           │     │                 │  └── mexpr
+   │  │           │     │                 │     ├── mexpr
+   │  │           │     │                 │     │  └── uexpr
+   │  │           │     │                 │     │     └── eexpr
+   │  │           │     │                 │     │        └── atom
+   │  │           │     │                 │     │           └── math_terminal
+   │  │           │     │                 │     │              └── "0.5" (FLOAT)
+   │  │           │     │                 │     ├── "*" (MULT)
+   │  │           │     │                 │     └── uexpr
+   │  │           │     │                 │        └── eexpr
+   │  │           │     │                 │           └── atom
+   │  │           │     │                 │              └── math_terminal
+   │  │           │     │                 │                 └── "#t" (MATH_VAR)
+   │  │           │     │                 └── ")" (RBRACKET)
+   │  │           │     ├── "*" (MULT)
+   │  │           │     └── uexpr
+   │  │           │        └── eexpr
+   │  │           │           └── atom
+   │  │           │              └── math_terminal
+   │  │           │                 └── pexpr
+   │  │           │                    ├── "(" (LBRACKET)
+   │  │           │                    ├── aexpr
+   │  │           │                    │  └── mexpr
+   │  │           │                    │     ├── mexpr
+   │  │           │                    │     │  └── uexpr
+   │  │           │                    │     │     └── eexpr
+   │  │           │                    │     │        └── atom
+   │  │           │                    │     │           └── operator_terminal
+   │  │           │                    │     │              └── pauli_op
+   │  │           │                    │     │                 └── "%X" (PAULI_X)
+   │  │           │                    │     ├── "%@" (AT)
+   │  │           │                    │     └── uexpr
+   │  │           │                    │        └── eexpr
+   │  │           │                    │           └── atom
+   │  │           │                    │              └── operator_terminal
+   │  │           │                    │                 └── pauli_op
+   │  │           │                    │                    └── "%I" (PAULI_I)
+   │  │           │                    └── ")" (RBRACKET)
+   │  │           ├── "%+" (OP_ADD)
+   │  │           └── mexpr
+   │  │              ├── mexpr
+   │  │              │  └── uexpr
+   │  │              │     └── eexpr
+   │  │              │        └── atom
+   │  │              │           └── math_terminal
+   │  │              │              └── "0.5" (FLOAT)
+   │  │              ├── "*" (MULT)
+   │  │              └── uexpr
+   │  │                 └── eexpr
+   │  │                    └── atom
+   │  │                       └── math_terminal
+   │  │                          └── pexpr
+   │  │                             ├── "(" (LBRACKET)
+   │  │                             ├── aexpr
+   │  │                             │  └── mexpr
+   │  │                             │     ├── mexpr
+   │  │                             │     │  └── uexpr
+   │  │                             │     │     └── eexpr
+   │  │                             │     │        └── atom
+   │  │                             │     │           └── operator_terminal
+   │  │                             │     │              └── pauli_op
+   │  │                             │     │                 └── "%I" (PAULI_I)
+   │  │                             │     ├── "%@" (AT)
+   │  │                             │     └── uexpr
+   │  │                             │        └── eexpr
+   │  │                             │           └── atom
+   │  │                             │              └── operator_terminal
+   │  │                             │                 └── pauli_op
+   │  │                             │                    └── "%Y" (PAULI_Y)
+   │  │                             └── ")" (RBRACKET)
+   │  ├── ";
+
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "x" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "1" (INT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     ├── aexpr
+   │  │     │     │  └── mexpr
+   │  │     │     │     └── uexpr
+   │  │     │     │        └── eexpr
+   │  │     │     │           └── atom
+   │  │     │     │              └── math_terminal
+   │  │     │     │                 └── access
+   │  │     │     │                    └── "x" (ID)
+   │  │     │     ├── comparators
+   │  │     │     │  └── bool_gt_op
+   │  │     │     │     └── ">" (GT)
+   │  │     │     └── aexpr
+   │  │     │        └── mexpr
+   │  │     │           └── uexpr
+   │  │     │              └── eexpr
+   │  │     │                 └── atom
+   │  │     │                    └── math_terminal
+   │  │     │                       └── "0" (INT)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── init_stmt
+   │  │     │  │     ├── "initialize" (INITIALIZE)
+   │  │     │  │     └── targets
+   │  │     │  │        └── expr
+   │  │     │  │           └── atom
+   │  │     │  │              └── math_terminal
+   │  │     │  │                 └── access
+   │  │     │  │                    └── "r" (ID)
+   │  │     │  └── ";
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     ├── aexpr
+   │  │     │     │  └── mexpr
+   │  │     │     │     └── uexpr
+   │  │     │     │        └── eexpr
+   │  │     │     │           └── atom
+   │  │     │     │              └── math_terminal
+   │  │     │     │                 └── access
+   │  │     │     │                    └── "x" (ID)
+   │  │     │     ├── comparators
+   │  │     │     │  └── bool_eq_op
+   │  │     │     │     └── "==" (EQ)
+   │  │     │     └── aexpr
+   │  │     │        └── mexpr
+   │  │     │           └── uexpr
+   │  │     │              └── eexpr
+   │  │     │                 └── atom
+   │  │     │                    └── math_terminal
+   │  │     │                       └── "1" (INT)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── evolve_stmt
+   │  │     │  │     ├── "evolve" (EVOLVE)
+   │  │     │  │     ├── targets
+   │  │     │  │     │  └── expr
+   │  │     │  │     │     └── atom
+   │  │     │  │     │        └── math_terminal
+   │  │     │  │     │           └── access
+   │  │     │  │     │              └── "r" (ID)
+   │  │     │  │     ├── "with" (WITH)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── access
+   │  │     │  │     │           └── "H_single" (ID)
+   │  │     │  │     ├── "for" (FOR)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "1.0" (FLOAT)
+   │  │     │  └── ";
+" (EOL)
+   │  │     ├── "}" (RBRACE)
+   │  │     ├── "
+" (EOL)
+   │  │     ├── "else" (ELSE)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── statement
+   │  │     │  │  └── evolve_stmt
+   │  │     │  │     ├── "evolve" (EVOLVE)
+   │  │     │  │     ├── targets
+   │  │     │  │     │  └── expr
+   │  │     │  │     │     └── atom
+   │  │     │  │     │        └── math_terminal
+   │  │     │  │     │           └── access
+   │  │     │  │     │              └── "r" (ID)
+   │  │     │  │     ├── "with" (WITH)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── access
+   │  │     │  │     │           └── "H_pair" (ID)
+   │  │     │  │     ├── "for" (FOR)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "0.5" (FLOAT)
+   │  │     │  └── ";" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "n" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "3" (INT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── while_stmt
+   │  │     ├── "while" (WHILE)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     ├── aexpr
+   │  │     │     │  └── mexpr
+   │  │     │     │     └── uexpr
+   │  │     │     │        └── eexpr
+   │  │     │     │           └── atom
+   │  │     │     │              └── math_terminal
+   │  │     │     │                 └── access
+   │  │     │     │                    └── "n" (ID)
+   │  │     │     ├── comparators
+   │  │     │     │  └── bool_gt_op
+   │  │     │     │     └── ">" (GT)
+   │  │     │     └── aexpr
+   │  │     │        └── mexpr
+   │  │     │           └── uexpr
+   │  │     │              └── eexpr
+   │  │     │                 └── atom
+   │  │     │                    └── math_terminal
+   │  │     │                       └── "0" (INT)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── evolve_stmt
+   │  │     │  │     ├── "evolve" (EVOLVE)
+   │  │     │  │     ├── targets
+   │  │     │  │     │  └── expr
+   │  │     │  │     │     └── atom
+   │  │     │  │     │        └── math_terminal
+   │  │     │  │     │           └── access
+   │  │     │  │     │              └── "targets" (ID)
+   │  │     │  │     ├── "with" (WITH)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── access
+   │  │     │  │     │           └── "H_rabi" (ID)
+   │  │     │  │     ├── "for" (FOR)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "0.1" (FLOAT)
+   │  │     │  ├── ";
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── declaration
+   │  │     │  │     ├── "n" (ID)
+   │  │     │  │     ├── "=" (ASSIGN)
+   │  │     │  │     └── expr
+   │  │     │  │        └── aexpr
+   │  │     │  │           ├── aexpr
+   │  │     │  │           │  └── mexpr
+   │  │     │  │           │     └── uexpr
+   │  │     │  │           │        └── eexpr
+   │  │     │  │           │           └── atom
+   │  │     │  │           │              └── math_terminal
+   │  │     │  │           │                 └── access
+   │  │     │  │           │                    └── "n" (ID)
+   │  │     │  │           ├── "-" (MINUS)
+   │  │     │  │           └── mexpr
+   │  │     │  │              └── uexpr
+   │  │     │  │                 └── eexpr
+   │  │     │  │                    └── atom
+   │  │     │  │                       └── math_terminal
+   │  │     │  │                          └── "1" (INT)
+   │  │     │  └── ";
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+
+" (EOL)
+   │  ├── statement
+   │  │  └── while_stmt
+   │  │     ├── "while" (WHILE)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     └── atom
+   │  │     │        └── bool_literal
+   │  │     │           └── "true" (TRUE)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── ifelse_stmt
+   │  │     │  │     ├── "if" (IF)
+   │  │     │  │     ├── "(" (LBRACKET)
+   │  │     │  │     ├── cond
+   │  │     │  │     │  └── expr
+   │  │     │  │     │     ├── aexpr
+   │  │     │  │     │     │  └── mexpr
+   │  │     │  │     │     │     └── uexpr
+   │  │     │  │     │     │        └── eexpr
+   │  │     │  │     │     │           └── atom
+   │  │     │  │     │     │              └── math_terminal
+   │  │     │  │     │     │                 └── access
+   │  │     │  │     │     │                    └── "x" (ID)
+   │  │     │  │     │     ├── comparators
+   │  │     │  │     │     │  └── bool_eq_op
+   │  │     │  │     │     │     └── "==" (EQ)
+   │  │     │  │     │     └── aexpr
+   │  │     │  │     │        └── mexpr
+   │  │     │  │     │           └── uexpr
+   │  │     │  │     │              └── eexpr
+   │  │     │  │     │                 └── atom
+   │  │     │  │     │                    └── math_terminal
+   │  │     │  │     │                       └── "1" (INT)
+   │  │     │  │     ├── ")" (RBRACKET)
+   │  │     │  │     ├── "{" (LBRACE)
+   │  │     │  │     ├── block
+   │  │     │  │     │  ├── "
+" (EOL)
+   │  │     │  │     │  ├── statement
+   │  │     │  │     │  │  └── break_stmt
+   │  │     │  │     │  │     └── "break" (BREAK)
+   │  │     │  │     │  └── ";
+" (EOL)
+   │  │     │  │     └── "}" (RBRACE)
+   │  │     │  └── "
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+
+
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "a" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "5" (INT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "b" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "3" (INT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     ├── aexpr
+   │  │     │     │  └── mexpr
+   │  │     │     │     └── uexpr
+   │  │     │     │        └── eexpr
+   │  │     │     │           └── atom
+   │  │     │     │              └── math_terminal
+   │  │     │     │                 └── access
+   │  │     │     │                    └── "a" (ID)
+   │  │     │     ├── comparators
+   │  │     │     │  └── bool_gt_op
+   │  │     │     │     └── ">" (GT)
+   │  │     │     └── aexpr
+   │  │     │        └── mexpr
+   │  │     │           └── uexpr
+   │  │     │              └── eexpr
+   │  │     │                 └── atom
+   │  │     │                    └── math_terminal
+   │  │     │                       └── access
+   │  │     │                          └── "b" (ID)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── ifelse_stmt
+   │  │     │  │     ├── "if" (IF)
+   │  │     │  │     ├── "(" (LBRACKET)
+   │  │     │  │     ├── cond
+   │  │     │  │     │  └── expr
+   │  │     │  │     │     ├── aexpr
+   │  │     │  │     │     │  └── mexpr
+   │  │     │  │     │     │     └── uexpr
+   │  │     │  │     │     │        └── eexpr
+   │  │     │  │     │     │           └── atom
+   │  │     │  │     │     │              └── math_terminal
+   │  │     │  │     │     │                 └── access
+   │  │     │  │     │     │                    └── "b" (ID)
+   │  │     │  │     │     ├── comparators
+   │  │     │  │     │     │  └── bool_gt_op
+   │  │     │  │     │     │     └── ">" (GT)
+   │  │     │  │     │     └── aexpr
+   │  │     │  │     │        └── mexpr
+   │  │     │  │     │           └── uexpr
+   │  │     │  │     │              └── eexpr
+   │  │     │  │     │                 └── atom
+   │  │     │  │     │                    └── math_terminal
+   │  │     │  │     │                       └── "0" (INT)
+   │  │     │  │     ├── ")" (RBRACKET)
+   │  │     │  │     ├── "{" (LBRACE)
+   │  │     │  │     ├── block
+   │  │     │  │     │  ├── "
+" (EOL)
+   │  │     │  │     │  ├── statement
+   │  │     │  │     │  │  └── init_stmt
+   │  │     │  │     │  │     ├── "initialize" (INITIALIZE)
+   │  │     │  │     │  │     └── targets
+   │  │     │  │     │  │        └── expr
+   │  │     │  │     │  │           └── atom
+   │  │     │  │     │  │              └── math_terminal
+   │  │     │  │     │  │                 └── access
+   │  │     │  │     │  │                    └── "targets" (ID)
+   │  │     │  │     │  └── ";
+" (EOL)
+   │  │     │  │     ├── "}" (RBRACE)
+   │  │     │  │     ├── "
+" (EOL)
+   │  │     │  │     ├── "else" (ELSE)
+   │  │     │  │     ├── "{" (LBRACE)
+   │  │     │  │     ├── block
+   │  │     │  │     │  ├── "
+" (EOL)
+   │  │     │  │     │  ├── statement
+   │  │     │  │     │  │  └── measure_stmt
+   │  │     │  │     │  │     ├── "measure" (MEASURE)
+   │  │     │  │     │  │     └── targets
+   │  │     │  │     │  │        └── expr
+   │  │     │  │     │  │           └── atom
+   │  │     │  │     │  │              └── math_terminal
+   │  │     │  │     │  │                 └── access
+   │  │     │  │     │  │                    └── "r" (ID)
+   │  │     │  │     │  └── ";
+" (EOL)
+   │  │     │  │     └── "}" (RBRACE)
+   │  │     │  └── "
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+
+
+" (EOL)
+   │  ├── statement
+   │  │  └── init_stmt
+   │  │     ├── "initialize" (INITIALIZE)
+   │  │     └── targets
+   │  │        └── expr
+   │  │           └── atom
+   │  │              └── math_terminal
+   │  │                 └── access
+   │  │                    └── "r" (ID)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── evolve_stmt
+   │  │     ├── "evolve" (EVOLVE)
+   │  │     ├── targets
+   │  │     │  └── expr
+   │  │     │     └── atom
+   │  │     │        └── math_terminal
+   │  │     │           └── access
+   │  │     │              └── "r" (ID)
+   │  │     ├── "with" (WITH)
+   │  │     ├── expr
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── access
+   │  │     │           └── "H_single" (ID)
+   │  │     ├── "for" (FOR)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "2.0" (FLOAT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── evolve_stmt
+   │  │     ├── "evolve" (EVOLVE)
+   │  │     ├── targets
+   │  │     │  └── expr
+   │  │     │     └── atom
+   │  │     │        └── math_terminal
+   │  │     │           └── access
+   │  │     │              └── "targets" (ID)
+   │  │     ├── "with" (WITH)
+   │  │     ├── expr
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── access
+   │  │     │           └── "H_pair" (ID)
+   │  │     ├── "for" (FOR)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "1.0" (FLOAT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── evolve_stmt
+   │  │     ├── "evolve" (EVOLVE)
+   │  │     ├── targets
+   │  │     │  └── expr
+   │  │     │     └── atom
+   │  │     │        └── math_terminal
+   │  │     │           └── access
+   │  │     │              └── "q0" (ID)
+   │  │     ├── "with" (WITH)
+   │  │     ├── expr
+   │  │     │  └── aexpr
+   │  │     │     └── mexpr
+   │  │     │        ├── mexpr
+   │  │     │        │  └── uexpr
+   │  │     │        │     └── eexpr
+   │  │     │        │        └── atom
+   │  │     │        │           └── operator_terminal
+   │  │     │        │              └── pauli_op
+   │  │     │        │                 └── "%X" (PAULI_X)
+   │  │     │        ├── "*" (MULT)
+   │  │     │        └── uexpr
+   │  │     │           └── eexpr
+   │  │     │              └── atom
+   │  │     │                 └── math_terminal
+   │  │     │                    └── "0.5" (FLOAT)
+   │  │     ├── "for" (FOR)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── access
+   │  │                 └── "pi" (ID)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── measure_stmt
+   │  │     ├── "measure" (MEASURE)
+   │  │     └── targets
+   │  │        └── expr
+   │  │           └── atom
+   │  │              └── math_terminal
+   │  │                 └── access
+   │  │                    └── "r" (ID)
+   │  ├── ";
+
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "flag" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── "1" (INT)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     ├── aexpr
+   │  │     │     │  └── mexpr
+   │  │     │     │     └── uexpr
+   │  │     │     │        └── eexpr
+   │  │     │     │           └── atom
+   │  │     │     │              └── math_terminal
+   │  │     │     │                 └── access
+   │  │     │     │                    └── "flag" (ID)
+   │  │     │     ├── comparators
+   │  │     │     │  └── bool_not_eq_op
+   │  │     │     │     └── "!=" (NEQ)
+   │  │     │     └── aexpr
+   │  │     │        └── mexpr
+   │  │     │           └── uexpr
+   │  │     │              └── eexpr
+   │  │     │                 └── atom
+   │  │     │                    └── math_terminal
+   │  │     │                       └── "0" (INT)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── declaration
+   │  │     │  │     ├── "x" (ID)
+   │  │     │  │     ├── "=" (ASSIGN)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "0" (INT)
+   │  │     │  └── ";
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     ├── aexpr
+   │  │     │     │  └── mexpr
+   │  │     │     │     └── uexpr
+   │  │     │     │        └── eexpr
+   │  │     │     │           └── atom
+   │  │     │     │              └── math_terminal
+   │  │     │     │                 └── access
+   │  │     │     │                    └── "x" (ID)
+   │  │     │     ├── comparators
+   │  │     │     │  └── bool_lte_op
+   │  │     │     │     └── "<=" (LTE)
+   │  │     │     └── aexpr
+   │  │     │        └── mexpr
+   │  │     │           └── uexpr
+   │  │     │              └── eexpr
+   │  │     │                 └── atom
+   │  │     │                    └── math_terminal
+   │  │     │                       └── "1" (INT)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── declaration
+   │  │     │  │     ├── "x" (ID)
+   │  │     │  │     ├── "=" (ASSIGN)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "1" (INT)
+   │  │     │  └── ";
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     ├── aexpr
+   │  │     │     │  └── mexpr
+   │  │     │     │     └── uexpr
+   │  │     │     │        └── eexpr
+   │  │     │     │           └── atom
+   │  │     │     │              └── math_terminal
+   │  │     │     │                 └── access
+   │  │     │     │                    └── "x" (ID)
+   │  │     │     ├── comparators
+   │  │     │     │  └── bool_gte_op
+   │  │     │     │     └── ">=" (GTE)
+   │  │     │     └── aexpr
+   │  │     │        └── mexpr
+   │  │     │           └── uexpr
+   │  │     │              └── eexpr
+   │  │     │                 └── atom
+   │  │     │                    └── math_terminal
+   │  │     │                       └── "0" (INT)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── declaration
+   │  │     │  │     ├── "x" (ID)
+   │  │     │  │     ├── "=" (ASSIGN)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "0" (INT)
+   │  │     │  └── ";
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  ├── "
+
+" (EOL)
+   │  ├── statement
+   │  │  └── declaration
+   │  │     ├── "a" (ID)
+   │  │     ├── "=" (ASSIGN)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── bool_literal
+   │  │              └── "true" (TRUE)
+   │  ├── ";
+" (EOL)
+   │  ├── statement
+   │  │  └── ifelse_stmt
+   │  │     ├── "if" (IF)
+   │  │     ├── "(" (LBRACKET)
+   │  │     ├── cond
+   │  │     │  └── expr
+   │  │     │     └── atom
+   │  │     │        └── math_terminal
+   │  │     │           └── access
+   │  │     │              └── "a" (ID)
+   │  │     ├── ")" (RBRACKET)
+   │  │     ├── "{" (LBRACE)
+   │  │     ├── block
+   │  │     │  ├── "
+" (EOL)
+   │  │     │  ├── statement
+   │  │     │  │  └── declaration
+   │  │     │  │     ├── "b" (ID)
+   │  │     │  │     ├── "=" (ASSIGN)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "5" (INT)
+   │  │     │  └── ";
+" (EOL)
+   │  │     └── "}" (RBRACE)
+   │  └── "
+" (EOL)
+   └── "<EOF>"
