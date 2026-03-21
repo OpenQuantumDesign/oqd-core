@@ -40,7 +40,7 @@ from oqd_core.compiler.analog.verify import (
     VerifyHilberSpaceDim,
 )
 from oqd_core.compiler.math.passes import canonicalize_math_expr
-from oqd_core.interface.analog import AnalogCircuit, Declaration, Evolve, Operator
+from oqd_core.interface.analog import AnalogCircuit, Declaration, Evolve, Operator, IfElse, While
 
 ########################################################################################
 
@@ -117,6 +117,13 @@ def analog_operator_canonicalization(model):
                 stmt.hamiltonian = analog_operator_canonicalization(stmt.hamiltonian)
             elif isinstance(stmt, Declaration) and isinstance(stmt.value, Operator):
                 stmt.value = analog_operator_canonicalization(stmt.value)
+            elif isinstance(stmt, IfElse):
+                stmt.then_branch = analog_operator_canonicalization(stmt.then_branch)
+                stmt.else_branch = analog_operator_canonicalization(stmt.else_branch)
+                return stmt
+            elif isinstance(stmt, While):
+                stmt.body = analog_operator_canonicalization(stmt.body)
+                return stmt
         return model
     
     return Chain(

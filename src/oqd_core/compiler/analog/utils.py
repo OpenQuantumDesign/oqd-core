@@ -27,7 +27,7 @@ from oqd_core.interface.analog import (
     OperatorSub,
     OperatorTerminal,
 )
-from oqd_core.interface.math import MathExpr
+from oqd_core.interface.analog.math import MathExpr
 
 ########################################################################################
 
