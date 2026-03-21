@@ -31,6 +31,7 @@ __all__ = [
     "QuantumRegister",
     "Declaration",
     "MyList",
+    "Extract",
     "Access",
     "Identifier", 
     "IfElse",
@@ -70,6 +71,11 @@ class ModeRegister(Expr):
 
 class Access(Expr):
     name: Identifier
+    
+    
+class Extract(Expr):
+    access: Access
+    index: NonNegativeInt
 
 
 class MyList(Expr):
@@ -111,6 +117,7 @@ class Initialize(TypeReflectBaseModel):
 
     pass
 
+
 class IfElse(TypeReflectBaseModel):
     """
     Class representing a conditional branch in the analog circuit
@@ -119,6 +126,7 @@ class IfElse(TypeReflectBaseModel):
     then_branch: List[Statement] = []
     else_branch: List[Statement] = []
     
+    
 class While(TypeReflectBaseModel):
     """
     Class representing a while loop in the analog circuit
@@ -126,11 +134,13 @@ class While(TypeReflectBaseModel):
     condition : Expr
     body: List[Statement] = []
 
+
 class Break(TypeReflectBaseModel):
     """
     Class representing a break statement to exit the innermost loop
     """
     pass
+
 
 class Continue(TypeReflectBaseModel):
     """
@@ -138,10 +148,12 @@ class Continue(TypeReflectBaseModel):
     """
     pass
 
+
 """
 Union of classes 
 """
 Statement = Union[Declaration, Measure, Evolve, Initialize, IfElse, While, Break, Continue]
+
 
 class AnalogCircuit(TypeReflectBaseModel):
     """
@@ -162,3 +174,4 @@ class AnalogCircuit(TypeReflectBaseModel):
 
     def measure(self):
         self.sequence.append(Measure())
+
