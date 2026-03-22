@@ -359,7 +359,7 @@ MathExprSubtypes = Annotated[
 Alias for the union of concrete MathExpr subtypes
 """
 
-CastMathExpr = Annotated[MathExprSubtypes, BeforeValidator(MathExpr.cast)]
+CastMathExpr = Annotated[Expr, BeforeValidator(MathExpr.cast)]
 """
 Annotated type that cast typical numeric python types to MathExpr
 """
