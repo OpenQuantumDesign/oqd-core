@@ -33,6 +33,7 @@ from oqd_core.interface.analog.math import (
     MathTerminal,
     MathVar,
 )
+from oqd_core.interface.analog.operation import Access
 
 ########################################################################################
 
@@ -419,6 +420,11 @@ class EvaluateMathExpr(ConversionRule):
         raise TypeError(
             "Evaluation requires the substitution of all MathVar to constants"
         )
+    
+    def map_Access(self, model: Access, operands):
+        raise TypeError(
+            "Evaluation requires Access to be resolved"
+        )
 
     def map_MathNum(self, model: MathNum, operands):
         return model.value
@@ -517,5 +523,5 @@ class SimplifyMathExpr(RewriteRule):
                     value=value.imag
                 )
 
-        except ValidationError:
+        except (ValidationError, TypeError, ValueError):
             return model
