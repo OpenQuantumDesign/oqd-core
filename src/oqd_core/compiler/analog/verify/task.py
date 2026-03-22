@@ -18,9 +18,6 @@ from oqd_core.backend.metric import Expectation
 from oqd_core.compiler.analog.passes.analysis import analysis_canonical_hamiltonian_dim
 
 ########################################################################################
-# from oqd_core.interface.analog import AnalogGate
-
-########################################################################################
 
 __all__ = [
     "VerifyAnalogCircuitDim",
@@ -49,11 +46,6 @@ class VerifyAnalogCircuitDim(RewriteRule):
     def __init__(self, n_qreg, n_qmode):
         super().__init__()
         self._dim: tuple = (n_qreg, n_qmode)
-
-    # def map_AnalogGate(self, model: AnalogGate):
-    #     assert self._dim == analysis_canonical_hamiltonian_dim(model.hamiltonian), (
-    #         "Inconsistent Hilbert space dimension between Analog Gates"
-    #     )
 
 
 class VerifyAnalogArgsDim(RewriteRule):

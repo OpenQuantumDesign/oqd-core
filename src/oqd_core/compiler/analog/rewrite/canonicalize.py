@@ -34,7 +34,7 @@ from oqd_core.interface.analog import (
     PauliY,
     PauliZ,
 )
-from oqd_core.interface.math import MathAdd, MathImag, MathNum
+from oqd_core.interface.analog.math import MathAdd, MathImag, MathNum
 
 ########################################################################################
 
@@ -383,7 +383,7 @@ class ScaleTerms(RewriteRule):
         super().__init__()
         self.op_add_root = False
 
-    def map_AnalogGate(self, model):
+    def map_Evolve(self, model):
         self.op_add_root = False
 
     def map_Expectation(self, model):

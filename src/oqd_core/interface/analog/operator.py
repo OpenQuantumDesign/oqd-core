@@ -14,18 +14,15 @@
 
 from __future__ import annotations
 
-from typing import Union
-
-from oqd_compiler_infrastructure import TypeReflectBaseModel
-
 ########################################################################################
-from oqd_core.interface.math import (
+from .math import (
     MathExpr,
-    MathExprSubtypes,
     MathImag,
     MathMul,
     MathNum,
 )
+
+from .expression import Expr
 
 ########################################################################################
 
@@ -49,14 +46,13 @@ __all__ = [
     "OperatorMul",
     "OperatorScalarMul",
     "OperatorKron",
-    "OperatorSubtypes",
 ]
 
 
 ########################################################################################
 
 
-class Operator(TypeReflectBaseModel):
+class Operator(Expr):
     """
     Class representing the abstract syntax tree (AST) for a quantum operator
     """
@@ -223,8 +219,8 @@ class OperatorScalarMul(Operator):
         expr (MathExpr): [`MathExpr`][oqd_core.interface.math.MathExpr] to multiply by
     """
 
-    op: OperatorSubtypes
-    expr: MathExprSubtypes
+    op: Expr
+    expr: Expr
 
 
 class OperatorBinaryOp(Operator):
@@ -244,8 +240,8 @@ class OperatorAdd(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: Expr
+    op2: Expr
 
 
 class OperatorSub(OperatorBinaryOp):
@@ -257,8 +253,8 @@ class OperatorSub(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: Expr
+    op2: Expr
 
 
 class OperatorMul(OperatorBinaryOp):
@@ -270,8 +266,8 @@ class OperatorMul(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: Expr
+    op2: Expr
 
 
 class OperatorKron(OperatorBinaryOp):
@@ -283,26 +279,6 @@ class OperatorKron(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: Expr
+    op2: Expr
 
-
-########################################################################################
-
-OperatorSubtypes = Union[
-    PauliI,
-    PauliX,
-    PauliY,
-    PauliZ,
-    Creation,
-    Annihilation,
-    Identity,
-    OperatorAdd,
-    OperatorSub,
-    OperatorMul,
-    OperatorScalarMul,
-    OperatorKron,
-]
-"""
-Alias for the union of concrete Operator subtypes
-"""

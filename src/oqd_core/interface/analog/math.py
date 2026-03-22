@@ -22,7 +22,6 @@ from oqd_compiler_infrastructure import (
     ConversionRule,
     Post,
     RewriteRule,
-    TypeReflectBaseModel,
 )
 from pydantic import (
     AfterValidator,
@@ -31,6 +30,7 @@ from pydantic import (
     Tag,
     model_validator,
 )
+from .expression import Expr
 
 ########################################################################################
 
@@ -56,7 +56,7 @@ __all__ = [
 ########################################################################################
 
 
-class MathExpr(TypeReflectBaseModel):
+class MathExpr(Expr):
     """
     Class representing the abstract syntax tree (AST) for a mathematical expression
     """

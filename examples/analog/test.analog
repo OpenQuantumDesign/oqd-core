@@ -1,0 +1,89 @@
+
+// assignments
+r = qreg(2);
+s = qmode(3);
+q0 = r[0];
+q1 = r[1];
+targets = [q0, q1];
+
+// math
+pi = 3.14159;
+tau = 2 * pi;
+omega = #omega;
+phase = #t * omega + #phi;
+neg = -1;
+cubed = 2^3;
+sine = sin(0.5);
+cosed = cos(phase);
+cplx = 1.0 + 1j * 0.5;
+
+// Operators
+X = %X;
+Y = %Y;
+Z = %Z;
+I = %I;
+C = %C;
+A = %A;
+J = %J;
+H_single = 0.5 * %X + 0.5 * %Z;
+H_pair = (%X %@ %I) %+ (%I %@ %X);
+H_rabi = (0.5 * #t) * (%X %@ %I) %+ 0.5 * (%I %@ %Y);
+
+//control flow
+x = 1;
+if (x > 0){
+    initialize r;
+}
+if (x == 1) {
+    evolve r with H_single for 1.0;
+}
+else { evolve r with H_pair for 0.5; }
+n = 3;
+while (n > 0){
+    evolve targets with H_rabi for 0.1;
+    n = n - 1;
+}
+
+while (true) {
+    if (x == 1) {
+        break;
+    }
+}
+
+
+// nested if else
+a = 5;
+b = 3;
+if (a > b) {
+    if (b > 0) {
+        initialize targets;
+    }
+    else {
+        measure r;
+    }
+}
+
+
+initialize r;
+evolve r with H_single for 2.0;
+evolve targets with H_pair for 1.0;
+evolve q0 with %X * 0.5 for pi;
+measure r;
+
+// Bool expressions
+
+flag = 1;
+if (flag != 0) {
+    x = 0;
+}
+if (x <= 1) {
+    x = 1;
+}
+if (x >= 0) {
+    x = 0;
+}
+
+a = true;
+if (a) {
+    b = 5;
+}
