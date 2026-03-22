@@ -106,16 +106,14 @@ class Measure(TypeReflectBaseModel):
     """
     Class representing a measurement in the analog circuit
     """
-
-    pass
+    targets: Expr
 
 
 class Initialize(TypeReflectBaseModel):
     """
     Class representing a initialization in the analog circuit
     """
-
-    pass
+    targets: Expr
 
 
 class IfElse(TypeReflectBaseModel):
@@ -169,9 +167,9 @@ class AnalogCircuit(TypeReflectBaseModel):
     def evolve(self, hamiltonian: Expr, duration: Expr, targets: Expr):
         self.sequence.append(Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets))
 
-    def initialize(self):
-        self.sequence.append(Initialize())
+    def initialize(self, targets: Expr):
+        self.sequence.append(Initialize(targets=targets))
 
-    def measure(self):
-        self.sequence.append(Measure())
+    def measure(self, targets: Expr):
+        self.sequence.append(Measure(targets=targets))
 
