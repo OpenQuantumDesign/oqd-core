@@ -170,12 +170,12 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         return Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets)
 
     def visitMeasure_stmt(self, ctx: AnalogParser.Measure_stmtContext):
-        self.visit(ctx.targets().expr())
-        return Measure()
+        targets = self.visit(ctx.targets())
+        return Measure(targets=targets)
     
     def visitInit_stmt(self, ctx: AnalogParser.Init_stmtContext):
-        self.visit(ctx.targets().expr())
-        return Initialize()
+        targets = self.visit(ctx.targets())
+        return Initialize(targets=targets)
     
     def visitTargets(self, ctx: AnalogParser.TargetsContext):
         return self.visit(ctx.expr())
