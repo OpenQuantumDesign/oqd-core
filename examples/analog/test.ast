@@ -5,105 +5,199 @@
       "class_": "Declaration",
       "name": "r",
       "value": {
-        "class_": "QuantumRegister"
+        "class_": "QuantumRegister",
+        "size": 2
       }
     },
     {
       "class_": "Declaration",
       "name": "s",
       "value": {
-        "class_": "ModeRegister"
+        "class_": "ModeRegister",
+        "size": 3
       }
     },
     {
       "class_": "Declaration",
       "name": "q0",
       "value": {
-        "class_": "Extract"
+        "class_": "Extract",
+        "access": {
+          "class_": "Access",
+          "name": "r"
+        },
+        "index": 0
       }
     },
     {
       "class_": "Declaration",
       "name": "q1",
       "value": {
-        "class_": "Extract"
+        "class_": "Extract",
+        "access": {
+          "class_": "Access",
+          "name": "r"
+        },
+        "index": 1
       }
     },
     {
       "class_": "Declaration",
       "name": "targets",
       "value": {
-        "class_": "MyList"
+        "class_": "MyList",
+        "values": [
+          {
+            "class_": "Access",
+            "name": "q0"
+          },
+          {
+            "class_": "Access",
+            "name": "q1"
+          }
+        ]
       }
     },
     {
       "class_": "Declaration",
       "name": "pi",
       "value": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 3.14159
       }
     },
     {
       "class_": "Declaration",
       "name": "tau",
       "value": {
-        "class_": "MathMul"
+        "class_": "MathMul",
+        "expr1": {
+          "class_": "MathNum",
+          "value": 2
+        },
+        "expr2": {
+          "class_": "Access",
+          "name": "pi"
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "omega",
       "value": {
-        "class_": "MathVar"
+        "class_": "MathVar",
+        "name": "#omega"
       }
     },
     {
       "class_": "Declaration",
       "name": "phase",
       "value": {
-        "class_": "MathAdd"
+        "class_": "MathAdd",
+        "expr1": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathVar",
+            "name": "#t"
+          },
+          "expr2": {
+            "class_": "Access",
+            "name": "omega"
+          }
+        },
+        "expr2": {
+          "class_": "MathVar",
+          "name": "#phi"
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "neg",
       "value": {
-        "class_": "MathMul"
+        "class_": "MathMul",
+        "expr1": {
+          "class_": "MathNum",
+          "value": -1
+        },
+        "expr2": {
+          "class_": "MathNum",
+          "value": 1
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "cubed",
       "value": {
-        "class_": "MathPow"
+        "class_": "MathPow",
+        "expr1": {
+          "class_": "MathNum",
+          "value": 2
+        },
+        "expr2": {
+          "class_": "MathNum",
+          "value": 3
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "sine",
       "value": {
-        "class_": "MathFunc"
+        "class_": "MathFunc",
+        "func": "sin",
+        "expr": {
+          "class_": "MathNum",
+          "value": 0.5
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "cosed",
       "value": {
-        "class_": "MathFunc"
+        "class_": "MathFunc",
+        "func": "cos",
+        "expr": {
+          "class_": "Access",
+          "name": "phase"
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "cplx",
       "value": {
-        "class_": "MathAdd"
+        "class_": "MathAdd",
+        "expr1": {
+          "class_": "MathNum",
+          "value": 1.0
+        },
+        "expr2": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathImag"
+          },
+          "expr2": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "X",
       "value": {
-        "class_": "PauliX"
+        "class_": "OperatorScalarMul",
+        "op": {
+          "class_": "PauliX"
+        },
+        "expr": {
+          "class_": "MathNum",
+          "value": 1
+        }
       }
     },
     {
@@ -152,40 +246,141 @@
       "class_": "Declaration",
       "name": "H_single",
       "value": {
-        "class_": "OperatorAdd"
+        "class_": "OperatorAdd",
+        "op1": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "PauliX"
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        },
+        "op2": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "PauliZ"
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "H_pair",
       "value": {
-        "class_": "OperatorAdd"
+        "class_": "OperatorAdd",
+        "op1": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliI"
+            },
+            "op2": {
+              "class_": "PauliX"
+            }
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 1
+          }
+        },
+        "op2": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliX"
+            },
+            "op2": {
+              "class_": "PauliI"
+            }
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 1
+          }
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "H_rabi",
       "value": {
-        "class_": "OperatorAdd"
+        "class_": "OperatorAdd",
+        "op1": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliI"
+            },
+            "op2": {
+              "class_": "PauliY"
+            }
+          },
+          "expr": {
+            "class_": "MathNum",
+            "value": 0.5
+          }
+        },
+        "op2": {
+          "class_": "OperatorScalarMul",
+          "op": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliX"
+            },
+            "op2": {
+              "class_": "PauliI"
+            }
+          },
+          "expr": {
+            "class_": "MathMul",
+            "expr1": {
+              "class_": "MathNum",
+              "value": 0.5
+            },
+            "expr2": {
+              "class_": "MathVar",
+              "name": "#t"
+            }
+          }
+        }
       }
     },
     {
       "class_": "Declaration",
       "name": "x",
       "value": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 1
       }
     },
     {
       "class_": "IfElse",
       "condition": {
-        "class_": "BoolGreaterThan"
+        "class_": "BoolGreaterThan",
+        "left": {
+          "class_": "Access",
+          "name": "x"
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 0
+        }
       },
       "then_branch": [
         {
           "class_": "Initialize",
           "targets": {
-            "class_": "Access"
+            "class_": "Access",
+            "name": "r"
           }
         }
       ],
@@ -194,19 +389,30 @@
     {
       "class_": "IfElse",
       "condition": {
-        "class_": "BoolEq"
+        "class_": "BoolEq",
+        "left": {
+          "class_": "Access",
+          "name": "x"
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 1
+        }
       },
       "then_branch": [
         {
           "class_": "Evolve",
           "hamiltonian": {
-            "class_": "Access"
+            "class_": "Access",
+            "name": "H_single"
           },
           "duration": {
-            "class_": "MathNum"
+            "class_": "MathNum",
+            "value": 1.0
           },
           "targets": {
-            "class_": "Access"
+            "class_": "Access",
+            "name": "r"
           }
         }
       ],
@@ -214,13 +420,16 @@
         {
           "class_": "Evolve",
           "hamiltonian": {
-            "class_": "Access"
+            "class_": "Access",
+            "name": "H_pair"
           },
           "duration": {
-            "class_": "MathNum"
+            "class_": "MathNum",
+            "value": 0.5
           },
           "targets": {
-            "class_": "Access"
+            "class_": "Access",
+            "name": "r"
           }
         }
       ]
@@ -229,32 +438,52 @@
       "class_": "Declaration",
       "name": "n",
       "value": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 3
       }
     },
     {
       "class_": "While",
       "condition": {
-        "class_": "BoolGreaterThan"
+        "class_": "BoolGreaterThan",
+        "left": {
+          "class_": "Access",
+          "name": "n"
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 0
+        }
       },
       "body": [
         {
           "class_": "Evolve",
           "hamiltonian": {
-            "class_": "Access"
+            "class_": "Access",
+            "name": "H_rabi"
           },
           "duration": {
-            "class_": "MathNum"
+            "class_": "MathNum",
+            "value": 0.1
           },
           "targets": {
-            "class_": "Access"
+            "class_": "Access",
+            "name": "targets"
           }
         },
         {
           "class_": "Declaration",
           "name": "n",
           "value": {
-            "class_": "MathSub"
+            "class_": "MathAdd",
+            "expr1": {
+              "class_": "MathNum",
+              "value": -1
+            },
+            "expr2": {
+              "class_": "Access",
+              "name": "n"
+            }
           }
         }
       ]
@@ -268,7 +497,15 @@
         {
           "class_": "IfElse",
           "condition": {
-            "class_": "BoolEq"
+            "class_": "BoolEq",
+            "left": {
+              "class_": "Access",
+              "name": "x"
+            },
+            "right": {
+              "class_": "MathNum",
+              "value": 1
+            }
           },
           "then_branch": [
             {
@@ -283,32 +520,51 @@
       "class_": "Declaration",
       "name": "a",
       "value": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 5
       }
     },
     {
       "class_": "Declaration",
       "name": "b",
       "value": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 3
       }
     },
     {
       "class_": "IfElse",
       "condition": {
-        "class_": "BoolGreaterThan"
+        "class_": "BoolGreaterThan",
+        "left": {
+          "class_": "Access",
+          "name": "a"
+        },
+        "right": {
+          "class_": "Access",
+          "name": "b"
+        }
       },
       "then_branch": [
         {
           "class_": "IfElse",
           "condition": {
-            "class_": "BoolGreaterThan"
+            "class_": "BoolGreaterThan",
+            "left": {
+              "class_": "Access",
+              "name": "b"
+            },
+            "right": {
+              "class_": "MathNum",
+              "value": 0
+            }
           },
           "then_branch": [
             {
               "class_": "Initialize",
               "targets": {
-                "class_": "Access"
+                "class_": "Access",
+                "name": "targets"
               }
             }
           ],
@@ -316,7 +572,8 @@
             {
               "class_": "Measure",
               "targets": {
-                "class_": "Access"
+                "class_": "Access",
+                "name": "r"
               }
             }
           ]
@@ -327,69 +584,96 @@
     {
       "class_": "Initialize",
       "targets": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "r"
       }
     },
     {
       "class_": "Evolve",
       "hamiltonian": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "H_single"
       },
       "duration": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 2.0
       },
       "targets": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "r"
       }
     },
     {
       "class_": "Evolve",
       "hamiltonian": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "H_pair"
       },
       "duration": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 1.0
       },
       "targets": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "targets"
       }
     },
     {
       "class_": "Evolve",
       "hamiltonian": {
-        "class_": "OperatorScalarMul"
+        "class_": "OperatorScalarMul",
+        "op": {
+          "class_": "PauliX"
+        },
+        "expr": {
+          "class_": "MathNum",
+          "value": 0.5
+        }
       },
       "duration": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "pi"
       },
       "targets": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "q0"
       }
     },
     {
       "class_": "Measure",
       "targets": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "r"
       }
     },
     {
       "class_": "Declaration",
       "name": "flag",
       "value": {
-        "class_": "MathNum"
+        "class_": "MathNum",
+        "value": 1
       }
     },
     {
       "class_": "IfElse",
       "condition": {
-        "class_": "BoolNotEq"
+        "class_": "BoolNotEq",
+        "left": {
+          "class_": "Access",
+          "name": "flag"
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 0
+        }
       },
       "then_branch": [
         {
           "class_": "Declaration",
           "name": "x",
           "value": {
-            "class_": "MathNum"
+            "class_": "MathNum",
+            "value": 0
           }
         }
       ],
@@ -398,14 +682,23 @@
     {
       "class_": "IfElse",
       "condition": {
-        "class_": "BoolLessThanEq"
+        "class_": "BoolLessThanEq",
+        "left": {
+          "class_": "Access",
+          "name": "x"
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 1
+        }
       },
       "then_branch": [
         {
           "class_": "Declaration",
           "name": "x",
           "value": {
-            "class_": "MathNum"
+            "class_": "MathNum",
+            "value": 1
           }
         }
       ],
@@ -414,14 +707,23 @@
     {
       "class_": "IfElse",
       "condition": {
-        "class_": "BoolGreaterThanEq"
+        "class_": "BoolGreaterThanEq",
+        "left": {
+          "class_": "Access",
+          "name": "x"
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 0
+        }
       },
       "then_branch": [
         {
           "class_": "Declaration",
           "name": "x",
           "value": {
-            "class_": "MathNum"
+            "class_": "MathNum",
+            "value": 0
           }
         }
       ],
@@ -437,14 +739,16 @@
     {
       "class_": "IfElse",
       "condition": {
-        "class_": "Access"
+        "class_": "Access",
+        "name": "a"
       },
       "then_branch": [
         {
           "class_": "Declaration",
           "name": "b",
           "value": {
-            "class_": "MathNum"
+            "class_": "MathNum",
+            "value": 5
           }
         }
       ],
