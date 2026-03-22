@@ -21,7 +21,6 @@ from pydantic import (
     NonNegativeFloat,
     NonNegativeInt,
 )
-from oqd_core.interface.bool import BoolExprSubtypes
 
 ########################################################################################
 
@@ -219,7 +218,7 @@ AtomicTypes = Union[IonQubit, IonRegister, MyList, Access]
 
 class Declaration(TypeReflectBaseModel):
     name: Identifier
-    value: Union[AtomicTypes, BoolExprSubtypes]
+    value: AtomicTypes
 
 
 ########################################################################################
