@@ -120,10 +120,8 @@ def analog_operator_canonicalization(model):
             elif isinstance(stmt, IfElse):
                 stmt.then_branch = analog_operator_canonicalization(stmt.then_branch)
                 stmt.else_branch = analog_operator_canonicalization(stmt.else_branch)
-                return stmt
             elif isinstance(stmt, While):
                 stmt.body = analog_operator_canonicalization(stmt.body)
-                return stmt
         return model
     
     return Chain(
