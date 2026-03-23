@@ -78,6 +78,8 @@ class MathExpr(Expr):
                 "Tried to cast a string to MathExpr. "
                 + f'Wrap your string ("{value}") with MathStr(string="{value}").'
             )
+        if isinstance(value, Expr):
+            return value
         raise TypeError
 
     def __neg__(self):
@@ -359,7 +361,7 @@ MathExprSubtypes = Annotated[
 Alias for the union of concrete MathExpr subtypes
 """
 
-CastMathExpr = Annotated[MathExprSubtypes, BeforeValidator(MathExpr.cast)]
+CastMathExpr = Annotated[Expr, BeforeValidator(MathExpr.cast)]
 """
 Annotated type that cast typical numeric python types to MathExpr
 """
@@ -373,6 +375,9 @@ class _MathExprIsConstant(RewriteRule):
             self.isconstant = True
 
     def map_MathVar(self, model):
+        self.isconstant = False
+        
+    def map_Access(self, model):
         self.isconstant = False
 
 

@@ -33,6 +33,7 @@ from oqd_core.interface.analog.math import (
     MathTerminal,
     MathVar,
 )
+from oqd_core.interface.analog.operation import Access
 
 ########################################################################################
 
@@ -241,11 +242,11 @@ class PartitionMathExpr(RewriteRule):
 
     def map_MathAdd(self, model):
         priority = dict(
-            MathImag=5, MathNum=4, MathVar=3, MathFunc=2, MathPow=1, MathMul=0
+            MathImag=6, MathNum=5, MathVar=4, Access=3, MathFunc=2, MathPow=1, MathMul=0
         )
 
         if isinstance(
-            model.expr2, (MathImag, MathNum, MathVar, MathFunc, MathPow, MathMul)
+            model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow, MathMul)
         ):
             if isinstance(model.expr1, MathAdd):
                 if (
@@ -267,9 +268,9 @@ class PartitionMathExpr(RewriteRule):
                     )
 
     def map_MathMul(self, model: MathMul):
-        priority = dict(MathImag=4, MathNum=3, MathVar=2, MathFunc=1, MathPow=0)
+        priority = dict(MathImag=5, MathNum=4, MathVar=3, Access=2, MathFunc=1, MathPow=0)
 
-        if isinstance(model.expr2, (MathImag, MathNum, MathVar, MathFunc, MathPow)):
+        if isinstance(model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow)):
             if isinstance(model.expr1, MathMul):
                 if (
                     priority[model.expr2.__class__.__name__]
@@ -419,6 +420,11 @@ class EvaluateMathExpr(ConversionRule):
         raise TypeError(
             "Evaluation requires the substitution of all MathVar to constants"
         )
+    
+    def map_Access(self, model: Access, operands):
+        raise TypeError(
+            "Evaluation requires Access to be resolved"
+        )
 
     def map_MathNum(self, model: MathNum, operands):
         return model.value
@@ -517,5 +523,5 @@ class SimplifyMathExpr(RewriteRule):
                     value=value.imag
                 )
 
-        except ValidationError:
+        except (ValidationError, TypeError, ValueError):
             return model
