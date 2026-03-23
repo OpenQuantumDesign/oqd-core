@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .circuit import AtomicCircuit
-# from .species import Ba133IIBuilder, IonBuilder, Yb171IIBuilder
+from .species import Ba133IIBuilder, IonBuilder, Yb171IIBuilder
 from .system import (
     IonQubit,
     IonRegister,
@@ -36,9 +36,9 @@ __all__ = [
     "Pulse",
     "ParallelProtocol",
     "AtomicCircuit",
-    # "IonBuilder",
-    # "Yb171IIBuilder",
-    # "Ba133IIBuilder",
+    "IonBuilder",
+    "Yb171IIBuilder",
+    "Ba133IIBuilder",
     "IonQubit",
     "IonRegister",
     "Declaration",
