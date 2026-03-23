@@ -12,13 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from typing import List
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-
-from oqd_core.interface.atomic.protocol import ParallelProtocol
-
-########################################################################################
-from oqd_core.interface.atomic.system import System
+from .system import Statement
 
 ########################################################################################
 
@@ -34,10 +30,7 @@ class AtomicCircuit(TypeReflectBaseModel):
     Class representing a trapped-ion experiment in terms of light-matter interactons.
 
     Attributes:
-        system: The trapped-ion system.
-        protocol: Pulse program for the trapped-ion experiment referenced to the trapped-ion system.
-
+        statements: The trapped-ion system.
     """
 
-    system: System
-    protocol: ParallelProtocol
+    statements: List[Statement]
