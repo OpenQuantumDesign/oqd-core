@@ -1,0 +1,52 @@
+// atomic targets
+ions = ionreg(2);
+q0 = ions[0];
+q1 = ions[1];
+targets = [q0, q1];
+
+// math / symbols
+pi = 3.14159;
+omega = #omega;
+phi = #phi;
+t_gate = 10e-6;
+flag = true;
+n = 3;
+
+// beam(frequency, rabi, phase, polarization, wavevector)
+beam_mw = beam(2.0 * pi * 1e6, omega, phi, [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]);
+beam_det = beam(2.0 * pi * 2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]);
+
+// pulse statements
+pulse q0 with beam_mw for t_gate;                 // measured defaults to false
+pulse q1 with beam_det for 3e-6, true;            // explicit measured=true
+pulse targets with beam_mw for 2e-6, false;       // explicit measured=false
+
+// measure remains sugar for measured=true
+measure q0 with beam_mw for 5e-6;
+
+// parallel block
+parallel {
+    pulse q0 with beam_mw for 5e-6;
+    measure q1 with beam_det for 5e-6;
+}
+
+// control flow
+if (flag) {
+    pulse targets with beam_mw for 2e-6;
+}
+else {
+    pulse targets with beam_det for 2e-5, true;
+}
+
+while (n > 0) {
+    parallel {
+        pulse targets with beam_mw for 1e-6;
+    }
+    n = n - 1;
+    if (n == 1) {
+        continue;
+    }
+    if (n == 0) {
+        break;
+    }
+}
