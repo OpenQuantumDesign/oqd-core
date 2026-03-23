@@ -8,7 +8,6 @@ program: block EOF;
 
 statement
     : declaration
-    | measure_stmt
     | pulse_stmt
     | parallel_stmt
     | while_stmt
@@ -63,7 +62,6 @@ beam_ref: access;
 vec3: SQUARELBRACKET aexpr COMMA aexpr COMMA aexpr SQUARERBRACKET;
 
 parallel_stmt: PARALLEL LBRACE block RBRACE;
-measure_stmt: MEASURE targets WITH access FOR aexpr;
 pulse_stmt: PULSE targets WITH beam_ref FOR aexpr (COMMA measured)?;
 measured: expr;
 targets: expr;

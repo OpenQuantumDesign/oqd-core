@@ -10,7 +10,6 @@ COMMENT: '//' ~[\n\r]* NEWLINE -> skip;
 /** ================================================================================= */
 
 // Statement keyword
-MEASURE: 'measure';
 PARALLEL: 'parallel';
 IF: 'if';
 ELSE: 'else';

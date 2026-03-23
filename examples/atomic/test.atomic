@@ -21,13 +21,10 @@ pulse q0 with beam_mw for t_gate;                 // measured defaults to false
 pulse q1 with beam_det for 3e-6, true;            // explicit measured=true
 pulse targets with beam_mw for 2e-6, false;       // explicit measured=false
 
-// measure remains sugar for measured=true
-measure q0 with beam_mw for 5e-6;
-
 // parallel block
 parallel {
     pulse q0 with beam_mw for 5e-6;
-    measure q1 with beam_det for 5e-6;
+    pulse q1 with beam_det for 5e-6;
 }
 
 // control flow

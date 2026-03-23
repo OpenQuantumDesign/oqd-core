@@ -104,11 +104,6 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AtomicParser#measure_stmt.
-    def visitMeasure_stmt(self, ctx:AtomicParser.Measure_stmtContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AtomicParser#pulse_stmt.
     def visitPulse_stmt(self, ctx:AtomicParser.Pulse_stmtContext):
         return self.visitChildren(ctx)

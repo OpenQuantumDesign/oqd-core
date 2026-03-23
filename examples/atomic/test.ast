@@ -411,29 +411,6 @@
    │  │                 └── "false" (FALSE)
    │  ├── ";" (EOL)
    │  ├── statement
-   │  │  └── measure_stmt
-   │  │     ├── "measure" (MEASURE)
-   │  │     ├── targets
-   │  │     │  └── expr
-   │  │     │     └── atom
-   │  │     │        └── math_terminal
-   │  │     │           └── access
-   │  │     │              └── "q0" (ID)
-   │  │     ├── "with" (WITH)
-   │  │     ├── access
-   │  │     │  └── "beam_mw" (ID)
-   │  │     ├── "for" (FOR)
-   │  │     └── aexpr
-   │  │        └── mexpr
-   │  │           └── uexpr
-   │  │              └── eexpr
-   │  │                 └── atom
-   │  │                    └── math_terminal
-   │  │                       └── "5e-6" (FLOAT)
-   │  ├── ";
-
-" (EOL)
-   │  ├── statement
    │  │  └── parallel_stmt
    │  │     ├── "parallel" (PARALLEL)
    │  │     ├── "{" (LBRACE)
@@ -464,8 +441,8 @@
    │  │     │  ├── ";
 " (EOL)
    │  │     │  ├── statement
-   │  │     │  │  └── measure_stmt
-   │  │     │  │     ├── "measure" (MEASURE)
+   │  │     │  │  └── pulse_stmt
+   │  │     │  │     ├── "pulse" (PULSE)
    │  │     │  │     ├── targets
    │  │     │  │     │  └── expr
    │  │     │  │     │     └── atom
@@ -473,8 +450,9 @@
    │  │     │  │     │           └── access
    │  │     │  │     │              └── "q1" (ID)
    │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── access
-   │  │     │  │     │  └── "beam_det" (ID)
+   │  │     │  │     ├── beam_ref
+   │  │     │  │     │  └── access
+   │  │     │  │     │     └── "beam_det" (ID)
    │  │     │  │     ├── "for" (FOR)
    │  │     │  │     └── aexpr
    │  │     │  │        └── mexpr

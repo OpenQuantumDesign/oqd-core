@@ -179,15 +179,6 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#measure_stmt.
-    def enterMeasure_stmt(self, ctx:AtomicParser.Measure_stmtContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#measure_stmt.
-    def exitMeasure_stmt(self, ctx:AtomicParser.Measure_stmtContext):
-        pass
-
-
     # Enter a parse tree produced by AtomicParser#pulse_stmt.
     def enterPulse_stmt(self, ctx:AtomicParser.Pulse_stmtContext):
         pass
