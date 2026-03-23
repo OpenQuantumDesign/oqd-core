@@ -21,22 +21,26 @@ from pydantic import (
     NonNegativeFloat,
     NonNegativeInt,
 )
+from .expression import Expr
 
 ########################################################################################
 
 __all__ = [
-    "Level",
-    "Transition",
-    "Ion",
-    "Phonon",
-    "System",
     "IonQubit",
     "IonRegister",
     "Declaration",
     "MyList",
     "Access",
-    "AtomicTypes",
+    "Extract",
     "Identifier",
+    "Statement",
+    "IfElse",
+    "While",
+    "Break", 
+    "Continue",
+    "Beam",
+    "Pulse",
+    "ParallelProtocol",
 ]
 
 ########################################################################################
@@ -62,194 +66,95 @@ def _is_varname(value: str) -> str:
 
 Identifier = Annotated[str, AfterValidator(_is_varname)]
 
-########################################################################################
-
-
-AngularMomentumNumber = Annotated[float, AfterValidator(is_halfint)]
-"""
-A valid positive or negative integer or half-integer for angular momentum.
-"""
-NonNegativeAngularMomentumNumber = Annotated[
-    NonNegativeFloat, AfterValidator(is_halfint)
-]
-"""
-A valid non-negative integer or half-integer for angular momentum.
-"""
-
 # ########################################################################################
 
-
-class Level(TypeReflectBaseModel):
-    """ "
-    Class representing an electronic energy level of an ion.
-
-    Attributes:
-        label: Label for the Level
-        principal: Principal quantum number.
-        spin: Spin of an electron.
-        orbital: Orbital angular momentum of an electron.
-        nuclear: Nuclear angular momentum.
-        spin_orbital: Angular momentum of the spin-orbital coupling.
-        spin_orbital_nuclear: Angular momentum of the spin-orbital-nuclear coupling.
-        spin_orbital_nuclear_magnetization: Magnetization of the spin-orbital-nuclear coupled angular momentum.
-        energy: Energy of the electronic state.
-
-    """
-
-    label: str
-    principal: NonNegativeInt
-    spin: NonNegativeAngularMomentumNumber
-    orbital: NonNegativeAngularMomentumNumber
-    nuclear: NonNegativeAngularMomentumNumber
-    spin_orbital: NonNegativeAngularMomentumNumber
-    spin_orbital_nuclear: NonNegativeAngularMomentumNumber
-    spin_orbital_nuclear_magnetization: AngularMomentumNumber
-    energy: float
-
-    # @model_validator(mode="after")
-    # def orbital_validate(self):
-    #     if self.orbital >= self.principal:
-    #         raise ValueError("Invalid orbital quantum # (L)")
-    #     return self
-
-    # @model_validator(mode="after")
-    # def spin_orbital_validate(self):
-    #     if (
-    #         self.spin_orbital < abs(self.spin - self.orbital)
-    #         or self.spin_orbital > self.spin + self.orbital
-    #     ):
-    #         raise ValueError("Invalid spin orbital quantum # (J)")
-    #     return self
-
-    # @model_validator(mode="after")
-    # def spin_orbital_nuclear_validate(self):
-    #     if (
-    #         self.spin_orbital_nuclear < abs(self.spin_orbital - self.nuclear)
-    #         or self.spin_orbital_nuclear > self.spin_orbital + self.nuclear
-    #     ):
-    #         raise ValueError("Invalid spin orbital nuclear quantum # (F)")
-    #     return self
-
-    # @model_validator(mode="after")
-    # def spin_orbital_nuclear_magnetization_validate(self):
-    #     if abs(self.spin_orbital_nuclear_magnetization) > self.spin_orbital_nuclear:
-    #         raise ValueError("Invalid spin orbital nuclear magnetization (m_F)")
-    #     elif not (
-    #         self.spin_orbital_nuclear_magnetization - self.spin_orbital_nuclear
-    #     ).is_integer():
-    #         raise ValueError("Invalid spin orbital nuclear magnetization (m_F)")
-    #     return self
-
-
-class Transition(TypeReflectBaseModel):
-    """
-    Class representing a transition between electronic states of an ion.
-
-    Attributes:
-        label: Label for the Transition
-        level1: Label for energy level 1.
-        level2: Label for energy level 2.
-        einsteinA: Einstein A coefficient that characterizes the strength of coupling between energy level 1 and 2.
-
-    """
-
-    label: str
-    level1: Union[str, Level]
-    level2: Union[str, Level]
-    einsteinA: float
-    multipole: Literal["E1", "E2", "M1"]
-
-
-class Ion(TypeReflectBaseModel):
-    """
-    Class representing an ion.
-
-    Attributes:
-        mass: Mass of the ion.
-        charge: Charge of the ion.
-        levels: Electronic energy levels of the ion.
-        transitions: Allowed transitions in the ion.
-        position: Spatial position of the ion.
-    """
-
-    mass: float
-    charge: float
-    levels: List[Level]
-    transitions: List[Transition]
-    position: List[float]
-
-    @property
-    def _level_dict(self):
-        return {level.label: level for level in self.levels}
-
-    @property
-    def _transition_dict(self):
-        return {transition.label: transition for transition in self.transitions}
-
-    def __getitem__(self, label):
-        if label in self._level_dict.keys():
-            return self._level_dict[label]
-
-        if label in self._transition_dict.keys():
-            return self._transition_dict[label]
-
-        raise KeyError("Invalid key, label not in levels or transitions.")
-
-
-class IonQubit(TypeReflectBaseModel):
+class IonQubit(Expr):
     access: Access
     index: NonNegativeInt
 
-
-class IonRegister(TypeReflectBaseModel):
+class IonRegister(Expr):
     size: NonNegativeInt
 
-
-class Access(TypeReflectBaseModel):
+class Access(Expr):
     name: Identifier
 
-
-class MyList(TypeReflectBaseModel):
-    values: List[AtomicTypes]
-
-
-AtomicTypes = Union[IonQubit, IonRegister, MyList, Access]
-
-
+class MyList(Expr):
+    values: List[Expr]
+    
 class Declaration(TypeReflectBaseModel):
     name: Identifier
-    value: AtomicTypes
+    value: Expr
 
-
-########################################################################################
-
-
-class Phonon(TypeReflectBaseModel):
-    """
-    Class representing a collective phonon mode of the trapped-ion system.
-
-    Attributes:
-        energy: Quanta of energy for the phonon mode.
-        eigenvector: Profile of the phonon mode in terms of the vibration of the ions.
-
-    """
-
-    energy: float
-    eigenvector: List[float]
-
+class Extract(Expr):
+    access: Access
+    index: NonNegativeInt
 
 ########################################################################################
 
+class ParallelProtocol(TypeReflectBaseModel):
+    pulses: List[Pulse]
 
-class System(TypeReflectBaseModel):
+class Pulse(TypeReflectBaseModel):
     """
-    Class representing a trapped-ion system.
+    Class representing the application of the beam for some duration.
 
     Attributes:
-        ions: List of ions in the trapped-ion system.
-        modes: List of collective phonon modes for the trapped-ion system.
-
+        beam: Optical channel/beam to turn on.
+        duration: Period of time to turn the optical channel on for.
+        target: Target ion of the beam.
+        measured: Boolean that tracks if the pulse has been measured.
     """
+    duration: Expr
+    target: Expr
+    beam: Beam
+    measured: Expr
 
-    ions: AtomicTypes
-    modes: List[Phonon]
+class Beam(TypeReflectBaseModel):
+    """
+    Class representing a referenced optical channel/beam for the trapped-ion device.
+
+    Attributes:
+        rabi: Rabi frequency of the referenced transition driven by the beam.
+        phase: Phase relative to the ion's clock.
+        polarization: Polarization of the beam.
+        wavevector: Wavevector of the beam.
+    """
+    frequency: Expr
+    rabi: Expr
+    phase: Expr
+    polarization: Expr
+    wavevector: Expr
+    
+
+class IfElse(TypeReflectBaseModel):
+    """
+    Class representing a conditional branch in the analog circuit
+    """
+    condition: Expr
+    then_branch: List[Statement] = []
+    else_branch: List[Statement] = []
+    
+    
+class While(TypeReflectBaseModel):
+    """
+    Class representing a while loop in the analog circuit
+    """
+    condition : Expr
+    body: List[Statement] = []
+
+
+class Break(TypeReflectBaseModel):
+    """
+    Class representing a break statement to exit the innermost loop
+    """
+    pass
+
+
+class Continue(TypeReflectBaseModel):
+    """
+    Class representing a continue statement to jump to the next loop iteration
+    """
+    pass
+
+
+Statement = Union[Declaration, IfElse, While, Break, Continue, Pulse, ParallelProtocol]
