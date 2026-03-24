@@ -21,7 +21,7 @@ from pydantic import (
     NonNegativeFloat,
     NonNegativeInt,
 )
-from .expression import Expr
+from ..expression import Expr
 
 ########################################################################################
 
@@ -106,10 +106,10 @@ class Pulse(TypeReflectBaseModel):
     """
     duration: Expr
     target: Expr
-    beam: Beam
+    beam: Expr
     measured: Expr
 
-class Beam(TypeReflectBaseModel):
+class Beam(Expr):
     """
     Class representing a referenced optical channel/beam for the trapped-ion device.
 
