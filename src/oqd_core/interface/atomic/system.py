@@ -106,7 +106,7 @@ class Pulse(TypeReflectBaseModel):
     """
     duration: Expr
     target: Expr
-    beam: Beam
+    beam: Expr
     measured: Expr
 
 class Beam(Expr):
