@@ -141,7 +141,7 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         if block:
             statements = self.visit(block)
         
-        return AnalogCircuit(sequence=statements)
+        return AnalogCircuit(statements=statements)
     
     def visitBlock(self, ctx: AnalogParser.BlockContext):
         statements = []
