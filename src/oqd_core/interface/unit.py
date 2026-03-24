@@ -19,7 +19,7 @@ from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import BeforeValidator
 
 ########################################################################################
-from oqd_core.interface.analog.math import CastMathExpr
+from oqd_core.interface.math import CastMathExpr
 
 ########################################################################################
 
