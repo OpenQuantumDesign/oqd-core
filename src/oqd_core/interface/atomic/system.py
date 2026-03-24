@@ -21,7 +21,7 @@ from pydantic import (
     NonNegativeFloat,
     NonNegativeInt,
 )
-from .expression import Expr
+from ..expression import Expr
 
 ########################################################################################
 
