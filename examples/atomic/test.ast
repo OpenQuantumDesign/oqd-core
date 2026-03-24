@@ -1,655 +1,471 @@
-└── program
-   ├── block
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "ions" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── ion_register
-   │  │              ├── "ionreg" (IONREGISTER)
-   │  │              ├── "(" (LBRACKET)
-   │  │              ├── "2" (INT)
-   │  │              └── ")" (RBRACKET)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "q0" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── extract
-   │  │           ├── access
-   │  │           │  └── "ions" (ID)
-   │  │           ├── "[" (SQUARELBRACKET)
-   │  │           ├── "0" (INT)
-   │  │           └── "]" (SQUARERBRACKET)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "q1" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── extract
-   │  │           ├── access
-   │  │           │  └── "ions" (ID)
-   │  │           ├── "[" (SQUARELBRACKET)
-   │  │           ├── "1" (INT)
-   │  │           └── "]" (SQUARERBRACKET)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "targets" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── my_list
-   │  │           ├── "[" (SQUARELBRACKET)
-   │  │           ├── expr
-   │  │           │  └── atom
-   │  │           │     └── math_terminal
-   │  │           │        └── access
-   │  │           │           └── "q0" (ID)
-   │  │           ├── "," (COMMA)
-   │  │           ├── expr
-   │  │           │  └── atom
-   │  │           │     └── math_terminal
-   │  │           │        └── access
-   │  │           │           └── "q1" (ID)
-   │  │           └── "]" (SQUARERBRACKET)
-   │  ├── ";
-
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "pi" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── math_terminal
-   │  │              └── "3.14159" (FLOAT)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "omega" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── math_terminal
-   │  │              └── "#omega" (MATH_VAR)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "phi" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── math_terminal
-   │  │              └── "#phi" (MATH_VAR)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "t_gate" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── math_terminal
-   │  │              └── "10e-6" (FLOAT)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "flag" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── bool_literal
-   │  │              └── "true" (TRUE)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "n" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── math_terminal
-   │  │              └── "3" (INT)
-   │  ├── ";
-
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "beam_mw" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── beam_expr
-   │  │           ├── "beam" (BEAM)
-   │  │           ├── "(" (LBRACKET)
-   │  │           ├── expr
-   │  │           │  └── aexpr
-   │  │           │     └── mexpr
-   │  │           │        ├── mexpr
-   │  │           │        │  ├── mexpr
-   │  │           │        │  │  └── uexpr
-   │  │           │        │  │     └── eexpr
-   │  │           │        │  │        └── atom
-   │  │           │        │  │           └── math_terminal
-   │  │           │        │  │              └── "2.0" (FLOAT)
-   │  │           │        │  ├── "*" (MULT)
-   │  │           │        │  └── uexpr
-   │  │           │        │     └── eexpr
-   │  │           │        │        └── atom
-   │  │           │        │           └── math_terminal
-   │  │           │        │              └── access
-   │  │           │        │                 └── "pi" (ID)
-   │  │           │        ├── "*" (MULT)
-   │  │           │        └── uexpr
-   │  │           │           └── eexpr
-   │  │           │              └── atom
-   │  │           │                 └── math_terminal
-   │  │           │                    └── "1e6" (FLOAT)
-   │  │           ├── "," (COMMA)
-   │  │           ├── expr
-   │  │           │  └── atom
-   │  │           │     └── math_terminal
-   │  │           │        └── access
-   │  │           │           └── "omega" (ID)
-   │  │           ├── "," (COMMA)
-   │  │           ├── expr
-   │  │           │  └── atom
-   │  │           │     └── math_terminal
-   │  │           │        └── access
-   │  │           │           └── "phi" (ID)
-   │  │           ├── "," (COMMA)
-   │  │           ├── vec3
-   │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "1.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  └── "]" (SQUARERBRACKET)
-   │  │           ├── "," (COMMA)
-   │  │           ├── vec3
-   │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "1.0" (FLOAT)
-   │  │           │  └── "]" (SQUARERBRACKET)
-   │  │           └── ")" (RBRACKET)
-   │  ├── ";
-" (EOL)
-   │  ├── statement
-   │  │  └── declaration
-   │  │     ├── "beam_det" (ID)
-   │  │     ├── "=" (ASSIGN)
-   │  │     └── expr
-   │  │        └── beam_expr
-   │  │           ├── "beam" (BEAM)
-   │  │           ├── "(" (LBRACKET)
-   │  │           ├── expr
-   │  │           │  └── aexpr
-   │  │           │     └── mexpr
-   │  │           │        ├── mexpr
-   │  │           │        │  ├── mexpr
-   │  │           │        │  │  └── uexpr
-   │  │           │        │  │     └── eexpr
-   │  │           │        │  │        └── atom
-   │  │           │        │  │           └── math_terminal
-   │  │           │        │  │              └── "2.0" (FLOAT)
-   │  │           │        │  ├── "*" (MULT)
-   │  │           │        │  └── uexpr
-   │  │           │        │     └── eexpr
-   │  │           │        │        └── atom
-   │  │           │        │           └── math_terminal
-   │  │           │        │              └── access
-   │  │           │        │                 └── "pi" (ID)
-   │  │           │        ├── "*" (MULT)
-   │  │           │        └── uexpr
-   │  │           │           └── eexpr
-   │  │           │              └── atom
-   │  │           │                 └── math_terminal
-   │  │           │                    └── "2e6" (FLOAT)
-   │  │           ├── "," (COMMA)
-   │  │           ├── expr
-   │  │           │  └── atom
-   │  │           │     └── math_terminal
-   │  │           │        └── "0.25" (FLOAT)
-   │  │           ├── "," (COMMA)
-   │  │           ├── expr
-   │  │           │  └── atom
-   │  │           │     └── math_terminal
-   │  │           │        └── "0.0" (FLOAT)
-   │  │           ├── "," (COMMA)
-   │  │           ├── vec3
-   │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "1.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  └── "]" (SQUARERBRACKET)
-   │  │           ├── "," (COMMA)
-   │  │           ├── vec3
-   │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "0.0" (FLOAT)
-   │  │           │  ├── "," (COMMA)
-   │  │           │  ├── expr
-   │  │           │  │  └── atom
-   │  │           │  │     └── math_terminal
-   │  │           │  │        └── "1.0" (FLOAT)
-   │  │           │  └── "]" (SQUARERBRACKET)
-   │  │           └── ")" (RBRACKET)
-   │  ├── ";
-
-" (EOL)
-   │  ├── statement
-   │  │  └── pulse_stmt
-   │  │     ├── "pulse" (PULSE)
-   │  │     ├── targets
-   │  │     │  └── expr
-   │  │     │     └── atom
-   │  │     │        └── math_terminal
-   │  │     │           └── access
-   │  │     │              └── "q0" (ID)
-   │  │     ├── "with" (WITH)
-   │  │     ├── expr
-   │  │     │  └── atom
-   │  │     │     └── math_terminal
-   │  │     │        └── access
-   │  │     │           └── "beam_mw" (ID)
-   │  │     ├── "for" (FOR)
-   │  │     └── expr
-   │  │        └── atom
-   │  │           └── math_terminal
-   │  │              └── access
-   │  │                 └── "t_gate" (ID)
-   │  ├── ";" (EOL)
-   │  ├── statement
-   │  │  └── pulse_stmt
-   │  │     ├── "pulse" (PULSE)
-   │  │     ├── targets
-   │  │     │  └── expr
-   │  │     │     └── atom
-   │  │     │        └── math_terminal
-   │  │     │           └── access
-   │  │     │              └── "q1" (ID)
-   │  │     ├── "with" (WITH)
-   │  │     ├── expr
-   │  │     │  └── atom
-   │  │     │     └── math_terminal
-   │  │     │        └── access
-   │  │     │           └── "beam_det" (ID)
-   │  │     ├── "for" (FOR)
-   │  │     ├── expr
-   │  │     │  └── atom
-   │  │     │     └── math_terminal
-   │  │     │        └── "3e-6" (FLOAT)
-   │  │     ├── "," (COMMA)
-   │  │     └── measured
-   │  │        └── expr
-   │  │           └── atom
-   │  │              └── bool_literal
-   │  │                 └── "true" (TRUE)
-   │  ├── ";" (EOL)
-   │  ├── statement
-   │  │  └── pulse_stmt
-   │  │     ├── "pulse" (PULSE)
-   │  │     ├── targets
-   │  │     │  └── expr
-   │  │     │     └── atom
-   │  │     │        └── math_terminal
-   │  │     │           └── access
-   │  │     │              └── "targets" (ID)
-   │  │     ├── "with" (WITH)
-   │  │     ├── expr
-   │  │     │  └── atom
-   │  │     │     └── math_terminal
-   │  │     │        └── access
-   │  │     │           └── "beam_mw" (ID)
-   │  │     ├── "for" (FOR)
-   │  │     ├── expr
-   │  │     │  └── atom
-   │  │     │     └── math_terminal
-   │  │     │        └── "2e-6" (FLOAT)
-   │  │     ├── "," (COMMA)
-   │  │     └── measured
-   │  │        └── expr
-   │  │           └── atom
-   │  │              └── bool_literal
-   │  │                 └── "false" (FALSE)
-   │  ├── ";" (EOL)
-   │  ├── statement
-   │  │  └── parallel_stmt
-   │  │     ├── "parallel" (PARALLEL)
-   │  │     ├── "{" (LBRACE)
-   │  │     ├── block
-   │  │     │  ├── "
-" (EOL)
-   │  │     │  ├── statement
-   │  │     │  │  └── pulse_stmt
-   │  │     │  │     ├── "pulse" (PULSE)
-   │  │     │  │     ├── targets
-   │  │     │  │     │  └── expr
-   │  │     │  │     │     └── atom
-   │  │     │  │     │        └── math_terminal
-   │  │     │  │     │           └── access
-   │  │     │  │     │              └── "q0" (ID)
-   │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── expr
-   │  │     │  │     │  └── atom
-   │  │     │  │     │     └── math_terminal
-   │  │     │  │     │        └── access
-   │  │     │  │     │           └── "beam_mw" (ID)
-   │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     └── expr
-   │  │     │  │        └── atom
-   │  │     │  │           └── math_terminal
-   │  │     │  │              └── "5e-6" (FLOAT)
-   │  │     │  ├── ";
-" (EOL)
-   │  │     │  ├── statement
-   │  │     │  │  └── pulse_stmt
-   │  │     │  │     ├── "pulse" (PULSE)
-   │  │     │  │     ├── targets
-   │  │     │  │     │  └── expr
-   │  │     │  │     │     └── atom
-   │  │     │  │     │        └── math_terminal
-   │  │     │  │     │           └── access
-   │  │     │  │     │              └── "q1" (ID)
-   │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── expr
-   │  │     │  │     │  └── atom
-   │  │     │  │     │     └── math_terminal
-   │  │     │  │     │        └── access
-   │  │     │  │     │           └── "beam_det" (ID)
-   │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     └── expr
-   │  │     │  │        └── atom
-   │  │     │  │           └── math_terminal
-   │  │     │  │              └── "5e-6" (FLOAT)
-   │  │     │  └── ";
-" (EOL)
-   │  │     └── "}" (RBRACE)
-   │  ├── "
-
-" (EOL)
-   │  ├── statement
-   │  │  └── ifelse_stmt
-   │  │     ├── "if" (IF)
-   │  │     ├── "(" (LBRACKET)
-   │  │     ├── cond
-   │  │     │  └── expr
-   │  │     │     └── atom
-   │  │     │        └── math_terminal
-   │  │     │           └── access
-   │  │     │              └── "flag" (ID)
-   │  │     ├── ")" (RBRACKET)
-   │  │     ├── "{" (LBRACE)
-   │  │     ├── block
-   │  │     │  ├── "
-" (EOL)
-   │  │     │  ├── statement
-   │  │     │  │  └── pulse_stmt
-   │  │     │  │     ├── "pulse" (PULSE)
-   │  │     │  │     ├── targets
-   │  │     │  │     │  └── expr
-   │  │     │  │     │     └── atom
-   │  │     │  │     │        └── math_terminal
-   │  │     │  │     │           └── access
-   │  │     │  │     │              └── "targets" (ID)
-   │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── expr
-   │  │     │  │     │  └── atom
-   │  │     │  │     │     └── math_terminal
-   │  │     │  │     │        └── access
-   │  │     │  │     │           └── "beam_mw" (ID)
-   │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     └── expr
-   │  │     │  │        └── atom
-   │  │     │  │           └── math_terminal
-   │  │     │  │              └── "2e-6" (FLOAT)
-   │  │     │  └── ";
-" (EOL)
-   │  │     ├── "}" (RBRACE)
-   │  │     ├── "
-" (EOL)
-   │  │     ├── "else" (ELSE)
-   │  │     ├── "{" (LBRACE)
-   │  │     ├── block
-   │  │     │  ├── "
-" (EOL)
-   │  │     │  ├── statement
-   │  │     │  │  └── pulse_stmt
-   │  │     │  │     ├── "pulse" (PULSE)
-   │  │     │  │     ├── targets
-   │  │     │  │     │  └── expr
-   │  │     │  │     │     └── atom
-   │  │     │  │     │        └── math_terminal
-   │  │     │  │     │           └── access
-   │  │     │  │     │              └── "targets" (ID)
-   │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── expr
-   │  │     │  │     │  └── atom
-   │  │     │  │     │     └── math_terminal
-   │  │     │  │     │        └── access
-   │  │     │  │     │           └── "beam_det" (ID)
-   │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     ├── expr
-   │  │     │  │     │  └── atom
-   │  │     │  │     │     └── math_terminal
-   │  │     │  │     │        └── "2e-5" (FLOAT)
-   │  │     │  │     ├── "," (COMMA)
-   │  │     │  │     └── measured
-   │  │     │  │        └── expr
-   │  │     │  │           └── atom
-   │  │     │  │              └── bool_literal
-   │  │     │  │                 └── "true" (TRUE)
-   │  │     │  └── ";
-" (EOL)
-   │  │     └── "}" (RBRACE)
-   │  ├── "
-
-" (EOL)
-   │  └── statement
-   │     └── while_stmt
-   │        ├── "while" (WHILE)
-   │        ├── "(" (LBRACKET)
-   │        ├── cond
-   │        │  └── expr
-   │        │     ├── aexpr
-   │        │     │  └── mexpr
-   │        │     │     └── uexpr
-   │        │     │        └── eexpr
-   │        │     │           └── atom
-   │        │     │              └── math_terminal
-   │        │     │                 └── access
-   │        │     │                    └── "n" (ID)
-   │        │     ├── comparators
-   │        │     │  └── bool_gt_op
-   │        │     │     └── ">" (GT)
-   │        │     └── aexpr
-   │        │        └── mexpr
-   │        │           └── uexpr
-   │        │              └── eexpr
-   │        │                 └── atom
-   │        │                    └── math_terminal
-   │        │                       └── "0" (INT)
-   │        ├── ")" (RBRACKET)
-   │        ├── "{" (LBRACE)
-   │        ├── block
-   │        │  ├── "
-" (EOL)
-   │        │  ├── statement
-   │        │  │  └── parallel_stmt
-   │        │  │     ├── "parallel" (PARALLEL)
-   │        │  │     ├── "{" (LBRACE)
-   │        │  │     ├── block
-   │        │  │     │  ├── "
-" (EOL)
-   │        │  │     │  ├── statement
-   │        │  │     │  │  └── pulse_stmt
-   │        │  │     │  │     ├── "pulse" (PULSE)
-   │        │  │     │  │     ├── targets
-   │        │  │     │  │     │  └── expr
-   │        │  │     │  │     │     └── atom
-   │        │  │     │  │     │        └── math_terminal
-   │        │  │     │  │     │           └── access
-   │        │  │     │  │     │              └── "targets" (ID)
-   │        │  │     │  │     ├── "with" (WITH)
-   │        │  │     │  │     ├── expr
-   │        │  │     │  │     │  └── atom
-   │        │  │     │  │     │     └── math_terminal
-   │        │  │     │  │     │        └── access
-   │        │  │     │  │     │           └── "beam_mw" (ID)
-   │        │  │     │  │     ├── "for" (FOR)
-   │        │  │     │  │     └── expr
-   │        │  │     │  │        └── atom
-   │        │  │     │  │           └── math_terminal
-   │        │  │     │  │              └── "1e-6" (FLOAT)
-   │        │  │     │  └── ";
-" (EOL)
-   │        │  │     └── "}" (RBRACE)
-   │        │  ├── "
-" (EOL)
-   │        │  ├── statement
-   │        │  │  └── declaration
-   │        │  │     ├── "n" (ID)
-   │        │  │     ├── "=" (ASSIGN)
-   │        │  │     └── expr
-   │        │  │        └── aexpr
-   │        │  │           ├── aexpr
-   │        │  │           │  └── mexpr
-   │        │  │           │     └── uexpr
-   │        │  │           │        └── eexpr
-   │        │  │           │           └── atom
-   │        │  │           │              └── math_terminal
-   │        │  │           │                 └── access
-   │        │  │           │                    └── "n" (ID)
-   │        │  │           ├── "-" (MINUS)
-   │        │  │           └── mexpr
-   │        │  │              └── uexpr
-   │        │  │                 └── eexpr
-   │        │  │                    └── atom
-   │        │  │                       └── math_terminal
-   │        │  │                          └── "1" (INT)
-   │        │  ├── ";
-" (EOL)
-   │        │  ├── statement
-   │        │  │  └── ifelse_stmt
-   │        │  │     ├── "if" (IF)
-   │        │  │     ├── "(" (LBRACKET)
-   │        │  │     ├── cond
-   │        │  │     │  └── expr
-   │        │  │     │     ├── aexpr
-   │        │  │     │     │  └── mexpr
-   │        │  │     │     │     └── uexpr
-   │        │  │     │     │        └── eexpr
-   │        │  │     │     │           └── atom
-   │        │  │     │     │              └── math_terminal
-   │        │  │     │     │                 └── access
-   │        │  │     │     │                    └── "n" (ID)
-   │        │  │     │     ├── comparators
-   │        │  │     │     │  └── bool_eq_op
-   │        │  │     │     │     └── "==" (EQ)
-   │        │  │     │     └── aexpr
-   │        │  │     │        └── mexpr
-   │        │  │     │           └── uexpr
-   │        │  │     │              └── eexpr
-   │        │  │     │                 └── atom
-   │        │  │     │                    └── math_terminal
-   │        │  │     │                       └── "1" (INT)
-   │        │  │     ├── ")" (RBRACKET)
-   │        │  │     ├── "{" (LBRACE)
-   │        │  │     ├── block
-   │        │  │     │  ├── "
-" (EOL)
-   │        │  │     │  ├── statement
-   │        │  │     │  │  └── continue_stmt
-   │        │  │     │  │     └── "continue" (CONTINUE)
-   │        │  │     │  └── ";
-" (EOL)
-   │        │  │     └── "}" (RBRACE)
-   │        │  ├── "
-" (EOL)
-   │        │  ├── statement
-   │        │  │  └── ifelse_stmt
-   │        │  │     ├── "if" (IF)
-   │        │  │     ├── "(" (LBRACKET)
-   │        │  │     ├── cond
-   │        │  │     │  └── expr
-   │        │  │     │     ├── aexpr
-   │        │  │     │     │  └── mexpr
-   │        │  │     │     │     └── uexpr
-   │        │  │     │     │        └── eexpr
-   │        │  │     │     │           └── atom
-   │        │  │     │     │              └── math_terminal
-   │        │  │     │     │                 └── access
-   │        │  │     │     │                    └── "n" (ID)
-   │        │  │     │     ├── comparators
-   │        │  │     │     │  └── bool_eq_op
-   │        │  │     │     │     └── "==" (EQ)
-   │        │  │     │     └── aexpr
-   │        │  │     │        └── mexpr
-   │        │  │     │           └── uexpr
-   │        │  │     │              └── eexpr
-   │        │  │     │                 └── atom
-   │        │  │     │                    └── math_terminal
-   │        │  │     │                       └── "0" (INT)
-   │        │  │     ├── ")" (RBRACKET)
-   │        │  │     ├── "{" (LBRACE)
-   │        │  │     ├── block
-   │        │  │     │  ├── "
-" (EOL)
-   │        │  │     │  ├── statement
-   │        │  │     │  │  └── break_stmt
-   │        │  │     │  │     └── "break" (BREAK)
-   │        │  │     │  └── ";
-" (EOL)
-   │        │  │     └── "}" (RBRACE)
-   │        │  └── "
-" (EOL)
-   │        └── "}" (RBRACE)
-   └── "<EOF>"
+{
+  "class_": "AtomicCircuit",
+  "statements": [
+    {
+      "class_": "Declaration",
+      "name": "ions",
+      "value": {
+        "class_": "IonRegister",
+        "size": 2
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "q0",
+      "value": {
+        "class_": "Extract",
+        "access": {
+          "class_": "Access",
+          "name": "ions"
+        },
+        "index": 0
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "q1",
+      "value": {
+        "class_": "Extract",
+        "access": {
+          "class_": "Access",
+          "name": "ions"
+        },
+        "index": 1
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "targets",
+      "value": {
+        "class_": "MyList",
+        "values": [
+          {
+            "class_": "Access",
+            "name": "q0"
+          },
+          {
+            "class_": "Access",
+            "name": "q1"
+          }
+        ]
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "pi",
+      "value": {
+        "class_": "MathNum",
+        "value": 3.14159
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "omega",
+      "value": {
+        "class_": "MathVar",
+        "name": "#omega"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "phi",
+      "value": {
+        "class_": "MathVar",
+        "name": "#phi"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "t_gate",
+      "value": {
+        "class_": "MathNum",
+        "value": 0.00001
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "flag",
+      "value": {
+        "class_": "BoolTrue"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "n",
+      "value": {
+        "class_": "MathNum",
+        "value": 3
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "beam_mw",
+      "value": {
+        "class_": "Beam",
+        "frequency": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathMul",
+            "expr1": {
+              "class_": "MathNum",
+              "value": 2.0
+            },
+            "expr2": {
+              "class_": "Access",
+              "name": "pi"
+            }
+          },
+          "expr2": {
+            "class_": "MathNum",
+            "value": 1000000.0
+          }
+        },
+        "rabi": {
+          "class_": "Access",
+          "name": "omega"
+        },
+        "phase": {
+          "class_": "Access",
+          "name": "phi"
+        },
+        "polarization": {
+          "class_": "MyList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            }
+          ]
+        },
+        "wavevector": {
+          "class_": "MyList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "beam_det",
+      "value": {
+        "class_": "Beam",
+        "frequency": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathMul",
+            "expr1": {
+              "class_": "MathNum",
+              "value": 2.0
+            },
+            "expr2": {
+              "class_": "Access",
+              "name": "pi"
+            }
+          },
+          "expr2": {
+            "class_": "MathNum",
+            "value": 2000000.0
+          }
+        },
+        "rabi": {
+          "class_": "MathNum",
+          "value": 0.25
+        },
+        "phase": {
+          "class_": "MathNum",
+          "value": 0.0
+        },
+        "polarization": {
+          "class_": "MyList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            }
+          ]
+        },
+        "wavevector": {
+          "class_": "MyList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "Access",
+        "name": "t_gate"
+      },
+      "target": {
+        "class_": "Access",
+        "name": "q0"
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_mw"
+      },
+      "measured": {
+        "class_": "BoolFalse"
+      }
+    },
+    {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "MathNum",
+        "value": 3e-6
+      },
+      "target": {
+        "class_": "Access",
+        "name": "q1"
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_det"
+      },
+      "measured": {
+        "class_": "BoolTrue"
+      }
+    },
+    {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "MathNum",
+        "value": 2e-6
+      },
+      "target": {
+        "class_": "Access",
+        "name": "targets"
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_mw"
+      },
+      "measured": {
+        "class_": "BoolFalse"
+      }
+    },
+    {
+      "class_": "ParallelProtocol",
+      "pulses": [
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 5e-6
+          },
+          "target": {
+            "class_": "Access",
+            "name": "q0"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_mw"
+          },
+          "measured": {
+            "class_": "BoolFalse"
+          }
+        },
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 5e-6
+          },
+          "target": {
+            "class_": "Access",
+            "name": "q1"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_det"
+          },
+          "measured": {
+            "class_": "BoolFalse"
+          }
+        }
+      ]
+    },
+    {
+      "class_": "IfElse",
+      "condition": {
+        "class_": "Access",
+        "name": "flag"
+      },
+      "then_branch": [
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 2e-6
+          },
+          "target": {
+            "class_": "Access",
+            "name": "targets"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_mw"
+          },
+          "measured": {
+            "class_": "BoolFalse"
+          }
+        }
+      ],
+      "else_branch": [
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 0.00002
+          },
+          "target": {
+            "class_": "Access",
+            "name": "targets"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_det"
+          },
+          "measured": {
+            "class_": "BoolTrue"
+          }
+        }
+      ]
+    },
+    {
+      "class_": "While",
+      "condition": {
+        "class_": "BoolGreaterThan",
+        "left": {
+          "class_": "Access",
+          "name": "n"
+        },
+        "right": {
+          "class_": "MathNum",
+          "value": 0
+        }
+      },
+      "body": [
+        {
+          "class_": "ParallelProtocol",
+          "pulses": [
+            {
+              "class_": "Pulse",
+              "duration": {
+                "class_": "MathNum",
+                "value": 1e-6
+              },
+              "target": {
+                "class_": "Access",
+                "name": "targets"
+              },
+              "beam": {
+                "class_": "Access",
+                "name": "beam_mw"
+              },
+              "measured": {
+                "class_": "BoolFalse"
+              }
+            }
+          ]
+        },
+        {
+          "class_": "Declaration",
+          "name": "n",
+          "value": {
+            "class_": "MathSub",
+            "expr1": {
+              "class_": "Access",
+              "name": "n"
+            },
+            "expr2": {
+              "class_": "MathNum",
+              "value": 1
+            }
+          }
+        },
+        {
+          "class_": "IfElse",
+          "condition": {
+            "class_": "BoolEq",
+            "left": {
+              "class_": "Access",
+              "name": "n"
+            },
+            "right": {
+              "class_": "MathNum",
+              "value": 1
+            }
+          },
+          "then_branch": [
+            {
+              "class_": "Continue"
+            }
+          ],
+          "else_branch": []
+        },
+        {
+          "class_": "IfElse",
+          "condition": {
+            "class_": "BoolEq",
+            "left": {
+              "class_": "Access",
+              "name": "n"
+            },
+            "right": {
+              "class_": "MathNum",
+              "value": 0
+            }
+          },
+          "then_branch": [
+            {
+              "class_": "Break"
+            }
+          ],
+          "else_branch": []
+        }
+      ]
+    }
+  ]
+}

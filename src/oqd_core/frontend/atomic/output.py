@@ -38,11 +38,11 @@ def main(
     lexer = AtomicLexer(stream)
     parser = AtomicParser(antlr4.CommonTokenStream(lexer))
     tree = parser.program()
-    
     builder = _AtomicASTBuilder()
+    
     ast = builder.visit(tree)
     # ast = analog_operator_canonicalization(ast)
-    tree = ast.model_dump_json(indent=2)
+    tree = ast.model_dump_json(indent=2, serialize_as_any=True)
 
     with open(output_file, 'w') as f:
         f.write(tree)
