@@ -15,14 +15,14 @@
 from __future__ import annotations
 
 ########################################################################################
-from .math import (
+from ..math import (
     MathExpr,
     MathImag,
     MathMul,
     MathNum,
 )
 
-from .expression import Expr
+from ..expression import Expr
 
 ########################################################################################
 

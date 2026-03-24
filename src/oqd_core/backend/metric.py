@@ -18,7 +18,7 @@ from oqd_compiler_infrastructure import VisitableBaseModel
 from pydantic.types import NonNegativeInt
 
 ########################################################################################
-from oqd_core.interface.analog.expression import Expr
+from oqd_core.interface.expression import Expr
 
 ########################################################################################
 

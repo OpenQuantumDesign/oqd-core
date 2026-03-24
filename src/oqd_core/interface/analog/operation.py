@@ -19,7 +19,7 @@ from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic.types import NonNegativeInt
 from pydantic import AfterValidator
 
-from .expression import Expr
+from ..expression import Expr
 
 ########################################################################################
 __all__ = [
