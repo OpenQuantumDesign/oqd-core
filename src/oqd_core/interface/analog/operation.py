@@ -158,18 +158,18 @@ class AnalogCircuit(TypeReflectBaseModel):
     Class representing a quantum information experiment represented in terms of analog operations.
 
     Attributes:
-        sequence (List[Union[Measure, Evolve, Initialize]]): Sequence of statements, including initialize, evolve, measure
+        statements (List[Union[Measure, Evolve, Initialize]]): List of statements, including initialize, evolve, measure
 
     """
 
-    sequence: List[Statement] = []
+    statements: List[Statement] = []
 
     def evolve(self, hamiltonian: Expr, duration: Expr, targets: Expr):
-        self.sequence.append(Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets))
+        self.statements.append(Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets))
 
     def initialize(self, targets: Expr):
-        self.sequence.append(Initialize(targets=targets))
+        self.statements.append(Initialize(targets=targets))
 
     def measure(self, targets: Expr):
-        self.sequence.append(Measure(targets=targets))
+        self.statements.append(Measure(targets=targets))
 

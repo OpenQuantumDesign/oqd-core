@@ -112,7 +112,7 @@ def analog_operator_canonicalization(model):
     """
     
     if isinstance(model, AnalogCircuit):
-        for stmt in model.sequence:
+        for stmt in model.statements:
             if isinstance(stmt, Evolve):
                 stmt.hamiltonian = analog_operator_canonicalization(stmt.hamiltonian)
             elif isinstance(stmt, Declaration) and isinstance(stmt.value, Operator):
