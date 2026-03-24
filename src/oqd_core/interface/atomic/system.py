@@ -109,7 +109,7 @@ class Pulse(TypeReflectBaseModel):
     beam: Beam
     measured: Expr
 
-class Beam(TypeReflectBaseModel):
+class Beam(Expr):
     """
     Class representing a referenced optical channel/beam for the trapped-ion device.
 
