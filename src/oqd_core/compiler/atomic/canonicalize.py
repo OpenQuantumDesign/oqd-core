@@ -18,7 +18,6 @@ from oqd_compiler_infrastructure import Chain, Post, Pre, RewriteRule
 
 from oqd_core.compiler.math.rules import SubstituteMathVar
 from oqd_core.interface.atomic import Level, Transition
-from oqd_core.interface.atomic.protocol import ParallelProtocol, SequentialProtocol
 from oqd_core.interface.math import MathVar
 
 ########################################################################################

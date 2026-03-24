@@ -18,7 +18,7 @@ import numpy as np
 from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule
 from pydantic import TypeAdapter, ValidationError
 
-from oqd_core.interface.analog.math import (
+from oqd_core.interface.math import (
     ConstantMathExpr,
     MathAdd,
     MathBinaryOp,
