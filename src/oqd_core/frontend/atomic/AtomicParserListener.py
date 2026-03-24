@@ -152,15 +152,6 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#beam_ref.
-    def enterBeam_ref(self, ctx:AtomicParser.Beam_refContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#beam_ref.
-    def exitBeam_ref(self, ctx:AtomicParser.Beam_refContext):
-        pass
-
-
     # Enter a parse tree produced by AtomicParser#vec3.
     def enterVec3(self, ctx:AtomicParser.Vec3Context):
         pass

@@ -57,12 +57,11 @@ ifelse_stmt
 // Quantum
 ion_register: IONREGISTER LBRACKET INT RBRACKET;
 
-beam_expr: BEAM LBRACKET aexpr COMMA aexpr COMMA aexpr COMMA vec3 COMMA vec3 RBRACKET;
-beam_ref: access;
-vec3: SQUARELBRACKET aexpr COMMA aexpr COMMA aexpr SQUARERBRACKET;
+beam_expr: BEAM LBRACKET expr COMMA expr COMMA expr COMMA vec3 COMMA vec3 RBRACKET;
+vec3: SQUARELBRACKET expr COMMA expr COMMA expr SQUARERBRACKET;
 
 parallel_stmt: PARALLEL LBRACE block RBRACE;
-pulse_stmt: PULSE targets WITH beam_ref FOR aexpr (COMMA measured)?;
+pulse_stmt: PULSE targets WITH expr FOR expr (COMMA measured)?;
 measured: expr;
 targets: expr;
 

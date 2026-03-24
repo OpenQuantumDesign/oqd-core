@@ -89,11 +89,6 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AtomicParser#beam_ref.
-    def visitBeam_ref(self, ctx:AtomicParser.Beam_refContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AtomicParser#vec3.
     def visitVec3(self, ctx:AtomicParser.Vec3Context):
         return self.visitChildren(ctx)

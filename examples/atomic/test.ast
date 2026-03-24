@@ -130,99 +130,76 @@
    │  │        └── beam_expr
    │  │           ├── "beam" (BEAM)
    │  │           ├── "(" (LBRACKET)
-   │  │           ├── aexpr
-   │  │           │  └── mexpr
-   │  │           │     ├── mexpr
-   │  │           │     │  ├── mexpr
-   │  │           │     │  │  └── uexpr
-   │  │           │     │  │     └── eexpr
-   │  │           │     │  │        └── atom
-   │  │           │     │  │           └── math_terminal
-   │  │           │     │  │              └── "2.0" (FLOAT)
-   │  │           │     │  ├── "*" (MULT)
-   │  │           │     │  └── uexpr
-   │  │           │     │     └── eexpr
-   │  │           │     │        └── atom
-   │  │           │     │           └── math_terminal
-   │  │           │     │              └── access
-   │  │           │     │                 └── "pi" (ID)
-   │  │           │     ├── "*" (MULT)
-   │  │           │     └── uexpr
-   │  │           │        └── eexpr
-   │  │           │           └── atom
-   │  │           │              └── math_terminal
-   │  │           │                 └── "1e6" (FLOAT)
+   │  │           ├── expr
+   │  │           │  └── aexpr
+   │  │           │     └── mexpr
+   │  │           │        ├── mexpr
+   │  │           │        │  ├── mexpr
+   │  │           │        │  │  └── uexpr
+   │  │           │        │  │     └── eexpr
+   │  │           │        │  │        └── atom
+   │  │           │        │  │           └── math_terminal
+   │  │           │        │  │              └── "2.0" (FLOAT)
+   │  │           │        │  ├── "*" (MULT)
+   │  │           │        │  └── uexpr
+   │  │           │        │     └── eexpr
+   │  │           │        │        └── atom
+   │  │           │        │           └── math_terminal
+   │  │           │        │              └── access
+   │  │           │        │                 └── "pi" (ID)
+   │  │           │        ├── "*" (MULT)
+   │  │           │        └── uexpr
+   │  │           │           └── eexpr
+   │  │           │              └── atom
+   │  │           │                 └── math_terminal
+   │  │           │                    └── "1e6" (FLOAT)
    │  │           ├── "," (COMMA)
-   │  │           ├── aexpr
-   │  │           │  └── mexpr
-   │  │           │     └── uexpr
-   │  │           │        └── eexpr
-   │  │           │           └── atom
-   │  │           │              └── math_terminal
-   │  │           │                 └── access
-   │  │           │                    └── "omega" (ID)
+   │  │           ├── expr
+   │  │           │  └── atom
+   │  │           │     └── math_terminal
+   │  │           │        └── access
+   │  │           │           └── "omega" (ID)
    │  │           ├── "," (COMMA)
-   │  │           ├── aexpr
-   │  │           │  └── mexpr
-   │  │           │     └── uexpr
-   │  │           │        └── eexpr
-   │  │           │           └── atom
-   │  │           │              └── math_terminal
-   │  │           │                 └── access
-   │  │           │                    └── "phi" (ID)
+   │  │           ├── expr
+   │  │           │  └── atom
+   │  │           │     └── math_terminal
+   │  │           │        └── access
+   │  │           │           └── "phi" (ID)
    │  │           ├── "," (COMMA)
    │  │           ├── vec3
    │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "1.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "1.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  └── "]" (SQUARERBRACKET)
    │  │           ├── "," (COMMA)
    │  │           ├── vec3
    │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "1.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "1.0" (FLOAT)
    │  │           │  └── "]" (SQUARERBRACKET)
    │  │           └── ")" (RBRACKET)
    │  ├── ";
@@ -235,97 +212,74 @@
    │  │        └── beam_expr
    │  │           ├── "beam" (BEAM)
    │  │           ├── "(" (LBRACKET)
-   │  │           ├── aexpr
-   │  │           │  └── mexpr
-   │  │           │     ├── mexpr
-   │  │           │     │  ├── mexpr
-   │  │           │     │  │  └── uexpr
-   │  │           │     │  │     └── eexpr
-   │  │           │     │  │        └── atom
-   │  │           │     │  │           └── math_terminal
-   │  │           │     │  │              └── "2.0" (FLOAT)
-   │  │           │     │  ├── "*" (MULT)
-   │  │           │     │  └── uexpr
-   │  │           │     │     └── eexpr
-   │  │           │     │        └── atom
-   │  │           │     │           └── math_terminal
-   │  │           │     │              └── access
-   │  │           │     │                 └── "pi" (ID)
-   │  │           │     ├── "*" (MULT)
-   │  │           │     └── uexpr
-   │  │           │        └── eexpr
-   │  │           │           └── atom
-   │  │           │              └── math_terminal
-   │  │           │                 └── "2e6" (FLOAT)
+   │  │           ├── expr
+   │  │           │  └── aexpr
+   │  │           │     └── mexpr
+   │  │           │        ├── mexpr
+   │  │           │        │  ├── mexpr
+   │  │           │        │  │  └── uexpr
+   │  │           │        │  │     └── eexpr
+   │  │           │        │  │        └── atom
+   │  │           │        │  │           └── math_terminal
+   │  │           │        │  │              └── "2.0" (FLOAT)
+   │  │           │        │  ├── "*" (MULT)
+   │  │           │        │  └── uexpr
+   │  │           │        │     └── eexpr
+   │  │           │        │        └── atom
+   │  │           │        │           └── math_terminal
+   │  │           │        │              └── access
+   │  │           │        │                 └── "pi" (ID)
+   │  │           │        ├── "*" (MULT)
+   │  │           │        └── uexpr
+   │  │           │           └── eexpr
+   │  │           │              └── atom
+   │  │           │                 └── math_terminal
+   │  │           │                    └── "2e6" (FLOAT)
    │  │           ├── "," (COMMA)
-   │  │           ├── aexpr
-   │  │           │  └── mexpr
-   │  │           │     └── uexpr
-   │  │           │        └── eexpr
-   │  │           │           └── atom
-   │  │           │              └── math_terminal
-   │  │           │                 └── "0.25" (FLOAT)
+   │  │           ├── expr
+   │  │           │  └── atom
+   │  │           │     └── math_terminal
+   │  │           │        └── "0.25" (FLOAT)
    │  │           ├── "," (COMMA)
-   │  │           ├── aexpr
-   │  │           │  └── mexpr
-   │  │           │     └── uexpr
-   │  │           │        └── eexpr
-   │  │           │           └── atom
-   │  │           │              └── math_terminal
-   │  │           │                 └── "0.0" (FLOAT)
+   │  │           ├── expr
+   │  │           │  └── atom
+   │  │           │     └── math_terminal
+   │  │           │        └── "0.0" (FLOAT)
    │  │           ├── "," (COMMA)
    │  │           ├── vec3
    │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "1.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "1.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  └── "]" (SQUARERBRACKET)
    │  │           ├── "," (COMMA)
    │  │           ├── vec3
    │  │           │  ├── "[" (SQUARELBRACKET)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "0.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "0.0" (FLOAT)
    │  │           │  ├── "," (COMMA)
-   │  │           │  ├── aexpr
-   │  │           │  │  └── mexpr
-   │  │           │  │     └── uexpr
-   │  │           │  │        └── eexpr
-   │  │           │  │           └── atom
-   │  │           │  │              └── math_terminal
-   │  │           │  │                 └── "1.0" (FLOAT)
+   │  │           │  ├── expr
+   │  │           │  │  └── atom
+   │  │           │  │     └── math_terminal
+   │  │           │  │        └── "1.0" (FLOAT)
    │  │           │  └── "]" (SQUARERBRACKET)
    │  │           └── ")" (RBRACKET)
    │  ├── ";
@@ -341,18 +295,17 @@
    │  │     │           └── access
    │  │     │              └── "q0" (ID)
    │  │     ├── "with" (WITH)
-   │  │     ├── beam_ref
-   │  │     │  └── access
-   │  │     │     └── "beam_mw" (ID)
+   │  │     ├── expr
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── access
+   │  │     │           └── "beam_mw" (ID)
    │  │     ├── "for" (FOR)
-   │  │     └── aexpr
-   │  │        └── mexpr
-   │  │           └── uexpr
-   │  │              └── eexpr
-   │  │                 └── atom
-   │  │                    └── math_terminal
-   │  │                       └── access
-   │  │                          └── "t_gate" (ID)
+   │  │     └── expr
+   │  │        └── atom
+   │  │           └── math_terminal
+   │  │              └── access
+   │  │                 └── "t_gate" (ID)
    │  ├── ";" (EOL)
    │  ├── statement
    │  │  └── pulse_stmt
@@ -364,17 +317,16 @@
    │  │     │           └── access
    │  │     │              └── "q1" (ID)
    │  │     ├── "with" (WITH)
-   │  │     ├── beam_ref
-   │  │     │  └── access
-   │  │     │     └── "beam_det" (ID)
+   │  │     ├── expr
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── access
+   │  │     │           └── "beam_det" (ID)
    │  │     ├── "for" (FOR)
-   │  │     ├── aexpr
-   │  │     │  └── mexpr
-   │  │     │     └── uexpr
-   │  │     │        └── eexpr
-   │  │     │           └── atom
-   │  │     │              └── math_terminal
-   │  │     │                 └── "3e-6" (FLOAT)
+   │  │     ├── expr
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── "3e-6" (FLOAT)
    │  │     ├── "," (COMMA)
    │  │     └── measured
    │  │        └── expr
@@ -392,17 +344,16 @@
    │  │     │           └── access
    │  │     │              └── "targets" (ID)
    │  │     ├── "with" (WITH)
-   │  │     ├── beam_ref
-   │  │     │  └── access
-   │  │     │     └── "beam_mw" (ID)
+   │  │     ├── expr
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── access
+   │  │     │           └── "beam_mw" (ID)
    │  │     ├── "for" (FOR)
-   │  │     ├── aexpr
-   │  │     │  └── mexpr
-   │  │     │     └── uexpr
-   │  │     │        └── eexpr
-   │  │     │           └── atom
-   │  │     │              └── math_terminal
-   │  │     │                 └── "2e-6" (FLOAT)
+   │  │     ├── expr
+   │  │     │  └── atom
+   │  │     │     └── math_terminal
+   │  │     │        └── "2e-6" (FLOAT)
    │  │     ├── "," (COMMA)
    │  │     └── measured
    │  │        └── expr
@@ -427,17 +378,16 @@
    │  │     │  │     │           └── access
    │  │     │  │     │              └── "q0" (ID)
    │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── beam_ref
-   │  │     │  │     │  └── access
-   │  │     │  │     │     └── "beam_mw" (ID)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── access
+   │  │     │  │     │           └── "beam_mw" (ID)
    │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     └── aexpr
-   │  │     │  │        └── mexpr
-   │  │     │  │           └── uexpr
-   │  │     │  │              └── eexpr
-   │  │     │  │                 └── atom
-   │  │     │  │                    └── math_terminal
-   │  │     │  │                       └── "5e-6" (FLOAT)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "5e-6" (FLOAT)
    │  │     │  ├── ";
 " (EOL)
    │  │     │  ├── statement
@@ -450,17 +400,16 @@
    │  │     │  │     │           └── access
    │  │     │  │     │              └── "q1" (ID)
    │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── beam_ref
-   │  │     │  │     │  └── access
-   │  │     │  │     │     └── "beam_det" (ID)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── access
+   │  │     │  │     │           └── "beam_det" (ID)
    │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     └── aexpr
-   │  │     │  │        └── mexpr
-   │  │     │  │           └── uexpr
-   │  │     │  │              └── eexpr
-   │  │     │  │                 └── atom
-   │  │     │  │                    └── math_terminal
-   │  │     │  │                       └── "5e-6" (FLOAT)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "5e-6" (FLOAT)
    │  │     │  └── ";
 " (EOL)
    │  │     └── "}" (RBRACE)
@@ -492,17 +441,16 @@
    │  │     │  │     │           └── access
    │  │     │  │     │              └── "targets" (ID)
    │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── beam_ref
-   │  │     │  │     │  └── access
-   │  │     │  │     │     └── "beam_mw" (ID)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── access
+   │  │     │  │     │           └── "beam_mw" (ID)
    │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     └── aexpr
-   │  │     │  │        └── mexpr
-   │  │     │  │           └── uexpr
-   │  │     │  │              └── eexpr
-   │  │     │  │                 └── atom
-   │  │     │  │                    └── math_terminal
-   │  │     │  │                       └── "2e-6" (FLOAT)
+   │  │     │  │     └── expr
+   │  │     │  │        └── atom
+   │  │     │  │           └── math_terminal
+   │  │     │  │              └── "2e-6" (FLOAT)
    │  │     │  └── ";
 " (EOL)
    │  │     ├── "}" (RBRACE)
@@ -523,17 +471,16 @@
    │  │     │  │     │           └── access
    │  │     │  │     │              └── "targets" (ID)
    │  │     │  │     ├── "with" (WITH)
-   │  │     │  │     ├── beam_ref
-   │  │     │  │     │  └── access
-   │  │     │  │     │     └── "beam_det" (ID)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── access
+   │  │     │  │     │           └── "beam_det" (ID)
    │  │     │  │     ├── "for" (FOR)
-   │  │     │  │     ├── aexpr
-   │  │     │  │     │  └── mexpr
-   │  │     │  │     │     └── uexpr
-   │  │     │  │     │        └── eexpr
-   │  │     │  │     │           └── atom
-   │  │     │  │     │              └── math_terminal
-   │  │     │  │     │                 └── "2e-5" (FLOAT)
+   │  │     │  │     ├── expr
+   │  │     │  │     │  └── atom
+   │  │     │  │     │     └── math_terminal
+   │  │     │  │     │        └── "2e-5" (FLOAT)
    │  │     │  │     ├── "," (COMMA)
    │  │     │  │     └── measured
    │  │     │  │        └── expr
@@ -592,17 +539,16 @@
    │        │  │     │  │     │           └── access
    │        │  │     │  │     │              └── "targets" (ID)
    │        │  │     │  │     ├── "with" (WITH)
-   │        │  │     │  │     ├── beam_ref
-   │        │  │     │  │     │  └── access
-   │        │  │     │  │     │     └── "beam_mw" (ID)
+   │        │  │     │  │     ├── expr
+   │        │  │     │  │     │  └── atom
+   │        │  │     │  │     │     └── math_terminal
+   │        │  │     │  │     │        └── access
+   │        │  │     │  │     │           └── "beam_mw" (ID)
    │        │  │     │  │     ├── "for" (FOR)
-   │        │  │     │  │     └── aexpr
-   │        │  │     │  │        └── mexpr
-   │        │  │     │  │           └── uexpr
-   │        │  │     │  │              └── eexpr
-   │        │  │     │  │                 └── atom
-   │        │  │     │  │                    └── math_terminal
-   │        │  │     │  │                       └── "1e-6" (FLOAT)
+   │        │  │     │  │     └── expr
+   │        │  │     │  │        └── atom
+   │        │  │     │  │           └── math_terminal
+   │        │  │     │  │              └── "1e-6" (FLOAT)
    │        │  │     │  └── ";
 " (EOL)
    │        │  │     └── "}" (RBRACE)

@@ -10,120 +10,119 @@ else:
 
 def serializedATN():
     return [
-        4,1,69,337,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
+        4,1,69,333,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
         6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,
         2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,
         7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,
         2,27,7,27,2,28,7,28,2,29,7,29,2,30,7,30,2,31,7,31,2,32,7,32,2,33,
         7,33,2,34,7,34,2,35,7,35,2,36,7,36,2,37,7,37,2,38,7,38,2,39,7,39,
-        2,40,7,40,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,93,8,1,1,2,
-        1,2,1,2,1,2,5,2,99,8,2,10,2,12,2,102,9,2,1,2,3,2,105,8,2,1,3,1,3,
-        1,3,3,3,110,8,3,1,4,1,4,1,4,1,4,1,4,4,4,117,8,4,11,4,12,4,118,1,
-        4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,133,8,4,1,4,1,
-        4,1,4,3,4,138,8,4,1,4,1,4,5,4,142,8,4,10,4,12,4,145,9,4,1,5,1,5,
-        1,6,1,6,3,6,151,8,6,1,6,1,6,5,6,155,8,6,10,6,12,6,158,9,6,1,6,1,
-        6,1,7,1,7,1,7,1,7,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,10,1,10,1,11,1,11,
-        1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,13,1,13,1,13,1,13,1,13,
-        1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,3,13,201,
-        8,13,1,13,1,13,1,13,1,13,1,13,3,13,208,8,13,1,14,1,14,1,14,1,14,
-        1,14,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,
-        1,15,1,16,1,16,1,17,1,17,1,17,1,17,1,17,1,17,1,17,1,17,1,18,1,18,
-        1,18,1,18,1,18,1,19,1,19,1,19,1,19,1,19,1,19,1,19,1,19,3,19,251,
-        8,19,1,20,1,20,1,21,1,21,1,22,1,22,1,23,1,23,1,24,1,24,1,25,1,25,
-        1,26,1,26,1,27,1,27,1,28,1,28,1,29,1,29,1,30,1,30,1,31,1,31,1,32,
-        1,32,1,32,1,32,1,32,1,32,3,32,283,8,32,1,33,1,33,1,33,1,33,1,33,
-        1,33,1,33,3,33,292,8,33,1,34,1,34,1,35,1,35,1,35,1,35,1,36,1,36,
-        1,36,1,37,1,37,1,37,1,37,1,37,1,37,5,37,309,8,37,10,37,12,37,312,
-        9,37,1,38,1,38,1,38,1,38,1,38,1,38,5,38,320,8,38,10,38,12,38,323,
-        9,38,1,39,1,39,1,39,3,39,328,8,39,1,40,1,40,1,40,1,40,1,40,3,40,
-        335,8,40,1,40,0,3,8,74,76,41,0,2,4,6,8,10,12,14,16,18,20,22,24,26,
-        28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,
-        72,74,76,78,80,0,7,1,0,16,17,1,0,18,19,1,0,20,21,1,0,22,23,1,0,49,
-        68,1,0,35,36,1,0,33,34,336,0,82,1,0,0,0,2,92,1,0,0,0,4,100,1,0,0,
-        0,6,109,1,0,0,0,8,132,1,0,0,0,10,146,1,0,0,0,12,148,1,0,0,0,14,161,
-        1,0,0,0,16,165,1,0,0,0,18,167,1,0,0,0,20,172,1,0,0,0,22,174,1,0,
-        0,0,24,176,1,0,0,0,26,207,1,0,0,0,28,209,1,0,0,0,30,214,1,0,0,0,
-        32,227,1,0,0,0,34,229,1,0,0,0,36,237,1,0,0,0,38,242,1,0,0,0,40,252,
-        1,0,0,0,42,254,1,0,0,0,44,256,1,0,0,0,46,258,1,0,0,0,48,260,1,0,
-        0,0,50,262,1,0,0,0,52,264,1,0,0,0,54,266,1,0,0,0,56,268,1,0,0,0,
-        58,270,1,0,0,0,60,272,1,0,0,0,62,274,1,0,0,0,64,282,1,0,0,0,66,291,
-        1,0,0,0,68,293,1,0,0,0,70,295,1,0,0,0,72,299,1,0,0,0,74,302,1,0,
-        0,0,76,313,1,0,0,0,78,327,1,0,0,0,80,334,1,0,0,0,82,83,3,4,2,0,83,
-        84,5,0,0,1,84,1,1,0,0,0,85,93,3,14,7,0,86,93,3,38,19,0,87,93,3,36,
-        18,0,88,93,3,24,12,0,89,93,3,26,13,0,90,93,3,20,10,0,91,93,3,22,
-        11,0,92,85,1,0,0,0,92,86,1,0,0,0,92,87,1,0,0,0,92,88,1,0,0,0,92,
-        89,1,0,0,0,92,90,1,0,0,0,92,91,1,0,0,0,93,3,1,0,0,0,94,95,3,2,1,
-        0,95,96,5,2,0,0,96,99,1,0,0,0,97,99,5,2,0,0,98,94,1,0,0,0,98,97,
-        1,0,0,0,99,102,1,0,0,0,100,98,1,0,0,0,100,101,1,0,0,0,101,104,1,
-        0,0,0,102,100,1,0,0,0,103,105,3,2,1,0,104,103,1,0,0,0,104,105,1,
-        0,0,0,105,5,1,0,0,0,106,110,3,28,14,0,107,110,3,66,33,0,108,110,
-        3,62,31,0,109,106,1,0,0,0,109,107,1,0,0,0,109,108,1,0,0,0,110,7,
-        1,0,0,0,111,112,6,4,-1,0,112,116,3,74,37,0,113,114,3,64,32,0,114,
-        115,3,74,37,0,115,117,1,0,0,0,116,113,1,0,0,0,117,118,1,0,0,0,118,
-        116,1,0,0,0,118,119,1,0,0,0,119,133,1,0,0,0,120,121,3,48,24,0,121,
-        122,3,8,4,7,122,133,1,0,0,0,123,124,5,27,0,0,124,125,3,8,4,0,125,
-        126,5,28,0,0,126,133,1,0,0,0,127,133,3,18,9,0,128,133,3,12,6,0,129,
-        133,3,6,3,0,130,133,3,74,37,0,131,133,3,30,15,0,132,111,1,0,0,0,
-        132,120,1,0,0,0,132,123,1,0,0,0,132,127,1,0,0,0,132,128,1,0,0,0,
-        132,129,1,0,0,0,132,130,1,0,0,0,132,131,1,0,0,0,133,143,1,0,0,0,
-        134,137,10,8,0,0,135,138,3,44,22,0,136,138,3,46,23,0,137,135,1,0,
-        0,0,137,136,1,0,0,0,138,139,1,0,0,0,139,140,3,8,4,9,140,142,1,0,
-        0,0,141,134,1,0,0,0,142,145,1,0,0,0,143,141,1,0,0,0,143,144,1,0,
-        0,0,144,9,1,0,0,0,145,143,1,0,0,0,146,147,3,8,4,0,147,11,1,0,0,0,
-        148,150,5,29,0,0,149,151,3,8,4,0,150,149,1,0,0,0,150,151,1,0,0,0,
-        151,156,1,0,0,0,152,153,5,26,0,0,153,155,3,8,4,0,154,152,1,0,0,0,
-        155,158,1,0,0,0,156,154,1,0,0,0,156,157,1,0,0,0,157,159,1,0,0,0,
-        158,156,1,0,0,0,159,160,5,30,0,0,160,13,1,0,0,0,161,162,5,69,0,0,
-        162,163,5,38,0,0,163,164,3,8,4,0,164,15,1,0,0,0,165,166,5,69,0,0,
-        166,17,1,0,0,0,167,168,3,16,8,0,168,169,5,29,0,0,169,170,5,45,0,
-        0,170,171,5,30,0,0,171,19,1,0,0,0,172,173,5,11,0,0,173,21,1,0,0,
-        0,174,175,5,12,0,0,175,23,1,0,0,0,176,177,5,8,0,0,177,178,5,27,0,
-        0,178,179,3,10,5,0,179,180,5,28,0,0,180,181,5,31,0,0,181,182,3,4,
-        2,0,182,183,5,32,0,0,183,25,1,0,0,0,184,185,5,6,0,0,185,186,5,27,
-        0,0,186,187,3,10,5,0,187,188,5,28,0,0,188,189,5,31,0,0,189,190,3,
-        4,2,0,190,191,5,32,0,0,191,208,1,0,0,0,192,193,5,6,0,0,193,194,5,
-        27,0,0,194,195,3,10,5,0,195,196,5,28,0,0,196,197,5,31,0,0,197,198,
-        3,4,2,0,198,200,5,32,0,0,199,201,5,2,0,0,200,199,1,0,0,0,200,201,
-        1,0,0,0,201,202,1,0,0,0,202,203,5,7,0,0,203,204,5,31,0,0,204,205,
-        3,4,2,0,205,206,5,32,0,0,206,208,1,0,0,0,207,184,1,0,0,0,207,192,
-        1,0,0,0,208,27,1,0,0,0,209,210,5,13,0,0,210,211,5,27,0,0,211,212,
-        5,45,0,0,212,213,5,28,0,0,213,29,1,0,0,0,214,215,5,14,0,0,215,216,
-        5,27,0,0,216,217,3,74,37,0,217,218,5,26,0,0,218,219,3,74,37,0,219,
-        220,5,26,0,0,220,221,3,74,37,0,221,222,5,26,0,0,222,223,3,34,17,
-        0,223,224,5,26,0,0,224,225,3,34,17,0,225,226,5,28,0,0,226,31,1,0,
-        0,0,227,228,3,16,8,0,228,33,1,0,0,0,229,230,5,29,0,0,230,231,3,74,
-        37,0,231,232,5,26,0,0,232,233,3,74,37,0,233,234,5,26,0,0,234,235,
-        3,74,37,0,235,236,5,30,0,0,236,35,1,0,0,0,237,238,5,5,0,0,238,239,
-        5,31,0,0,239,240,3,4,2,0,240,241,5,32,0,0,241,37,1,0,0,0,242,243,
-        5,15,0,0,243,244,3,42,21,0,244,245,5,9,0,0,245,246,3,32,16,0,246,
-        247,5,10,0,0,247,250,3,74,37,0,248,249,5,26,0,0,249,251,3,40,20,
-        0,250,248,1,0,0,0,250,251,1,0,0,0,251,39,1,0,0,0,252,253,3,8,4,0,
-        253,41,1,0,0,0,254,255,3,8,4,0,255,43,1,0,0,0,256,257,7,0,0,0,257,
-        45,1,0,0,0,258,259,7,1,0,0,259,47,1,0,0,0,260,261,7,2,0,0,261,49,
-        1,0,0,0,262,263,5,39,0,0,263,51,1,0,0,0,264,265,5,40,0,0,265,53,
-        1,0,0,0,266,267,5,41,0,0,267,55,1,0,0,0,268,269,5,42,0,0,269,57,
-        1,0,0,0,270,271,5,43,0,0,271,59,1,0,0,0,272,273,5,44,0,0,273,61,
-        1,0,0,0,274,275,7,3,0,0,275,63,1,0,0,0,276,283,3,50,25,0,277,283,
-        3,52,26,0,278,283,3,54,27,0,279,283,3,56,28,0,280,283,3,58,29,0,
-        281,283,3,60,30,0,282,276,1,0,0,0,282,277,1,0,0,0,282,278,1,0,0,
-        0,282,279,1,0,0,0,282,280,1,0,0,0,282,281,1,0,0,0,283,65,1,0,0,0,
-        284,292,5,45,0,0,285,292,5,46,0,0,286,292,5,47,0,0,287,292,5,48,
-        0,0,288,292,3,16,8,0,289,292,3,70,35,0,290,292,3,72,36,0,291,284,
-        1,0,0,0,291,285,1,0,0,0,291,286,1,0,0,0,291,287,1,0,0,0,291,288,
-        1,0,0,0,291,289,1,0,0,0,291,290,1,0,0,0,292,67,1,0,0,0,293,294,7,
-        4,0,0,294,69,1,0,0,0,295,296,5,27,0,0,296,297,3,74,37,0,297,298,
-        5,28,0,0,298,71,1,0,0,0,299,300,3,68,34,0,300,301,3,70,35,0,301,
-        73,1,0,0,0,302,303,6,37,-1,0,303,304,3,76,38,0,304,310,1,0,0,0,305,
-        306,10,1,0,0,306,307,7,5,0,0,307,309,3,76,38,0,308,305,1,0,0,0,309,
-        312,1,0,0,0,310,308,1,0,0,0,310,311,1,0,0,0,311,75,1,0,0,0,312,310,
-        1,0,0,0,313,314,6,38,-1,0,314,315,3,78,39,0,315,321,1,0,0,0,316,
-        317,10,1,0,0,317,318,7,6,0,0,318,320,3,78,39,0,319,316,1,0,0,0,320,
-        323,1,0,0,0,321,319,1,0,0,0,321,322,1,0,0,0,322,77,1,0,0,0,323,321,
-        1,0,0,0,324,328,3,80,40,0,325,326,7,5,0,0,326,328,3,80,40,0,327,
-        324,1,0,0,0,327,325,1,0,0,0,328,79,1,0,0,0,329,335,3,6,3,0,330,331,
-        3,6,3,0,331,332,5,37,0,0,332,333,3,78,39,0,333,335,1,0,0,0,334,329,
-        1,0,0,0,334,330,1,0,0,0,335,81,1,0,0,0,20,92,98,100,104,109,118,
-        132,137,143,150,156,200,207,250,282,291,310,321,327,334
+        1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,1,91,8,1,1,2,1,2,1,2,1,
+        2,5,2,97,8,2,10,2,12,2,100,9,2,1,2,3,2,103,8,2,1,3,1,3,1,3,3,3,108,
+        8,3,1,4,1,4,1,4,1,4,1,4,4,4,115,8,4,11,4,12,4,116,1,4,1,4,1,4,1,
+        4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,131,8,4,1,4,1,4,1,4,3,4,136,
+        8,4,1,4,1,4,5,4,140,8,4,10,4,12,4,143,9,4,1,5,1,5,1,6,1,6,3,6,149,
+        8,6,1,6,1,6,5,6,153,8,6,10,6,12,6,156,9,6,1,6,1,6,1,7,1,7,1,7,1,
+        7,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,10,1,10,1,11,1,11,1,12,1,12,1,12,
+        1,12,1,12,1,12,1,12,1,12,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,
+        1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,3,13,199,8,13,1,13,1,13,
+        1,13,1,13,1,13,3,13,206,8,13,1,14,1,14,1,14,1,14,1,14,1,15,1,15,
+        1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,15,1,16,1,16,
+        1,16,1,16,1,16,1,16,1,16,1,16,1,17,1,17,1,17,1,17,1,17,1,18,1,18,
+        1,18,1,18,1,18,1,18,1,18,1,18,3,18,247,8,18,1,19,1,19,1,20,1,20,
+        1,21,1,21,1,22,1,22,1,23,1,23,1,24,1,24,1,25,1,25,1,26,1,26,1,27,
+        1,27,1,28,1,28,1,29,1,29,1,30,1,30,1,31,1,31,1,31,1,31,1,31,1,31,
+        3,31,279,8,31,1,32,1,32,1,32,1,32,1,32,1,32,1,32,3,32,288,8,32,1,
+        33,1,33,1,34,1,34,1,34,1,34,1,35,1,35,1,35,1,36,1,36,1,36,1,36,1,
+        36,1,36,5,36,305,8,36,10,36,12,36,308,9,36,1,37,1,37,1,37,1,37,1,
+        37,1,37,5,37,316,8,37,10,37,12,37,319,9,37,1,38,1,38,1,38,3,38,324,
+        8,38,1,39,1,39,1,39,1,39,1,39,3,39,331,8,39,1,39,0,3,8,72,74,40,
+        0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,42,44,
+        46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,78,0,7,1,0,16,17,
+        1,0,18,19,1,0,20,21,1,0,22,23,1,0,49,68,1,0,35,36,1,0,33,34,333,
+        0,80,1,0,0,0,2,90,1,0,0,0,4,98,1,0,0,0,6,107,1,0,0,0,8,130,1,0,0,
+        0,10,144,1,0,0,0,12,146,1,0,0,0,14,159,1,0,0,0,16,163,1,0,0,0,18,
+        165,1,0,0,0,20,170,1,0,0,0,22,172,1,0,0,0,24,174,1,0,0,0,26,205,
+        1,0,0,0,28,207,1,0,0,0,30,212,1,0,0,0,32,225,1,0,0,0,34,233,1,0,
+        0,0,36,238,1,0,0,0,38,248,1,0,0,0,40,250,1,0,0,0,42,252,1,0,0,0,
+        44,254,1,0,0,0,46,256,1,0,0,0,48,258,1,0,0,0,50,260,1,0,0,0,52,262,
+        1,0,0,0,54,264,1,0,0,0,56,266,1,0,0,0,58,268,1,0,0,0,60,270,1,0,
+        0,0,62,278,1,0,0,0,64,287,1,0,0,0,66,289,1,0,0,0,68,291,1,0,0,0,
+        70,295,1,0,0,0,72,298,1,0,0,0,74,309,1,0,0,0,76,323,1,0,0,0,78,330,
+        1,0,0,0,80,81,3,4,2,0,81,82,5,0,0,1,82,1,1,0,0,0,83,91,3,14,7,0,
+        84,91,3,36,18,0,85,91,3,34,17,0,86,91,3,24,12,0,87,91,3,26,13,0,
+        88,91,3,20,10,0,89,91,3,22,11,0,90,83,1,0,0,0,90,84,1,0,0,0,90,85,
+        1,0,0,0,90,86,1,0,0,0,90,87,1,0,0,0,90,88,1,0,0,0,90,89,1,0,0,0,
+        91,3,1,0,0,0,92,93,3,2,1,0,93,94,5,2,0,0,94,97,1,0,0,0,95,97,5,2,
+        0,0,96,92,1,0,0,0,96,95,1,0,0,0,97,100,1,0,0,0,98,96,1,0,0,0,98,
+        99,1,0,0,0,99,102,1,0,0,0,100,98,1,0,0,0,101,103,3,2,1,0,102,101,
+        1,0,0,0,102,103,1,0,0,0,103,5,1,0,0,0,104,108,3,28,14,0,105,108,
+        3,64,32,0,106,108,3,60,30,0,107,104,1,0,0,0,107,105,1,0,0,0,107,
+        106,1,0,0,0,108,7,1,0,0,0,109,110,6,4,-1,0,110,114,3,72,36,0,111,
+        112,3,62,31,0,112,113,3,72,36,0,113,115,1,0,0,0,114,111,1,0,0,0,
+        115,116,1,0,0,0,116,114,1,0,0,0,116,117,1,0,0,0,117,131,1,0,0,0,
+        118,119,3,46,23,0,119,120,3,8,4,7,120,131,1,0,0,0,121,122,5,27,0,
+        0,122,123,3,8,4,0,123,124,5,28,0,0,124,131,1,0,0,0,125,131,3,18,
+        9,0,126,131,3,12,6,0,127,131,3,6,3,0,128,131,3,72,36,0,129,131,3,
+        30,15,0,130,109,1,0,0,0,130,118,1,0,0,0,130,121,1,0,0,0,130,125,
+        1,0,0,0,130,126,1,0,0,0,130,127,1,0,0,0,130,128,1,0,0,0,130,129,
+        1,0,0,0,131,141,1,0,0,0,132,135,10,8,0,0,133,136,3,42,21,0,134,136,
+        3,44,22,0,135,133,1,0,0,0,135,134,1,0,0,0,136,137,1,0,0,0,137,138,
+        3,8,4,9,138,140,1,0,0,0,139,132,1,0,0,0,140,143,1,0,0,0,141,139,
+        1,0,0,0,141,142,1,0,0,0,142,9,1,0,0,0,143,141,1,0,0,0,144,145,3,
+        8,4,0,145,11,1,0,0,0,146,148,5,29,0,0,147,149,3,8,4,0,148,147,1,
+        0,0,0,148,149,1,0,0,0,149,154,1,0,0,0,150,151,5,26,0,0,151,153,3,
+        8,4,0,152,150,1,0,0,0,153,156,1,0,0,0,154,152,1,0,0,0,154,155,1,
+        0,0,0,155,157,1,0,0,0,156,154,1,0,0,0,157,158,5,30,0,0,158,13,1,
+        0,0,0,159,160,5,69,0,0,160,161,5,38,0,0,161,162,3,8,4,0,162,15,1,
+        0,0,0,163,164,5,69,0,0,164,17,1,0,0,0,165,166,3,16,8,0,166,167,5,
+        29,0,0,167,168,5,45,0,0,168,169,5,30,0,0,169,19,1,0,0,0,170,171,
+        5,11,0,0,171,21,1,0,0,0,172,173,5,12,0,0,173,23,1,0,0,0,174,175,
+        5,8,0,0,175,176,5,27,0,0,176,177,3,10,5,0,177,178,5,28,0,0,178,179,
+        5,31,0,0,179,180,3,4,2,0,180,181,5,32,0,0,181,25,1,0,0,0,182,183,
+        5,6,0,0,183,184,5,27,0,0,184,185,3,10,5,0,185,186,5,28,0,0,186,187,
+        5,31,0,0,187,188,3,4,2,0,188,189,5,32,0,0,189,206,1,0,0,0,190,191,
+        5,6,0,0,191,192,5,27,0,0,192,193,3,10,5,0,193,194,5,28,0,0,194,195,
+        5,31,0,0,195,196,3,4,2,0,196,198,5,32,0,0,197,199,5,2,0,0,198,197,
+        1,0,0,0,198,199,1,0,0,0,199,200,1,0,0,0,200,201,5,7,0,0,201,202,
+        5,31,0,0,202,203,3,4,2,0,203,204,5,32,0,0,204,206,1,0,0,0,205,182,
+        1,0,0,0,205,190,1,0,0,0,206,27,1,0,0,0,207,208,5,13,0,0,208,209,
+        5,27,0,0,209,210,5,45,0,0,210,211,5,28,0,0,211,29,1,0,0,0,212,213,
+        5,14,0,0,213,214,5,27,0,0,214,215,3,8,4,0,215,216,5,26,0,0,216,217,
+        3,8,4,0,217,218,5,26,0,0,218,219,3,8,4,0,219,220,5,26,0,0,220,221,
+        3,32,16,0,221,222,5,26,0,0,222,223,3,32,16,0,223,224,5,28,0,0,224,
+        31,1,0,0,0,225,226,5,29,0,0,226,227,3,8,4,0,227,228,5,26,0,0,228,
+        229,3,8,4,0,229,230,5,26,0,0,230,231,3,8,4,0,231,232,5,30,0,0,232,
+        33,1,0,0,0,233,234,5,5,0,0,234,235,5,31,0,0,235,236,3,4,2,0,236,
+        237,5,32,0,0,237,35,1,0,0,0,238,239,5,15,0,0,239,240,3,40,20,0,240,
+        241,5,9,0,0,241,242,3,8,4,0,242,243,5,10,0,0,243,246,3,8,4,0,244,
+        245,5,26,0,0,245,247,3,38,19,0,246,244,1,0,0,0,246,247,1,0,0,0,247,
+        37,1,0,0,0,248,249,3,8,4,0,249,39,1,0,0,0,250,251,3,8,4,0,251,41,
+        1,0,0,0,252,253,7,0,0,0,253,43,1,0,0,0,254,255,7,1,0,0,255,45,1,
+        0,0,0,256,257,7,2,0,0,257,47,1,0,0,0,258,259,5,39,0,0,259,49,1,0,
+        0,0,260,261,5,40,0,0,261,51,1,0,0,0,262,263,5,41,0,0,263,53,1,0,
+        0,0,264,265,5,42,0,0,265,55,1,0,0,0,266,267,5,43,0,0,267,57,1,0,
+        0,0,268,269,5,44,0,0,269,59,1,0,0,0,270,271,7,3,0,0,271,61,1,0,0,
+        0,272,279,3,48,24,0,273,279,3,50,25,0,274,279,3,52,26,0,275,279,
+        3,54,27,0,276,279,3,56,28,0,277,279,3,58,29,0,278,272,1,0,0,0,278,
+        273,1,0,0,0,278,274,1,0,0,0,278,275,1,0,0,0,278,276,1,0,0,0,278,
+        277,1,0,0,0,279,63,1,0,0,0,280,288,5,45,0,0,281,288,5,46,0,0,282,
+        288,5,47,0,0,283,288,5,48,0,0,284,288,3,16,8,0,285,288,3,68,34,0,
+        286,288,3,70,35,0,287,280,1,0,0,0,287,281,1,0,0,0,287,282,1,0,0,
+        0,287,283,1,0,0,0,287,284,1,0,0,0,287,285,1,0,0,0,287,286,1,0,0,
+        0,288,65,1,0,0,0,289,290,7,4,0,0,290,67,1,0,0,0,291,292,5,27,0,0,
+        292,293,3,72,36,0,293,294,5,28,0,0,294,69,1,0,0,0,295,296,3,66,33,
+        0,296,297,3,68,34,0,297,71,1,0,0,0,298,299,6,36,-1,0,299,300,3,74,
+        37,0,300,306,1,0,0,0,301,302,10,1,0,0,302,303,7,5,0,0,303,305,3,
+        74,37,0,304,301,1,0,0,0,305,308,1,0,0,0,306,304,1,0,0,0,306,307,
+        1,0,0,0,307,73,1,0,0,0,308,306,1,0,0,0,309,310,6,37,-1,0,310,311,
+        3,76,38,0,311,317,1,0,0,0,312,313,10,1,0,0,313,314,7,6,0,0,314,316,
+        3,76,38,0,315,312,1,0,0,0,316,319,1,0,0,0,317,315,1,0,0,0,317,318,
+        1,0,0,0,318,75,1,0,0,0,319,317,1,0,0,0,320,324,3,78,39,0,321,322,
+        7,5,0,0,322,324,3,78,39,0,323,320,1,0,0,0,323,321,1,0,0,0,324,77,
+        1,0,0,0,325,331,3,6,3,0,326,327,3,6,3,0,327,328,5,37,0,0,328,329,
+        3,76,38,0,329,331,1,0,0,0,330,325,1,0,0,0,330,326,1,0,0,0,331,79,
+        1,0,0,0,20,90,96,98,102,107,116,130,135,141,148,154,198,205,246,
+        278,287,306,317,323,330
     ]
 
 class AtomicParser ( Parser ):
@@ -178,37 +177,36 @@ class AtomicParser ( Parser ):
     RULE_ifelse_stmt = 13
     RULE_ion_register = 14
     RULE_beam_expr = 15
-    RULE_beam_ref = 16
-    RULE_vec3 = 17
-    RULE_parallel_stmt = 18
-    RULE_pulse_stmt = 19
-    RULE_measured = 20
-    RULE_targets = 21
-    RULE_bool_and_op = 22
-    RULE_bool_or_op = 23
-    RULE_bool_not_op = 24
-    RULE_bool_eq_op = 25
-    RULE_bool_not_eq_op = 26
-    RULE_bool_lt_op = 27
-    RULE_bool_lte_op = 28
-    RULE_bool_gt_op = 29
-    RULE_bool_gte_op = 30
-    RULE_bool_literal = 31
-    RULE_comparators = 32
-    RULE_math_terminal = 33
-    RULE_math_func_name = 34
-    RULE_pexpr = 35
-    RULE_fexpr = 36
-    RULE_aexpr = 37
-    RULE_mexpr = 38
-    RULE_uexpr = 39
-    RULE_eexpr = 40
+    RULE_vec3 = 16
+    RULE_parallel_stmt = 17
+    RULE_pulse_stmt = 18
+    RULE_measured = 19
+    RULE_targets = 20
+    RULE_bool_and_op = 21
+    RULE_bool_or_op = 22
+    RULE_bool_not_op = 23
+    RULE_bool_eq_op = 24
+    RULE_bool_not_eq_op = 25
+    RULE_bool_lt_op = 26
+    RULE_bool_lte_op = 27
+    RULE_bool_gt_op = 28
+    RULE_bool_gte_op = 29
+    RULE_bool_literal = 30
+    RULE_comparators = 31
+    RULE_math_terminal = 32
+    RULE_math_func_name = 33
+    RULE_pexpr = 34
+    RULE_fexpr = 35
+    RULE_aexpr = 36
+    RULE_mexpr = 37
+    RULE_uexpr = 38
+    RULE_eexpr = 39
 
     ruleNames =  [ "program", "statement", "block", "atom", "expr", "cond", 
                    "my_list", "declaration", "access", "extract", "break_stmt", 
                    "continue_stmt", "while_stmt", "ifelse_stmt", "ion_register", 
-                   "beam_expr", "beam_ref", "vec3", "parallel_stmt", "pulse_stmt", 
-                   "measured", "targets", "bool_and_op", "bool_or_op", "bool_not_op", 
+                   "beam_expr", "vec3", "parallel_stmt", "pulse_stmt", "measured", 
+                   "targets", "bool_and_op", "bool_or_op", "bool_not_op", 
                    "bool_eq_op", "bool_not_eq_op", "bool_lt_op", "bool_lte_op", 
                    "bool_gt_op", "bool_gte_op", "bool_literal", "comparators", 
                    "math_terminal", "math_func_name", "pexpr", "fexpr", 
@@ -334,9 +332,9 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 0, self.RULE_program)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 82
+            self.state = 80
             self.block()
-            self.state = 83
+            self.state = 81
             self.match(AtomicParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -407,42 +405,42 @@ class AtomicParser ( Parser ):
         localctx = AtomicParser.StatementContext(self, self._ctx, self.state)
         self.enterRule(localctx, 2, self.RULE_statement)
         try:
-            self.state = 92
+            self.state = 90
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [69]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 85
+                self.state = 83
                 self.declaration()
                 pass
             elif token in [15]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 86
+                self.state = 84
                 self.pulse_stmt()
                 pass
             elif token in [5]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 87
+                self.state = 85
                 self.parallel_stmt()
                 pass
             elif token in [8]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 88
+                self.state = 86
                 self.while_stmt()
                 pass
             elif token in [6]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 89
+                self.state = 87
                 self.ifelse_stmt()
                 pass
             elif token in [11]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 90
+                self.state = 88
                 self.break_stmt()
                 pass
             elif token in [12]:
                 self.enterOuterAlt(localctx, 7)
-                self.state = 91
+                self.state = 89
                 self.continue_stmt()
                 pass
             else:
@@ -504,36 +502,36 @@ class AtomicParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 100
+            self.state = 98
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,2,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
-                    self.state = 98
+                    self.state = 96
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
                     if token in [5, 6, 8, 11, 12, 15, 69]:
-                        self.state = 94
+                        self.state = 92
                         self.statement()
-                        self.state = 95
+                        self.state = 93
                         self.match(AtomicParser.EOL)
                         pass
                     elif token in [2]:
-                        self.state = 97
+                        self.state = 95
                         self.match(AtomicParser.EOL)
                         pass
                     else:
                         raise NoViableAltException(self)
              
-                self.state = 102
+                self.state = 100
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,2,self._ctx)
 
-            self.state = 104
+            self.state = 102
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if (((_la) & ~0x3f) == 0 and ((1 << _la) & 39264) != 0) or _la==69:
-                self.state = 103
+                self.state = 101
                 self.statement()
 
 
@@ -590,22 +588,22 @@ class AtomicParser ( Parser ):
         localctx = AtomicParser.AtomContext(self, self._ctx, self.state)
         self.enterRule(localctx, 6, self.RULE_atom)
         try:
-            self.state = 109
+            self.state = 107
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [13]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 106
+                self.state = 104
                 self.ion_register()
                 pass
             elif token in [27, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 107
+                self.state = 105
                 self.math_terminal()
                 pass
             elif token in [22, 23]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 108
+                self.state = 106
                 self.bool_literal()
                 pass
             else:
@@ -710,74 +708,74 @@ class AtomicParser ( Parser ):
         self.enterRecursionRule(localctx, 8, self.RULE_expr, _p)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 132
+            self.state = 130
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,6,self._ctx)
             if la_ == 1:
-                self.state = 112
+                self.state = 110
                 self.aexpr(0)
-                self.state = 116 
+                self.state = 114 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 113
+                        self.state = 111
                         self.comparators()
-                        self.state = 114
+                        self.state = 112
                         self.aexpr(0)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 118 
+                    self.state = 116 
                     self._errHandler.sync(self)
                     _alt = self._interp.adaptivePredict(self._input,5,self._ctx)
 
                 pass
 
             elif la_ == 2:
-                self.state = 120
+                self.state = 118
                 self.bool_not_op()
-                self.state = 121
+                self.state = 119
                 self.expr(7)
                 pass
 
             elif la_ == 3:
-                self.state = 123
+                self.state = 121
                 self.match(AtomicParser.LBRACKET)
-                self.state = 124
+                self.state = 122
                 self.expr(0)
-                self.state = 125
+                self.state = 123
                 self.match(AtomicParser.RBRACKET)
                 pass
 
             elif la_ == 4:
-                self.state = 127
+                self.state = 125
                 self.extract()
                 pass
 
             elif la_ == 5:
-                self.state = 128
+                self.state = 126
                 self.my_list()
                 pass
 
             elif la_ == 6:
-                self.state = 129
+                self.state = 127
                 self.atom()
                 pass
 
             elif la_ == 7:
-                self.state = 130
+                self.state = 128
                 self.aexpr(0)
                 pass
 
             elif la_ == 8:
-                self.state = 131
+                self.state = 129
                 self.beam_expr()
                 pass
 
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 143
+            self.state = 141
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -787,27 +785,27 @@ class AtomicParser ( Parser ):
                     _prevctx = localctx
                     localctx = AtomicParser.ExprContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                    self.state = 134
+                    self.state = 132
                     if not self.precpred(self._ctx, 8):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 8)")
-                    self.state = 137
+                    self.state = 135
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
                     if token in [16, 17]:
-                        self.state = 135
+                        self.state = 133
                         self.bool_and_op()
                         pass
                     elif token in [18, 19]:
-                        self.state = 136
+                        self.state = 134
                         self.bool_or_op()
                         pass
                     else:
                         raise NoViableAltException(self)
 
-                    self.state = 139
+                    self.state = 137
                     self.expr(9) 
-                self.state = 145
+                self.state = 143
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
 
@@ -857,7 +855,7 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 10, self.RULE_cond)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 146
+            self.state = 144
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -921,29 +919,29 @@ class AtomicParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 148
+            self.state = 146
             self.match(AtomicParser.SQUARELBRACKET)
-            self.state = 150
+            self.state = 148
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if ((((_la - 13)) & ~0x3f) == 0 and ((1 << (_la - 13)) & 144115183793555331) != 0):
-                self.state = 149
+                self.state = 147
                 self.expr(0)
 
 
-            self.state = 156
+            self.state = 154
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==26:
-                self.state = 152
+                self.state = 150
                 self.match(AtomicParser.COMMA)
-                self.state = 153
+                self.state = 151
                 self.expr(0)
-                self.state = 158
+                self.state = 156
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 159
+            self.state = 157
             self.match(AtomicParser.SQUARERBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -997,11 +995,11 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 14, self.RULE_declaration)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 161
+            self.state = 159
             self.match(AtomicParser.ID)
-            self.state = 162
+            self.state = 160
             self.match(AtomicParser.ASSIGN)
-            self.state = 163
+            self.state = 161
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1048,7 +1046,7 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 16, self.RULE_access)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 165
+            self.state = 163
             self.match(AtomicParser.ID)
         except RecognitionException as re:
             localctx.exception = re
@@ -1105,13 +1103,13 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 18, self.RULE_extract)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 167
+            self.state = 165
             self.access()
-            self.state = 168
+            self.state = 166
             self.match(AtomicParser.SQUARELBRACKET)
-            self.state = 169
+            self.state = 167
             self.match(AtomicParser.INT)
-            self.state = 170
+            self.state = 168
             self.match(AtomicParser.SQUARERBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -1158,7 +1156,7 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 20, self.RULE_break_stmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 172
+            self.state = 170
             self.match(AtomicParser.BREAK)
         except RecognitionException as re:
             localctx.exception = re
@@ -1205,7 +1203,7 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 22, self.RULE_continue_stmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 174
+            self.state = 172
             self.match(AtomicParser.CONTINUE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1272,19 +1270,19 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 24, self.RULE_while_stmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 176
+            self.state = 174
             self.match(AtomicParser.WHILE)
-            self.state = 177
+            self.state = 175
             self.match(AtomicParser.LBRACKET)
-            self.state = 178
+            self.state = 176
             self.cond()
-            self.state = 179
+            self.state = 177
             self.match(AtomicParser.RBRACKET)
-            self.state = 180
+            self.state = 178
             self.match(AtomicParser.LBRACE)
-            self.state = 181
+            self.state = 179
             self.block()
-            self.state = 182
+            self.state = 180
             self.match(AtomicParser.RBRACE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1366,58 +1364,58 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 26, self.RULE_ifelse_stmt)
         self._la = 0 # Token type
         try:
-            self.state = 207
+            self.state = 205
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 184
+                self.state = 182
                 self.match(AtomicParser.IF)
-                self.state = 185
+                self.state = 183
                 self.match(AtomicParser.LBRACKET)
-                self.state = 186
+                self.state = 184
                 self.cond()
-                self.state = 187
+                self.state = 185
                 self.match(AtomicParser.RBRACKET)
-                self.state = 188
+                self.state = 186
                 self.match(AtomicParser.LBRACE)
-                self.state = 189
+                self.state = 187
                 self.block()
-                self.state = 190
+                self.state = 188
                 self.match(AtomicParser.RBRACE)
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 192
+                self.state = 190
                 self.match(AtomicParser.IF)
-                self.state = 193
+                self.state = 191
                 self.match(AtomicParser.LBRACKET)
-                self.state = 194
+                self.state = 192
                 self.cond()
-                self.state = 195
+                self.state = 193
                 self.match(AtomicParser.RBRACKET)
-                self.state = 196
+                self.state = 194
                 self.match(AtomicParser.LBRACE)
-                self.state = 197
+                self.state = 195
                 self.block()
-                self.state = 198
+                self.state = 196
                 self.match(AtomicParser.RBRACE)
-                self.state = 200
+                self.state = 198
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==2:
-                    self.state = 199
+                    self.state = 197
                     self.match(AtomicParser.EOL)
 
 
-                self.state = 202
+                self.state = 200
                 self.match(AtomicParser.ELSE)
-                self.state = 203
+                self.state = 201
                 self.match(AtomicParser.LBRACE)
-                self.state = 204
+                self.state = 202
                 self.block()
-                self.state = 205
+                self.state = 203
                 self.match(AtomicParser.RBRACE)
                 pass
 
@@ -1476,13 +1474,13 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 28, self.RULE_ion_register)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 209
+            self.state = 207
             self.match(AtomicParser.IONREGISTER)
-            self.state = 210
+            self.state = 208
             self.match(AtomicParser.LBRACKET)
-            self.state = 211
+            self.state = 209
             self.match(AtomicParser.INT)
-            self.state = 212
+            self.state = 210
             self.match(AtomicParser.RBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -1506,11 +1504,11 @@ class AtomicParser ( Parser ):
         def LBRACKET(self):
             return self.getToken(AtomicParser.LBRACKET, 0)
 
-        def aexpr(self, i:int=None):
+        def expr(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(AtomicParser.AexprContext)
+                return self.getTypedRuleContexts(AtomicParser.ExprContext)
             else:
-                return self.getTypedRuleContext(AtomicParser.AexprContext,i)
+                return self.getTypedRuleContext(AtomicParser.ExprContext,i)
 
 
         def COMMA(self, i:int=None):
@@ -1555,78 +1553,30 @@ class AtomicParser ( Parser ):
         self.enterRule(localctx, 30, self.RULE_beam_expr)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 214
+            self.state = 212
             self.match(AtomicParser.BEAM)
-            self.state = 215
+            self.state = 213
             self.match(AtomicParser.LBRACKET)
+            self.state = 214
+            self.expr(0)
+            self.state = 215
+            self.match(AtomicParser.COMMA)
             self.state = 216
-            self.aexpr(0)
+            self.expr(0)
             self.state = 217
             self.match(AtomicParser.COMMA)
             self.state = 218
-            self.aexpr(0)
+            self.expr(0)
             self.state = 219
             self.match(AtomicParser.COMMA)
             self.state = 220
-            self.aexpr(0)
+            self.vec3()
             self.state = 221
             self.match(AtomicParser.COMMA)
             self.state = 222
             self.vec3()
             self.state = 223
-            self.match(AtomicParser.COMMA)
-            self.state = 224
-            self.vec3()
-            self.state = 225
             self.match(AtomicParser.RBRACKET)
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
-
-
-    class Beam_refContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
-
-        def access(self):
-            return self.getTypedRuleContext(AtomicParser.AccessContext,0)
-
-
-        def getRuleIndex(self):
-            return AtomicParser.RULE_beam_ref
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterBeam_ref" ):
-                listener.enterBeam_ref(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitBeam_ref" ):
-                listener.exitBeam_ref(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitBeam_ref" ):
-                return visitor.visitBeam_ref(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-
-
-    def beam_ref(self):
-
-        localctx = AtomicParser.Beam_refContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 32, self.RULE_beam_ref)
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 227
-            self.access()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1646,11 +1596,11 @@ class AtomicParser ( Parser ):
         def SQUARELBRACKET(self):
             return self.getToken(AtomicParser.SQUARELBRACKET, 0)
 
-        def aexpr(self, i:int=None):
+        def expr(self, i:int=None):
             if i is None:
-                return self.getTypedRuleContexts(AtomicParser.AexprContext)
+                return self.getTypedRuleContexts(AtomicParser.ExprContext)
             else:
-                return self.getTypedRuleContext(AtomicParser.AexprContext,i)
+                return self.getTypedRuleContext(AtomicParser.ExprContext,i)
 
 
         def COMMA(self, i:int=None):
@@ -1685,22 +1635,22 @@ class AtomicParser ( Parser ):
     def vec3(self):
 
         localctx = AtomicParser.Vec3Context(self, self._ctx, self.state)
-        self.enterRule(localctx, 34, self.RULE_vec3)
+        self.enterRule(localctx, 32, self.RULE_vec3)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 229
+            self.state = 225
             self.match(AtomicParser.SQUARELBRACKET)
+            self.state = 226
+            self.expr(0)
+            self.state = 227
+            self.match(AtomicParser.COMMA)
+            self.state = 228
+            self.expr(0)
+            self.state = 229
+            self.match(AtomicParser.COMMA)
             self.state = 230
-            self.aexpr(0)
+            self.expr(0)
             self.state = 231
-            self.match(AtomicParser.COMMA)
-            self.state = 232
-            self.aexpr(0)
-            self.state = 233
-            self.match(AtomicParser.COMMA)
-            self.state = 234
-            self.aexpr(0)
-            self.state = 235
             self.match(AtomicParser.SQUARERBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -1754,16 +1704,16 @@ class AtomicParser ( Parser ):
     def parallel_stmt(self):
 
         localctx = AtomicParser.Parallel_stmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 36, self.RULE_parallel_stmt)
+        self.enterRule(localctx, 34, self.RULE_parallel_stmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 237
+            self.state = 233
             self.match(AtomicParser.PARALLEL)
-            self.state = 238
+            self.state = 234
             self.match(AtomicParser.LBRACE)
-            self.state = 239
+            self.state = 235
             self.block()
-            self.state = 240
+            self.state = 236
             self.match(AtomicParser.RBRACE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1791,16 +1741,15 @@ class AtomicParser ( Parser ):
         def WITH(self):
             return self.getToken(AtomicParser.WITH, 0)
 
-        def beam_ref(self):
-            return self.getTypedRuleContext(AtomicParser.Beam_refContext,0)
+        def expr(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(AtomicParser.ExprContext)
+            else:
+                return self.getTypedRuleContext(AtomicParser.ExprContext,i)
 
 
         def FOR(self):
             return self.getToken(AtomicParser.FOR, 0)
-
-        def aexpr(self):
-            return self.getTypedRuleContext(AtomicParser.AexprContext,0)
-
 
         def COMMA(self):
             return self.getToken(AtomicParser.COMMA, 0)
@@ -1832,29 +1781,29 @@ class AtomicParser ( Parser ):
     def pulse_stmt(self):
 
         localctx = AtomicParser.Pulse_stmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 38, self.RULE_pulse_stmt)
+        self.enterRule(localctx, 36, self.RULE_pulse_stmt)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 242
+            self.state = 238
             self.match(AtomicParser.PULSE)
-            self.state = 243
+            self.state = 239
             self.targets()
-            self.state = 244
+            self.state = 240
             self.match(AtomicParser.WITH)
-            self.state = 245
-            self.beam_ref()
-            self.state = 246
+            self.state = 241
+            self.expr(0)
+            self.state = 242
             self.match(AtomicParser.FOR)
-            self.state = 247
-            self.aexpr(0)
-            self.state = 250
+            self.state = 243
+            self.expr(0)
+            self.state = 246
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             if _la==26:
-                self.state = 248
+                self.state = 244
                 self.match(AtomicParser.COMMA)
-                self.state = 249
+                self.state = 245
                 self.measured()
 
 
@@ -1901,10 +1850,10 @@ class AtomicParser ( Parser ):
     def measured(self):
 
         localctx = AtomicParser.MeasuredContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 40, self.RULE_measured)
+        self.enterRule(localctx, 38, self.RULE_measured)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 252
+            self.state = 248
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1949,10 +1898,10 @@ class AtomicParser ( Parser ):
     def targets(self):
 
         localctx = AtomicParser.TargetsContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 42, self.RULE_targets)
+        self.enterRule(localctx, 40, self.RULE_targets)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 254
+            self.state = 250
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1999,11 +1948,11 @@ class AtomicParser ( Parser ):
     def bool_and_op(self):
 
         localctx = AtomicParser.Bool_and_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 44, self.RULE_bool_and_op)
+        self.enterRule(localctx, 42, self.RULE_bool_and_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 256
+            self.state = 252
             _la = self._input.LA(1)
             if not(_la==16 or _la==17):
                 self._errHandler.recoverInline(self)
@@ -2055,11 +2004,11 @@ class AtomicParser ( Parser ):
     def bool_or_op(self):
 
         localctx = AtomicParser.Bool_or_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 46, self.RULE_bool_or_op)
+        self.enterRule(localctx, 44, self.RULE_bool_or_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 258
+            self.state = 254
             _la = self._input.LA(1)
             if not(_la==18 or _la==19):
                 self._errHandler.recoverInline(self)
@@ -2111,11 +2060,11 @@ class AtomicParser ( Parser ):
     def bool_not_op(self):
 
         localctx = AtomicParser.Bool_not_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 48, self.RULE_bool_not_op)
+        self.enterRule(localctx, 46, self.RULE_bool_not_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 260
+            self.state = 256
             _la = self._input.LA(1)
             if not(_la==20 or _la==21):
                 self._errHandler.recoverInline(self)
@@ -2164,10 +2113,10 @@ class AtomicParser ( Parser ):
     def bool_eq_op(self):
 
         localctx = AtomicParser.Bool_eq_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 50, self.RULE_bool_eq_op)
+        self.enterRule(localctx, 48, self.RULE_bool_eq_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 262
+            self.state = 258
             self.match(AtomicParser.EQ)
         except RecognitionException as re:
             localctx.exception = re
@@ -2211,10 +2160,10 @@ class AtomicParser ( Parser ):
     def bool_not_eq_op(self):
 
         localctx = AtomicParser.Bool_not_eq_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 52, self.RULE_bool_not_eq_op)
+        self.enterRule(localctx, 50, self.RULE_bool_not_eq_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 264
+            self.state = 260
             self.match(AtomicParser.NEQ)
         except RecognitionException as re:
             localctx.exception = re
@@ -2258,10 +2207,10 @@ class AtomicParser ( Parser ):
     def bool_lt_op(self):
 
         localctx = AtomicParser.Bool_lt_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 54, self.RULE_bool_lt_op)
+        self.enterRule(localctx, 52, self.RULE_bool_lt_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 266
+            self.state = 262
             self.match(AtomicParser.LT)
         except RecognitionException as re:
             localctx.exception = re
@@ -2305,10 +2254,10 @@ class AtomicParser ( Parser ):
     def bool_lte_op(self):
 
         localctx = AtomicParser.Bool_lte_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 56, self.RULE_bool_lte_op)
+        self.enterRule(localctx, 54, self.RULE_bool_lte_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 268
+            self.state = 264
             self.match(AtomicParser.LTE)
         except RecognitionException as re:
             localctx.exception = re
@@ -2352,10 +2301,10 @@ class AtomicParser ( Parser ):
     def bool_gt_op(self):
 
         localctx = AtomicParser.Bool_gt_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 58, self.RULE_bool_gt_op)
+        self.enterRule(localctx, 56, self.RULE_bool_gt_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 270
+            self.state = 266
             self.match(AtomicParser.GT)
         except RecognitionException as re:
             localctx.exception = re
@@ -2399,10 +2348,10 @@ class AtomicParser ( Parser ):
     def bool_gte_op(self):
 
         localctx = AtomicParser.Bool_gte_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 60, self.RULE_bool_gte_op)
+        self.enterRule(localctx, 58, self.RULE_bool_gte_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 272
+            self.state = 268
             self.match(AtomicParser.GTE)
         except RecognitionException as re:
             localctx.exception = re
@@ -2449,11 +2398,11 @@ class AtomicParser ( Parser ):
     def bool_literal(self):
 
         localctx = AtomicParser.Bool_literalContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 62, self.RULE_bool_literal)
+        self.enterRule(localctx, 60, self.RULE_bool_literal)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 274
+            self.state = 270
             _la = self._input.LA(1)
             if not(_la==22 or _la==23):
                 self._errHandler.recoverInline(self)
@@ -2523,39 +2472,39 @@ class AtomicParser ( Parser ):
     def comparators(self):
 
         localctx = AtomicParser.ComparatorsContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 64, self.RULE_comparators)
+        self.enterRule(localctx, 62, self.RULE_comparators)
         try:
-            self.state = 282
+            self.state = 278
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [39]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 276
+                self.state = 272
                 self.bool_eq_op()
                 pass
             elif token in [40]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 277
+                self.state = 273
                 self.bool_not_eq_op()
                 pass
             elif token in [41]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 278
+                self.state = 274
                 self.bool_lt_op()
                 pass
             elif token in [42]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 279
+                self.state = 275
                 self.bool_lte_op()
                 pass
             elif token in [43]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 280
+                self.state = 276
                 self.bool_gt_op()
                 pass
             elif token in [44]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 281
+                self.state = 277
                 self.bool_gte_op()
                 pass
             else:
@@ -2624,44 +2573,44 @@ class AtomicParser ( Parser ):
     def math_terminal(self):
 
         localctx = AtomicParser.Math_terminalContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 66, self.RULE_math_terminal)
+        self.enterRule(localctx, 64, self.RULE_math_terminal)
         try:
-            self.state = 291
+            self.state = 287
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [45]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 284
+                self.state = 280
                 self.match(AtomicParser.INT)
                 pass
             elif token in [46]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 285
+                self.state = 281
                 self.match(AtomicParser.FLOAT)
                 pass
             elif token in [47]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 286
+                self.state = 282
                 self.match(AtomicParser.MATH_VAR)
                 pass
             elif token in [48]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 287
+                self.state = 283
                 self.match(AtomicParser.IMAG)
                 pass
             elif token in [69]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 288
+                self.state = 284
                 self.access()
                 pass
             elif token in [27]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 289
+                self.state = 285
                 self.pexpr()
                 pass
             elif token in [49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68]:
                 self.enterOuterAlt(localctx, 7)
-                self.state = 290
+                self.state = 286
                 self.fexpr()
                 pass
             else:
@@ -2766,11 +2715,11 @@ class AtomicParser ( Parser ):
     def math_func_name(self):
 
         localctx = AtomicParser.Math_func_nameContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 68, self.RULE_math_func_name)
+        self.enterRule(localctx, 66, self.RULE_math_func_name)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 293
+            self.state = 289
             _la = self._input.LA(1)
             if not(((((_la - 49)) & ~0x3f) == 0 and ((1 << (_la - 49)) & 1048575) != 0)):
                 self._errHandler.recoverInline(self)
@@ -2826,14 +2775,14 @@ class AtomicParser ( Parser ):
     def pexpr(self):
 
         localctx = AtomicParser.PexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 70, self.RULE_pexpr)
+        self.enterRule(localctx, 68, self.RULE_pexpr)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 295
+            self.state = 291
             self.match(AtomicParser.LBRACKET)
-            self.state = 296
+            self.state = 292
             self.aexpr(0)
-            self.state = 297
+            self.state = 293
             self.match(AtomicParser.RBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -2882,12 +2831,12 @@ class AtomicParser ( Parser ):
     def fexpr(self):
 
         localctx = AtomicParser.FexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 72, self.RULE_fexpr)
+        self.enterRule(localctx, 70, self.RULE_fexpr)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 299
+            self.state = 295
             self.math_func_name()
-            self.state = 300
+            self.state = 296
             self.pexpr()
         except RecognitionException as re:
             localctx.exception = re
@@ -2943,15 +2892,15 @@ class AtomicParser ( Parser ):
         _parentState = self.state
         localctx = AtomicParser.AexprContext(self, self._ctx, _parentState)
         _prevctx = localctx
-        _startState = 74
-        self.enterRecursionRule(localctx, 74, self.RULE_aexpr, _p)
+        _startState = 72
+        self.enterRecursionRule(localctx, 72, self.RULE_aexpr, _p)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 303
+            self.state = 299
             self.mexpr(0)
             self._ctx.stop = self._input.LT(-1)
-            self.state = 310
+            self.state = 306
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -2961,20 +2910,20 @@ class AtomicParser ( Parser ):
                     _prevctx = localctx
                     localctx = AtomicParser.AexprContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_aexpr)
-                    self.state = 305
+                    self.state = 301
                     if not self.precpred(self._ctx, 1):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
-                    self.state = 306
+                    self.state = 302
                     _la = self._input.LA(1)
                     if not(_la==35 or _la==36):
                         self._errHandler.recoverInline(self)
                     else:
                         self._errHandler.reportMatch(self)
                         self.consume()
-                    self.state = 307
+                    self.state = 303
                     self.mexpr(0) 
-                self.state = 312
+                self.state = 308
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
 
@@ -3032,15 +2981,15 @@ class AtomicParser ( Parser ):
         _parentState = self.state
         localctx = AtomicParser.MexprContext(self, self._ctx, _parentState)
         _prevctx = localctx
-        _startState = 76
-        self.enterRecursionRule(localctx, 76, self.RULE_mexpr, _p)
+        _startState = 74
+        self.enterRecursionRule(localctx, 74, self.RULE_mexpr, _p)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 314
+            self.state = 310
             self.uexpr()
             self._ctx.stop = self._input.LT(-1)
-            self.state = 321
+            self.state = 317
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -3050,20 +2999,20 @@ class AtomicParser ( Parser ):
                     _prevctx = localctx
                     localctx = AtomicParser.MexprContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_mexpr)
-                    self.state = 316
+                    self.state = 312
                     if not self.precpred(self._ctx, 1):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
-                    self.state = 317
+                    self.state = 313
                     _la = self._input.LA(1)
                     if not(_la==33 or _la==34):
                         self._errHandler.recoverInline(self)
                     else:
                         self._errHandler.reportMatch(self)
                         self.consume()
-                    self.state = 318
+                    self.state = 314
                     self.uexpr() 
-                self.state = 323
+                self.state = 319
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
 
@@ -3116,27 +3065,27 @@ class AtomicParser ( Parser ):
     def uexpr(self):
 
         localctx = AtomicParser.UexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 78, self.RULE_uexpr)
+        self.enterRule(localctx, 76, self.RULE_uexpr)
         self._la = 0 # Token type
         try:
-            self.state = 327
+            self.state = 323
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [13, 22, 23, 27, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 324
+                self.state = 320
                 self.eexpr()
                 pass
             elif token in [35, 36]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 325
+                self.state = 321
                 _la = self._input.LA(1)
                 if not(_la==35 or _la==36):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
-                self.state = 326
+                self.state = 322
                 self.eexpr()
                 pass
             else:
@@ -3192,24 +3141,24 @@ class AtomicParser ( Parser ):
     def eexpr(self):
 
         localctx = AtomicParser.EexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 80, self.RULE_eexpr)
+        self.enterRule(localctx, 78, self.RULE_eexpr)
         try:
-            self.state = 334
+            self.state = 330
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,19,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 329
+                self.state = 325
                 self.atom()
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 330
+                self.state = 326
                 self.atom()
-                self.state = 331
+                self.state = 327
                 self.match(AtomicParser.POWER)
-                self.state = 332
+                self.state = 328
                 self.uexpr()
                 pass
 
@@ -3228,8 +3177,8 @@ class AtomicParser ( Parser ):
         if self._predicates == None:
             self._predicates = dict()
         self._predicates[4] = self.expr_sempred
-        self._predicates[37] = self.aexpr_sempred
-        self._predicates[38] = self.mexpr_sempred
+        self._predicates[36] = self.aexpr_sempred
+        self._predicates[37] = self.mexpr_sempred
         pred = self._predicates.get(ruleIndex, None)
         if pred is None:
             raise Exception("No predicate with index:" + str(ruleIndex))
