@@ -376,7 +376,7 @@ class _MathExprIsConstant(RewriteRule):
 
     def map_MathVar(self, model):
         self.isconstant = False
-        
+    
     def map_Access(self, model):
         self.isconstant = False
 
