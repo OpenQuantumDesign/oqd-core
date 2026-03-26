@@ -34,7 +34,7 @@ from oqd_core.interface.atomic import (
     Break,
     Continue,
 )
-from oqd_core.interface.math import (
+from oqd_core.interface.atomic.math import (
     MathNum,
     MathVar,
     MathImag,
@@ -45,7 +45,7 @@ from oqd_core.interface.math import (
     MathPow,
     MathFunc,
 )
-from oqd_core.interface.bool import (
+from oqd_core.interface.atomic.bool import (
     BoolAnd,
     BoolOr,
     BoolNot,
