@@ -13,13 +13,15 @@
 # limitations under the License.
 
 from __future__ import annotations
-from typing import List, Union, Annotated
+from typing import List, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic.types import NonNegativeInt
-from pydantic import AfterValidator
 
-from ..expression import Expr
+from .expression import Expr, Access, Identifier
+from .bool import BoolExprSubtypes, CastBool
+from .math import CastMathExpr, MathExprSubtypes
+from .operator import OperatorSubtypes
 
 ########################################################################################
 __all__ = [
@@ -32,8 +34,6 @@ __all__ = [
     "Declaration",
     "MyList",
     "Extract",
-    "Access",
-    "Identifier", 
     "IfElse",
     "While",
     "ModeBit",
@@ -44,47 +44,46 @@ __all__ = [
 
 ########################################################################################
 
-def _is_varname(value: str) -> str:
-    if not value.isidentifier():
-        raise ValueError(f"{value!r} is not a valid identifier")
-    return value
-
-
-Identifier = Annotated[str, AfterValidator(_is_varname)]
-
-class QuantumBit(Expr):
-    access: Access
-    index: NonNegativeInt
-
-
-class QuantumRegister(Expr):
-    size: NonNegativeInt
-
-class ModeBit(Expr):
-    access: Access
-    index: NonNegativeInt
-
-
-class ModeRegister(Expr):
-    size: NonNegativeInt
-
-
-class Access(Expr):
-    name: Identifier
-    
-    
-class Extract(Expr):
-    access: Access
-    index: NonNegativeInt
-
-
 class MyList(Expr):
-    values: List[Expr]
+    values: List[AnalogExprSubtypes]
 
 
-class Declaration(TypeReflectBaseModel):
+AnalogExprSubtypes = Union[
+    MathExprSubtypes,
+    OperatorSubtypes,
+    BoolExprSubtypes,
+    MyList,
+    Access,
+]
+
+class Declaration(Expr):
     name: Identifier
-    value: Expr
+    value: AnalogExprSubtypes
+
+class QuantumBit(TypeReflectBaseModel):
+    access: Access
+    index: NonNegativeInt
+
+
+class QuantumRegister(TypeReflectBaseModel):
+    size: NonNegativeInt
+
+class ModeBit(TypeReflectBaseModel):
+    access: Access
+    index: NonNegativeInt
+
+
+class ModeRegister(TypeReflectBaseModel):
+    size: NonNegativeInt
+
+
+    
+    
+class Extract(TypeReflectBaseModel):
+    access: Access
+    index: NonNegativeInt
+
+
 
 
 class Evolve(TypeReflectBaseModel):
@@ -97,30 +96,30 @@ class Evolve(TypeReflectBaseModel):
         targets (Expr): Indices and Quantum objects on which to apply the Hamiltonian
     """
 
-    hamiltonian: Expr
-    duration: Expr
-    targets: Expr
+    hamiltonian: OperatorSubtypes
+    duration: CastMathExpr
+    targets: AnalogExprSubtypes
 
 
 class Measure(TypeReflectBaseModel):
     """
     Class representing a measurement in the analog circuit
     """
-    targets: Expr
+    targets: AnalogExprSubtypes
 
 
 class Initialize(TypeReflectBaseModel):
     """
     Class representing a initialization in the analog circuit
     """
-    targets: Expr
+    targets: AnalogExprSubtypes
 
 
 class IfElse(TypeReflectBaseModel):
     """
     Class representing a conditional branch in the analog circuit
     """
-    condition: Expr
+    condition: CastBool
     then_branch: List[Statement] = []
     else_branch: List[Statement] = []
     
@@ -129,7 +128,7 @@ class While(TypeReflectBaseModel):
     """
     Class representing a while loop in the analog circuit
     """
-    condition : Expr
+    condition : CastBool
     body: List[Statement] = []
 
 
@@ -164,12 +163,12 @@ class AnalogCircuit(TypeReflectBaseModel):
 
     statements: List[Statement] = []
 
-    def evolve(self, hamiltonian: Expr, duration: Expr, targets: Expr):
+    def evolve(self, hamiltonian: OperatorSubtypes, duration: CastMathExpr, targets: AnalogExprSubtypes):
         self.statements.append(Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets))
 
-    def initialize(self, targets: Expr):
+    def initialize(self, targets: AnalogExprSubtypes):
         self.statements.append(Initialize(targets=targets))
 
-    def measure(self, targets: Expr):
+    def measure(self, targets: AnalogExprSubtypes):
         self.statements.append(Measure(targets=targets))
 

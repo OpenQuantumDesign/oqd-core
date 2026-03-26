@@ -14,15 +14,19 @@
 
 from __future__ import annotations
 
+from typing import Any, Union, Annotated
+from pydantic import BeforeValidator, Discriminator, Tag
+
 ########################################################################################
-from ..math import (
+from .math import (
+    CastMathExpr,
     MathExpr,
     MathImag,
     MathMul,
     MathNum,
 )
 
-from ..expression import Expr
+from .expression import Expr, Access
 
 ########################################################################################
 
@@ -46,6 +50,8 @@ __all__ = [
     "OperatorMul",
     "OperatorScalarMul",
     "OperatorKron",
+    "OperatorSubtypes",
+    "CastOperator",
 ]
 
 
@@ -56,6 +62,16 @@ class Operator(Expr):
     """
     Class representing the abstract syntax tree (AST) for a quantum operator
     """
+    
+    @classmethod
+    def cast(cls, value: Any):
+        if isinstance(value, dict):
+            return value
+        if isinstance(value, Operator):
+            return value
+        if isinstance(value, Access):
+            return value
+        raise TypeError
 
     def __neg__(self):
         return OperatorScalarMul(op=self, expr=MathNum(value=-1))
@@ -92,6 +108,7 @@ class Operator(Expr):
         other = MathExpr.cast(other)
         return OperatorScalarMul(op=self, expr=1 / other)
 
+CastOperator = Annotated[Expr, BeforeValidator(Operator.cast)]
 
 ########################################################################################
 
@@ -219,8 +236,8 @@ class OperatorScalarMul(Operator):
         expr (MathExpr): [`MathExpr`][oqd_core.interface.math.MathExpr] to multiply by
     """
 
-    op: Expr
-    expr: Expr
+    op: CastOperator
+    expr: CastMathExpr
 
 
 class OperatorBinaryOp(Operator):
@@ -240,8 +257,8 @@ class OperatorAdd(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: Expr
-    op2: Expr
+    op1: CastOperator
+    op2: CastOperator
 
 
 class OperatorSub(OperatorBinaryOp):
@@ -253,8 +270,8 @@ class OperatorSub(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: Expr
-    op2: Expr
+    op1: CastOperator
+    op2: CastOperator
 
 
 class OperatorMul(OperatorBinaryOp):
@@ -266,8 +283,8 @@ class OperatorMul(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: Expr
-    op2: Expr
+    op1: CastOperator
+    op2: CastOperator
 
 
 class OperatorKron(OperatorBinaryOp):
@@ -279,6 +296,25 @@ class OperatorKron(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: Expr
-    op2: Expr
+    op1: CastOperator
+    op2: CastOperator
 
+OperatorSubtypes = Annotated[
+    Union[
+        Annotated[PauliI, Tag("PauliI")],
+        Annotated[PauliX, Tag("PauliX")],
+        Annotated[PauliY, Tag("PauliY")],
+        Annotated[PauliZ, Tag("PauliZ")],
+        Annotated[Creation, Tag("Creation")],
+        Annotated[Annihilation, Tag("Annihilation")],
+        Annotated[Identity, Tag("Identity")],
+        Annotated[OperatorScalarMul, Tag("OperatorScalarMul")],
+        Annotated[OperatorAdd, Tag("OperatorAdd")],
+        Annotated[OperatorSub, Tag("OperatorSub")],
+        Annotated[OperatorMul, Tag("OperatorMul")],
+        Annotated[OperatorKron, Tag("OperatorKron")],
+    ],
+    Discriminator(
+        lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")
+    ),
+]
