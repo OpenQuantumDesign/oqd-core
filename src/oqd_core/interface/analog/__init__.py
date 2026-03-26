@@ -28,6 +28,7 @@ from oqd_core.interface.analog.operation import (
     ModeRegister,
     Break, 
     Continue,
+    AnalogExprSubtypes,
 )
 from oqd_core.interface.analog.operator import (
     Annihilation,
@@ -116,6 +117,7 @@ __all__ = [
     "OperatorScalarMul",
     "OperatorKron",
     "AnalogCircuit",
+    "AnalogExprSubtypes",
     "Evolve",
     "Measure",
     "Initialize",
