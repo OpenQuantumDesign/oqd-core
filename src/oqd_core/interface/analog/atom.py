@@ -22,6 +22,7 @@ from oqd_compiler_infrastructure import (
 from pydantic import (
     AfterValidator,
     Discriminator,
+    NonNegativeInt,
     Tag,
 )
 
@@ -42,6 +43,8 @@ __all__ = [
     "Creation",
     "Annihilation",
     "Identity",
+    "QuantumRegister",
+    "ModeRegister",
 ]
 
 ########################################################################################
@@ -197,6 +200,21 @@ class Identity(Ladder):
 
 ########################################################################################
 
+
+class Register(TypeReflectBaseModel):
+    pass
+
+
+class QuantumRegister(Register):
+    size: NonNegativeInt
+
+
+class ModeRegister(Register):
+    size: NonNegativeInt
+
+
+########################################################################################
+
 Atom = Annotated[
     Union[
         Annotated[Bool, Tag("Bool")],
@@ -211,6 +229,8 @@ Atom = Annotated[
         Annotated[Creation, Tag("Creation")],
         Annotated[Identity, Tag("Identity")],
         Annotated[Access, Tag("Access")],
+        Annotated[QuantumRegister, Tag("QuantumRegister")],
+        Annotated[ModeRegister, Tag("ModeRegister")],
     ],
     Discriminator("class_"),
 ]

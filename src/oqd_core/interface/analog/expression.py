@@ -57,10 +57,8 @@ __all__ = [
     "OperatorKron",
     "AnalogList",
     "AnalogListExtract",
-    "QuantumRegister",
     "QuantumBit",
     "QuantumMode",
-    "ModeRegister",
 ]
 
 ########################################################################################
@@ -394,17 +392,9 @@ class QuantumBit(TypeReflectBaseModel):
     index: NonNegativeInt
 
 
-class QuantumRegister(TypeReflectBaseModel):
-    size: NonNegativeInt
-
-
 class QuantumMode(TypeReflectBaseModel):
     access: Access
     index: NonNegativeInt
-
-
-class ModeRegister(TypeReflectBaseModel):
-    size: NonNegativeInt
 
 
 ########################################################################################
@@ -432,9 +422,7 @@ AnalogExprSubtypes = Annotated[
         Annotated[OperatorMul, Tag("OperatorMul")],
         Annotated[OperatorKron, Tag("OperatorKron")],
         Annotated[QuantumBit, Tag("QuantumBit")],
-        Annotated[QuantumRegister, Tag("QuantumRegister")],
         Annotated[QuantumMode, Tag("QuantumMode")],
-        Annotated[ModeRegister, Tag("ModeRegister")],
         Annotated[AnalogList, Tag("AnalogList")],
         Annotated[AnalogListExtract, Tag("AnalogListExtract")],
     ],

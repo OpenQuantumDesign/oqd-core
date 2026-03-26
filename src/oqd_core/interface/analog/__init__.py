@@ -19,10 +19,12 @@ from oqd_core.interface.analog.atom import (
     MathImag,
     MathNum,
     MathVar,
+    ModeRegister,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
+    QuantumRegister,
 )
 from oqd_core.interface.analog.circuit import AnalogCircuit
 from oqd_core.interface.analog.expression import (
@@ -48,14 +50,12 @@ from oqd_core.interface.analog.expression import (
     MathMul,
     MathPow,
     MathSub,
-    ModeRegister,
     OperatorAdd,
     OperatorKron,
     OperatorMul,
     OperatorSub,
     QuantumBit,
     QuantumMode,
-    QuantumRegister,
 )
 from oqd_core.interface.analog.statement import (
     Break,
