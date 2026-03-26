@@ -21,11 +21,9 @@ from oqd_core.interface.analog.operation import (
     MyList,
     QuantumBit,
     QuantumRegister,
-    Access,
     Extract,
     IfElse,
     While,
-    Identifier,
     ModeBit,
     ModeRegister,
     Break, 
@@ -44,6 +42,8 @@ from oqd_core.interface.analog.operator import (
     OperatorScalarMul,
     OperatorSub,
     OperatorTerminal,
+    OperatorSubtypes,
+    CastOperator,
     Pauli,
     PauliI,
     PauliMinus,
@@ -52,10 +52,18 @@ from oqd_core.interface.analog.operator import (
     PauliY,
     PauliZ,
 )
+from oqd_core.interface.analog.expression import (
+    Expr,
+    Identifier,
+    Access,
+)
 
 __all__ = [
+    "Expr",
     "Operator",
     "OperatorTerminal",
+    "OperatorSubtypes",
+    "CastOperator",
     "Pauli",
     "PauliI",
     "PauliX",

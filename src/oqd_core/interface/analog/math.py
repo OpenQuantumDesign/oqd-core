@@ -30,7 +30,7 @@ from pydantic import (
     Tag,
     model_validator,
 )
-from .expression import Expr
+from .expression import Expr, Access
 
 ########################################################################################
 
@@ -79,6 +79,8 @@ class MathExpr(Expr):
                 + f'Wrap your string ("{value}") with MathStr(string="{value}").'
             )
         if isinstance(value, Expr):
+            return value
+        if isinstance(value, Access):
             return value
         raise TypeError
 
