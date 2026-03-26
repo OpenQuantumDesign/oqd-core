@@ -136,7 +136,9 @@ AtomicExprSubtypes = Union[
     BoolExprSubtypes,
     MyList,
     Access,
-    Beam
+    Beam,
+    IonRegister,
+    IonQubit,
 ]
 
 Statement = Union[Declaration, IfElse, While, Break, Continue, Pulse, ParallelProtocol]
