@@ -139,6 +139,7 @@ AtomicExprSubtypes = Union[
     Beam,
     IonRegister,
     IonQubit,
+    Extract,
 ]
 
 Statement = Union[Declaration, IfElse, While, Break, Continue, Pulse, ParallelProtocol]
