@@ -48,15 +48,6 @@ __all__ = [
 class MyList(Expr):
     values: List[AnalogExprSubtypes]
 
-
-AnalogExprSubtypes = Union[
-    MathExprSubtypes,
-    OperatorSubtypes,
-    BoolExprSubtypes,
-    MyList,
-    Access,
-]
-
 class Declaration(TypeReflectBaseModel):
     name: Identifier
     value: AnalogExprSubtypes
@@ -146,6 +137,19 @@ class Continue(TypeReflectBaseModel):
 """
 Union of classes 
 """
+
+AnalogExprSubtypes = Union[
+    MathExprSubtypes,
+    OperatorSubtypes,
+    BoolExprSubtypes,
+    MyList,
+    Access,
+    QuantumBit,
+    QuantumRegister,
+    ModeBit,
+    ModeRegister
+]
+
 Statement = Union[Declaration, Measure, Evolve, Initialize, IfElse, While, Break, Continue]
 
 
