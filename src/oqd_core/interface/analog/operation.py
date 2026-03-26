@@ -147,7 +147,8 @@ AnalogExprSubtypes = Union[
     QuantumBit,
     QuantumRegister,
     ModeBit,
-    ModeRegister
+    ModeRegister,
+    Extract,
 ]
 
 Statement = Union[Declaration, Measure, Evolve, Initialize, IfElse, While, Break, Continue]
