@@ -21,7 +21,7 @@ from pydantic.types import NonNegativeInt
 from .expression import Expr, Access, Identifier
 from .bool import BoolExprSubtypes, CastBool
 from .math import CastMathExpr, MathExprSubtypes
-from .operator import OperatorSubtypes
+from .operator import OperatorSubtypes, CastOperator
 
 ########################################################################################
 __all__ = [
@@ -84,7 +84,7 @@ class Evolve(TypeReflectBaseModel):
         targets (Expr): Indices and Quantum objects on which to apply the Hamiltonian
     """
 
-    hamiltonian: OperatorSubtypes
+    hamiltonian: CastOperator
     duration: CastMathExpr
     targets: AnalogExprSubtypes
 
@@ -165,7 +165,7 @@ class AnalogCircuit(TypeReflectBaseModel):
 
     statements: List[Statement] = []
 
-    def evolve(self, hamiltonian: OperatorSubtypes, duration: CastMathExpr, targets: AnalogExprSubtypes):
+    def evolve(self, hamiltonian: CastOperator, duration: CastMathExpr, targets: AnalogExprSubtypes):
         self.statements.append(Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets))
 
     def initialize(self, targets: AnalogExprSubtypes):
