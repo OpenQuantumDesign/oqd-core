@@ -56,7 +56,7 @@ AnalogExprSubtypes = Union[
     Access,
 ]
 
-class Declaration(Expr):
+class Declaration(TypeReflectBaseModel):
     name: Identifier
     value: AnalogExprSubtypes
 
@@ -77,13 +77,9 @@ class ModeRegister(TypeReflectBaseModel):
     size: NonNegativeInt
 
 
-    
-    
 class Extract(TypeReflectBaseModel):
     access: Access
     index: NonNegativeInt
-
-
 
 
 class Evolve(TypeReflectBaseModel):
