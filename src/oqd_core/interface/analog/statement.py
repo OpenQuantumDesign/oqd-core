@@ -14,9 +14,10 @@
 
 from __future__ import annotations
 
-from typing import List, Union
+from typing import Annotated, List, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
+from pydantic import Discriminator, Tag
 
 from .atom import Identifier
 from .expression import AnalogExprSubtypes
@@ -111,6 +112,16 @@ class Continue(TypeReflectBaseModel):
 Union of classes
 """
 
-Statement = Union[
-    Declaration, Measure, Evolve, Initialize, IfElse, While, Break, Continue
+Statement = Annotated[
+    Union[
+        Annotated[Declaration, Tag("Declaration")],
+        Annotated[Measure, Tag("Measure")],
+        Annotated[Evolve, Tag("Evolve")],
+        Annotated[Initialize, Tag("Initialize")],
+        Annotated[IfElse, Tag("IfElse")],
+        Annotated[While, Tag("While")],
+        Annotated[Break, Tag("Break")],
+        Annotated[Continue, Tag("Continue")],
+    ],
+    Discriminator("class_"),
 ]
