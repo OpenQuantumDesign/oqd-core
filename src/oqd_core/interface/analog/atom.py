@@ -21,6 +21,8 @@ from oqd_compiler_infrastructure import (
 )
 from pydantic import (
     AfterValidator,
+    Discriminator,
+    Tag,
 )
 
 ########################################################################################
@@ -195,17 +197,20 @@ class Identity(Ladder):
 
 ########################################################################################
 
-Atom = Union[
-    Bool,
-    MathVar,
-    MathNum,
-    MathImag,
-    PauliX,
-    PauliY,
-    PauliZ,
-    PauliI,
-    Annihilation,
-    Creation,
-    Identity,
-    Access,
+Atom = Annotated[
+    Union[
+        Annotated[Bool, Tag("Bool")],
+        Annotated[MathVar, Tag("MathVar")],
+        Annotated[MathNum, Tag("MathNum")],
+        Annotated[MathImag, Tag("MathImag")],
+        Annotated[PauliX, Tag("PauliX")],
+        Annotated[PauliY, Tag("PauliY")],
+        Annotated[PauliZ, Tag("PauliZ")],
+        Annotated[PauliI, Tag("PauliI")],
+        Annotated[Annihilation, Tag("Annihilation")],
+        Annotated[Creation, Tag("Creation")],
+        Annotated[Identity, Tag("Identity")],
+        Annotated[Access, Tag("Access")],
+    ],
+    Discriminator("class_"),
 ]

@@ -438,7 +438,5 @@ AnalogExprSubtypes = Annotated[
         Annotated[AnalogList, Tag("AnalogList")],
         Annotated[AnalogListExtract, Tag("AnalogListExtract")],
     ],
-    Discriminator(
-        lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")
-    ),
+    Discriminator("class_"),
 ]
