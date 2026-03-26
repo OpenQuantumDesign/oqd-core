@@ -48,7 +48,7 @@ from oqd_core.interface.analog.operator import (
     OperatorKron,
     OperatorScalarMul,
 )
-from oqd_core.interface.math import (
+from oqd_core.interface.analog.math import (
     MathNum,
     MathVar,
     MathImag,
@@ -59,7 +59,7 @@ from oqd_core.interface.math import (
     MathPow,
     MathFunc,
 )
-from oqd_core.interface.bool import (
+from oqd_core.interface.analog.bool import (
     BoolAnd,
     BoolOr,
     BoolNot,
