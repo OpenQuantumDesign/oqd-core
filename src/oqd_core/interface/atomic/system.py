@@ -13,15 +13,15 @@
 # limitations under the License.
 
 from __future__ import annotations
-from typing import Annotated, List, Literal, Union
+from typing import List, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import (
-    AfterValidator,
-    NonNegativeFloat,
     NonNegativeInt,
 )
-from ..expression import Expr
+from .expression import Expr, Access, Identifier
+from .bool import BoolExprSubtypes, CastBool
+from .math import CastMathExpr, MathExprSubtypes
 
 ########################################################################################
 
@@ -30,9 +30,7 @@ __all__ = [
     "IonRegister",
     "Declaration",
     "MyList",
-    "Access",
     "Extract",
-    "Identifier",
     "Statement",
     "IfElse",
     "While",
@@ -41,49 +39,25 @@ __all__ = [
     "Beam",
     "Pulse",
     "ParallelProtocol",
+    "AtomicExprSubtypes",
 ]
 
 ########################################################################################
 
-
-def is_halfint(v: float) -> bool:
-    """
-    Function that verifies a number is an integer or half-integer.
-
-    Args:
-        v: Number to verify.
-    """
-    if not (v * 2).is_integer():
-        raise ValueError()
-    return v
-
-
-def _is_varname(value: str) -> str:
-    if not value.isidentifier():
-        raise ValueError(f"{value!r} is not a valid identifier")
-    return value
-
-
-Identifier = Annotated[str, AfterValidator(_is_varname)]
-
-# ########################################################################################
-
-class IonQubit(Expr):
+class MyList(Expr):
+    values: List[AtomicExprSubtypes]
+    
+    
+class IonQubit(TypeReflectBaseModel):
     access: Access
     index: NonNegativeInt
 
-class IonRegister(Expr):
+class IonRegister(TypeReflectBaseModel):
     size: NonNegativeInt
-
-class Access(Expr):
-    name: Identifier
-
-class MyList(Expr):
-    values: List[Expr]
     
 class Declaration(TypeReflectBaseModel):
     name: Identifier
-    value: Expr
+    value: AtomicExprSubtypes
 
 class Extract(Expr):
     access: Access
@@ -104,12 +78,13 @@ class Pulse(TypeReflectBaseModel):
         target: Target ion of the beam.
         measured: Boolean that tracks if the pulse has been measured.
     """
-    duration: Expr
-    target: Expr
-    beam: Expr
-    measured: Expr
+    duration: CastMathExpr
+    target: AtomicExprSubtypes
+    beam: Union[Access, Beam]
+    measured: CastBool
+    
 
-class Beam(Expr):
+class Beam(TypeReflectBaseModel):
     """
     Class representing a referenced optical channel/beam for the trapped-ion device.
 
@@ -119,18 +94,18 @@ class Beam(Expr):
         polarization: Polarization of the beam.
         wavevector: Wavevector of the beam.
     """
-    frequency: Expr
-    rabi: Expr
-    phase: Expr
-    polarization: Expr
-    wavevector: Expr
+    frequency: CastMathExpr
+    rabi: CastMathExpr
+    phase: CastMathExpr
+    polarization: Union[MyList, Access]
+    wavevector: Union[MyList, Access]
     
 
 class IfElse(TypeReflectBaseModel):
     """
     Class representing a conditional branch in the analog circuit
     """
-    condition: Expr
+    condition: CastBool
     then_branch: List[Statement] = []
     else_branch: List[Statement] = []
     
@@ -139,7 +114,7 @@ class While(TypeReflectBaseModel):
     """
     Class representing a while loop in the analog circuit
     """
-    condition : Expr
+    condition: CastBool
     body: List[Statement] = []
 
 
@@ -156,5 +131,12 @@ class Continue(TypeReflectBaseModel):
     """
     pass
 
+AtomicExprSubtypes = Union[
+    MathExprSubtypes,
+    BoolExprSubtypes,
+    MyList,
+    Access,
+    Beam
+]
 
 Statement = Union[Declaration, IfElse, While, Break, Continue, Pulse, ParallelProtocol]
