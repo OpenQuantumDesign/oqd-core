@@ -13,10 +13,9 @@
 # limitations under the License.
 
 from __future__ import annotations
-from typing import List, Union, Annotated
+from typing import Annotated
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from pydantic.types import NonNegativeInt
 from pydantic import AfterValidator
 
 __all__ = ["Expr", "Identifier", "Access"]
