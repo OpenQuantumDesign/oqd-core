@@ -122,5 +122,5 @@ Statement = Annotated[
         Annotated[Break, Tag("Break")],
         Annotated[Continue, Tag("Continue")],
     ],
-    Discriminator("class_"),
+    Discriminator(lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")),
 ]

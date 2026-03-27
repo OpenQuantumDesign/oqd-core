@@ -320,25 +320,8 @@ class ModeRegister(Register):
 
 ########################################################################################
 
-Atom = Annotated[
-    Union[
-        Annotated[Bool, Tag("Bool")],
-        Annotated[MathVar, Tag("MathVar")],
-        Annotated[MathNum, Tag("MathNum")],
-        Annotated[MathImag, Tag("MathImag")],
-        Annotated[PauliX, Tag("PauliX")],
-        Annotated[PauliY, Tag("PauliY")],
-        Annotated[PauliZ, Tag("PauliZ")],
-        Annotated[PauliI, Tag("PauliI")],
-        Annotated[Annihilation, Tag("Annihilation")],
-        Annotated[Creation, Tag("Creation")],
-        Annotated[Identity, Tag("Identity")],
-        Annotated[Access, Tag("Access")],
-        Annotated[QuantumRegister, Tag("QuantumRegister")],
-        Annotated[ModeRegister, Tag("ModeRegister")],
-    ],
-    Discriminator("class_"),
-]
+Atom = Union[Bool, MathVar, MathNum, MathImag, PauliX, PauliY, PauliZ, PauliI, 
+             Annihilation, Creation, Identity, Access, QuantumRegister, ModeRegister,]
 
 
 ########################################################################################
@@ -665,7 +648,20 @@ class QuantumMode(AnalogExpr):
 
 AnalogExprSubtypes = Annotated[
     Union[
-        Atom,
+        Annotated[Bool, Tag("Bool")],
+        Annotated[MathVar, Tag("MathVar")],
+        Annotated[MathNum, Tag("MathNum")],
+        Annotated[MathImag, Tag("MathImag")],
+        Annotated[PauliX, Tag("PauliX")],
+        Annotated[PauliY, Tag("PauliY")],
+        Annotated[PauliZ, Tag("PauliZ")],
+        Annotated[PauliI, Tag("PauliI")],
+        Annotated[Annihilation, Tag("Annihilation")],
+        Annotated[Creation, Tag("Creation")],
+        Annotated[Identity, Tag("Identity")],
+        Annotated[Access, Tag("Access")],
+        Annotated[QuantumRegister, Tag("QuantumRegister")],
+        Annotated[ModeRegister, Tag("ModeRegister")],
         Annotated[BoolAnd, Tag("BoolAnd")],
         Annotated[BoolOr, Tag("BoolOr")],
         Annotated[BoolNot, Tag("BoolNot")],
@@ -690,7 +686,7 @@ AnalogExprSubtypes = Annotated[
         Annotated[AnalogList, Tag("AnalogList")],
         Annotated[AnalogListExtract, Tag("AnalogListExtract")],
     ],
-    Discriminator("class_"),
+    Discriminator(lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")),
 ]
 
 CastAnalogExpr = Annotated[AnalogExprSubtypes, BeforeValidator(AnalogExpr.cast)]
