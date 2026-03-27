@@ -12,36 +12,39 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from typing import List
+
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from .statement import Pulse, ParallelProtocol, Statement
+
+from .statement import Evolve, Initialize, Measure, Statement
 
 ########################################################################################
 
-__all__ = [
-    "AtomicCircuit",
-]
+__all__ = ["AnalogCircuit"]
 
 ########################################################################################
 
 
-class AtomicCircuit(TypeReflectBaseModel):
+class AnalogCircuit(TypeReflectBaseModel):
     """
-    Class representing a trapped-ion experiment in terms of light-matter interactons.
+    Class representing a quantum information experiment represented in terms of analog operations.
 
     Attributes:
-        statements: The trapped-ion system.
+        statements (List[Union[Measure, Evolve, Initialize]]): List of statements, including initialize, evolve, measure
+
     """
 
     statements: List[Statement] = []
-    
-    def pulse(self, duration, target, beam, measured):
+
+    def evolve(self, hamiltonian, duration, targets):
         self.statements.append(
-            Pulse(duration=duration, target=target, beam=beam, measured=measured)
+            Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets)
         )
-    
-    def parallel(self, pulses):
-        self.statements.append(
-            ParallelProtocol(pulses=pulses)
-        )
-        
+
+    def initialize(self, targets):
+        self.statements.append(Initialize(targets=targets))
+
+    def measure(self, targets):
+        self.statements.append(Measure(targets=targets))
