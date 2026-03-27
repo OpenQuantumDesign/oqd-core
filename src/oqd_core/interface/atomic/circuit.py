@@ -14,7 +14,7 @@
 
 from typing import List
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from .system import Statement
+from .statement import Pulse, ParallelProtocol, Statement
 
 ########################################################################################
 
@@ -33,4 +33,15 @@ class AtomicCircuit(TypeReflectBaseModel):
         statements: The trapped-ion system.
     """
 
-    statements: List[Statement]
+    statements: List[Statement] = []
+    
+    def pulse(self, duration, target, beam, measured):
+        self.statements.append(
+            Pulse(duration=duration, target=target, beam=beam, measured=measured)
+        )
+    
+    def parallel(self, pulses):
+        self.statements.append(
+            ParallelProtocol(pulses=pulses)
+        )
+        
