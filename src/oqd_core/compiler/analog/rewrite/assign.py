@@ -19,7 +19,7 @@ from oqd_compiler_infrastructure import RewriteRule
 from oqd_core.compiler.analog.passes.analysis import analysis_canonical_hamiltonian_dim
 
 ########################################################################################
-from oqd_core.interface.analog import AnalogCircuit
+from oqd_core.interface.analog import AnalogCircuit, Evolve, IfElse, While
 
 ########################################################################################
 
@@ -54,6 +54,6 @@ class AssignAnalogIRDim(RewriteRule):
         model.n_qmode = self.dim[1]
         return model
 
-    def map_AnalogGate(self, model):
+    def map_Evolve(self, model):
         if self.dim is None:
             self.dim = analysis_canonical_hamiltonian_dim(model.hamiltonian)

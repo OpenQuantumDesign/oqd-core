@@ -39,6 +39,9 @@ dependencies = [
   "oqd-compiler-infrastructure",
   "numpy",
   "scipy",
+  "antlr4-tools>=0.2.2",
+  "antlr4-python3-runtime>=4.13.2",
+  "typer>=0.24.1",
 ]
 
 [project.optional-dependencies]

@@ -15,7 +15,7 @@
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 
-from oqd_core.interface.atomic.protocol import ProtocolSubTypes
+from oqd_core.interface.atomic.protocol import ParallelProtocol
 
 ########################################################################################
 from oqd_core.interface.atomic.system import System
@@ -40,4 +40,4 @@ class AtomicCircuit(TypeReflectBaseModel):
     """
 
     system: System
-    protocol: ProtocolSubTypes
+    protocol: ParallelProtocol

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
 from typing import Annotated, List, Literal, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
@@ -20,6 +21,7 @@ from pydantic import (
     NonNegativeFloat,
     NonNegativeInt,
 )
+from oqd_core.interface.bool import BoolExprSubtypes
 
 ########################################################################################
 
@@ -29,6 +31,13 @@ __all__ = [
     "Ion",
     "Phonon",
     "System",
+    "IonQubit",
+    "IonRegister",
+    "Declaration",
+    "MyList",
+    "Access",
+    "AtomicTypes",
+    "Identifier",
 ]
 
 ########################################################################################
@@ -45,6 +54,14 @@ def is_halfint(v: float) -> bool:
         raise ValueError()
     return v
 
+
+def _is_varname(value: str) -> str:
+    if not value.isidentifier():
+        raise ValueError(f"{value!r} is not a valid identifier")
+    return value
+
+
+Identifier = Annotated[str, AfterValidator(_is_varname)]
 
 ########################################################################################
 
@@ -180,6 +197,31 @@ class Ion(TypeReflectBaseModel):
         raise KeyError("Invalid key, label not in levels or transitions.")
 
 
+class IonQubit(TypeReflectBaseModel):
+    access: Access
+    index: NonNegativeInt
+
+
+class IonRegister(TypeReflectBaseModel):
+    size: NonNegativeInt
+
+
+class Access(TypeReflectBaseModel):
+    name: Identifier
+
+
+class MyList(TypeReflectBaseModel):
+    values: List[AtomicTypes]
+
+
+AtomicTypes = Union[IonQubit, IonRegister, MyList, Access]
+
+
+class Declaration(TypeReflectBaseModel):
+    name: Identifier
+    value: Union[AtomicTypes, BoolExprSubtypes]
+
+
 ########################################################################################
 
 
@@ -210,5 +252,5 @@ class System(TypeReflectBaseModel):
 
     """
 
-    ions: List[Ion]
+    ions: AtomicTypes
     modes: List[Phonon]

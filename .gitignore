@@ -179,3 +179,4 @@ tests/test.bat
 
 
 .pre-commit-config.yaml
+*.antlr/

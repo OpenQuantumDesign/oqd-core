@@ -68,7 +68,7 @@ class VerifyHilberSpaceDim(RewriteRule):
         self._term_dim = None
         self._final_add_term = False
 
-    def map_AnalogGate(self, model):
+    def map_Evolve(self, model):
         self._reset()
 
     def map_Expectation(self, model):
