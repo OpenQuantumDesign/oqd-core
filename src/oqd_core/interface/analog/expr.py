@@ -646,17 +646,17 @@ class AnalogList(AnalogExpr):
     values: List[CastAnalogExpr]
 
 
-class AnalogListExtract(TypeReflectBaseModel):
+class AnalogListExtract(AnalogExpr):
     access: Access
     index: NonNegativeInt
 
 
-class QuantumBit(TypeReflectBaseModel):
+class QuantumBit(AnalogExpr):
     access: Access
     index: NonNegativeInt
 
 
-class QuantumMode(TypeReflectBaseModel):
+class QuantumMode(AnalogExpr):
     access: Access
     index: NonNegativeInt
 
