@@ -14,25 +14,42 @@
 
 from __future__ import annotations
 
-from typing import Annotated, List, Literal, Union
+from typing import Annotated, Any, List, Literal, Union
 
+import numpy as np
 from oqd_compiler_infrastructure import (
     TypeReflectBaseModel,
 )
 from pydantic import (
+    AfterValidator,
+    BeforeValidator,
     Discriminator,
     NonNegativeInt,
     Tag,
     model_validator,
 )
 
-from .atom import Access, Atom
-
 ########################################################################################
 
 __all__ = [
     "AnalogExpr",
-    "AnalogExprSubtypes",
+    "CastAnalogExpr",
+    "Atom",
+    "Access",
+    "MathNum",
+    "MathVar",
+    "MathImag",
+    "Bool",
+    "PauliI",
+    "PauliX",
+    "PauliY",
+    "PauliZ",
+    "Ladder",
+    "Creation",
+    "Annihilation",
+    "Identity",
+    "QuantumRegister",
+    "ModeRegister",
     "MathExpr",
     "MathFunc",
     "MathBinaryOp",
@@ -65,7 +82,65 @@ __all__ = [
 
 
 class AnalogExpr(TypeReflectBaseModel):
-    def cast(self): ...
+    @classmethod
+    def cast(cls, value: Any):
+        if isinstance(value, dict):
+            return value
+        if isinstance(value, AnalogExpr):
+            return value
+        if isinstance(value, (int, float)):
+            value = MathNum(value=value)
+            return value
+        if isinstance(value, (complex, np.complex128)):
+            value = MathNum(value=value.real) + MathImag() * value.imag
+            return value
+        if isinstance(value, str) and value.startswith("#"):
+            return MathVar(name=value)
+        if isinstance(value, str):
+            return Access(name=value)
+
+        raise TypeError
+
+    def __neg__(self):
+        return MathMul(expr1=MathNum(value=-1), expr2=self)
+
+    def __pos__(self):
+        return self
+
+    def __add__(self, other):
+        return MathAdd(expr1=self, expr2=other)
+
+    def __sub__(self, other):
+        return MathSub(expr1=self, expr2=other)
+
+    def __mul__(self, other):
+        return MathMul(expr1=self, expr2=other)
+
+    def __truediv__(self, other):
+        return MathDiv(expr1=self, expr2=other)
+
+    def __pow__(self, other):
+        return MathPow(expr1=self, expr2=other)
+
+    def __radd__(self, other):
+        other = MathExpr.cast(other)
+        return other + self
+
+    def __rsub__(self, other):
+        other = MathExpr.cast(other)
+        return other - self
+
+    def __rmul__(self, other):
+        other = MathExpr.cast(other)
+        return other * self
+
+    def __rpow__(self, other):
+        other = MathExpr.cast(other)
+        return other**self
+
+    def __rtruediv__(self, other):
+        other = MathExpr.cast(other)
+        return other / self
 
 
 class MathExpr(AnalogExpr): ...
@@ -75,6 +150,195 @@ class BoolExpr(AnalogExpr): ...
 
 
 class OperatorExpr(AnalogExpr): ...
+
+
+########################################################################################
+
+
+def _is_varname(value: str) -> str:
+    if not value.isidentifier():
+        raise ValueError(f"{value!r} is not a valid identifier")
+    return value
+
+
+Identifier = Annotated[str, AfterValidator(_is_varname)]
+
+
+class Access(AnalogExpr):
+    name: Identifier
+
+
+########################################################################################
+
+
+class MathTerminal(MathExpr): ...
+
+
+class MathVar(MathTerminal):
+    """
+    Class representing a variable in a [`MathExpr`][oqd_core.interface.math.MathExpr]
+
+    Examples:
+        >>> MathVar("t")
+
+    """
+
+    name: MathVarName
+
+
+class MathNum(MathTerminal):
+    """
+    Class representing a number in a [`MathExpr`][oqd_core.interface.math.MathExpr]
+    """
+
+    value: Union[int, float]
+
+
+class MathImag(MathTerminal):
+    """
+    Class representing the imaginary unit in a [`MathExpr`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
+    """
+
+    pass
+
+
+def _is_mathvarname(value: str) -> str:
+    if not value.startswith("#") or len(value) < 2 or not value[1:].isidentifier():
+        raise ValueError(
+            "MathVar variable must start with a '#', followed by a valid identifier"
+        )
+    return value
+
+
+MathVarName = Annotated[str, AfterValidator(_is_mathvarname)]
+
+########################################################################################
+
+
+class Bool(BoolExpr):
+    value: bool
+
+
+########################################################################################
+
+
+class OperatorTerminal(OperatorExpr): ...
+
+
+########################################################################################
+
+
+class Pauli(OperatorTerminal):
+    """
+    Class representing a Pauli operator
+    """
+
+    pass
+
+
+class PauliI(Pauli):
+    """
+    Class for the Pauli I operator
+    """
+
+    pass
+
+
+class PauliX(Pauli):
+    """
+    Class for the Pauli X operator
+    """
+
+    pass
+
+
+class PauliY(Pauli):
+    """
+    Class for the Pauli Y operator
+    """
+
+    pass
+
+
+class PauliZ(Pauli):
+    """
+    Class for the Pauli Z operator
+    """
+
+    pass
+
+
+########################################################################################
+
+
+class Ladder(OperatorTerminal):
+    """
+    Class representing a ladder operator in Fock space
+    """
+
+    pass
+
+
+class Creation(Ladder):
+    """
+    Class for the Creation operator in Fock space
+    """
+
+    pass
+
+
+class Annihilation(Ladder):
+    """
+    Class for the Annihilation operator in Fock space
+    """
+
+    pass
+
+
+class Identity(Ladder):
+    """
+    Class for the Identity operator in Fock space
+    """
+
+    pass
+
+
+########################################################################################
+
+
+class Register(AnalogExpr):
+    pass
+
+
+class QuantumRegister(Register):
+    size: NonNegativeInt
+
+
+class ModeRegister(Register):
+    size: NonNegativeInt
+
+
+########################################################################################
+
+Atom = Annotated[
+    Union[
+        Annotated[Bool, Tag("Bool")],
+        Annotated[MathVar, Tag("MathVar")],
+        Annotated[MathNum, Tag("MathNum")],
+        Annotated[MathImag, Tag("MathImag")],
+        Annotated[PauliX, Tag("PauliX")],
+        Annotated[PauliY, Tag("PauliY")],
+        Annotated[PauliZ, Tag("PauliZ")],
+        Annotated[PauliI, Tag("PauliI")],
+        Annotated[Annihilation, Tag("Annihilation")],
+        Annotated[Creation, Tag("Creation")],
+        Annotated[Identity, Tag("Identity")],
+        Annotated[Access, Tag("Access")],
+        Annotated[QuantumRegister, Tag("QuantumRegister")],
+        Annotated[ModeRegister, Tag("ModeRegister")],
+    ],
+    Discriminator("class_"),
+]
 
 
 ########################################################################################
@@ -119,8 +383,8 @@ class MathFunc(AnalogExpr):
     func: SupportedFuncNames
     expr: Annotated[
         Union[
-            Annotated[AnalogExprSubtypes, Tag("expr")],
-            Annotated[List[AnalogExprSubtypes], Tag("list")],
+            Annotated[CastAnalogExpr, Tag("expr")],
+            Annotated[List[CastAnalogExpr], Tag("list")],
         ],
         Discriminator(lambda v: "list" if isinstance(v, list) else "expr"),
     ]
@@ -185,8 +449,8 @@ class MathAdd(MathBinaryOp):
         expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.operator.Operator]
     """
 
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class MathSub(MathBinaryOp):
@@ -198,8 +462,8 @@ class MathSub(MathBinaryOp):
         expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
     """
 
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class MathMul(MathBinaryOp):
@@ -211,8 +475,8 @@ class MathMul(MathBinaryOp):
         expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
     """
 
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class MathDiv(MathBinaryOp):
@@ -224,8 +488,8 @@ class MathDiv(MathBinaryOp):
         expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
     """
 
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class MathPow(MathBinaryOp):
@@ -237,8 +501,8 @@ class MathPow(MathBinaryOp):
         expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
     """
 
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 ########################################################################################
@@ -269,47 +533,47 @@ class ComparisonOp(BoolExpr):
 
 
 class BoolNot(BoolUnaryOp):
-    expr: AnalogExprSubtypes
+    expr: CastAnalogExpr
 
 
 class BoolAnd(BoolBinaryOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class BoolOr(BoolBinaryOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class BoolEq(ComparisonOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class BoolNotEq(ComparisonOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class BoolLessThan(ComparisonOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class BoolLessThanEq(ComparisonOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class BoolGreaterThan(ComparisonOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 class BoolGreaterThanEq(ComparisonOp):
-    expr1: AnalogExprSubtypes
-    expr2: AnalogExprSubtypes
+    expr1: CastAnalogExpr
+    expr2: CastAnalogExpr
 
 
 ########################################################################################
@@ -332,8 +596,8 @@ class OperatorAdd(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: AnalogExprSubtypes
-    op2: AnalogExprSubtypes
+    op1: CastAnalogExpr
+    op2: CastAnalogExpr
 
 
 class OperatorSub(OperatorBinaryOp):
@@ -345,8 +609,8 @@ class OperatorSub(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: AnalogExprSubtypes
-    op2: AnalogExprSubtypes
+    op1: CastAnalogExpr
+    op2: CastAnalogExpr
 
 
 class OperatorMul(OperatorBinaryOp):
@@ -358,8 +622,8 @@ class OperatorMul(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: AnalogExprSubtypes
-    op2: AnalogExprSubtypes
+    op1: CastAnalogExpr
+    op2: CastAnalogExpr
 
 
 class OperatorKron(OperatorBinaryOp):
@@ -371,15 +635,15 @@ class OperatorKron(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: AnalogExprSubtypes
-    op2: AnalogExprSubtypes
+    op1: CastAnalogExpr
+    op2: CastAnalogExpr
 
 
 ########################################################################################
 
 
 class AnalogList(AnalogExpr):
-    values: List[AnalogExprSubtypes]
+    values: List[CastAnalogExpr]
 
 
 class AnalogListExtract(TypeReflectBaseModel):
@@ -428,3 +692,5 @@ AnalogExprSubtypes = Annotated[
     ],
     Discriminator("class_"),
 ]
+
+CastAnalogExpr = Annotated[AnalogExprSubtypes, BeforeValidator(AnalogExpr.cast)]

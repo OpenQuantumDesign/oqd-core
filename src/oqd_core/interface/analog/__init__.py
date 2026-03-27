@@ -12,26 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_core.interface.analog.atom import (
-    Access,
-    Atom,
-    Bool,
-    MathImag,
-    MathNum,
-    MathVar,
-    ModeRegister,
-    PauliI,
-    PauliX,
-    PauliY,
-    PauliZ,
-    QuantumRegister,
-)
+
 from oqd_core.interface.analog.circuit import AnalogCircuit
-from oqd_core.interface.analog.expression import (
+from oqd_core.interface.analog.expr import (
+    Access,
     AnalogExpr,
     AnalogExprSubtypes,
     AnalogList,
     AnalogListExtract,
+    Atom,
+    Bool,
     BoolAnd,
     BoolEq,
     BoolExpr,
@@ -47,15 +37,24 @@ from oqd_core.interface.analog.expression import (
     MathDiv,
     MathExpr,
     MathFunc,
+    MathImag,
     MathMul,
+    MathNum,
     MathPow,
     MathSub,
+    MathVar,
+    ModeRegister,
     OperatorAdd,
     OperatorKron,
     OperatorMul,
     OperatorSub,
+    PauliI,
+    PauliX,
+    PauliY,
+    PauliZ,
     QuantumBit,
     QuantumMode,
+    QuantumRegister,
 )
 from oqd_core.interface.analog.statement import (
     Break,

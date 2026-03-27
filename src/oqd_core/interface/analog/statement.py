@@ -19,8 +19,7 @@ from typing import Annotated, List, Union
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import Discriminator, Tag
 
-from .atom import Identifier
-from .expression import AnalogExprSubtypes
+from oqd_core.interface.analog.expr import AnalogExprSubtypes, Identifier
 
 ########################################################################################
 __all__ = [
