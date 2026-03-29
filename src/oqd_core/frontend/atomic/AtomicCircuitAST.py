@@ -24,17 +24,15 @@ from oqd_core.interface.atomic import (
     Declaration,
     Pulse,
     Access,
-    Extract,
+    AtomicListExtract,
     ParallelProtocol,
     Beam,
-    MyList,
+    AtomicList,
     IonRegister,
     IfElse,
     While,
     Break,
     Continue,
-)
-from oqd_core.interface.atomic.math import (
     MathNum,
     MathVar,
     MathImag,
@@ -44,8 +42,6 @@ from oqd_core.interface.atomic.math import (
     MathDiv,
     MathPow,
     MathFunc,
-)
-from oqd_core.interface.atomic.bool import (
     BoolAnd,
     BoolOr,
     BoolNot,
@@ -55,8 +51,7 @@ from oqd_core.interface.atomic.bool import (
     BoolLessThanEq,
     BoolGreaterThan,
     BoolGreaterThanEq,
-    BoolFalse,
-    BoolTrue,
+    Bool
 )
 
 ########################################################################################
@@ -148,7 +143,7 @@ class _AtomicASTBuilder(AtomicParserVisitor):
         if ctx.measured() is not None:
             measured = self.visit(ctx.measured())
         else:
-            measured = BoolFalse()
+            measured = Bool(value=False)
         return Pulse(duration=duration, target=target, beam=beam, measured=measured)
     
     def visitMeasured(self, ctx: AtomicParser.MeasuredContext):
@@ -163,7 +158,7 @@ class _AtomicASTBuilder(AtomicParserVisitor):
         return Beam(frequency=frequency, rabi=rabi, phase=phase, polarization=polarization, wavevector=wavevector)
     
     def visitVec3(self, ctx: AtomicParser.Vec3Context):
-        return MyList(values=[self.visit(ctx.expr(i)) for i in range(3)])
+        return AtomicList(values=[self.visit(ctx.expr(i)) for i in range(3)])
     
     def visitTargets(self, ctx: AtomicParser.TargetsContext):
         return self.visit(ctx.expr())
@@ -200,17 +195,17 @@ class _AtomicASTBuilder(AtomicParserVisitor):
             left = self.visit(ctx.expr(0))
             right = self.visit(ctx.expr(1))
             if ctx.bool_and_op():
-                return BoolAnd(left=left, right=right)
-            return BoolOr(left=left, right=right)
+                return BoolAnd(expr1=left, expr2=right)
+            return BoolOr(expr1=left, expr2=right)
         
         if ctx.bool_not_op():
             return BoolNot(expr=self.visit(ctx.expr(0)))
         if ctx.LBRACKET():
             return self.visit(ctx.expr(0))
-        if ctx.extract() is not None:
-            return self.visit(ctx.extract())
-        if ctx.my_list() is not None:
-            return self.visit(ctx.my_list())
+        if ctx.atomic_list_extract() is not None:
+            return self.visit(ctx.atomic_list_extract())
+        if ctx.atomic_list() is not None:
+            return self.visit(ctx.atomic_list())
         if ctx.beam_expr() is not None:
             return self.visit(ctx.beam_expr())
         
@@ -220,7 +215,7 @@ class _AtomicASTBuilder(AtomicParserVisitor):
             op_cls = _comparator_to_bool_class(comps[0])
             left = self.visit(aexprs[0])
             right = self.visit(aexprs[1])
-            return op_cls(left=left, right=right)
+            return op_cls(expr1=left, expr2=right)
         
         if ctx.atom() is not None:
             return self.visit(ctx.atom())
@@ -229,14 +224,14 @@ class _AtomicASTBuilder(AtomicParserVisitor):
         
         raise ValueError('Undefined value')
     
-    def visitExtract(self, ctx: AtomicParser.ExtractContext):
+    def visitAtomic_list_extract(self, ctx: AtomicParser.Atomic_list_extractContext):
         access = self.visit(ctx.access())
         index = int(ctx.INT().getText())
-        return Extract(access=access, index=index)
+        return AtomicListExtract(access=access, index=index)
     
-    def visitMy_list(self, ctx: AtomicParser.My_listContext):
+    def visitAtomic_list(self, ctx: AtomicParser.Atomic_listContext):
         values = [self.visit(e) for e in ctx.expr()]
-        return MyList(values=values)
+        return AtomicList(values=values)
     
     def visitAtom(self, ctx: AtomicParser.AtomContext):
         return self.visitChildren(ctx)
@@ -346,8 +341,8 @@ class _AtomicASTBuilder(AtomicParserVisitor):
     def visitBool_literal(self, ctx: AtomicParser.Bool_literalContext):
         token = ctx.getChild(0).getText()
         if token == 'true':
-            return BoolTrue()
-        return BoolFalse()
+            return Bool(value=True)
+        return Bool(value=False)
     
     
         

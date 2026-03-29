@@ -62,12 +62,12 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#my_list.
-    def enterMy_list(self, ctx:AtomicParser.My_listContext):
+    # Enter a parse tree produced by AtomicParser#atomic_list.
+    def enterAtomic_list(self, ctx:AtomicParser.Atomic_listContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#my_list.
-    def exitMy_list(self, ctx:AtomicParser.My_listContext):
+    # Exit a parse tree produced by AtomicParser#atomic_list.
+    def exitAtomic_list(self, ctx:AtomicParser.Atomic_listContext):
         pass
 
 
@@ -89,12 +89,12 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#extract.
-    def enterExtract(self, ctx:AtomicParser.ExtractContext):
+    # Enter a parse tree produced by AtomicParser#atomic_list_extract.
+    def enterAtomic_list_extract(self, ctx:AtomicParser.Atomic_list_extractContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#extract.
-    def exitExtract(self, ctx:AtomicParser.ExtractContext):
+    # Exit a parse tree produced by AtomicParser#atomic_list_extract.
+    def exitAtomic_list_extract(self, ctx:AtomicParser.Atomic_list_extractContext):
         pass
 
 

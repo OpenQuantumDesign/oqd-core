@@ -149,10 +149,10 @@ block
 atom
 expr
 cond
-my_list
+atomic_list
 declaration
 access
-extract
+atomic_list_extract
 break_stmt
 continue_stmt
 while_stmt

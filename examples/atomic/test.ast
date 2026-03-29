@@ -13,7 +13,7 @@
       "class_": "Declaration",
       "name": "q0",
       "value": {
-        "class_": "Extract",
+        "class_": "AtomicListExtract",
         "access": {
           "class_": "Access",
           "name": "ions"
@@ -25,7 +25,7 @@
       "class_": "Declaration",
       "name": "q1",
       "value": {
-        "class_": "Extract",
+        "class_": "AtomicListExtract",
         "access": {
           "class_": "Access",
           "name": "ions"
@@ -37,7 +37,7 @@
       "class_": "Declaration",
       "name": "targets",
       "value": {
-        "class_": "MyList",
+        "class_": "AtomicList",
         "values": [
           {
             "class_": "Access",
@@ -86,7 +86,8 @@
       "class_": "Declaration",
       "name": "flag",
       "value": {
-        "class_": "BoolTrue"
+        "class_": "Bool",
+        "value": true
       }
     },
     {
@@ -129,7 +130,7 @@
           "name": "phi"
         },
         "polarization": {
-          "class_": "MyList",
+          "class_": "AtomicList",
           "values": [
             {
               "class_": "MathNum",
@@ -146,7 +147,7 @@
           ]
         },
         "wavevector": {
-          "class_": "MyList",
+          "class_": "AtomicList",
           "values": [
             {
               "class_": "MathNum",
@@ -196,7 +197,7 @@
           "value": 0.0
         },
         "polarization": {
-          "class_": "MyList",
+          "class_": "AtomicList",
           "values": [
             {
               "class_": "MathNum",
@@ -213,7 +214,7 @@
           ]
         },
         "wavevector": {
-          "class_": "MyList",
+          "class_": "AtomicList",
           "values": [
             {
               "class_": "MathNum",
@@ -246,7 +247,8 @@
         "name": "beam_mw"
       },
       "measured": {
-        "class_": "BoolFalse"
+        "class_": "Bool",
+        "value": false
       }
     },
     {
@@ -264,7 +266,8 @@
         "name": "beam_det"
       },
       "measured": {
-        "class_": "BoolTrue"
+        "class_": "Bool",
+        "value": true
       }
     },
     {
@@ -282,7 +285,8 @@
         "name": "beam_mw"
       },
       "measured": {
-        "class_": "BoolFalse"
+        "class_": "Bool",
+        "value": false
       }
     },
     {
@@ -303,7 +307,8 @@
             "name": "beam_mw"
           },
           "measured": {
-            "class_": "BoolFalse"
+            "class_": "Bool",
+            "value": false
           }
         },
         {
@@ -321,7 +326,8 @@
             "name": "beam_det"
           },
           "measured": {
-            "class_": "BoolFalse"
+            "class_": "Bool",
+            "value": false
           }
         }
       ]
@@ -348,7 +354,8 @@
             "name": "beam_mw"
           },
           "measured": {
-            "class_": "BoolFalse"
+            "class_": "Bool",
+            "value": false
           }
         }
       ],
@@ -368,7 +375,8 @@
             "name": "beam_det"
           },
           "measured": {
-            "class_": "BoolTrue"
+            "class_": "Bool",
+            "value": true
           }
         }
       ]
@@ -377,11 +385,11 @@
       "class_": "While",
       "condition": {
         "class_": "BoolGreaterThan",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "n"
         },
-        "right": {
+        "expr2": {
           "class_": "MathNum",
           "value": 0
         }
@@ -405,7 +413,8 @@
                 "name": "beam_mw"
               },
               "measured": {
-                "class_": "BoolFalse"
+                "class_": "Bool",
+                "value": false
               }
             }
           ]
@@ -429,11 +438,11 @@
           "class_": "IfElse",
           "condition": {
             "class_": "BoolEq",
-            "left": {
+            "expr1": {
               "class_": "Access",
               "name": "n"
             },
-            "right": {
+            "expr2": {
               "class_": "MathNum",
               "value": 1
             }
@@ -449,11 +458,11 @@
           "class_": "IfElse",
           "condition": {
             "class_": "BoolEq",
-            "left": {
+            "expr1": {
               "class_": "Access",
               "name": "n"
             },
-            "right": {
+            "expr2": {
               "class_": "MathNum",
               "value": 0
             }

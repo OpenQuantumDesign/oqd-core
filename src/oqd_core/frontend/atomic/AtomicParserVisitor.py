@@ -39,8 +39,8 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AtomicParser#my_list.
-    def visitMy_list(self, ctx:AtomicParser.My_listContext):
+    # Visit a parse tree produced by AtomicParser#atomic_list.
+    def visitAtomic_list(self, ctx:AtomicParser.Atomic_listContext):
         return self.visitChildren(ctx)
 
 
@@ -54,8 +54,8 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AtomicParser#extract.
-    def visitExtract(self, ctx:AtomicParser.ExtractContext):
+    # Visit a parse tree produced by AtomicParser#atomic_list_extract.
+    def visitAtomic_list_extract(self, ctx:AtomicParser.Atomic_list_extractContext):
         return self.visitChildren(ctx)
 
 

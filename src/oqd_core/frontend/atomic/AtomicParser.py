@@ -167,10 +167,10 @@ class AtomicParser ( Parser ):
     RULE_atom = 3
     RULE_expr = 4
     RULE_cond = 5
-    RULE_my_list = 6
+    RULE_atomic_list = 6
     RULE_declaration = 7
     RULE_access = 8
-    RULE_extract = 9
+    RULE_atomic_list_extract = 9
     RULE_break_stmt = 10
     RULE_continue_stmt = 11
     RULE_while_stmt = 12
@@ -203,14 +203,14 @@ class AtomicParser ( Parser ):
     RULE_eexpr = 39
 
     ruleNames =  [ "program", "statement", "block", "atom", "expr", "cond", 
-                   "my_list", "declaration", "access", "extract", "break_stmt", 
-                   "continue_stmt", "while_stmt", "ifelse_stmt", "ion_register", 
-                   "beam_expr", "vec3", "parallel_stmt", "pulse_stmt", "measured", 
-                   "targets", "bool_and_op", "bool_or_op", "bool_not_op", 
-                   "bool_eq_op", "bool_not_eq_op", "bool_lt_op", "bool_lte_op", 
-                   "bool_gt_op", "bool_gte_op", "bool_literal", "comparators", 
-                   "math_terminal", "math_func_name", "pexpr", "fexpr", 
-                   "aexpr", "mexpr", "uexpr", "eexpr" ]
+                   "atomic_list", "declaration", "access", "atomic_list_extract", 
+                   "break_stmt", "continue_stmt", "while_stmt", "ifelse_stmt", 
+                   "ion_register", "beam_expr", "vec3", "parallel_stmt", 
+                   "pulse_stmt", "measured", "targets", "bool_and_op", "bool_or_op", 
+                   "bool_not_op", "bool_eq_op", "bool_not_eq_op", "bool_lt_op", 
+                   "bool_lte_op", "bool_gt_op", "bool_gte_op", "bool_literal", 
+                   "comparators", "math_terminal", "math_func_name", "pexpr", 
+                   "fexpr", "aexpr", "mexpr", "uexpr", "eexpr" ]
 
     EOF = Token.EOF
     WHITESPACE=1
@@ -656,12 +656,12 @@ class AtomicParser ( Parser ):
         def RBRACKET(self):
             return self.getToken(AtomicParser.RBRACKET, 0)
 
-        def extract(self):
-            return self.getTypedRuleContext(AtomicParser.ExtractContext,0)
+        def atomic_list_extract(self):
+            return self.getTypedRuleContext(AtomicParser.Atomic_list_extractContext,0)
 
 
-        def my_list(self):
-            return self.getTypedRuleContext(AtomicParser.My_listContext,0)
+        def atomic_list(self):
+            return self.getTypedRuleContext(AtomicParser.Atomic_listContext,0)
 
 
         def atom(self):
@@ -750,12 +750,12 @@ class AtomicParser ( Parser ):
 
             elif la_ == 4:
                 self.state = 125
-                self.extract()
+                self.atomic_list_extract()
                 pass
 
             elif la_ == 5:
                 self.state = 126
-                self.my_list()
+                self.atomic_list()
                 pass
 
             elif la_ == 6:
@@ -866,7 +866,7 @@ class AtomicParser ( Parser ):
         return localctx
 
 
-    class My_listContext(ParserRuleContext):
+    class Atomic_listContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -893,29 +893,29 @@ class AtomicParser ( Parser ):
                 return self.getToken(AtomicParser.COMMA, i)
 
         def getRuleIndex(self):
-            return AtomicParser.RULE_my_list
+            return AtomicParser.RULE_atomic_list
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMy_list" ):
-                listener.enterMy_list(self)
+            if hasattr( listener, "enterAtomic_list" ):
+                listener.enterAtomic_list(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMy_list" ):
-                listener.exitMy_list(self)
+            if hasattr( listener, "exitAtomic_list" ):
+                listener.exitAtomic_list(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitMy_list" ):
-                return visitor.visitMy_list(self)
+            if hasattr( visitor, "visitAtomic_list" ):
+                return visitor.visitAtomic_list(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def my_list(self):
+    def atomic_list(self):
 
-        localctx = AtomicParser.My_listContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 12, self.RULE_my_list)
+        localctx = AtomicParser.Atomic_listContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 12, self.RULE_atomic_list)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
@@ -1057,7 +1057,7 @@ class AtomicParser ( Parser ):
         return localctx
 
 
-    class ExtractContext(ParserRuleContext):
+    class Atomic_list_extractContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -1078,29 +1078,29 @@ class AtomicParser ( Parser ):
             return self.getToken(AtomicParser.SQUARERBRACKET, 0)
 
         def getRuleIndex(self):
-            return AtomicParser.RULE_extract
+            return AtomicParser.RULE_atomic_list_extract
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterExtract" ):
-                listener.enterExtract(self)
+            if hasattr( listener, "enterAtomic_list_extract" ):
+                listener.enterAtomic_list_extract(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitExtract" ):
-                listener.exitExtract(self)
+            if hasattr( listener, "exitAtomic_list_extract" ):
+                listener.exitAtomic_list_extract(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitExtract" ):
-                return visitor.visitExtract(self)
+            if hasattr( visitor, "visitAtomic_list_extract" ):
+                return visitor.visitAtomic_list_extract(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def extract(self):
+    def atomic_list_extract(self):
 
-        localctx = AtomicParser.ExtractContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 18, self.RULE_extract)
+        localctx = AtomicParser.Atomic_list_extractContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 18, self.RULE_atomic_list_extract)
         try:
             self.enterOuterAlt(localctx, 1)
             self.state = 165
