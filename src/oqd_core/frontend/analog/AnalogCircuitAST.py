@@ -24,17 +24,35 @@ from oqd_core.interface.analog import (
     Initialize,
     Measure,
     Access,
-    Extract,
-    MyList,
+    AnalogList,
+    AnalogListExtract,
     QuantumRegister,
     ModeRegister,
     IfElse,
     While,
     Break,
     Continue,
+    MathNum,
+    MathVar,
+    MathImag,
+    MathAdd,
+    MathSub,
+    MathMul,
+    MathDiv,
+    MathPow,
+    MathFunc,
+    BoolAnd,
+    BoolOr,
+    BoolNot,
+    BoolEq,
+    BoolNotEq,
+    BoolLessThan,
+    BoolLessThanEq,
+    BoolGreaterThan,
+    BoolGreaterThanEq,
+    Bool,
 )
-from oqd_core.interface.analog.operator import (
-    Operator,
+from oqd_core.interface.analog.expr import (
     PauliI,
     PauliX,
     PauliY,
@@ -46,31 +64,6 @@ from oqd_core.interface.analog.operator import (
     OperatorSub,
     OperatorMul,
     OperatorKron,
-    OperatorScalarMul,
-)
-from oqd_core.interface.analog.math import (
-    MathNum,
-    MathVar,
-    MathImag,
-    MathAdd,
-    MathSub,
-    MathMul,
-    MathDiv,
-    MathPow,
-    MathFunc,
-)
-from oqd_core.interface.analog.bool import (
-    BoolAnd,
-    BoolOr,
-    BoolNot,
-    BoolEq,
-    BoolNotEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolFalse,
-    BoolTrue,
 )
 
 ########################################################################################
@@ -214,17 +207,17 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             left = self.visit(ctx.expr()[0])
             right = self.visit(ctx.expr()[1])
             if ctx.bool_and_op():
-                return BoolAnd(left=left, right=right)
-            return BoolOr(left=left, right=right)
+                return BoolAnd(expr1=left, expr2=right)
+            return BoolOr(expr1=left, expr2=right)
         
         if ctx.bool_not_op():
             return BoolNot(expr=self.visit(ctx.expr(0)))
         if ctx.LBRACKET():
             return self.visit(ctx.expr(0))
-        if ctx.extract() is not None:
-            return self.visit(ctx.extract())
-        if ctx.my_list() is not None:
-            return self.visit(ctx.my_list())
+        if ctx.analog_list_extract() is not None:
+            return self.visit(ctx.analog_list_extract())
+        if ctx.analog_list() is not None:
+            return self.visit(ctx.analog_list())
         
         comps = ctx.comparators()
         aexprs = ctx.aexpr()
@@ -232,7 +225,7 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             op_cls = _comparator_to_bool_class(comps[0])
             left = self.visit(aexprs[0])
             right = self.visit(aexprs[1])
-            return op_cls(left=left, right=right)
+            return op_cls(expr1=left, expr2=right)
         
         if ctx.atom() is not None:
             return self.visit(ctx.atom())
@@ -241,14 +234,14 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         
         raise ValueError('Undefined value')
     
-    def visitExtract(self, ctx: AnalogParser.ExtractContext):
+    def visitAnalog_list_extract(self, ctx: AnalogParser.Analog_list_extractContext):
         access = self.visit(ctx.access())
         index = int(ctx.INT().getText())
-        return Extract(access=access, index=index)
+        return AnalogListExtract(access=access, index=index)
     
-    def visitMy_list(self, ctx: AnalogParser.My_listContext):
+    def visitAnalog_list(self, ctx: AnalogParser.Analog_listContext):
         values = [self.visit(e) for e in ctx.expr()]
-        return MyList(values=values)
+        return AnalogList(values=values)
     
     def visitAtom(self, ctx: AnalogParser.AtomContext):
         return self.visitChildren(ctx)
@@ -318,12 +311,8 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         if op_token == AnalogLexer.OP_MINUS:
             return OperatorSub(op1=left, op2=right)
         if op_token == AnalogLexer.PLUS:
-            if isinstance(left, Operator) and isinstance(right, Operator):
-                return OperatorAdd(op1=left, op2=right)
             return MathAdd(expr1=left, expr2=right)
         if op_token == AnalogLexer.MINUS:
-            if isinstance(left, Operator) and isinstance(right, Operator):
-                return OperatorSub(op1=left, op2=right)
             return MathSub(expr1=left, expr2=right)
         return self.visitChildren(ctx)
     
@@ -345,10 +334,6 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         if op_token == AnalogLexer.OP_MUL:
             return OperatorMul(op1=left, op2=right)
         if op_token == AnalogLexer.MULT:
-            if isinstance(left, Operator) and not isinstance(right, Operator):
-                return OperatorScalarMul(op=left, expr=right)
-            if isinstance(right, Operator) and not isinstance(left, Operator):
-                return OperatorScalarMul(op=right, expr=left)
             return MathMul(expr1=left, expr2=right)
         if op_token == AnalogLexer.DIV:
             return MathDiv(expr1=left, expr2=right)
@@ -365,8 +350,6 @@ class _AnalogASTBuilder(AnalogParserVisitor):
                 break
         val = self.visit(ctx.eexpr())
         if sign == AnalogLexer.MINUS:
-            if isinstance(val, Operator):
-                return OperatorScalarMul(op=val, expr=MathNum(value=-1))
             return MathMul(expr1=MathNum(value=-1), expr2=val)
         return val
     
@@ -393,6 +376,6 @@ class _AnalogASTBuilder(AnalogParserVisitor):
     def visitBool_literal(self, ctx: AnalogParser.Bool_literalContext):
         token = ctx.getChild(0).getText()
         if token == 'true':
-            return BoolTrue()
-        return BoolFalse()
+            return Bool(value=True)
+        return Bool(value=False)
     
