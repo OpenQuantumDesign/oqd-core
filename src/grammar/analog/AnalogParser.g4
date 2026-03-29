@@ -27,16 +27,16 @@ expr
     | expr (bool_and_op|bool_or_op) expr
     | bool_not_op expr
     | LBRACKET expr RBRACKET
-    | extract 
-    | my_list 
+    | analog_list_extract 
+    | analog_list 
     | atom
     | aexpr;
 cond: expr;
-my_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
+analog_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
 declaration: ID ASSIGN expr;
 access: ID;
-extract: access SQUARELBRACKET INT SQUARERBRACKET;
+analog_list_extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
 /** ================================================================================= */
 

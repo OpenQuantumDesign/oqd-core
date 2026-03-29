@@ -173,10 +173,10 @@ block
 atom
 expr
 cond
-my_list
+analog_list
 declaration
 access
-extract
+analog_list_extract
 break_stmt
 continue_stmt
 while_stmt

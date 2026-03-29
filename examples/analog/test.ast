@@ -21,7 +21,7 @@
       "class_": "Declaration",
       "name": "q0",
       "value": {
-        "class_": "Extract",
+        "class_": "AnalogListExtract",
         "access": {
           "class_": "Access",
           "name": "r"
@@ -33,7 +33,7 @@
       "class_": "Declaration",
       "name": "q1",
       "value": {
-        "class_": "Extract",
+        "class_": "AnalogListExtract",
         "access": {
           "class_": "Access",
           "name": "r"
@@ -45,7 +45,7 @@
       "class_": "Declaration",
       "name": "targets",
       "value": {
-        "class_": "MyList",
+        "class_": "AnalogList",
         "values": [
           {
             "class_": "Access",
@@ -239,25 +239,25 @@
       "class_": "Declaration",
       "name": "H_single",
       "value": {
-        "class_": "OperatorAdd",
-        "op1": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "PauliX"
-          },
-          "expr": {
+        "class_": "MathAdd",
+        "expr1": {
+          "class_": "MathMul",
+          "expr1": {
             "class_": "MathNum",
             "value": 0.5
+          },
+          "expr2": {
+            "class_": "PauliX"
           }
         },
-        "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "PauliZ"
-          },
-          "expr": {
+        "expr2": {
+          "class_": "MathMul",
+          "expr1": {
             "class_": "MathNum",
             "value": 0.5
+          },
+          "expr2": {
+            "class_": "PauliZ"
           }
         }
       }
@@ -293,17 +293,8 @@
       "value": {
         "class_": "OperatorAdd",
         "op1": {
-          "class_": "OperatorScalarMul",
-          "op": {
-            "class_": "OperatorKron",
-            "op1": {
-              "class_": "PauliX"
-            },
-            "op2": {
-              "class_": "PauliI"
-            }
-          },
-          "expr": {
+          "class_": "MathMul",
+          "expr1": {
             "class_": "MathMul",
             "expr1": {
               "class_": "MathNum",
@@ -313,11 +304,24 @@
               "class_": "MathVar",
               "name": "#t"
             }
+          },
+          "expr2": {
+            "class_": "OperatorKron",
+            "op1": {
+              "class_": "PauliX"
+            },
+            "op2": {
+              "class_": "PauliI"
+            }
           }
         },
         "op2": {
-          "class_": "OperatorScalarMul",
-          "op": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathNum",
+            "value": 0.5
+          },
+          "expr2": {
             "class_": "OperatorKron",
             "op1": {
               "class_": "PauliI"
@@ -325,10 +329,6 @@
             "op2": {
               "class_": "PauliY"
             }
-          },
-          "expr": {
-            "class_": "MathNum",
-            "value": 0.5
           }
         }
       }
@@ -345,11 +345,11 @@
       "class_": "IfElse",
       "condition": {
         "class_": "BoolGreaterThan",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "x"
         },
-        "right": {
+        "expr2": {
           "class_": "MathNum",
           "value": 0
         }
@@ -369,11 +369,11 @@
       "class_": "IfElse",
       "condition": {
         "class_": "BoolEq",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "x"
         },
-        "right": {
+        "expr2": {
           "class_": "MathNum",
           "value": 1
         }
@@ -425,11 +425,11 @@
       "class_": "While",
       "condition": {
         "class_": "BoolGreaterThan",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "n"
         },
-        "right": {
+        "expr2": {
           "class_": "MathNum",
           "value": 0
         }
@@ -470,18 +470,19 @@
     {
       "class_": "While",
       "condition": {
-        "class_": "BoolTrue"
+        "class_": "Bool",
+        "value": true
       },
       "body": [
         {
           "class_": "IfElse",
           "condition": {
             "class_": "BoolEq",
-            "left": {
+            "expr1": {
               "class_": "Access",
               "name": "x"
             },
-            "right": {
+            "expr2": {
               "class_": "MathNum",
               "value": 1
             }
@@ -515,11 +516,11 @@
       "class_": "IfElse",
       "condition": {
         "class_": "BoolGreaterThan",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "a"
         },
-        "right": {
+        "expr2": {
           "class_": "Access",
           "name": "b"
         }
@@ -529,11 +530,11 @@
           "class_": "IfElse",
           "condition": {
             "class_": "BoolGreaterThan",
-            "left": {
+            "expr1": {
               "class_": "Access",
               "name": "b"
             },
-            "right": {
+            "expr2": {
               "class_": "MathNum",
               "value": 0
             }
@@ -600,11 +601,11 @@
     {
       "class_": "Evolve",
       "hamiltonian": {
-        "class_": "OperatorScalarMul",
-        "op": {
+        "class_": "MathMul",
+        "expr1": {
           "class_": "PauliX"
         },
-        "expr": {
+        "expr2": {
           "class_": "MathNum",
           "value": 0.5
         }
@@ -637,11 +638,11 @@
       "class_": "IfElse",
       "condition": {
         "class_": "BoolNotEq",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "flag"
         },
-        "right": {
+        "expr2": {
           "class_": "MathNum",
           "value": 0
         }
@@ -662,11 +663,11 @@
       "class_": "IfElse",
       "condition": {
         "class_": "BoolLessThanEq",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "x"
         },
-        "right": {
+        "expr2": {
           "class_": "MathNum",
           "value": 1
         }
@@ -687,11 +688,11 @@
       "class_": "IfElse",
       "condition": {
         "class_": "BoolGreaterThanEq",
-        "left": {
+        "expr1": {
           "class_": "Access",
           "name": "x"
         },
-        "right": {
+        "expr2": {
           "class_": "MathNum",
           "value": 0
         }
@@ -712,7 +713,8 @@
       "class_": "Declaration",
       "name": "a",
       "value": {
-        "class_": "BoolTrue"
+        "class_": "Bool",
+        "value": true
       }
     },
     {

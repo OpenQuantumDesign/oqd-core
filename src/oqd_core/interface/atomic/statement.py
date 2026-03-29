@@ -13,57 +13,34 @@
 # limitations under the License.
 
 from __future__ import annotations
-from typing import List, Union
+from typing import List, Union, Annotated
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import (
-    NonNegativeInt,
+    Discriminator,
+    Tag
 )
-from .expression import Expr, Access, Identifier
-from .bool import BoolExprSubtypes, CastBool
-from .math import CastMathExpr, MathExprSubtypes
+from .expr import AtomicExprSubtypes, Identifier
 
 ########################################################################################
 
 __all__ = [
-    "IonQubit",
-    "IonRegister",
+    "Pulse",
     "Declaration",
-    "MyList",
-    "Extract",
-    "Statement",
+    "ParallelProtocol",
     "IfElse",
     "While",
     "Break", 
     "Continue",
-    "Beam",
-    "Pulse",
-    "ParallelProtocol",
-    "AtomicExprSubtypes",
 ]
+
 
 ########################################################################################
 
-class MyList(Expr):
-    values: List[AtomicExprSubtypes]
-    
-    
-class IonQubit(TypeReflectBaseModel):
-    access: Access
-    index: NonNegativeInt
-
-class IonRegister(TypeReflectBaseModel):
-    size: NonNegativeInt
-    
 class Declaration(TypeReflectBaseModel):
     name: Identifier
     value: AtomicExprSubtypes
 
-class Extract(Expr):
-    access: Access
-    index: NonNegativeInt
-
-########################################################################################
 
 class ParallelProtocol(TypeReflectBaseModel):
     pulses: List[Pulse]
@@ -78,34 +55,17 @@ class Pulse(TypeReflectBaseModel):
         target: Target ion of the beam.
         measured: Boolean that tracks if the pulse has been measured.
     """
-    duration: CastMathExpr
+    duration: AtomicExprSubtypes
     target: AtomicExprSubtypes
-    beam: Union[Access, Beam]
-    measured: CastBool
-    
-
-class Beam(TypeReflectBaseModel):
-    """
-    Class representing a referenced optical channel/beam for the trapped-ion device.
-
-    Attributes:
-        rabi: Rabi frequency of the referenced transition driven by the beam.
-        phase: Phase relative to the ion's clock.
-        polarization: Polarization of the beam.
-        wavevector: Wavevector of the beam.
-    """
-    frequency: CastMathExpr
-    rabi: CastMathExpr
-    phase: CastMathExpr
-    polarization: Union[MyList, Access]
-    wavevector: Union[MyList, Access]
+    beam: AtomicExprSubtypes
+    measured: AtomicExprSubtypes
     
 
 class IfElse(TypeReflectBaseModel):
     """
     Class representing a conditional branch in the analog circuit
     """
-    condition: CastBool
+    condition: AtomicExprSubtypes
     then_branch: List[Statement] = []
     else_branch: List[Statement] = []
     
@@ -114,7 +74,7 @@ class While(TypeReflectBaseModel):
     """
     Class representing a while loop in the analog circuit
     """
-    condition: CastBool
+    condition: AtomicExprSubtypes
     body: List[Statement] = []
 
 
@@ -131,15 +91,16 @@ class Continue(TypeReflectBaseModel):
     """
     pass
 
-AtomicExprSubtypes = Union[
-    MathExprSubtypes,
-    BoolExprSubtypes,
-    MyList,
-    Access,
-    Beam,
-    IonRegister,
-    IonQubit,
-    Extract,
-]
 
-Statement = Union[Declaration, IfElse, While, Break, Continue, Pulse, ParallelProtocol]
+Statement = Annotated[
+    Union[
+        Annotated[Declaration, Tag("Declaration")],
+        Annotated[Pulse, Tag("Pulse")],
+        Annotated[ParallelProtocol, Tag("ParallelProtocol")],
+        Annotated[IfElse, Tag("IfElse")],
+        Annotated[While, Tag("While")],
+        Annotated[Break, Tag("Break")],
+        Annotated[Continue, Tag("Continue")],
+    ],
+    Discriminator(lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")),
+]

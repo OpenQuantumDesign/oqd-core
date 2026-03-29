@@ -39,8 +39,8 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#my_list.
-    def visitMy_list(self, ctx:AnalogParser.My_listContext):
+    # Visit a parse tree produced by AnalogParser#analog_list.
+    def visitAnalog_list(self, ctx:AnalogParser.Analog_listContext):
         return self.visitChildren(ctx)
 
 
@@ -54,8 +54,8 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#extract.
-    def visitExtract(self, ctx:AnalogParser.ExtractContext):
+    # Visit a parse tree produced by AnalogParser#analog_list_extract.
+    def visitAnalog_list_extract(self, ctx:AnalogParser.Analog_list_extractContext):
         return self.visitChildren(ctx)
 
 
