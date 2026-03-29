@@ -1,0 +1,480 @@
+{
+  "class_": "AtomicCircuit",
+  "statements": [
+    {
+      "class_": "Declaration",
+      "name": "ions",
+      "value": {
+        "class_": "IonRegister",
+        "size": 2
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "q0",
+      "value": {
+        "class_": "AtomicListExtract",
+        "access": {
+          "class_": "Access",
+          "name": "ions"
+        },
+        "index": 0
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "q1",
+      "value": {
+        "class_": "AtomicListExtract",
+        "access": {
+          "class_": "Access",
+          "name": "ions"
+        },
+        "index": 1
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "targets",
+      "value": {
+        "class_": "AtomicList",
+        "values": [
+          {
+            "class_": "Access",
+            "name": "q0"
+          },
+          {
+            "class_": "Access",
+            "name": "q1"
+          }
+        ]
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "pi",
+      "value": {
+        "class_": "MathNum",
+        "value": 3.14159
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "omega",
+      "value": {
+        "class_": "MathVar",
+        "name": "#omega"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "phi",
+      "value": {
+        "class_": "MathVar",
+        "name": "#phi"
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "t_gate",
+      "value": {
+        "class_": "MathNum",
+        "value": 0.00001
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "flag",
+      "value": {
+        "class_": "Bool",
+        "value": true
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "n",
+      "value": {
+        "class_": "MathNum",
+        "value": 3
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "beam_mw",
+      "value": {
+        "class_": "Beam",
+        "frequency": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathMul",
+            "expr1": {
+              "class_": "MathNum",
+              "value": 2.0
+            },
+            "expr2": {
+              "class_": "Access",
+              "name": "pi"
+            }
+          },
+          "expr2": {
+            "class_": "MathNum",
+            "value": 1000000.0
+          }
+        },
+        "rabi": {
+          "class_": "Access",
+          "name": "omega"
+        },
+        "phase": {
+          "class_": "Access",
+          "name": "phi"
+        },
+        "polarization": {
+          "class_": "AtomicList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            }
+          ]
+        },
+        "wavevector": {
+          "class_": "AtomicList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
+      "name": "beam_det",
+      "value": {
+        "class_": "Beam",
+        "frequency": {
+          "class_": "MathMul",
+          "expr1": {
+            "class_": "MathMul",
+            "expr1": {
+              "class_": "MathNum",
+              "value": 2.0
+            },
+            "expr2": {
+              "class_": "Access",
+              "name": "pi"
+            }
+          },
+          "expr2": {
+            "class_": "MathNum",
+            "value": 2000000.0
+          }
+        },
+        "rabi": {
+          "class_": "MathNum",
+          "value": 0.25
+        },
+        "phase": {
+          "class_": "MathNum",
+          "value": 0.0
+        },
+        "polarization": {
+          "class_": "AtomicList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            }
+          ]
+        },
+        "wavevector": {
+          "class_": "AtomicList",
+          "values": [
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 0.0
+            },
+            {
+              "class_": "MathNum",
+              "value": 1.0
+            }
+          ]
+        }
+      }
+    },
+    {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "Access",
+        "name": "t_gate"
+      },
+      "target": {
+        "class_": "Access",
+        "name": "q0"
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_mw"
+      },
+      "measured": {
+        "class_": "Bool",
+        "value": false
+      }
+    },
+    {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "MathNum",
+        "value": 3e-6
+      },
+      "target": {
+        "class_": "Access",
+        "name": "q1"
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_det"
+      },
+      "measured": {
+        "class_": "Bool",
+        "value": true
+      }
+    },
+    {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "MathNum",
+        "value": 2e-6
+      },
+      "target": {
+        "class_": "Access",
+        "name": "targets"
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_mw"
+      },
+      "measured": {
+        "class_": "Bool",
+        "value": false
+      }
+    },
+    {
+      "class_": "ParallelProtocol",
+      "pulses": [
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 5e-6
+          },
+          "target": {
+            "class_": "Access",
+            "name": "q0"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_mw"
+          },
+          "measured": {
+            "class_": "Bool",
+            "value": false
+          }
+        },
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 5e-6
+          },
+          "target": {
+            "class_": "Access",
+            "name": "q1"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_det"
+          },
+          "measured": {
+            "class_": "Bool",
+            "value": false
+          }
+        }
+      ]
+    },
+    {
+      "class_": "IfElse",
+      "condition": {
+        "class_": "Access",
+        "name": "flag"
+      },
+      "then_branch": [
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 2e-6
+          },
+          "target": {
+            "class_": "Access",
+            "name": "targets"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_mw"
+          },
+          "measured": {
+            "class_": "Bool",
+            "value": false
+          }
+        }
+      ],
+      "else_branch": [
+        {
+          "class_": "Pulse",
+          "duration": {
+            "class_": "MathNum",
+            "value": 0.00002
+          },
+          "target": {
+            "class_": "Access",
+            "name": "targets"
+          },
+          "beam": {
+            "class_": "Access",
+            "name": "beam_det"
+          },
+          "measured": {
+            "class_": "Bool",
+            "value": true
+          }
+        }
+      ]
+    },
+    {
+      "class_": "While",
+      "condition": {
+        "class_": "BoolGreaterThan",
+        "expr1": {
+          "class_": "Access",
+          "name": "n"
+        },
+        "expr2": {
+          "class_": "MathNum",
+          "value": 0
+        }
+      },
+      "body": [
+        {
+          "class_": "ParallelProtocol",
+          "pulses": [
+            {
+              "class_": "Pulse",
+              "duration": {
+                "class_": "MathNum",
+                "value": 1e-6
+              },
+              "target": {
+                "class_": "Access",
+                "name": "targets"
+              },
+              "beam": {
+                "class_": "Access",
+                "name": "beam_mw"
+              },
+              "measured": {
+                "class_": "Bool",
+                "value": false
+              }
+            }
+          ]
+        },
+        {
+          "class_": "Declaration",
+          "name": "n",
+          "value": {
+            "class_": "MathSub",
+            "expr1": {
+              "class_": "Access",
+              "name": "n"
+            },
+            "expr2": {
+              "class_": "MathNum",
+              "value": 1
+            }
+          }
+        },
+        {
+          "class_": "IfElse",
+          "condition": {
+            "class_": "BoolEq",
+            "expr1": {
+              "class_": "Access",
+              "name": "n"
+            },
+            "expr2": {
+              "class_": "MathNum",
+              "value": 1
+            }
+          },
+          "then_branch": [
+            {
+              "class_": "Continue"
+            }
+          ],
+          "else_branch": []
+        },
+        {
+          "class_": "IfElse",
+          "condition": {
+            "class_": "BoolEq",
+            "expr1": {
+              "class_": "Access",
+              "name": "n"
+            },
+            "expr2": {
+              "class_": "MathNum",
+              "value": 0
+            }
+          },
+          "then_branch": [
+            {
+              "class_": "Break"
+            }
+          ],
+          "else_branch": []
+        }
+      ]
+    }
+  ]
+}

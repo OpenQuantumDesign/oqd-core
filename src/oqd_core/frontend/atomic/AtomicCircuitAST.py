@@ -1,0 +1,348 @@
+# Copyright 2024-2025 Open Quantum Design
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+from __future__ import annotations
+from antlr4.tree.Tree import TerminalNodeImpl
+from .AtomicLexer import AtomicLexer
+from .AtomicParser import AtomicParser
+from .AtomicParserVisitor import AtomicParserVisitor
+
+from oqd_core.interface.atomic import (
+    AtomicCircuit,
+    Declaration,
+    Pulse,
+    Access,
+    AtomicListExtract,
+    ParallelProtocol,
+    Beam,
+    AtomicList,
+    IonRegister,
+    IfElse,
+    While,
+    Break,
+    Continue,
+    MathNum,
+    MathVar,
+    MathImag,
+    MathAdd,
+    MathSub,
+    MathMul,
+    MathDiv,
+    MathPow,
+    MathFunc,
+    BoolAnd,
+    BoolOr,
+    BoolNot,
+    BoolEq,
+    BoolNotEq,
+    BoolLessThan,
+    BoolLessThanEq,
+    BoolGreaterThan,
+    BoolGreaterThanEq,
+    Bool
+)
+
+########################################################################################
+
+_BOOL_OP_MAP = {
+    AtomicLexer.AND: BoolAnd,
+    AtomicLexer.AND2: BoolAnd,
+    AtomicLexer.OR: BoolOr,
+    AtomicLexer.OR2: BoolOr,
+    AtomicLexer.EQ: BoolEq,
+    AtomicLexer.NEQ: BoolNotEq,
+    AtomicLexer.LT: BoolLessThan,
+    AtomicLexer.LTE: BoolLessThanEq,
+    AtomicLexer.GT: BoolGreaterThan,
+    AtomicLexer.GTE: BoolGreaterThanEq,
+}
+
+def _get_token_type(node) -> int:
+    """Extract token type from a terminal or context"""
+    if isinstance(node, TerminalNodeImpl):
+        return node.symbol.type
+    payload = getattr(node, "getPayload", lambda: None)()
+    return getattr(payload, "type", -1) if payload else -1
+
+def _get_text(node) -> str:
+    """Get text from a parse tree node"""
+    return node.getText() if hasattr(node, "getText") else str(node)
+
+def _comparator_to_bool_class(cmp_ctx: AtomicParser.ComparatorsContext):
+    op_ctx = (
+        cmp_ctx.bool_eq_op()
+        or cmp_ctx.bool_not_eq_op()
+        or cmp_ctx.bool_lt_op()
+        or cmp_ctx.bool_lte_op()
+        or cmp_ctx.bool_gt_op()
+        or cmp_ctx.bool_gte_op()
+    )
+    if op_ctx is None:
+        raise ValueError("Empty comparators")
+    tt = _get_token_type(op_ctx.getChild(0))
+    cls = _BOOL_OP_MAP.get(tt)
+    if cls is None:
+        raise ValueError(f"Unknown comparator token type: {tt}")
+    return cls
+
+########################################################################################
+
+class _AtomicASTBuilder(AtomicParserVisitor):
+    
+    def __init__(self):
+        self._loop_depth = 0
+    
+    def visitProgram(self, ctx: AtomicParser.ProgramContext):
+        block = ctx.block()
+        statements = []
+        if block:
+            statements = self.visit(block)
+        
+        return AtomicCircuit(statements=statements)
+    
+    def visitBlock(self, ctx: AtomicParser.BlockContext):
+        statements = []
+        for stmt_ctx in ctx.statement():
+            stmt = self.visit(stmt_ctx)
+            if stmt is not None:
+                statements.append(stmt)
+        return statements
+    
+    def visitStatement(self, ctx: AtomicParser.StatementContext):
+        child = ctx.getChild(0)
+        return self.visit(child)
+    
+    def visitDeclaration(self, ctx: AtomicParser.DeclarationContext):
+        name = ctx.ID().getText()
+        val = self.visit(ctx.expr())
+        decl = Declaration(name=name, value=val)
+        return decl
+    
+    ## Statements ##
+    
+    def visitParallel_stmt(self, ctx: AtomicParser.Parallel_stmtContext):
+        body = self.visit(ctx.block())
+        return ParallelProtocol(pulses=body)
+    
+    def visitPulse_stmt(self, ctx: AtomicParser.Pulse_stmtContext):
+        target = self.visit(ctx.targets())
+        beam = self.visit(ctx.expr(0))
+        duration = self.visit(ctx.expr(1))
+        if ctx.measured() is not None:
+            measured = self.visit(ctx.measured())
+        else:
+            measured = Bool(value=False)
+        return Pulse(duration=duration, target=target, beam=beam, measured=measured)
+    
+    def visitMeasured(self, ctx: AtomicParser.MeasuredContext):
+        return self.visit(ctx.expr())
+    
+    def visitBeam_expr(self, ctx: AtomicParser.Beam_exprContext):
+        frequency = self.visit(ctx.expr(0))
+        rabi = self.visit(ctx.expr(1))
+        phase = self.visit(ctx.expr(2))
+        polarization = self.visit(ctx.vec3(0))
+        wavevector = self.visit(ctx.vec3(1))
+        return Beam(frequency=frequency, rabi=rabi, phase=phase, polarization=polarization, wavevector=wavevector)
+    
+    def visitVec3(self, ctx: AtomicParser.Vec3Context):
+        return AtomicList(values=[self.visit(ctx.expr(i)) for i in range(3)])
+    
+    def visitTargets(self, ctx: AtomicParser.TargetsContext):
+        return self.visit(ctx.expr())
+    
+    def visitWhile_stmt(self, ctx: AtomicParser.While_stmtContext):
+        self._loop_depth += 1
+        try:
+            cond = self.visit(ctx.cond())
+            body = self.visit(ctx.block())
+            return While(condition=cond, body=body)
+        finally:
+            self._loop_depth -= 1
+    
+    def visitIfelse_stmt(self, ctx: AtomicParser.Ifelse_stmtContext):
+        cond = self.visit(ctx.cond())
+        blocks = list(ctx.block())
+        then_branch = self.visit(blocks[0]) if blocks else []
+        else_branch = self.visit(blocks[1]) if len(blocks) > 1 else []
+        return IfElse(condition=cond, then_branch=then_branch, else_branch=else_branch)
+    
+    def visitBreak_stmt(self, ctx):
+        if self._loop_depth == 0:
+            raise SyntaxError("break outside of loop")
+        return Break()
+    
+    def visitContinue_stmt(self, ctx):
+        if self._loop_depth == 0:
+            raise SyntaxError("continue outside of loop")
+        return Continue()
+    
+    def visitExpr(self, ctx: AtomicParser.ExprContext):
+        
+        if ctx.bool_and_op() or ctx.bool_or_op():
+            left = self.visit(ctx.expr(0))
+            right = self.visit(ctx.expr(1))
+            if ctx.bool_and_op():
+                return BoolAnd(expr1=left, expr2=right)
+            return BoolOr(expr1=left, expr2=right)
+        
+        if ctx.bool_not_op():
+            return BoolNot(expr=self.visit(ctx.expr(0)))
+        if ctx.LBRACKET():
+            return self.visit(ctx.expr(0))
+        if ctx.atomic_list_extract() is not None:
+            return self.visit(ctx.atomic_list_extract())
+        if ctx.atomic_list() is not None:
+            return self.visit(ctx.atomic_list())
+        if ctx.beam_expr() is not None:
+            return self.visit(ctx.beam_expr())
+        
+        comps = ctx.comparators()
+        aexprs = ctx.aexpr()
+        if comps:
+            op_cls = _comparator_to_bool_class(comps[0])
+            left = self.visit(aexprs[0])
+            right = self.visit(aexprs[1])
+            return op_cls(expr1=left, expr2=right)
+        
+        if ctx.atom() is not None:
+            return self.visit(ctx.atom())
+        if aexprs and len(aexprs) == 1:
+            return self.visit(aexprs[0])
+        
+        raise ValueError('Undefined value')
+    
+    def visitAtomic_list_extract(self, ctx: AtomicParser.Atomic_list_extractContext):
+        access = self.visit(ctx.access())
+        index = int(ctx.INT().getText())
+        return AtomicListExtract(access=access, index=index)
+    
+    def visitAtomic_list(self, ctx: AtomicParser.Atomic_listContext):
+        values = [self.visit(e) for e in ctx.expr()]
+        return AtomicList(values=values)
+    
+    def visitAtom(self, ctx: AtomicParser.AtomContext):
+        return self.visitChildren(ctx)
+    
+    def visitAccess(self, ctx: AtomicParser.AccessContext):
+        return Access(name=ctx.ID().getText())
+    
+    def visitIon_register(self, ctx: AtomicParser.Ion_registerContext):
+        return IonRegister(size=int(ctx.INT().getText()))
+    
+    ## Math Terminals ##
+    
+    def visitMath_terminal(self, ctx: AtomicParser.Math_terminalContext):
+        for i in range(ctx.getChildCount()):
+            child = ctx.getChild(i)
+            if isinstance(child, TerminalNodeImpl):
+                tt = child.symbol.type
+                text = child.getText()
+                if tt == AtomicLexer.INT:
+                    return MathNum(value=int(text))
+                if tt == AtomicLexer.FLOAT:
+                    return MathNum(value=float(text))
+                if tt == AtomicLexer.MATH_VAR:
+                    return MathVar(name=text)
+                if tt == AtomicLexer.IMAG:
+                    return MathImag()
+                if tt == AtomicLexer.ID:
+                    return Access(name=text)
+            else:
+                return self.visit(child)
+        raise ValueError("Empty math_terminal")
+    
+    ## Arithmetic Expressions ##
+    
+    def visitAexpr(self, ctx: AtomicParser.AexprContext):
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.mexpr())
+        left = self.visit(ctx.aexpr())
+        right = self.visit(ctx.mexpr())
+        op_token = None
+        for i in range(ctx.getChildCount()):
+            c = ctx.getChild(i)
+            if isinstance(c, TerminalNodeImpl):
+                tt = c.symbol.type
+                if tt in (AtomicLexer.PLUS, AtomicLexer.MINUS):
+                    op_token = tt
+                    break
+        if op_token == AtomicLexer.PLUS:
+            return MathAdd(expr1=left, expr2=right)
+        if op_token == AtomicLexer.MINUS:
+            return MathSub(expr1=left, expr2=right)
+        return self.visitChildren(ctx)
+    
+    def visitMexpr(self, ctx: AtomicParser.MexprContext):
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.uexpr())
+        left = self.visit(ctx.mexpr())
+        right = self.visit(ctx.uexpr())
+        op_token = None
+        for i in range(ctx.getChildCount()):
+            c = ctx.getChild(i)
+            if isinstance(c, TerminalNodeImpl):
+                tt = c.symbol.type
+                if tt in (AtomicLexer.MULT, AtomicLexer.DIV):
+                    op_token = tt
+                    break
+        if op_token == AtomicLexer.MULT:
+            return MathMul(expr1=left, expr2=right)
+        if op_token == AtomicLexer.DIV:
+            return MathDiv(expr1=left, expr2=right)
+        return self.visitChildren(ctx)
+    
+    def visitUexpr(self, ctx: AtomicParser.UexprContext):
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.eexpr())
+        sign = None
+        for i in range(ctx.getChildCount()):
+            c = ctx.getChild(i)
+            if isinstance(c, TerminalNodeImpl) and c.symbol.type in (AtomicLexer.PLUS, AtomicLexer.MINUS):
+                sign = c.symbol.type
+                break
+        val = self.visit(ctx.eexpr())
+        if sign == AtomicLexer.MINUS:
+            return MathMul(expr1=MathNum(value=-1), expr2=val)
+        return val
+    
+    def visitEexpr(self, ctx: AtomicParser.EexprContext):
+        if ctx.getChildCount() == 1:
+            return self.visit(ctx.atom())
+        base = self.visit(ctx.atom())
+        exp = self.visit(ctx.uexpr())
+        return MathPow(expr1=base, expr2=exp)
+    
+    def visitPexpr(self, ctx: AtomicParser.PexprContext):
+        return self.visit(ctx.aexpr())
+    
+    def visitFexpr(self, ctx: AtomicParser.FexprContext):
+        func_name = _get_text(ctx.math_func_name()).lower()
+        arg = self.visit(ctx.pexpr())
+        return MathFunc(func=func_name, expr=arg)
+    
+    ## Bool Expressions ##
+
+    def visitCond(self, ctx: AtomicParser.CondContext):
+        return self.visit(ctx.expr())
+    
+    def visitBool_literal(self, ctx: AtomicParser.Bool_literalContext):
+        token = ctx.getChild(0).getText()
+        if token == 'true':
+            return Bool(value=True)
+        return Bool(value=False)
+    
+    
+        
