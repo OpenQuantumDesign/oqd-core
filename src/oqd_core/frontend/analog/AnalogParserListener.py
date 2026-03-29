@@ -62,12 +62,12 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#my_list.
-    def enterMy_list(self, ctx:AnalogParser.My_listContext):
+    # Enter a parse tree produced by AnalogParser#analog_list.
+    def enterAnalog_list(self, ctx:AnalogParser.Analog_listContext):
         pass
 
-    # Exit a parse tree produced by AnalogParser#my_list.
-    def exitMy_list(self, ctx:AnalogParser.My_listContext):
+    # Exit a parse tree produced by AnalogParser#analog_list.
+    def exitAnalog_list(self, ctx:AnalogParser.Analog_listContext):
         pass
 
 
@@ -89,12 +89,12 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#extract.
-    def enterExtract(self, ctx:AnalogParser.ExtractContext):
+    # Enter a parse tree produced by AnalogParser#analog_list_extract.
+    def enterAnalog_list_extract(self, ctx:AnalogParser.Analog_list_extractContext):
         pass
 
-    # Exit a parse tree produced by AnalogParser#extract.
-    def exitExtract(self, ctx:AnalogParser.ExtractContext):
+    # Exit a parse tree produced by AnalogParser#analog_list_extract.
+    def exitAnalog_list_extract(self, ctx:AnalogParser.Analog_list_extractContext):
         pass
 
 
@@ -278,12 +278,12 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#bool_expr.
-    def enterBool_expr(self, ctx:AnalogParser.Bool_exprContext):
+    # Enter a parse tree produced by AnalogParser#comparators.
+    def enterComparators(self, ctx:AnalogParser.ComparatorsContext):
         pass
 
-    # Exit a parse tree produced by AnalogParser#bool_expr.
-    def exitBool_expr(self, ctx:AnalogParser.Bool_exprContext):
+    # Exit a parse tree produced by AnalogParser#comparators.
+    def exitComparators(self, ctx:AnalogParser.ComparatorsContext):
         pass
 
 

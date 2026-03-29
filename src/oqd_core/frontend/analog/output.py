@@ -19,8 +19,6 @@ from pathlib import Path
 import antlr4
 import typer
 
-from oqd_core.compiler.analog.passes.canonicalize import analog_operator_canonicalization
-
 ########################################################################################
 
 app = typer.Typer()
@@ -41,8 +39,7 @@ def main(
     builder = _AnalogASTBuilder()
     
     ast = builder.visit(tree)
-    ast = analog_operator_canonicalization(ast)
-    tree = ast.model_dump_json(indent=2)
+    tree = ast.model_dump_json(indent=2, serialize_as_any=True)
 
     with open(output_file, 'w') as f:
         f.write(tree)

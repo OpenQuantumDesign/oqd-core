@@ -34,7 +34,7 @@ from oqd_core.interface.analog import (
     PauliY,
     PauliZ,
 )
-from oqd_core.interface.analog.math import MathAdd, MathImag, MathNum
+from oqd_core.interface.math import MathAdd, MathImag, MathNum
 
 ########################################################################################
 

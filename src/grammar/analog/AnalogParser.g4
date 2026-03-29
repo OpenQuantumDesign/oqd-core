@@ -21,14 +21,22 @@ block: (statement EOL | EOL)* (statement)?;
 
 /** ================================================================================= */
 
-atom: mode_register | quantum_register | operator_terminal | math_terminal | access;
-expr: extract | my_list | atom | aexpr | bool_literal;
-cond: bool_expr;
-my_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
+atom: mode_register | quantum_register | operator_terminal | math_terminal | bool_literal;
+expr
+    : aexpr (comparators aexpr)+
+    | expr (bool_and_op|bool_or_op) expr
+    | bool_not_op expr
+    | LBRACKET expr RBRACKET
+    | analog_list_extract 
+    | analog_list 
+    | atom
+    | aexpr;
+cond: expr;
+analog_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
 declaration: ID ASSIGN expr;
 access: ID;
-extract: access SQUARELBRACKET INT SQUARERBRACKET;
+analog_list_extract: access SQUARELBRACKET INT SQUARERBRACKET;
 
 /** ================================================================================= */
 
@@ -71,14 +79,13 @@ bool_gt_op: GT;
 bool_gte_op: GTE;
 bool_literal: TRUE | FALSE;
 
-bool_expr
-    : bool_expr (bool_and_op | bool_or_op | bool_eq_op) bool_expr
-    | bool_expr (bool_not_eq_op | bool_lt_op | bool_lte_op | bool_gt_op | bool_gte_op) bool_expr
-    | bool_not_op bool_expr
-    | bool_literal
-    | access
-    | atom
-    | LBRACKET bool_expr RBRACKET
+comparators
+    : bool_eq_op
+    | bool_not_eq_op
+    | bool_lt_op 
+    | bool_lte_op 
+    | bool_gt_op 
+    | bool_gte_op
     ;
 
 /** ================================================================================= */
@@ -93,7 +100,7 @@ operator_terminal: pauli_op | ladder_op;
 
 // Math
 
-math_terminal: INT | FLOAT | MATH_VAR | IMAG | ID | pexpr | fexpr;
+math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr;
 
 math_func_name: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
     | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2
