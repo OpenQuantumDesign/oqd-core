@@ -8,9 +8,6 @@ program: block EOF;
 
 statement
     : declaration
-    | evolve_stmt
-    | measure_stmt
-    | init_stmt
     | while_stmt
     | ifelse_stmt
     | break_stmt
@@ -27,10 +24,13 @@ expr
     | expr (bool_and_op|bool_or_op) expr
     | bool_not_op expr
     | LBRACKET expr RBRACKET
-    | analog_list_extract 
-    | analog_list 
+    | analog_list_extract
+    | analog_list
     | atom
-    | aexpr;
+    | aexpr
+    | evolve_expr
+    | measure_expr
+    | init_expr;
 cond: expr;
 analog_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
@@ -59,9 +59,9 @@ ifelse_stmt
 quantum_register: QUANTUMREGISTER LBRACKET INT RBRACKET;
 mode_register: MODEREGISTER LBRACKET INT RBRACKET;
 
-evolve_stmt: EVOLVE targets WITH expr FOR expr;
-measure_stmt: MEASURE targets;
-init_stmt: INITIALIZE targets;
+evolve_expr: EVOLVE targets WITH expr FOR expr;
+measure_expr: MEASURE targets;
+init_expr: INITIALIZE targets;
 targets: expr;
 
 /** ================================================================================= */
@@ -82,9 +82,9 @@ bool_literal: TRUE | FALSE;
 comparators
     : bool_eq_op
     | bool_not_eq_op
-    | bool_lt_op 
-    | bool_lte_op 
-    | bool_gt_op 
+    | bool_lt_op
+    | bool_lte_op
+    | bool_gt_op
     | bool_gte_op
     ;
 

@@ -23,9 +23,6 @@ from oqd_core.interface.analog.expr import AnalogExprSubtypes, Identifier
 
 ########################################################################################
 __all__ = [
-    "Evolve",
-    "Measure",
-    "Initialize",
     "Declaration",
     "IfElse",
     "While",
@@ -39,37 +36,6 @@ __all__ = [
 class Declaration(TypeReflectBaseModel):
     name: Identifier
     value: AnalogExprSubtypes
-
-
-class Evolve(TypeReflectBaseModel):
-    """
-    Class representing an evolution by an analog gate in the analog circuit
-
-    Attributes:
-        hamiltonian (Expr): Function to evolve by
-        duration (Expr): Duration of the evolution
-        targets (Expr): Indices and Quantum objects on which to apply the Hamiltonian
-    """
-
-    hamiltonian: AnalogExprSubtypes
-    duration: AnalogExprSubtypes
-    targets: AnalogExprSubtypes
-
-
-class Measure(TypeReflectBaseModel):
-    """
-    Class representing a measurement in the analog circuit
-    """
-
-    targets: AnalogExprSubtypes
-
-
-class Initialize(TypeReflectBaseModel):
-    """
-    Class representing a initialization in the analog circuit
-    """
-
-    targets: AnalogExprSubtypes
 
 
 class IfElse(TypeReflectBaseModel):
@@ -107,20 +73,34 @@ class Continue(TypeReflectBaseModel):
     pass
 
 
+########################################################################################
+
+
 """
 Union of classes
 """
 
+
+def _Statement_discriminator(value):
+    if isinstance(value, dict):
+        class_ = value["class_"]
+    else:
+        class_ = getattr(value, "class_")
+
+    if class_ not in ["Declaration", "IfElse", "While", "Break", "Continue"]:
+        class_ = "AnalogExpr"
+
+    return class_
+
+
 Statement = Annotated[
     Union[
         Annotated[Declaration, Tag("Declaration")],
-        Annotated[Measure, Tag("Measure")],
-        Annotated[Evolve, Tag("Evolve")],
-        Annotated[Initialize, Tag("Initialize")],
         Annotated[IfElse, Tag("IfElse")],
         Annotated[While, Tag("While")],
         Annotated[Break, Tag("Break")],
         Annotated[Continue, Tag("Continue")],
+        Annotated[AnalogExprSubtypes, Tag("AnalogExpr")],
     ],
-    Discriminator(lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")),
+    Discriminator(discriminator=_Statement_discriminator),
 ]

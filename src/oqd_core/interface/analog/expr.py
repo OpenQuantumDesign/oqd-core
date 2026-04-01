@@ -73,9 +73,10 @@ __all__ = [
     "OperatorMul",
     "OperatorKron",
     "AnalogList",
-    "AnalogListExtract",
-    "QuantumBit",
-    "QuantumMode",
+    "Extract",
+    "Evolve",
+    "Measure",
+    "Initialize",
 ]
 
 ########################################################################################
@@ -150,6 +151,18 @@ class BoolExpr(AnalogExpr): ...
 
 
 class OperatorExpr(AnalogExpr): ...
+
+
+class QuantumExpr(AnalogExpr): ...
+
+
+class CollectionExpr(AnalogExpr): ...
+
+
+class IndexingExpr(AnalogExpr): ...
+
+
+class RegisterExpr(CollectionExpr): ...
 
 
 ########################################################################################
@@ -306,22 +319,40 @@ class Identity(Ladder):
 ########################################################################################
 
 
-class Register(AnalogExpr):
-    pass
-
-
-class QuantumRegister(Register):
+class QuantumRegister(RegisterExpr):
     size: NonNegativeInt
 
 
-class ModeRegister(Register):
+class ModeRegister(RegisterExpr):
     size: NonNegativeInt
 
 
 ########################################################################################
 
-Atom = Union[Bool, MathVar, MathNum, MathImag, PauliX, PauliY, PauliZ, PauliI, 
-             Annihilation, Creation, Identity, Access, QuantumRegister, ModeRegister,]
+
+def _Atom_discriminator(value):
+    return value["class_"] if isinstance(value, dict) else getattr(value, "class_")
+
+
+Atom = Annotated[
+    Union[
+        Annotated[Bool, Tag("Bool")],
+        Annotated[MathVar, Tag("MathVar")],
+        Annotated[MathNum, Tag("MathNum")],
+        Annotated[MathImag, Tag("MathImag")],
+        Annotated[PauliX, Tag("PauliX")],
+        Annotated[PauliY, Tag("PauliY")],
+        Annotated[PauliZ, Tag("PauliZ")],
+        Annotated[PauliI, Tag("PauliI")],
+        Annotated[Annihilation, Tag("Annihilation")],
+        Annotated[Creation, Tag("Creation")],
+        Annotated[Identity, Tag("Identity")],
+        Annotated[Access, Tag("Access")],
+        Annotated[QuantumRegister, Tag("QuantumRegister")],
+        Annotated[ModeRegister, Tag("ModeRegister")],
+    ],
+    Discriminator(discriminator=_Atom_discriminator),
+]
 
 
 ########################################################################################
@@ -625,43 +656,91 @@ class OperatorKron(OperatorBinaryOp):
 ########################################################################################
 
 
-class AnalogList(AnalogExpr):
+class AnalogList(CollectionExpr):
     values: List[CastAnalogExpr]
 
 
-class AnalogListExtract(AnalogExpr):
-    access: Access
-    index: NonNegativeInt
-
-
-class QuantumBit(AnalogExpr):
-    access: Access
-    index: NonNegativeInt
-
-
-class QuantumMode(AnalogExpr):
+class Extract(IndexingExpr):
     access: Access
     index: NonNegativeInt
 
 
 ########################################################################################
 
+
+class Evolve(QuantumExpr):
+    """
+    Class representing an evolution by an analog gate in the analog circuit
+
+    Attributes:
+        hamiltonian (Expr): Function to evolve by
+        duration (Expr): Duration of the evolution
+        targets (Expr): Indices and Quantum objects on which to apply the Hamiltonian
+    """
+
+    hamiltonian: AnalogExprSubtypes
+    duration: AnalogExprSubtypes
+    targets: AnalogExprSubtypes
+
+
+class Measure(QuantumExpr):
+    """
+    Class representing a measurement in the analog circuit
+    """
+
+    targets: AnalogExprSubtypes
+
+
+class Initialize(QuantumExpr):
+    """
+    Class representing a initialization in the analog circuit
+    """
+
+    targets: AnalogExprSubtypes
+
+
+########################################################################################
+
+
+def _AnalogExprSubtypes_discriminator(value):
+    if isinstance(value, dict):
+        class_ = value["class_"]
+    else:
+        class_ = getattr(value, "class_")
+
+    if class_ not in [
+        "BoolAnd",
+        "BoolOr",
+        "BoolNot",
+        "BoolEq",
+        "BoolNotEq",
+        "BoolLessThan",
+        "BoolLessThanEq",
+        "BoolGreaterThan",
+        "BoolGreaterThanEq",
+        "MathFunc",
+        "MathAdd",
+        "MathSub",
+        "MathMul",
+        "MathDiv",
+        "MathPow",
+        "OperatorAdd",
+        "OperatorSub",
+        "OperatorMul",
+        "OperatorKron",
+        "AnalogList",
+        "Extract",
+        "Evolve",
+        "Measure",
+        "Initialize",
+    ]:
+        class_ = "Atom"
+
+    return class_
+
+
 AnalogExprSubtypes = Annotated[
     Union[
-        Annotated[Bool, Tag("Bool")],
-        Annotated[MathVar, Tag("MathVar")],
-        Annotated[MathNum, Tag("MathNum")],
-        Annotated[MathImag, Tag("MathImag")],
-        Annotated[PauliX, Tag("PauliX")],
-        Annotated[PauliY, Tag("PauliY")],
-        Annotated[PauliZ, Tag("PauliZ")],
-        Annotated[PauliI, Tag("PauliI")],
-        Annotated[Annihilation, Tag("Annihilation")],
-        Annotated[Creation, Tag("Creation")],
-        Annotated[Identity, Tag("Identity")],
-        Annotated[Access, Tag("Access")],
-        Annotated[QuantumRegister, Tag("QuantumRegister")],
-        Annotated[ModeRegister, Tag("ModeRegister")],
         Annotated[BoolAnd, Tag("BoolAnd")],
         Annotated[BoolOr, Tag("BoolOr")],
         Annotated[BoolNot, Tag("BoolNot")],
@@ -681,12 +760,14 @@ AnalogExprSubtypes = Annotated[
         Annotated[OperatorSub, Tag("OperatorSub")],
         Annotated[OperatorMul, Tag("OperatorMul")],
         Annotated[OperatorKron, Tag("OperatorKron")],
-        Annotated[QuantumBit, Tag("QuantumBit")],
-        Annotated[QuantumMode, Tag("QuantumMode")],
         Annotated[AnalogList, Tag("AnalogList")],
-        Annotated[AnalogListExtract, Tag("AnalogListExtract")],
+        Annotated[Extract, Tag("Extract")],
+        Annotated[Evolve, Tag("Evolve")],
+        Annotated[Measure, Tag("Measure")],
+        Annotated[Initialize, Tag("Initialize")],
+        Annotated[Atom, Tag("Atom")],
     ],
-    Discriminator(lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")),
+    Discriminator(discriminator=_AnalogExprSubtypes_discriminator),
 ]
 
 CastAnalogExpr = Annotated[AnalogExprSubtypes, BeforeValidator(AnalogExpr.cast)]
