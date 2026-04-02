@@ -8,29 +8,28 @@ program: block EOF;
 
 statement
     : declaration
-    | evolve_stmt
-    | measure_stmt
-    | init_stmt
     | while_stmt
     | ifelse_stmt
     | break_stmt
     | continue_stmt
+    | expr
     ;
 
 block: (statement EOL | EOL)* (statement)?;
 
 /** ================================================================================= */
 
-atom: mode_register | quantum_register | operator_terminal | math_terminal | bool_literal;
+terminal: mode_register | quantum_register | operator_terminal | math_terminal | bool_literal;
 expr
     : aexpr (comparators aexpr)+
     | expr (bool_and_op|bool_or_op) expr
     | bool_not_op expr
     | LBRACKET expr RBRACKET
-    | analog_list_extract 
-    | analog_list 
-    | atom
-    | aexpr;
+    | analog_list_extract
+    | analog_list
+    | terminal
+    | aexpr
+    ;
 cond: expr;
 analog_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
@@ -59,9 +58,6 @@ ifelse_stmt
 quantum_register: QUANTUMREGISTER LBRACKET INT RBRACKET;
 mode_register: MODEREGISTER LBRACKET INT RBRACKET;
 
-evolve_stmt: EVOLVE targets WITH expr FOR expr;
-measure_stmt: MEASURE targets;
-init_stmt: INITIALIZE targets;
 targets: expr;
 
 /** ================================================================================= */
@@ -82,9 +78,9 @@ bool_literal: TRUE | FALSE;
 comparators
     : bool_eq_op
     | bool_not_eq_op
-    | bool_lt_op 
-    | bool_lte_op 
-    | bool_gt_op 
+    | bool_lt_op
+    | bool_lte_op
+    | bool_gt_op
     | bool_gte_op
     ;
 
@@ -102,13 +98,13 @@ operator_terminal: pauli_op | ladder_op;
 
 math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr;
 
-math_func_name: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
-    | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2
-    | HEAVISIDE | CONJ | REAL | IMAG_FN;
+func_names: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
+    | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2 | CONJ
+    | HEAVISIDE | REAL | IMAG_FN | EVOLVE | MEASURE | INITIALIZE;
 
 pexpr: LBRACKET aexpr RBRACKET;
 
-fexpr: math_func_name pexpr;
+fexpr: func_names LBRACKET (aexpr (COMMA aexpr)*)? RBRACKET;
 
 aexpr: mexpr | aexpr (PLUS|MINUS|OP_ADD|OP_MINUS) mexpr;
 
@@ -116,4 +112,4 @@ mexpr: uexpr | mexpr (MULT|DIV|OP_MUL|AT) uexpr;
 
 uexpr: eexpr | (PLUS|MINUS) eexpr;
 
-eexpr: atom | atom POWER uexpr;
+eexpr: terminal | terminal POWER uexpr;

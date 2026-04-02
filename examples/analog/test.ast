@@ -21,7 +21,7 @@
       "class_": "Declaration",
       "name": "q0",
       "value": {
-        "class_": "AnalogListExtract",
+        "class_": "Extract",
         "access": {
           "class_": "Access",
           "name": "r"
@@ -33,7 +33,7 @@
       "class_": "Declaration",
       "name": "q1",
       "value": {
-        "class_": "AnalogListExtract",
+        "class_": "Extract",
         "access": {
           "class_": "Access",
           "name": "r"

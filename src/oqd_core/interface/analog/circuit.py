@@ -18,7 +18,8 @@ from typing import List
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 
-from .statement import Evolve, Initialize, Measure, Statement
+from oqd_core.interface.analog.expr import Evolve, Initialize, Measure
+from oqd_core.interface.analog.statement import Declaration, Statement
 
 ########################################################################################
 
@@ -46,5 +47,10 @@ class AnalogCircuit(TypeReflectBaseModel):
     def initialize(self, targets):
         self.statements.append(Initialize(targets=targets))
 
-    def measure(self, targets):
-        self.statements.append(Measure(targets=targets))
+    def measure(self, targets, name=None):
+        if name:
+            self.statements.append(
+                Declaration(name=name, value=Measure(targets=targets))
+            )
+        else:
+            self.statements.append(Measure(targets=targets))
