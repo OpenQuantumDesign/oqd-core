@@ -24,7 +24,7 @@ from oqd_core.interface.atomic import (
     Declaration,
     Pulse,
     Access,
-    AtomicListExtract,
+    Extract,
     ParallelProtocol,
     Beam,
     AtomicList,
@@ -67,6 +67,29 @@ _BOOL_OP_MAP = {
     AtomicLexer.LTE: BoolLessThanEq,
     AtomicLexer.GT: BoolGreaterThan,
     AtomicLexer.GTE: BoolGreaterThanEq,
+}
+
+_FUNC_TOKEN_TO_NAME = {
+    AtomicLexer.ABS: "abs",
+    AtomicLexer.SIN: "sin",
+    AtomicLexer.COS: "cos",
+    AtomicLexer.TAN: "tan",
+    AtomicLexer.EXP: "exp",
+    AtomicLexer.LOG: "log",
+    AtomicLexer.SINH: "sinh",
+    AtomicLexer.COSH: "cosh",
+    AtomicLexer.TANH: "tanh",
+    AtomicLexer.ATAN: "atan",
+    AtomicLexer.ACOS: "acos",
+    AtomicLexer.ASIN: "asin",
+    AtomicLexer.ATANH: "atanh",
+    AtomicLexer.ASINH: "asinh",
+    AtomicLexer.ACOSH: "acosh",
+    AtomicLexer.HEAVISIDE: "heaviside",
+    AtomicLexer.CONJ: "conj",
+    AtomicLexer.REAL: "real",
+    AtomicLexer.IMAG_FN: "imag",
+    AtomicLexer.ATAN2: "atan2",
 }
 
 def _get_token_type(node) -> int:
@@ -132,36 +155,12 @@ class _AtomicASTBuilder(AtomicParserVisitor):
     
     ## Statements ##
     
+    def visitTargets(self, ctx: AtomicParser.TargetsContext):
+        return self.visit(ctx.expr())
+    
     def visitParallel_stmt(self, ctx: AtomicParser.Parallel_stmtContext):
         body = self.visit(ctx.block())
         return ParallelProtocol(pulses=body)
-    
-    def visitPulse_stmt(self, ctx: AtomicParser.Pulse_stmtContext):
-        target = self.visit(ctx.targets())
-        beam = self.visit(ctx.expr(0))
-        duration = self.visit(ctx.expr(1))
-        if ctx.measured() is not None:
-            measured = self.visit(ctx.measured())
-        else:
-            measured = Bool(value=False)
-        return Pulse(duration=duration, target=target, beam=beam, measured=measured)
-    
-    def visitMeasured(self, ctx: AtomicParser.MeasuredContext):
-        return self.visit(ctx.expr())
-    
-    def visitBeam_expr(self, ctx: AtomicParser.Beam_exprContext):
-        frequency = self.visit(ctx.expr(0))
-        rabi = self.visit(ctx.expr(1))
-        phase = self.visit(ctx.expr(2))
-        polarization = self.visit(ctx.vec3(0))
-        wavevector = self.visit(ctx.vec3(1))
-        return Beam(frequency=frequency, rabi=rabi, phase=phase, polarization=polarization, wavevector=wavevector)
-    
-    def visitVec3(self, ctx: AtomicParser.Vec3Context):
-        return AtomicList(values=[self.visit(ctx.expr(i)) for i in range(3)])
-    
-    def visitTargets(self, ctx: AtomicParser.TargetsContext):
-        return self.visit(ctx.expr())
     
     def visitWhile_stmt(self, ctx: AtomicParser.While_stmtContext):
         self._loop_depth += 1
@@ -189,6 +188,8 @@ class _AtomicASTBuilder(AtomicParserVisitor):
             raise SyntaxError("continue outside of loop")
         return Continue()
     
+    ## Expressions
+    
     def visitExpr(self, ctx: AtomicParser.ExprContext):
         
         if ctx.bool_and_op() or ctx.bool_or_op():
@@ -206,8 +207,6 @@ class _AtomicASTBuilder(AtomicParserVisitor):
             return self.visit(ctx.atomic_list_extract())
         if ctx.atomic_list() is not None:
             return self.visit(ctx.atomic_list())
-        if ctx.beam_expr() is not None:
-            return self.visit(ctx.beam_expr())
         
         comps = ctx.comparators()
         aexprs = ctx.aexpr()
@@ -217,8 +216,8 @@ class _AtomicASTBuilder(AtomicParserVisitor):
             right = self.visit(aexprs[1])
             return op_cls(expr1=left, expr2=right)
         
-        if ctx.atom() is not None:
-            return self.visit(ctx.atom())
+        if ctx.terminal() is not None:
+            return self.visit(ctx.terminal())
         if aexprs and len(aexprs) == 1:
             return self.visit(aexprs[0])
         
@@ -227,13 +226,13 @@ class _AtomicASTBuilder(AtomicParserVisitor):
     def visitAtomic_list_extract(self, ctx: AtomicParser.Atomic_list_extractContext):
         access = self.visit(ctx.access())
         index = int(ctx.INT().getText())
-        return AtomicListExtract(access=access, index=index)
+        return Extract(access=access, index=index)
     
     def visitAtomic_list(self, ctx: AtomicParser.Atomic_listContext):
         values = [self.visit(e) for e in ctx.expr()]
         return AtomicList(values=values)
     
-    def visitAtom(self, ctx: AtomicParser.AtomContext):
+    def visitTerminal(self, ctx: AtomicParser.TerminalContext):
         return self.visitChildren(ctx)
     
     def visitAccess(self, ctx: AtomicParser.AccessContext):
@@ -245,23 +244,22 @@ class _AtomicASTBuilder(AtomicParserVisitor):
     ## Math Terminals ##
     
     def visitMath_terminal(self, ctx: AtomicParser.Math_terminalContext):
-        for i in range(ctx.getChildCount()):
-            child = ctx.getChild(i)
-            if isinstance(child, TerminalNodeImpl):
-                tt = child.symbol.type
-                text = child.getText()
-                if tt == AtomicLexer.INT:
-                    return MathNum(value=int(text))
-                if tt == AtomicLexer.FLOAT:
-                    return MathNum(value=float(text))
-                if tt == AtomicLexer.MATH_VAR:
-                    return MathVar(name=text)
-                if tt == AtomicLexer.IMAG:
-                    return MathImag()
-                if tt == AtomicLexer.ID:
-                    return Access(name=text)
-            else:
-                return self.visit(child)
+        if ctx.INT() is not None:
+            return MathNum(value=int(ctx.INT().getText()))
+        if ctx.FLOAT() is not None:
+            return MathNum(value=float(ctx.FLOAT().getText()))
+        if ctx.MATH_VAR() is not None:
+            return MathVar(name=ctx.MATH_VAR().getText())
+        if ctx.IMAG() is not None:
+            return MathImag()
+        if ctx.access() is not None:
+            return self.visit(ctx.access())
+        if ctx.pexpr() is not None:
+            return self.visit(ctx.pexpr())
+        if ctx.fexpr() is not None:
+            return self.visit(ctx.fexpr())
+        if ctx.atomic_list() is not None:
+            return self.visit(ctx.atomic_list())
         raise ValueError("Empty math_terminal")
     
     ## Arithmetic Expressions ##
@@ -320,8 +318,8 @@ class _AtomicASTBuilder(AtomicParserVisitor):
     
     def visitEexpr(self, ctx: AtomicParser.EexprContext):
         if ctx.getChildCount() == 1:
-            return self.visit(ctx.atom())
-        base = self.visit(ctx.atom())
+            return self.visit(ctx.terminal())
+        base = self.visit(ctx.terminal())
         exp = self.visit(ctx.uexpr())
         return MathPow(expr1=base, expr2=exp)
     
@@ -329,9 +327,26 @@ class _AtomicASTBuilder(AtomicParserVisitor):
         return self.visit(ctx.aexpr())
     
     def visitFexpr(self, ctx: AtomicParser.FexprContext):
-        func_name = _get_text(ctx.math_func_name()).lower()
-        arg = self.visit(ctx.pexpr())
-        return MathFunc(func=func_name, expr=arg)
+        fn_ctx = ctx.func_names()
+        tt = _get_token_type(fn_ctx.getChild(0))
+        args = [self.visit(ax) for ax in ctx.aexpr()]
+        if tt == AtomicLexer.BEAM:
+            if len(args) != 5:
+                raise ValueError(f"beam expects 5 arguments, got {len(args)}")
+            return Beam(frequency=args[0], rabi=args[1], phase=args[2], polarization=args[3], wavevector=args[4])
+        if tt == AtomicLexer.PULSE:
+            if len(args) == 4:
+                return Pulse(duration=args[2], target=args[0], beam=args[1], measured=args[3])
+            elif len(args) == 3:
+                return Pulse(duration=args[2], target=args[0], beam=args[1], measured=Bool(value=False))
+            raise ValueError(f"pulse expects 3/4 arguments, got {len(args)}")
+        name = _FUNC_TOKEN_TO_NAME.get(tt)
+        if name is None:
+            raise ValueError(f"Unknown function token type: {tt}")
+        if name == "atan2":
+            return MathFunc(func=name, expr=args)
+        
+        return MathFunc(func=name, expr=args[0])
     
     ## Bool Expressions ##
 

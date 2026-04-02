@@ -14,8 +14,8 @@
 
 from typing import List
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from .statement import Pulse, ParallelProtocol, Statement
-
+from .statement import Statement, ParallelProtocol
+from .expr import Pulse, Beam
 ########################################################################################
 
 __all__ = [
@@ -35,6 +35,11 @@ class AtomicCircuit(TypeReflectBaseModel):
 
     statements: List[Statement] = []
     
+    def beam(self, frequency, rabi, phase, polarization, wavevector):
+        self.statements.append(
+            Beam(frequency = frequency, rabi = rabi, phase = phase, polarization = polarization, wavevector = wavevector)
+        )
+        
     def pulse(self, duration, target, beam, measured):
         self.statements.append(
             Pulse(duration=duration, target=target, beam=beam, measured=measured)

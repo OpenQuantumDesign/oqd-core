@@ -497,7 +497,7 @@ class Beam(AtomicExpr):
     rabi: CastAtomicExpr
     phase: CastAtomicExpr
     polarization: CastAtomicExpr
-    wavevector:CastAtomicExpr
+    wavevector: CastAtomicExpr
 
 
 class Pulse(TypeReflectBaseModel):
