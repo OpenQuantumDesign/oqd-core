@@ -24,8 +24,8 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#atom.
-    def visitAtom(self, ctx:AnalogParser.AtomContext):
+    # Visit a parse tree produced by AnalogParser#terminal.
+    def visitTerminal(self, ctx:AnalogParser.TerminalContext):
         return self.visitChildren(ctx)
 
 
@@ -86,21 +86,6 @@ class AnalogParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by AnalogParser#mode_register.
     def visitMode_register(self, ctx:AnalogParser.Mode_registerContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#evolve_stmt.
-    def visitEvolve_stmt(self, ctx:AnalogParser.Evolve_stmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#measure_stmt.
-    def visitMeasure_stmt(self, ctx:AnalogParser.Measure_stmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#init_stmt.
-    def visitInit_stmt(self, ctx:AnalogParser.Init_stmtContext):
         return self.visitChildren(ctx)
 
 
@@ -184,8 +169,8 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#math_func_name.
-    def visitMath_func_name(self, ctx:AnalogParser.Math_func_nameContext):
+    # Visit a parse tree produced by AnalogParser#func_names.
+    def visitFunc_names(self, ctx:AnalogParser.Func_namesContext):
         return self.visitChildren(ctx)
 
 

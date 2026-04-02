@@ -35,12 +35,12 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#atom.
-    def enterAtom(self, ctx:AnalogParser.AtomContext):
+    # Enter a parse tree produced by AnalogParser#terminal.
+    def enterTerminal(self, ctx:AnalogParser.TerminalContext):
         pass
 
-    # Exit a parse tree produced by AnalogParser#atom.
-    def exitAtom(self, ctx:AnalogParser.AtomContext):
+    # Exit a parse tree produced by AnalogParser#terminal.
+    def exitTerminal(self, ctx:AnalogParser.TerminalContext):
         pass
 
 
@@ -149,33 +149,6 @@ class AnalogParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by AnalogParser#mode_register.
     def exitMode_register(self, ctx:AnalogParser.Mode_registerContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#evolve_stmt.
-    def enterEvolve_stmt(self, ctx:AnalogParser.Evolve_stmtContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#evolve_stmt.
-    def exitEvolve_stmt(self, ctx:AnalogParser.Evolve_stmtContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#measure_stmt.
-    def enterMeasure_stmt(self, ctx:AnalogParser.Measure_stmtContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#measure_stmt.
-    def exitMeasure_stmt(self, ctx:AnalogParser.Measure_stmtContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#init_stmt.
-    def enterInit_stmt(self, ctx:AnalogParser.Init_stmtContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#init_stmt.
-    def exitInit_stmt(self, ctx:AnalogParser.Init_stmtContext):
         pass
 
 
@@ -323,12 +296,12 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#math_func_name.
-    def enterMath_func_name(self, ctx:AnalogParser.Math_func_nameContext):
+    # Enter a parse tree produced by AnalogParser#func_names.
+    def enterFunc_names(self, ctx:AnalogParser.Func_namesContext):
         pass
 
-    # Exit a parse tree produced by AnalogParser#math_func_name.
-    def exitMath_func_name(self, ctx:AnalogParser.Math_func_nameContext):
+    # Exit a parse tree produced by AnalogParser#func_names.
+    def exitFunc_names(self, ctx:AnalogParser.Func_namesContext):
         pass
 
 

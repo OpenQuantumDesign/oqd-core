@@ -10,118 +10,115 @@ else:
 
 def serializedATN():
     return [
-        4,1,81,327,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
+        4,1,81,317,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,4,2,5,7,5,2,6,7,
         6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,2,13,7,13,
         2,14,7,14,2,15,7,15,2,16,7,16,2,17,7,17,2,18,7,18,2,19,7,19,2,20,
         7,20,2,21,7,21,2,22,7,22,2,23,7,23,2,24,7,24,2,25,7,25,2,26,7,26,
         2,27,7,27,2,28,7,28,2,29,7,29,2,30,7,30,2,31,7,31,2,32,7,32,2,33,
-        7,33,2,34,7,34,2,35,7,35,2,36,7,36,2,37,7,37,2,38,7,38,2,39,7,39,
-        2,40,7,40,2,41,7,41,1,0,1,0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
-        3,1,96,8,1,1,2,1,2,1,2,1,2,5,2,102,8,2,10,2,12,2,105,9,2,1,2,3,2,
-        108,8,2,1,3,1,3,1,3,1,3,1,3,3,3,115,8,3,1,4,1,4,1,4,1,4,1,4,4,4,
-        122,8,4,11,4,12,4,123,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,
-        4,3,4,137,8,4,1,4,1,4,1,4,3,4,142,8,4,1,4,1,4,5,4,146,8,4,10,4,12,
-        4,149,9,4,1,5,1,5,1,6,1,6,3,6,155,8,6,1,6,1,6,5,6,159,8,6,10,6,12,
-        6,162,9,6,1,6,1,6,1,7,1,7,1,7,1,7,1,8,1,8,1,9,1,9,1,9,1,9,1,9,1,
-        10,1,10,1,11,1,11,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,1,13,1,
-        13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,
-        13,1,13,3,13,205,8,13,1,13,1,13,1,13,1,13,1,13,3,13,212,8,13,1,14,
-        1,14,1,14,1,14,1,14,1,15,1,15,1,15,1,15,1,15,1,16,1,16,1,16,1,16,
-        1,16,1,16,1,16,1,17,1,17,1,17,1,18,1,18,1,18,1,19,1,19,1,20,1,20,
-        1,21,1,21,1,22,1,22,1,23,1,23,1,24,1,24,1,25,1,25,1,26,1,26,1,27,
-        1,27,1,28,1,28,1,29,1,29,1,30,1,30,1,30,1,30,1,30,1,30,3,30,265,
-        8,30,1,31,1,31,1,32,1,32,1,33,1,33,3,33,273,8,33,1,34,1,34,1,34,
-        1,34,1,34,1,34,1,34,3,34,282,8,34,1,35,1,35,1,36,1,36,1,36,1,36,
-        1,37,1,37,1,37,1,38,1,38,1,38,1,38,1,38,1,38,5,38,299,8,38,10,38,
-        12,38,302,9,38,1,39,1,39,1,39,1,39,1,39,1,39,5,39,310,8,39,10,39,
-        12,39,313,9,39,1,40,1,40,1,40,3,40,318,8,40,1,41,1,41,1,41,1,41,
-        1,41,3,41,325,8,41,1,41,0,3,8,76,78,42,0,2,4,6,8,10,12,14,16,18,
-        20,22,24,26,28,30,32,34,36,38,40,42,44,46,48,50,52,54,56,58,60,62,
-        64,66,68,70,72,74,76,78,80,82,0,10,1,0,15,16,1,0,17,18,1,0,19,20,
-        1,0,21,22,1,0,74,77,1,0,78,80,1,0,54,73,3,0,36,37,47,47,49,49,3,
-        0,34,35,46,46,48,48,1,0,36,37,327,0,84,1,0,0,0,2,95,1,0,0,0,4,103,
-        1,0,0,0,6,114,1,0,0,0,8,136,1,0,0,0,10,150,1,0,0,0,12,152,1,0,0,
-        0,14,165,1,0,0,0,16,169,1,0,0,0,18,171,1,0,0,0,20,176,1,0,0,0,22,
-        178,1,0,0,0,24,180,1,0,0,0,26,211,1,0,0,0,28,213,1,0,0,0,30,218,
-        1,0,0,0,32,223,1,0,0,0,34,230,1,0,0,0,36,233,1,0,0,0,38,236,1,0,
-        0,0,40,238,1,0,0,0,42,240,1,0,0,0,44,242,1,0,0,0,46,244,1,0,0,0,
-        48,246,1,0,0,0,50,248,1,0,0,0,52,250,1,0,0,0,54,252,1,0,0,0,56,254,
-        1,0,0,0,58,256,1,0,0,0,60,264,1,0,0,0,62,266,1,0,0,0,64,268,1,0,
-        0,0,66,272,1,0,0,0,68,281,1,0,0,0,70,283,1,0,0,0,72,285,1,0,0,0,
-        74,289,1,0,0,0,76,292,1,0,0,0,78,303,1,0,0,0,80,317,1,0,0,0,82,324,
-        1,0,0,0,84,85,3,4,2,0,85,86,5,0,0,1,86,1,1,0,0,0,87,96,3,14,7,0,
-        88,96,3,32,16,0,89,96,3,34,17,0,90,96,3,36,18,0,91,96,3,24,12,0,
-        92,96,3,26,13,0,93,96,3,20,10,0,94,96,3,22,11,0,95,87,1,0,0,0,95,
-        88,1,0,0,0,95,89,1,0,0,0,95,90,1,0,0,0,95,91,1,0,0,0,95,92,1,0,0,
-        0,95,93,1,0,0,0,95,94,1,0,0,0,96,3,1,0,0,0,97,98,3,2,1,0,98,99,5,
-        2,0,0,99,102,1,0,0,0,100,102,5,2,0,0,101,97,1,0,0,0,101,100,1,0,
-        0,0,102,105,1,0,0,0,103,101,1,0,0,0,103,104,1,0,0,0,104,107,1,0,
-        0,0,105,103,1,0,0,0,106,108,3,2,1,0,107,106,1,0,0,0,107,108,1,0,
-        0,0,108,5,1,0,0,0,109,115,3,30,15,0,110,115,3,28,14,0,111,115,3,
-        66,33,0,112,115,3,68,34,0,113,115,3,58,29,0,114,109,1,0,0,0,114,
-        110,1,0,0,0,114,111,1,0,0,0,114,112,1,0,0,0,114,113,1,0,0,0,115,
-        7,1,0,0,0,116,117,6,4,-1,0,117,121,3,76,38,0,118,119,3,60,30,0,119,
-        120,3,76,38,0,120,122,1,0,0,0,121,118,1,0,0,0,122,123,1,0,0,0,123,
-        121,1,0,0,0,123,124,1,0,0,0,124,137,1,0,0,0,125,126,3,44,22,0,126,
-        127,3,8,4,6,127,137,1,0,0,0,128,129,5,28,0,0,129,130,3,8,4,0,130,
-        131,5,29,0,0,131,137,1,0,0,0,132,137,3,18,9,0,133,137,3,12,6,0,134,
-        137,3,6,3,0,135,137,3,76,38,0,136,116,1,0,0,0,136,125,1,0,0,0,136,
-        128,1,0,0,0,136,132,1,0,0,0,136,133,1,0,0,0,136,134,1,0,0,0,136,
-        135,1,0,0,0,137,147,1,0,0,0,138,141,10,7,0,0,139,142,3,40,20,0,140,
-        142,3,42,21,0,141,139,1,0,0,0,141,140,1,0,0,0,142,143,1,0,0,0,143,
-        144,3,8,4,8,144,146,1,0,0,0,145,138,1,0,0,0,146,149,1,0,0,0,147,
-        145,1,0,0,0,147,148,1,0,0,0,148,9,1,0,0,0,149,147,1,0,0,0,150,151,
-        3,8,4,0,151,11,1,0,0,0,152,154,5,30,0,0,153,155,3,8,4,0,154,153,
-        1,0,0,0,154,155,1,0,0,0,155,160,1,0,0,0,156,157,5,27,0,0,157,159,
-        3,8,4,0,158,156,1,0,0,0,159,162,1,0,0,0,160,158,1,0,0,0,160,161,
-        1,0,0,0,161,163,1,0,0,0,162,160,1,0,0,0,163,164,5,31,0,0,164,13,
-        1,0,0,0,165,166,5,81,0,0,166,167,5,39,0,0,167,168,3,8,4,0,168,15,
-        1,0,0,0,169,170,5,81,0,0,170,17,1,0,0,0,171,172,3,16,8,0,172,173,
-        5,30,0,0,173,174,5,50,0,0,174,175,5,31,0,0,175,19,1,0,0,0,176,177,
-        5,13,0,0,177,21,1,0,0,0,178,179,5,14,0,0,179,23,1,0,0,0,180,181,
-        5,10,0,0,181,182,5,28,0,0,182,183,3,10,5,0,183,184,5,29,0,0,184,
-        185,5,32,0,0,185,186,3,4,2,0,186,187,5,33,0,0,187,25,1,0,0,0,188,
-        189,5,8,0,0,189,190,5,28,0,0,190,191,3,10,5,0,191,192,5,29,0,0,192,
-        193,5,32,0,0,193,194,3,4,2,0,194,195,5,33,0,0,195,212,1,0,0,0,196,
-        197,5,8,0,0,197,198,5,28,0,0,198,199,3,10,5,0,199,200,5,29,0,0,200,
-        201,5,32,0,0,201,202,3,4,2,0,202,204,5,33,0,0,203,205,5,2,0,0,204,
-        203,1,0,0,0,204,205,1,0,0,0,205,206,1,0,0,0,206,207,5,9,0,0,207,
-        208,5,32,0,0,208,209,3,4,2,0,209,210,5,33,0,0,210,212,1,0,0,0,211,
-        188,1,0,0,0,211,196,1,0,0,0,212,27,1,0,0,0,213,214,5,23,0,0,214,
-        215,5,28,0,0,215,216,5,50,0,0,216,217,5,29,0,0,217,29,1,0,0,0,218,
-        219,5,24,0,0,219,220,5,28,0,0,220,221,5,50,0,0,221,222,5,29,0,0,
-        222,31,1,0,0,0,223,224,5,5,0,0,224,225,3,38,19,0,225,226,5,11,0,
-        0,226,227,3,8,4,0,227,228,5,12,0,0,228,229,3,8,4,0,229,33,1,0,0,
-        0,230,231,5,6,0,0,231,232,3,38,19,0,232,35,1,0,0,0,233,234,5,7,0,
-        0,234,235,3,38,19,0,235,37,1,0,0,0,236,237,3,8,4,0,237,39,1,0,0,
-        0,238,239,7,0,0,0,239,41,1,0,0,0,240,241,7,1,0,0,241,43,1,0,0,0,
-        242,243,7,2,0,0,243,45,1,0,0,0,244,245,5,40,0,0,245,47,1,0,0,0,246,
-        247,5,41,0,0,247,49,1,0,0,0,248,249,5,42,0,0,249,51,1,0,0,0,250,
-        251,5,43,0,0,251,53,1,0,0,0,252,253,5,44,0,0,253,55,1,0,0,0,254,
-        255,5,45,0,0,255,57,1,0,0,0,256,257,7,3,0,0,257,59,1,0,0,0,258,265,
-        3,46,23,0,259,265,3,48,24,0,260,265,3,50,25,0,261,265,3,52,26,0,
-        262,265,3,54,27,0,263,265,3,56,28,0,264,258,1,0,0,0,264,259,1,0,
-        0,0,264,260,1,0,0,0,264,261,1,0,0,0,264,262,1,0,0,0,264,263,1,0,
-        0,0,265,61,1,0,0,0,266,267,7,4,0,0,267,63,1,0,0,0,268,269,7,5,0,
-        0,269,65,1,0,0,0,270,273,3,62,31,0,271,273,3,64,32,0,272,270,1,0,
-        0,0,272,271,1,0,0,0,273,67,1,0,0,0,274,282,5,50,0,0,275,282,5,51,
-        0,0,276,282,5,52,0,0,277,282,5,53,0,0,278,282,3,16,8,0,279,282,3,
-        72,36,0,280,282,3,74,37,0,281,274,1,0,0,0,281,275,1,0,0,0,281,276,
-        1,0,0,0,281,277,1,0,0,0,281,278,1,0,0,0,281,279,1,0,0,0,281,280,
-        1,0,0,0,282,69,1,0,0,0,283,284,7,6,0,0,284,71,1,0,0,0,285,286,5,
-        28,0,0,286,287,3,76,38,0,287,288,5,29,0,0,288,73,1,0,0,0,289,290,
-        3,70,35,0,290,291,3,72,36,0,291,75,1,0,0,0,292,293,6,38,-1,0,293,
-        294,3,78,39,0,294,300,1,0,0,0,295,296,10,1,0,0,296,297,7,7,0,0,297,
-        299,3,78,39,0,298,295,1,0,0,0,299,302,1,0,0,0,300,298,1,0,0,0,300,
-        301,1,0,0,0,301,77,1,0,0,0,302,300,1,0,0,0,303,304,6,39,-1,0,304,
-        305,3,80,40,0,305,311,1,0,0,0,306,307,10,1,0,0,307,308,7,8,0,0,308,
-        310,3,80,40,0,309,306,1,0,0,0,310,313,1,0,0,0,311,309,1,0,0,0,311,
-        312,1,0,0,0,312,79,1,0,0,0,313,311,1,0,0,0,314,318,3,82,41,0,315,
-        316,7,9,0,0,316,318,3,82,41,0,317,314,1,0,0,0,317,315,1,0,0,0,318,
-        81,1,0,0,0,319,325,3,6,3,0,320,321,3,6,3,0,321,322,5,38,0,0,322,
-        323,3,80,40,0,323,325,1,0,0,0,324,319,1,0,0,0,324,320,1,0,0,0,325,
-        83,1,0,0,0,20,95,101,103,107,114,123,136,141,147,154,160,204,211,
-        264,272,281,300,311,317,324
+        7,33,2,34,7,34,2,35,7,35,2,36,7,36,2,37,7,37,2,38,7,38,1,0,1,0,1,
+        0,1,1,1,1,1,1,1,1,1,1,1,1,3,1,88,8,1,1,2,1,2,1,2,1,2,5,2,94,8,2,
+        10,2,12,2,97,9,2,1,2,3,2,100,8,2,1,3,1,3,1,3,1,3,1,3,3,3,107,8,3,
+        1,4,1,4,1,4,1,4,1,4,4,4,114,8,4,11,4,12,4,115,1,4,1,4,1,4,1,4,1,
+        4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,129,8,4,1,4,1,4,1,4,3,4,134,8,4,1,
+        4,1,4,5,4,138,8,4,10,4,12,4,141,9,4,1,5,1,5,1,6,1,6,3,6,147,8,6,
+        1,6,1,6,5,6,151,8,6,10,6,12,6,154,9,6,1,6,1,6,1,7,1,7,1,7,1,7,1,
+        8,1,8,1,9,1,9,1,9,1,9,1,9,1,10,1,10,1,11,1,11,1,12,1,12,1,12,1,12,
+        1,12,1,12,1,12,1,12,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,
+        1,13,1,13,1,13,1,13,1,13,1,13,1,13,3,13,197,8,13,1,13,1,13,1,13,
+        1,13,1,13,3,13,204,8,13,1,14,1,14,1,14,1,14,1,14,1,15,1,15,1,15,
+        1,15,1,15,1,16,1,16,1,17,1,17,1,18,1,18,1,19,1,19,1,20,1,20,1,21,
+        1,21,1,22,1,22,1,23,1,23,1,24,1,24,1,25,1,25,1,26,1,26,1,27,1,27,
+        1,27,1,27,1,27,1,27,3,27,244,8,27,1,28,1,28,1,29,1,29,1,30,1,30,
+        3,30,252,8,30,1,31,1,31,1,31,1,31,1,31,1,31,1,31,3,31,261,8,31,1,
+        32,1,32,1,33,1,33,1,33,1,33,1,34,1,34,1,34,1,34,1,34,5,34,274,8,
+        34,10,34,12,34,277,9,34,3,34,279,8,34,1,34,1,34,1,35,1,35,1,35,1,
+        35,1,35,1,35,5,35,289,8,35,10,35,12,35,292,9,35,1,36,1,36,1,36,1,
+        36,1,36,1,36,5,36,300,8,36,10,36,12,36,303,9,36,1,37,1,37,1,37,3,
+        37,308,8,37,1,38,1,38,1,38,1,38,1,38,3,38,315,8,38,1,38,0,3,8,70,
+        72,39,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,
+        42,44,46,48,50,52,54,56,58,60,62,64,66,68,70,72,74,76,0,10,1,0,15,
+        16,1,0,17,18,1,0,19,20,1,0,21,22,1,0,74,77,1,0,78,80,2,0,5,7,54,
+        73,3,0,36,37,47,47,49,49,3,0,34,35,46,46,48,48,1,0,36,37,320,0,78,
+        1,0,0,0,2,87,1,0,0,0,4,95,1,0,0,0,6,106,1,0,0,0,8,128,1,0,0,0,10,
+        142,1,0,0,0,12,144,1,0,0,0,14,157,1,0,0,0,16,161,1,0,0,0,18,163,
+        1,0,0,0,20,168,1,0,0,0,22,170,1,0,0,0,24,172,1,0,0,0,26,203,1,0,
+        0,0,28,205,1,0,0,0,30,210,1,0,0,0,32,215,1,0,0,0,34,217,1,0,0,0,
+        36,219,1,0,0,0,38,221,1,0,0,0,40,223,1,0,0,0,42,225,1,0,0,0,44,227,
+        1,0,0,0,46,229,1,0,0,0,48,231,1,0,0,0,50,233,1,0,0,0,52,235,1,0,
+        0,0,54,243,1,0,0,0,56,245,1,0,0,0,58,247,1,0,0,0,60,251,1,0,0,0,
+        62,260,1,0,0,0,64,262,1,0,0,0,66,264,1,0,0,0,68,268,1,0,0,0,70,282,
+        1,0,0,0,72,293,1,0,0,0,74,307,1,0,0,0,76,314,1,0,0,0,78,79,3,4,2,
+        0,79,80,5,0,0,1,80,1,1,0,0,0,81,88,3,14,7,0,82,88,3,24,12,0,83,88,
+        3,26,13,0,84,88,3,20,10,0,85,88,3,22,11,0,86,88,3,8,4,0,87,81,1,
+        0,0,0,87,82,1,0,0,0,87,83,1,0,0,0,87,84,1,0,0,0,87,85,1,0,0,0,87,
+        86,1,0,0,0,88,3,1,0,0,0,89,90,3,2,1,0,90,91,5,2,0,0,91,94,1,0,0,
+        0,92,94,5,2,0,0,93,89,1,0,0,0,93,92,1,0,0,0,94,97,1,0,0,0,95,93,
+        1,0,0,0,95,96,1,0,0,0,96,99,1,0,0,0,97,95,1,0,0,0,98,100,3,2,1,0,
+        99,98,1,0,0,0,99,100,1,0,0,0,100,5,1,0,0,0,101,107,3,30,15,0,102,
+        107,3,28,14,0,103,107,3,60,30,0,104,107,3,62,31,0,105,107,3,52,26,
+        0,106,101,1,0,0,0,106,102,1,0,0,0,106,103,1,0,0,0,106,104,1,0,0,
+        0,106,105,1,0,0,0,107,7,1,0,0,0,108,109,6,4,-1,0,109,113,3,70,35,
+        0,110,111,3,54,27,0,111,112,3,70,35,0,112,114,1,0,0,0,113,110,1,
+        0,0,0,114,115,1,0,0,0,115,113,1,0,0,0,115,116,1,0,0,0,116,129,1,
+        0,0,0,117,118,3,38,19,0,118,119,3,8,4,6,119,129,1,0,0,0,120,121,
+        5,28,0,0,121,122,3,8,4,0,122,123,5,29,0,0,123,129,1,0,0,0,124,129,
+        3,18,9,0,125,129,3,12,6,0,126,129,3,6,3,0,127,129,3,70,35,0,128,
+        108,1,0,0,0,128,117,1,0,0,0,128,120,1,0,0,0,128,124,1,0,0,0,128,
+        125,1,0,0,0,128,126,1,0,0,0,128,127,1,0,0,0,129,139,1,0,0,0,130,
+        133,10,7,0,0,131,134,3,34,17,0,132,134,3,36,18,0,133,131,1,0,0,0,
+        133,132,1,0,0,0,134,135,1,0,0,0,135,136,3,8,4,8,136,138,1,0,0,0,
+        137,130,1,0,0,0,138,141,1,0,0,0,139,137,1,0,0,0,139,140,1,0,0,0,
+        140,9,1,0,0,0,141,139,1,0,0,0,142,143,3,8,4,0,143,11,1,0,0,0,144,
+        146,5,30,0,0,145,147,3,8,4,0,146,145,1,0,0,0,146,147,1,0,0,0,147,
+        152,1,0,0,0,148,149,5,27,0,0,149,151,3,8,4,0,150,148,1,0,0,0,151,
+        154,1,0,0,0,152,150,1,0,0,0,152,153,1,0,0,0,153,155,1,0,0,0,154,
+        152,1,0,0,0,155,156,5,31,0,0,156,13,1,0,0,0,157,158,5,81,0,0,158,
+        159,5,39,0,0,159,160,3,8,4,0,160,15,1,0,0,0,161,162,5,81,0,0,162,
+        17,1,0,0,0,163,164,3,16,8,0,164,165,5,30,0,0,165,166,5,50,0,0,166,
+        167,5,31,0,0,167,19,1,0,0,0,168,169,5,13,0,0,169,21,1,0,0,0,170,
+        171,5,14,0,0,171,23,1,0,0,0,172,173,5,10,0,0,173,174,5,28,0,0,174,
+        175,3,10,5,0,175,176,5,29,0,0,176,177,5,32,0,0,177,178,3,4,2,0,178,
+        179,5,33,0,0,179,25,1,0,0,0,180,181,5,8,0,0,181,182,5,28,0,0,182,
+        183,3,10,5,0,183,184,5,29,0,0,184,185,5,32,0,0,185,186,3,4,2,0,186,
+        187,5,33,0,0,187,204,1,0,0,0,188,189,5,8,0,0,189,190,5,28,0,0,190,
+        191,3,10,5,0,191,192,5,29,0,0,192,193,5,32,0,0,193,194,3,4,2,0,194,
+        196,5,33,0,0,195,197,5,2,0,0,196,195,1,0,0,0,196,197,1,0,0,0,197,
+        198,1,0,0,0,198,199,5,9,0,0,199,200,5,32,0,0,200,201,3,4,2,0,201,
+        202,5,33,0,0,202,204,1,0,0,0,203,180,1,0,0,0,203,188,1,0,0,0,204,
+        27,1,0,0,0,205,206,5,23,0,0,206,207,5,28,0,0,207,208,5,50,0,0,208,
+        209,5,29,0,0,209,29,1,0,0,0,210,211,5,24,0,0,211,212,5,28,0,0,212,
+        213,5,50,0,0,213,214,5,29,0,0,214,31,1,0,0,0,215,216,3,8,4,0,216,
+        33,1,0,0,0,217,218,7,0,0,0,218,35,1,0,0,0,219,220,7,1,0,0,220,37,
+        1,0,0,0,221,222,7,2,0,0,222,39,1,0,0,0,223,224,5,40,0,0,224,41,1,
+        0,0,0,225,226,5,41,0,0,226,43,1,0,0,0,227,228,5,42,0,0,228,45,1,
+        0,0,0,229,230,5,43,0,0,230,47,1,0,0,0,231,232,5,44,0,0,232,49,1,
+        0,0,0,233,234,5,45,0,0,234,51,1,0,0,0,235,236,7,3,0,0,236,53,1,0,
+        0,0,237,244,3,40,20,0,238,244,3,42,21,0,239,244,3,44,22,0,240,244,
+        3,46,23,0,241,244,3,48,24,0,242,244,3,50,25,0,243,237,1,0,0,0,243,
+        238,1,0,0,0,243,239,1,0,0,0,243,240,1,0,0,0,243,241,1,0,0,0,243,
+        242,1,0,0,0,244,55,1,0,0,0,245,246,7,4,0,0,246,57,1,0,0,0,247,248,
+        7,5,0,0,248,59,1,0,0,0,249,252,3,56,28,0,250,252,3,58,29,0,251,249,
+        1,0,0,0,251,250,1,0,0,0,252,61,1,0,0,0,253,261,5,50,0,0,254,261,
+        5,51,0,0,255,261,5,52,0,0,256,261,5,53,0,0,257,261,3,16,8,0,258,
+        261,3,66,33,0,259,261,3,68,34,0,260,253,1,0,0,0,260,254,1,0,0,0,
+        260,255,1,0,0,0,260,256,1,0,0,0,260,257,1,0,0,0,260,258,1,0,0,0,
+        260,259,1,0,0,0,261,63,1,0,0,0,262,263,7,6,0,0,263,65,1,0,0,0,264,
+        265,5,28,0,0,265,266,3,70,35,0,266,267,5,29,0,0,267,67,1,0,0,0,268,
+        269,3,64,32,0,269,278,5,28,0,0,270,275,3,70,35,0,271,272,5,27,0,
+        0,272,274,3,70,35,0,273,271,1,0,0,0,274,277,1,0,0,0,275,273,1,0,
+        0,0,275,276,1,0,0,0,276,279,1,0,0,0,277,275,1,0,0,0,278,270,1,0,
+        0,0,278,279,1,0,0,0,279,280,1,0,0,0,280,281,5,29,0,0,281,69,1,0,
+        0,0,282,283,6,35,-1,0,283,284,3,72,36,0,284,290,1,0,0,0,285,286,
+        10,1,0,0,286,287,7,7,0,0,287,289,3,72,36,0,288,285,1,0,0,0,289,292,
+        1,0,0,0,290,288,1,0,0,0,290,291,1,0,0,0,291,71,1,0,0,0,292,290,1,
+        0,0,0,293,294,6,36,-1,0,294,295,3,74,37,0,295,301,1,0,0,0,296,297,
+        10,1,0,0,297,298,7,8,0,0,298,300,3,74,37,0,299,296,1,0,0,0,300,303,
+        1,0,0,0,301,299,1,0,0,0,301,302,1,0,0,0,302,73,1,0,0,0,303,301,1,
+        0,0,0,304,308,3,76,38,0,305,306,7,9,0,0,306,308,3,76,38,0,307,304,
+        1,0,0,0,307,305,1,0,0,0,308,75,1,0,0,0,309,315,3,6,3,0,310,311,3,
+        6,3,0,311,312,5,38,0,0,312,313,3,74,37,0,313,315,1,0,0,0,314,309,
+        1,0,0,0,314,310,1,0,0,0,315,77,1,0,0,0,22,87,93,95,99,106,115,128,
+        133,139,146,152,196,203,243,251,260,275,278,290,301,307,314
     ]
 
 class AnalogParser ( Parser ):
@@ -167,7 +164,7 @@ class AnalogParser ( Parser ):
     RULE_program = 0
     RULE_statement = 1
     RULE_block = 2
-    RULE_atom = 3
+    RULE_terminal = 3
     RULE_expr = 4
     RULE_cond = 5
     RULE_analog_list = 6
@@ -180,43 +177,39 @@ class AnalogParser ( Parser ):
     RULE_ifelse_stmt = 13
     RULE_quantum_register = 14
     RULE_mode_register = 15
-    RULE_evolve_stmt = 16
-    RULE_measure_stmt = 17
-    RULE_init_stmt = 18
-    RULE_targets = 19
-    RULE_bool_and_op = 20
-    RULE_bool_or_op = 21
-    RULE_bool_not_op = 22
-    RULE_bool_eq_op = 23
-    RULE_bool_not_eq_op = 24
-    RULE_bool_lt_op = 25
-    RULE_bool_lte_op = 26
-    RULE_bool_gt_op = 27
-    RULE_bool_gte_op = 28
-    RULE_bool_literal = 29
-    RULE_comparators = 30
-    RULE_pauli_op = 31
-    RULE_ladder_op = 32
-    RULE_operator_terminal = 33
-    RULE_math_terminal = 34
-    RULE_math_func_name = 35
-    RULE_pexpr = 36
-    RULE_fexpr = 37
-    RULE_aexpr = 38
-    RULE_mexpr = 39
-    RULE_uexpr = 40
-    RULE_eexpr = 41
+    RULE_targets = 16
+    RULE_bool_and_op = 17
+    RULE_bool_or_op = 18
+    RULE_bool_not_op = 19
+    RULE_bool_eq_op = 20
+    RULE_bool_not_eq_op = 21
+    RULE_bool_lt_op = 22
+    RULE_bool_lte_op = 23
+    RULE_bool_gt_op = 24
+    RULE_bool_gte_op = 25
+    RULE_bool_literal = 26
+    RULE_comparators = 27
+    RULE_pauli_op = 28
+    RULE_ladder_op = 29
+    RULE_operator_terminal = 30
+    RULE_math_terminal = 31
+    RULE_func_names = 32
+    RULE_pexpr = 33
+    RULE_fexpr = 34
+    RULE_aexpr = 35
+    RULE_mexpr = 36
+    RULE_uexpr = 37
+    RULE_eexpr = 38
 
-    ruleNames =  [ "program", "statement", "block", "atom", "expr", "cond", 
-                   "analog_list", "declaration", "access", "analog_list_extract", 
+    ruleNames =  [ "program", "statement", "block", "terminal", "expr", 
+                   "cond", "analog_list", "declaration", "access", "analog_list_extract", 
                    "break_stmt", "continue_stmt", "while_stmt", "ifelse_stmt", 
-                   "quantum_register", "mode_register", "evolve_stmt", "measure_stmt", 
-                   "init_stmt", "targets", "bool_and_op", "bool_or_op", 
-                   "bool_not_op", "bool_eq_op", "bool_not_eq_op", "bool_lt_op", 
-                   "bool_lte_op", "bool_gt_op", "bool_gte_op", "bool_literal", 
-                   "comparators", "pauli_op", "ladder_op", "operator_terminal", 
-                   "math_terminal", "math_func_name", "pexpr", "fexpr", 
-                   "aexpr", "mexpr", "uexpr", "eexpr" ]
+                   "quantum_register", "mode_register", "targets", "bool_and_op", 
+                   "bool_or_op", "bool_not_op", "bool_eq_op", "bool_not_eq_op", 
+                   "bool_lt_op", "bool_lte_op", "bool_gt_op", "bool_gte_op", 
+                   "bool_literal", "comparators", "pauli_op", "ladder_op", 
+                   "operator_terminal", "math_terminal", "func_names", "pexpr", 
+                   "fexpr", "aexpr", "mexpr", "uexpr", "eexpr" ]
 
     EOF = Token.EOF
     WHITESPACE=1
@@ -350,9 +343,9 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 0, self.RULE_program)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 84
+            self.state = 78
             self.block()
-            self.state = 85
+            self.state = 79
             self.match(AnalogParser.EOF)
         except RecognitionException as re:
             localctx.exception = re
@@ -374,18 +367,6 @@ class AnalogParser ( Parser ):
             return self.getTypedRuleContext(AnalogParser.DeclarationContext,0)
 
 
-        def evolve_stmt(self):
-            return self.getTypedRuleContext(AnalogParser.Evolve_stmtContext,0)
-
-
-        def measure_stmt(self):
-            return self.getTypedRuleContext(AnalogParser.Measure_stmtContext,0)
-
-
-        def init_stmt(self):
-            return self.getTypedRuleContext(AnalogParser.Init_stmtContext,0)
-
-
         def while_stmt(self):
             return self.getTypedRuleContext(AnalogParser.While_stmtContext,0)
 
@@ -400,6 +381,10 @@ class AnalogParser ( Parser ):
 
         def continue_stmt(self):
             return self.getTypedRuleContext(AnalogParser.Continue_stmtContext,0)
+
+
+        def expr(self):
+            return self.getTypedRuleContext(AnalogParser.ExprContext,0)
 
 
         def getRuleIndex(self):
@@ -427,51 +412,45 @@ class AnalogParser ( Parser ):
         localctx = AnalogParser.StatementContext(self, self._ctx, self.state)
         self.enterRule(localctx, 2, self.RULE_statement)
         try:
-            self.state = 95
+            self.state = 87
             self._errHandler.sync(self)
-            token = self._input.LA(1)
-            if token in [81]:
+            la_ = self._interp.adaptivePredict(self._input,0,self._ctx)
+            if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 87
+                self.state = 81
                 self.declaration()
                 pass
-            elif token in [5]:
+
+            elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 88
-                self.evolve_stmt()
-                pass
-            elif token in [6]:
-                self.enterOuterAlt(localctx, 3)
-                self.state = 89
-                self.measure_stmt()
-                pass
-            elif token in [7]:
-                self.enterOuterAlt(localctx, 4)
-                self.state = 90
-                self.init_stmt()
-                pass
-            elif token in [10]:
-                self.enterOuterAlt(localctx, 5)
-                self.state = 91
+                self.state = 82
                 self.while_stmt()
                 pass
-            elif token in [8]:
-                self.enterOuterAlt(localctx, 6)
-                self.state = 92
+
+            elif la_ == 3:
+                self.enterOuterAlt(localctx, 3)
+                self.state = 83
                 self.ifelse_stmt()
                 pass
-            elif token in [13]:
-                self.enterOuterAlt(localctx, 7)
-                self.state = 93
+
+            elif la_ == 4:
+                self.enterOuterAlt(localctx, 4)
+                self.state = 84
                 self.break_stmt()
                 pass
-            elif token in [14]:
-                self.enterOuterAlt(localctx, 8)
-                self.state = 94
+
+            elif la_ == 5:
+                self.enterOuterAlt(localctx, 5)
+                self.state = 85
                 self.continue_stmt()
                 pass
-            else:
-                raise NoViableAltException(self)
+
+            elif la_ == 6:
+                self.enterOuterAlt(localctx, 6)
+                self.state = 86
+                self.expr(0)
+                pass
+
 
         except RecognitionException as re:
             localctx.exception = re
@@ -529,36 +508,36 @@ class AnalogParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 103
+            self.state = 95
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,2,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
-                    self.state = 101
+                    self.state = 93
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
-                    if token in [5, 6, 7, 8, 10, 13, 14, 81]:
-                        self.state = 97
+                    if token in [5, 6, 7, 8, 10, 13, 14, 19, 20, 21, 22, 23, 24, 28, 30, 36, 37, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81]:
+                        self.state = 89
                         self.statement()
-                        self.state = 98
+                        self.state = 90
                         self.match(AnalogParser.EOL)
                         pass
                     elif token in [2]:
-                        self.state = 100
+                        self.state = 92
                         self.match(AnalogParser.EOL)
                         pass
                     else:
                         raise NoViableAltException(self)
              
-                self.state = 105
+                self.state = 97
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,2,self._ctx)
 
-            self.state = 107
+            self.state = 99
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if (((_la) & ~0x3f) == 0 and ((1 << _la) & 26080) != 0) or _la==81:
-                self.state = 106
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & -1125692373178912) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & 262143) != 0):
+                self.state = 98
                 self.statement()
 
 
@@ -571,7 +550,7 @@ class AnalogParser ( Parser ):
         return localctx
 
 
-    class AtomContext(ParserRuleContext):
+    class TerminalContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -599,56 +578,56 @@ class AnalogParser ( Parser ):
 
 
         def getRuleIndex(self):
-            return AnalogParser.RULE_atom
+            return AnalogParser.RULE_terminal
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterAtom" ):
-                listener.enterAtom(self)
+            if hasattr( listener, "enterTerminal" ):
+                listener.enterTerminal(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitAtom" ):
-                listener.exitAtom(self)
+            if hasattr( listener, "exitTerminal" ):
+                listener.exitTerminal(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitAtom" ):
-                return visitor.visitAtom(self)
+            if hasattr( visitor, "visitTerminal" ):
+                return visitor.visitTerminal(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def atom(self):
+    def terminal(self):
 
-        localctx = AnalogParser.AtomContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 6, self.RULE_atom)
+        localctx = AnalogParser.TerminalContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 6, self.RULE_terminal)
         try:
-            self.state = 114
+            self.state = 106
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [24]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 109
+                self.state = 101
                 self.mode_register()
                 pass
             elif token in [23]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 110
+                self.state = 102
                 self.quantum_register()
                 pass
             elif token in [74, 75, 76, 77, 78, 79, 80]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 111
+                self.state = 103
                 self.operator_terminal()
                 pass
-            elif token in [28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 81]:
+            elif token in [5, 6, 7, 28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 81]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 112
+                self.state = 104
                 self.math_terminal()
                 pass
             elif token in [21, 22]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 113
+                self.state = 105
                 self.bool_literal()
                 pass
             else:
@@ -709,8 +688,8 @@ class AnalogParser ( Parser ):
             return self.getTypedRuleContext(AnalogParser.Analog_listContext,0)
 
 
-        def atom(self):
-            return self.getTypedRuleContext(AnalogParser.AtomContext,0)
+        def terminal(self):
+            return self.getTypedRuleContext(AnalogParser.TerminalContext,0)
 
 
         def bool_and_op(self):
@@ -749,69 +728,69 @@ class AnalogParser ( Parser ):
         self.enterRecursionRule(localctx, 8, self.RULE_expr, _p)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 136
+            self.state = 128
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,6,self._ctx)
             if la_ == 1:
-                self.state = 117
+                self.state = 109
                 self.aexpr(0)
-                self.state = 121 
+                self.state = 113 
                 self._errHandler.sync(self)
                 _alt = 1
                 while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                     if _alt == 1:
-                        self.state = 118
+                        self.state = 110
                         self.comparators()
-                        self.state = 119
+                        self.state = 111
                         self.aexpr(0)
 
                     else:
                         raise NoViableAltException(self)
-                    self.state = 123 
+                    self.state = 115 
                     self._errHandler.sync(self)
                     _alt = self._interp.adaptivePredict(self._input,5,self._ctx)
 
                 pass
 
             elif la_ == 2:
-                self.state = 125
+                self.state = 117
                 self.bool_not_op()
-                self.state = 126
+                self.state = 118
                 self.expr(6)
                 pass
 
             elif la_ == 3:
-                self.state = 128
+                self.state = 120
                 self.match(AnalogParser.LBRACKET)
-                self.state = 129
+                self.state = 121
                 self.expr(0)
-                self.state = 130
+                self.state = 122
                 self.match(AnalogParser.RBRACKET)
                 pass
 
             elif la_ == 4:
-                self.state = 132
+                self.state = 124
                 self.analog_list_extract()
                 pass
 
             elif la_ == 5:
-                self.state = 133
+                self.state = 125
                 self.analog_list()
                 pass
 
             elif la_ == 6:
-                self.state = 134
-                self.atom()
+                self.state = 126
+                self.terminal()
                 pass
 
             elif la_ == 7:
-                self.state = 135
+                self.state = 127
                 self.aexpr(0)
                 pass
 
 
             self._ctx.stop = self._input.LT(-1)
-            self.state = 147
+            self.state = 139
             self._errHandler.sync(self)
             _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
@@ -821,27 +800,27 @@ class AnalogParser ( Parser ):
                     _prevctx = localctx
                     localctx = AnalogParser.ExprContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_expr)
-                    self.state = 138
+                    self.state = 130
                     if not self.precpred(self._ctx, 7):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 7)")
-                    self.state = 141
+                    self.state = 133
                     self._errHandler.sync(self)
                     token = self._input.LA(1)
                     if token in [15, 16]:
-                        self.state = 139
+                        self.state = 131
                         self.bool_and_op()
                         pass
                     elif token in [17, 18]:
-                        self.state = 140
+                        self.state = 132
                         self.bool_or_op()
                         pass
                     else:
                         raise NoViableAltException(self)
 
-                    self.state = 143
+                    self.state = 135
                     self.expr(8) 
-                self.state = 149
+                self.state = 141
                 self._errHandler.sync(self)
                 _alt = self._interp.adaptivePredict(self._input,8,self._ctx)
 
@@ -891,7 +870,7 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 10, self.RULE_cond)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 150
+            self.state = 142
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -955,29 +934,29 @@ class AnalogParser ( Parser ):
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 152
+            self.state = 144
             self.match(AnalogParser.SQUARELBRACKET)
-            self.state = 154
+            self.state = 146
             self._errHandler.sync(self)
             _la = self._input.LA(1)
-            if ((((_la - 19)) & ~0x3f) == 0 and ((1 << (_la - 19)) & 9223372034707687999) != 0):
-                self.state = 153
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & -1125692373204768) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & 262143) != 0):
+                self.state = 145
                 self.expr(0)
 
 
-            self.state = 160
+            self.state = 152
             self._errHandler.sync(self)
             _la = self._input.LA(1)
             while _la==27:
-                self.state = 156
+                self.state = 148
                 self.match(AnalogParser.COMMA)
-                self.state = 157
+                self.state = 149
                 self.expr(0)
-                self.state = 162
+                self.state = 154
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
 
-            self.state = 163
+            self.state = 155
             self.match(AnalogParser.SQUARERBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -1031,11 +1010,11 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 14, self.RULE_declaration)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 165
+            self.state = 157
             self.match(AnalogParser.ID)
-            self.state = 166
+            self.state = 158
             self.match(AnalogParser.ASSIGN)
-            self.state = 167
+            self.state = 159
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1082,7 +1061,7 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 16, self.RULE_access)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 169
+            self.state = 161
             self.match(AnalogParser.ID)
         except RecognitionException as re:
             localctx.exception = re
@@ -1139,13 +1118,13 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 18, self.RULE_analog_list_extract)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 171
+            self.state = 163
             self.access()
-            self.state = 172
+            self.state = 164
             self.match(AnalogParser.SQUARELBRACKET)
-            self.state = 173
+            self.state = 165
             self.match(AnalogParser.INT)
-            self.state = 174
+            self.state = 166
             self.match(AnalogParser.SQUARERBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -1192,7 +1171,7 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 20, self.RULE_break_stmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 176
+            self.state = 168
             self.match(AnalogParser.BREAK)
         except RecognitionException as re:
             localctx.exception = re
@@ -1239,7 +1218,7 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 22, self.RULE_continue_stmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 178
+            self.state = 170
             self.match(AnalogParser.CONTINUE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1306,19 +1285,19 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 24, self.RULE_while_stmt)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 180
+            self.state = 172
             self.match(AnalogParser.WHILE)
-            self.state = 181
+            self.state = 173
             self.match(AnalogParser.LBRACKET)
-            self.state = 182
+            self.state = 174
             self.cond()
-            self.state = 183
+            self.state = 175
             self.match(AnalogParser.RBRACKET)
-            self.state = 184
+            self.state = 176
             self.match(AnalogParser.LBRACE)
-            self.state = 185
+            self.state = 177
             self.block()
-            self.state = 186
+            self.state = 178
             self.match(AnalogParser.RBRACE)
         except RecognitionException as re:
             localctx.exception = re
@@ -1400,11 +1379,29 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 26, self.RULE_ifelse_stmt)
         self._la = 0 # Token type
         try:
-            self.state = 211
+            self.state = 203
             self._errHandler.sync(self)
             la_ = self._interp.adaptivePredict(self._input,12,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
+                self.state = 180
+                self.match(AnalogParser.IF)
+                self.state = 181
+                self.match(AnalogParser.LBRACKET)
+                self.state = 182
+                self.cond()
+                self.state = 183
+                self.match(AnalogParser.RBRACKET)
+                self.state = 184
+                self.match(AnalogParser.LBRACE)
+                self.state = 185
+                self.block()
+                self.state = 186
+                self.match(AnalogParser.RBRACE)
+                pass
+
+            elif la_ == 2:
+                self.enterOuterAlt(localctx, 2)
                 self.state = 188
                 self.match(AnalogParser.IF)
                 self.state = 189
@@ -1419,39 +1416,21 @@ class AnalogParser ( Parser ):
                 self.block()
                 self.state = 194
                 self.match(AnalogParser.RBRACE)
-                pass
-
-            elif la_ == 2:
-                self.enterOuterAlt(localctx, 2)
                 self.state = 196
-                self.match(AnalogParser.IF)
-                self.state = 197
-                self.match(AnalogParser.LBRACKET)
-                self.state = 198
-                self.cond()
-                self.state = 199
-                self.match(AnalogParser.RBRACKET)
-                self.state = 200
-                self.match(AnalogParser.LBRACE)
-                self.state = 201
-                self.block()
-                self.state = 202
-                self.match(AnalogParser.RBRACE)
-                self.state = 204
                 self._errHandler.sync(self)
                 _la = self._input.LA(1)
                 if _la==2:
-                    self.state = 203
+                    self.state = 195
                     self.match(AnalogParser.EOL)
 
 
-                self.state = 206
+                self.state = 198
                 self.match(AnalogParser.ELSE)
-                self.state = 207
+                self.state = 199
                 self.match(AnalogParser.LBRACE)
-                self.state = 208
+                self.state = 200
                 self.block()
-                self.state = 209
+                self.state = 201
                 self.match(AnalogParser.RBRACE)
                 pass
 
@@ -1510,13 +1489,13 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 28, self.RULE_quantum_register)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 213
+            self.state = 205
             self.match(AnalogParser.QUANTUMREGISTER)
-            self.state = 214
+            self.state = 206
             self.match(AnalogParser.LBRACKET)
-            self.state = 215
+            self.state = 207
             self.match(AnalogParser.INT)
-            self.state = 216
+            self.state = 208
             self.match(AnalogParser.RBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -1572,194 +1551,14 @@ class AnalogParser ( Parser ):
         self.enterRule(localctx, 30, self.RULE_mode_register)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 218
+            self.state = 210
             self.match(AnalogParser.MODEREGISTER)
-            self.state = 219
+            self.state = 211
             self.match(AnalogParser.LBRACKET)
-            self.state = 220
+            self.state = 212
             self.match(AnalogParser.INT)
-            self.state = 221
+            self.state = 213
             self.match(AnalogParser.RBRACKET)
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
-
-
-    class Evolve_stmtContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
-
-        def EVOLVE(self):
-            return self.getToken(AnalogParser.EVOLVE, 0)
-
-        def targets(self):
-            return self.getTypedRuleContext(AnalogParser.TargetsContext,0)
-
-
-        def WITH(self):
-            return self.getToken(AnalogParser.WITH, 0)
-
-        def expr(self, i:int=None):
-            if i is None:
-                return self.getTypedRuleContexts(AnalogParser.ExprContext)
-            else:
-                return self.getTypedRuleContext(AnalogParser.ExprContext,i)
-
-
-        def FOR(self):
-            return self.getToken(AnalogParser.FOR, 0)
-
-        def getRuleIndex(self):
-            return AnalogParser.RULE_evolve_stmt
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterEvolve_stmt" ):
-                listener.enterEvolve_stmt(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitEvolve_stmt" ):
-                listener.exitEvolve_stmt(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitEvolve_stmt" ):
-                return visitor.visitEvolve_stmt(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-
-
-    def evolve_stmt(self):
-
-        localctx = AnalogParser.Evolve_stmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 32, self.RULE_evolve_stmt)
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 223
-            self.match(AnalogParser.EVOLVE)
-            self.state = 224
-            self.targets()
-            self.state = 225
-            self.match(AnalogParser.WITH)
-            self.state = 226
-            self.expr(0)
-            self.state = 227
-            self.match(AnalogParser.FOR)
-            self.state = 228
-            self.expr(0)
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
-
-
-    class Measure_stmtContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
-
-        def MEASURE(self):
-            return self.getToken(AnalogParser.MEASURE, 0)
-
-        def targets(self):
-            return self.getTypedRuleContext(AnalogParser.TargetsContext,0)
-
-
-        def getRuleIndex(self):
-            return AnalogParser.RULE_measure_stmt
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMeasure_stmt" ):
-                listener.enterMeasure_stmt(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMeasure_stmt" ):
-                listener.exitMeasure_stmt(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitMeasure_stmt" ):
-                return visitor.visitMeasure_stmt(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-
-
-    def measure_stmt(self):
-
-        localctx = AnalogParser.Measure_stmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 34, self.RULE_measure_stmt)
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 230
-            self.match(AnalogParser.MEASURE)
-            self.state = 231
-            self.targets()
-        except RecognitionException as re:
-            localctx.exception = re
-            self._errHandler.reportError(self, re)
-            self._errHandler.recover(self, re)
-        finally:
-            self.exitRule()
-        return localctx
-
-
-    class Init_stmtContext(ParserRuleContext):
-        __slots__ = 'parser'
-
-        def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
-            super().__init__(parent, invokingState)
-            self.parser = parser
-
-        def INITIALIZE(self):
-            return self.getToken(AnalogParser.INITIALIZE, 0)
-
-        def targets(self):
-            return self.getTypedRuleContext(AnalogParser.TargetsContext,0)
-
-
-        def getRuleIndex(self):
-            return AnalogParser.RULE_init_stmt
-
-        def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterInit_stmt" ):
-                listener.enterInit_stmt(self)
-
-        def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitInit_stmt" ):
-                listener.exitInit_stmt(self)
-
-        def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitInit_stmt" ):
-                return visitor.visitInit_stmt(self)
-            else:
-                return visitor.visitChildren(self)
-
-
-
-
-    def init_stmt(self):
-
-        localctx = AnalogParser.Init_stmtContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 36, self.RULE_init_stmt)
-        try:
-            self.enterOuterAlt(localctx, 1)
-            self.state = 233
-            self.match(AnalogParser.INITIALIZE)
-            self.state = 234
-            self.targets()
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -1803,10 +1602,10 @@ class AnalogParser ( Parser ):
     def targets(self):
 
         localctx = AnalogParser.TargetsContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 38, self.RULE_targets)
+        self.enterRule(localctx, 32, self.RULE_targets)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 236
+            self.state = 215
             self.expr(0)
         except RecognitionException as re:
             localctx.exception = re
@@ -1853,11 +1652,11 @@ class AnalogParser ( Parser ):
     def bool_and_op(self):
 
         localctx = AnalogParser.Bool_and_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 40, self.RULE_bool_and_op)
+        self.enterRule(localctx, 34, self.RULE_bool_and_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 238
+            self.state = 217
             _la = self._input.LA(1)
             if not(_la==15 or _la==16):
                 self._errHandler.recoverInline(self)
@@ -1909,11 +1708,11 @@ class AnalogParser ( Parser ):
     def bool_or_op(self):
 
         localctx = AnalogParser.Bool_or_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 42, self.RULE_bool_or_op)
+        self.enterRule(localctx, 36, self.RULE_bool_or_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 240
+            self.state = 219
             _la = self._input.LA(1)
             if not(_la==17 or _la==18):
                 self._errHandler.recoverInline(self)
@@ -1965,11 +1764,11 @@ class AnalogParser ( Parser ):
     def bool_not_op(self):
 
         localctx = AnalogParser.Bool_not_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 44, self.RULE_bool_not_op)
+        self.enterRule(localctx, 38, self.RULE_bool_not_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 242
+            self.state = 221
             _la = self._input.LA(1)
             if not(_la==19 or _la==20):
                 self._errHandler.recoverInline(self)
@@ -2018,10 +1817,10 @@ class AnalogParser ( Parser ):
     def bool_eq_op(self):
 
         localctx = AnalogParser.Bool_eq_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 46, self.RULE_bool_eq_op)
+        self.enterRule(localctx, 40, self.RULE_bool_eq_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 244
+            self.state = 223
             self.match(AnalogParser.EQ)
         except RecognitionException as re:
             localctx.exception = re
@@ -2065,10 +1864,10 @@ class AnalogParser ( Parser ):
     def bool_not_eq_op(self):
 
         localctx = AnalogParser.Bool_not_eq_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 48, self.RULE_bool_not_eq_op)
+        self.enterRule(localctx, 42, self.RULE_bool_not_eq_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 246
+            self.state = 225
             self.match(AnalogParser.NEQ)
         except RecognitionException as re:
             localctx.exception = re
@@ -2112,10 +1911,10 @@ class AnalogParser ( Parser ):
     def bool_lt_op(self):
 
         localctx = AnalogParser.Bool_lt_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 50, self.RULE_bool_lt_op)
+        self.enterRule(localctx, 44, self.RULE_bool_lt_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 248
+            self.state = 227
             self.match(AnalogParser.LT)
         except RecognitionException as re:
             localctx.exception = re
@@ -2159,10 +1958,10 @@ class AnalogParser ( Parser ):
     def bool_lte_op(self):
 
         localctx = AnalogParser.Bool_lte_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 52, self.RULE_bool_lte_op)
+        self.enterRule(localctx, 46, self.RULE_bool_lte_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 250
+            self.state = 229
             self.match(AnalogParser.LTE)
         except RecognitionException as re:
             localctx.exception = re
@@ -2206,10 +2005,10 @@ class AnalogParser ( Parser ):
     def bool_gt_op(self):
 
         localctx = AnalogParser.Bool_gt_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 54, self.RULE_bool_gt_op)
+        self.enterRule(localctx, 48, self.RULE_bool_gt_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 252
+            self.state = 231
             self.match(AnalogParser.GT)
         except RecognitionException as re:
             localctx.exception = re
@@ -2253,10 +2052,10 @@ class AnalogParser ( Parser ):
     def bool_gte_op(self):
 
         localctx = AnalogParser.Bool_gte_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 56, self.RULE_bool_gte_op)
+        self.enterRule(localctx, 50, self.RULE_bool_gte_op)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 254
+            self.state = 233
             self.match(AnalogParser.GTE)
         except RecognitionException as re:
             localctx.exception = re
@@ -2303,11 +2102,11 @@ class AnalogParser ( Parser ):
     def bool_literal(self):
 
         localctx = AnalogParser.Bool_literalContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 58, self.RULE_bool_literal)
+        self.enterRule(localctx, 52, self.RULE_bool_literal)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 256
+            self.state = 235
             _la = self._input.LA(1)
             if not(_la==21 or _la==22):
                 self._errHandler.recoverInline(self)
@@ -2377,39 +2176,39 @@ class AnalogParser ( Parser ):
     def comparators(self):
 
         localctx = AnalogParser.ComparatorsContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 60, self.RULE_comparators)
+        self.enterRule(localctx, 54, self.RULE_comparators)
         try:
-            self.state = 264
+            self.state = 243
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [40]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 258
+                self.state = 237
                 self.bool_eq_op()
                 pass
             elif token in [41]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 259
+                self.state = 238
                 self.bool_not_eq_op()
                 pass
             elif token in [42]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 260
+                self.state = 239
                 self.bool_lt_op()
                 pass
             elif token in [43]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 261
+                self.state = 240
                 self.bool_lte_op()
                 pass
             elif token in [44]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 262
+                self.state = 241
                 self.bool_gt_op()
                 pass
             elif token in [45]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 263
+                self.state = 242
                 self.bool_gte_op()
                 pass
             else:
@@ -2466,11 +2265,11 @@ class AnalogParser ( Parser ):
     def pauli_op(self):
 
         localctx = AnalogParser.Pauli_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 62, self.RULE_pauli_op)
+        self.enterRule(localctx, 56, self.RULE_pauli_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 266
+            self.state = 245
             _la = self._input.LA(1)
             if not(((((_la - 74)) & ~0x3f) == 0 and ((1 << (_la - 74)) & 15) != 0)):
                 self._errHandler.recoverInline(self)
@@ -2525,11 +2324,11 @@ class AnalogParser ( Parser ):
     def ladder_op(self):
 
         localctx = AnalogParser.Ladder_opContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 64, self.RULE_ladder_op)
+        self.enterRule(localctx, 58, self.RULE_ladder_op)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 268
+            self.state = 247
             _la = self._input.LA(1)
             if not(((((_la - 78)) & ~0x3f) == 0 and ((1 << (_la - 78)) & 7) != 0)):
                 self._errHandler.recoverInline(self)
@@ -2583,19 +2382,19 @@ class AnalogParser ( Parser ):
     def operator_terminal(self):
 
         localctx = AnalogParser.Operator_terminalContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 66, self.RULE_operator_terminal)
+        self.enterRule(localctx, 60, self.RULE_operator_terminal)
         try:
-            self.state = 272
+            self.state = 251
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [74, 75, 76, 77]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 270
+                self.state = 249
                 self.pauli_op()
                 pass
             elif token in [78, 79, 80]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 271
+                self.state = 250
                 self.ladder_op()
                 pass
             else:
@@ -2664,44 +2463,44 @@ class AnalogParser ( Parser ):
     def math_terminal(self):
 
         localctx = AnalogParser.Math_terminalContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 68, self.RULE_math_terminal)
+        self.enterRule(localctx, 62, self.RULE_math_terminal)
         try:
-            self.state = 281
+            self.state = 260
             self._errHandler.sync(self)
             token = self._input.LA(1)
             if token in [50]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 274
+                self.state = 253
                 self.match(AnalogParser.INT)
                 pass
             elif token in [51]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 275
+                self.state = 254
                 self.match(AnalogParser.FLOAT)
                 pass
             elif token in [52]:
                 self.enterOuterAlt(localctx, 3)
-                self.state = 276
+                self.state = 255
                 self.match(AnalogParser.MATH_VAR)
                 pass
             elif token in [53]:
                 self.enterOuterAlt(localctx, 4)
-                self.state = 277
+                self.state = 256
                 self.match(AnalogParser.IMAG)
                 pass
             elif token in [81]:
                 self.enterOuterAlt(localctx, 5)
-                self.state = 278
+                self.state = 257
                 self.access()
                 pass
             elif token in [28]:
                 self.enterOuterAlt(localctx, 6)
-                self.state = 279
+                self.state = 258
                 self.pexpr()
                 pass
-            elif token in [54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73]:
+            elif token in [5, 6, 7, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73]:
                 self.enterOuterAlt(localctx, 7)
-                self.state = 280
+                self.state = 259
                 self.fexpr()
                 pass
             else:
@@ -2716,7 +2515,7 @@ class AnalogParser ( Parser ):
         return localctx
 
 
-    class Math_func_nameContext(ParserRuleContext):
+    class Func_namesContext(ParserRuleContext):
         __slots__ = 'parser'
 
         def __init__(self, parser, parent:ParserRuleContext=None, invokingState:int=-1):
@@ -2771,11 +2570,11 @@ class AnalogParser ( Parser ):
         def ATAN2(self):
             return self.getToken(AnalogParser.ATAN2, 0)
 
-        def HEAVISIDE(self):
-            return self.getToken(AnalogParser.HEAVISIDE, 0)
-
         def CONJ(self):
             return self.getToken(AnalogParser.CONJ, 0)
+
+        def HEAVISIDE(self):
+            return self.getToken(AnalogParser.HEAVISIDE, 0)
 
         def REAL(self):
             return self.getToken(AnalogParser.REAL, 0)
@@ -2783,36 +2582,45 @@ class AnalogParser ( Parser ):
         def IMAG_FN(self):
             return self.getToken(AnalogParser.IMAG_FN, 0)
 
+        def EVOLVE(self):
+            return self.getToken(AnalogParser.EVOLVE, 0)
+
+        def MEASURE(self):
+            return self.getToken(AnalogParser.MEASURE, 0)
+
+        def INITIALIZE(self):
+            return self.getToken(AnalogParser.INITIALIZE, 0)
+
         def getRuleIndex(self):
-            return AnalogParser.RULE_math_func_name
+            return AnalogParser.RULE_func_names
 
         def enterRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "enterMath_func_name" ):
-                listener.enterMath_func_name(self)
+            if hasattr( listener, "enterFunc_names" ):
+                listener.enterFunc_names(self)
 
         def exitRule(self, listener:ParseTreeListener):
-            if hasattr( listener, "exitMath_func_name" ):
-                listener.exitMath_func_name(self)
+            if hasattr( listener, "exitFunc_names" ):
+                listener.exitFunc_names(self)
 
         def accept(self, visitor:ParseTreeVisitor):
-            if hasattr( visitor, "visitMath_func_name" ):
-                return visitor.visitMath_func_name(self)
+            if hasattr( visitor, "visitFunc_names" ):
+                return visitor.visitFunc_names(self)
             else:
                 return visitor.visitChildren(self)
 
 
 
 
-    def math_func_name(self):
+    def func_names(self):
 
-        localctx = AnalogParser.Math_func_nameContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 70, self.RULE_math_func_name)
+        localctx = AnalogParser.Func_namesContext(self, self._ctx, self.state)
+        self.enterRule(localctx, 64, self.RULE_func_names)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 283
+            self.state = 262
             _la = self._input.LA(1)
-            if not(((((_la - 54)) & ~0x3f) == 0 and ((1 << (_la - 54)) & 1048575) != 0)):
+            if not((((_la) & ~0x3f) == 0 and ((1 << _la) & -18014398509481760) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & 1023) != 0)):
                 self._errHandler.recoverInline(self)
             else:
                 self._errHandler.reportMatch(self)
@@ -2866,14 +2674,14 @@ class AnalogParser ( Parser ):
     def pexpr(self):
 
         localctx = AnalogParser.PexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 72, self.RULE_pexpr)
+        self.enterRule(localctx, 66, self.RULE_pexpr)
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 285
+            self.state = 264
             self.match(AnalogParser.LBRACKET)
-            self.state = 286
+            self.state = 265
             self.aexpr(0)
-            self.state = 287
+            self.state = 266
             self.match(AnalogParser.RBRACKET)
         except RecognitionException as re:
             localctx.exception = re
@@ -2891,13 +2699,28 @@ class AnalogParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def math_func_name(self):
-            return self.getTypedRuleContext(AnalogParser.Math_func_nameContext,0)
+        def func_names(self):
+            return self.getTypedRuleContext(AnalogParser.Func_namesContext,0)
 
 
-        def pexpr(self):
-            return self.getTypedRuleContext(AnalogParser.PexprContext,0)
+        def LBRACKET(self):
+            return self.getToken(AnalogParser.LBRACKET, 0)
 
+        def RBRACKET(self):
+            return self.getToken(AnalogParser.RBRACKET, 0)
+
+        def aexpr(self, i:int=None):
+            if i is None:
+                return self.getTypedRuleContexts(AnalogParser.AexprContext)
+            else:
+                return self.getTypedRuleContext(AnalogParser.AexprContext,i)
+
+
+        def COMMA(self, i:int=None):
+            if i is None:
+                return self.getTokens(AnalogParser.COMMA)
+            else:
+                return self.getToken(AnalogParser.COMMA, i)
 
         def getRuleIndex(self):
             return AnalogParser.RULE_fexpr
@@ -2922,13 +2745,36 @@ class AnalogParser ( Parser ):
     def fexpr(self):
 
         localctx = AnalogParser.FexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 74, self.RULE_fexpr)
+        self.enterRule(localctx, 68, self.RULE_fexpr)
+        self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 289
-            self.math_func_name()
-            self.state = 290
-            self.pexpr()
+            self.state = 268
+            self.func_names()
+            self.state = 269
+            self.match(AnalogParser.LBRACKET)
+            self.state = 278
+            self._errHandler.sync(self)
+            _la = self._input.LA(1)
+            if (((_la) & ~0x3f) == 0 and ((1 << _la) & -1125693448519456) != 0) or ((((_la - 64)) & ~0x3f) == 0 and ((1 << (_la - 64)) & 262143) != 0):
+                self.state = 270
+                self.aexpr(0)
+                self.state = 275
+                self._errHandler.sync(self)
+                _la = self._input.LA(1)
+                while _la==27:
+                    self.state = 271
+                    self.match(AnalogParser.COMMA)
+                    self.state = 272
+                    self.aexpr(0)
+                    self.state = 277
+                    self._errHandler.sync(self)
+                    _la = self._input.LA(1)
+
+
+
+            self.state = 280
+            self.match(AnalogParser.RBRACKET)
         except RecognitionException as re:
             localctx.exception = re
             self._errHandler.reportError(self, re)
@@ -2989,17 +2835,17 @@ class AnalogParser ( Parser ):
         _parentState = self.state
         localctx = AnalogParser.AexprContext(self, self._ctx, _parentState)
         _prevctx = localctx
-        _startState = 76
-        self.enterRecursionRule(localctx, 76, self.RULE_aexpr, _p)
+        _startState = 70
+        self.enterRecursionRule(localctx, 70, self.RULE_aexpr, _p)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 293
+            self.state = 283
             self.mexpr(0)
             self._ctx.stop = self._input.LT(-1)
-            self.state = 300
+            self.state = 290
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,18,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     if self._parseListeners is not None:
@@ -3007,22 +2853,22 @@ class AnalogParser ( Parser ):
                     _prevctx = localctx
                     localctx = AnalogParser.AexprContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_aexpr)
-                    self.state = 295
+                    self.state = 285
                     if not self.precpred(self._ctx, 1):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
-                    self.state = 296
+                    self.state = 286
                     _la = self._input.LA(1)
                     if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 703893600206848) != 0)):
                         self._errHandler.recoverInline(self)
                     else:
                         self._errHandler.reportMatch(self)
                         self.consume()
-                    self.state = 297
+                    self.state = 287
                     self.mexpr(0) 
-                self.state = 302
+                self.state = 292
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,16,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,18,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3084,17 +2930,17 @@ class AnalogParser ( Parser ):
         _parentState = self.state
         localctx = AnalogParser.MexprContext(self, self._ctx, _parentState)
         _prevctx = localctx
-        _startState = 78
-        self.enterRecursionRule(localctx, 78, self.RULE_mexpr, _p)
+        _startState = 72
+        self.enterRecursionRule(localctx, 72, self.RULE_mexpr, _p)
         self._la = 0 # Token type
         try:
             self.enterOuterAlt(localctx, 1)
-            self.state = 304
+            self.state = 294
             self.uexpr()
             self._ctx.stop = self._input.LT(-1)
-            self.state = 311
+            self.state = 301
             self._errHandler.sync(self)
-            _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
+            _alt = self._interp.adaptivePredict(self._input,19,self._ctx)
             while _alt!=2 and _alt!=ATN.INVALID_ALT_NUMBER:
                 if _alt==1:
                     if self._parseListeners is not None:
@@ -3102,22 +2948,22 @@ class AnalogParser ( Parser ):
                     _prevctx = localctx
                     localctx = AnalogParser.MexprContext(self, _parentctx, _parentState)
                     self.pushNewRecursionContext(localctx, _startState, self.RULE_mexpr)
-                    self.state = 306
+                    self.state = 296
                     if not self.precpred(self._ctx, 1):
                         from antlr4.error.Errors import FailedPredicateException
                         raise FailedPredicateException(self, "self.precpred(self._ctx, 1)")
-                    self.state = 307
+                    self.state = 297
                     _la = self._input.LA(1)
                     if not((((_la) & ~0x3f) == 0 and ((1 << _la) & 351895260495872) != 0)):
                         self._errHandler.recoverInline(self)
                     else:
                         self._errHandler.reportMatch(self)
                         self.consume()
-                    self.state = 308
+                    self.state = 298
                     self.uexpr() 
-                self.state = 313
+                self.state = 303
                 self._errHandler.sync(self)
-                _alt = self._interp.adaptivePredict(self._input,17,self._ctx)
+                _alt = self._interp.adaptivePredict(self._input,19,self._ctx)
 
         except RecognitionException as re:
             localctx.exception = re
@@ -3168,27 +3014,27 @@ class AnalogParser ( Parser ):
     def uexpr(self):
 
         localctx = AnalogParser.UexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 80, self.RULE_uexpr)
+        self.enterRule(localctx, 74, self.RULE_uexpr)
         self._la = 0 # Token type
         try:
-            self.state = 317
+            self.state = 307
             self._errHandler.sync(self)
             token = self._input.LA(1)
-            if token in [21, 22, 23, 24, 28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81]:
+            if token in [5, 6, 7, 21, 22, 23, 24, 28, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81]:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 314
+                self.state = 304
                 self.eexpr()
                 pass
             elif token in [36, 37]:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 315
+                self.state = 305
                 _la = self._input.LA(1)
                 if not(_la==36 or _la==37):
                     self._errHandler.recoverInline(self)
                 else:
                     self._errHandler.reportMatch(self)
                     self.consume()
-                self.state = 316
+                self.state = 306
                 self.eexpr()
                 pass
             else:
@@ -3210,8 +3056,8 @@ class AnalogParser ( Parser ):
             super().__init__(parent, invokingState)
             self.parser = parser
 
-        def atom(self):
-            return self.getTypedRuleContext(AnalogParser.AtomContext,0)
+        def terminal(self):
+            return self.getTypedRuleContext(AnalogParser.TerminalContext,0)
 
 
         def POWER(self):
@@ -3244,24 +3090,24 @@ class AnalogParser ( Parser ):
     def eexpr(self):
 
         localctx = AnalogParser.EexprContext(self, self._ctx, self.state)
-        self.enterRule(localctx, 82, self.RULE_eexpr)
+        self.enterRule(localctx, 76, self.RULE_eexpr)
         try:
-            self.state = 324
+            self.state = 314
             self._errHandler.sync(self)
-            la_ = self._interp.adaptivePredict(self._input,19,self._ctx)
+            la_ = self._interp.adaptivePredict(self._input,21,self._ctx)
             if la_ == 1:
                 self.enterOuterAlt(localctx, 1)
-                self.state = 319
-                self.atom()
+                self.state = 309
+                self.terminal()
                 pass
 
             elif la_ == 2:
                 self.enterOuterAlt(localctx, 2)
-                self.state = 320
-                self.atom()
-                self.state = 321
+                self.state = 310
+                self.terminal()
+                self.state = 311
                 self.match(AnalogParser.POWER)
-                self.state = 322
+                self.state = 312
                 self.uexpr()
                 pass
 
@@ -3280,8 +3126,8 @@ class AnalogParser ( Parser ):
         if self._predicates == None:
             self._predicates = dict()
         self._predicates[4] = self.expr_sempred
-        self._predicates[38] = self.aexpr_sempred
-        self._predicates[39] = self.mexpr_sempred
+        self._predicates[35] = self.aexpr_sempred
+        self._predicates[36] = self.mexpr_sempred
         pred = self._predicates.get(ruleIndex, None)
         if pred is None:
             raise Exception("No predicate with index:" + str(ruleIndex))

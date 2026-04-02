@@ -32,15 +32,15 @@ H_rabi = (0.5 * #t) * (%X %@ %I) %+ 0.5 * (%I %@ %Y);
 //control flow
 x = 1;
 if (x > 0){
-    initialize r;
+    initialize(r);
 }
 if (x == 1) {
-    evolve r with H_single for 1.0;
+    evolve (r, H_single, 1.0);
 }
-else { evolve r with H_pair for 0.5; }
+else { evolve(r, H_pair, 0.5); }
 n = 3;
 while (n > 0){
-    evolve targets with H_rabi for 0.1;
+    evolve(targets, H_rabi, 0.1);
     n = n - 1;
 }
 
@@ -56,19 +56,19 @@ a = 5;
 b = 3;
 if (a > b) {
     if (b > 0) {
-        initialize targets;
+        initialize(targets);
     }
     else {
-        measure r;
+        measure(r);
     }
 }
 
 
-initialize r;
-evolve r with H_single for 2.0;
-evolve targets with H_pair for 1.0;
-evolve q0 with %X * 0.5 for pi;
-measure r;
+initialize(r);
+evolve(r, H_single, 2.0);
+evolve(targets, H_pair, 1.0);
+evolve(q0, %X * 0.5, pi);
+measure(r);
 
 // Bool expressions
 

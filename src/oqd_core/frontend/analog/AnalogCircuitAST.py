@@ -19,13 +19,13 @@ from oqd_core.frontend.analog.AnalogParser import AnalogParser
 from oqd_core.frontend.analog.AnalogParserVisitor import AnalogParserVisitor
 from oqd_core.interface.analog import (
     AnalogCircuit,
+    Extract,
     Declaration,
     Evolve,
     Initialize,
     Measure,
     Access,
     AnalogList,
-    AnalogListExtract,
     QuantumRegister,
     ModeRegister,
     IfElse,
@@ -91,6 +91,29 @@ _OP_TERMINAL_MAP = {
     'J': Identity,
 }
 
+_FUNC_TOKEN_TO_NAME = {
+    AnalogLexer.ABS: "abs",
+    AnalogLexer.SIN: "sin",
+    AnalogLexer.COS: "cos",
+    AnalogLexer.TAN: "tan",
+    AnalogLexer.EXP: "exp",
+    AnalogLexer.LOG: "log",
+    AnalogLexer.SINH: "sinh",
+    AnalogLexer.COSH: "cosh",
+    AnalogLexer.TANH: "tanh",
+    AnalogLexer.ATAN: "atan",
+    AnalogLexer.ACOS: "acos",
+    AnalogLexer.ASIN: "asin",
+    AnalogLexer.ATANH: "atanh",
+    AnalogLexer.ASINH: "asinh",
+    AnalogLexer.ACOSH: "acosh",
+    AnalogLexer.HEAVISIDE: "heaviside",
+    AnalogLexer.CONJ: "conj",
+    AnalogLexer.REAL: "real",
+    AnalogLexer.IMAG_FN: "imag",
+    AnalogLexer.ATAN2: "atan2",
+}
+
 def _get_token_type(node) -> int:
     """Extract token type from a terminal or context"""
     if isinstance(node, TerminalNodeImpl):
@@ -145,6 +168,8 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         return statements
     
     def visitStatement(self, ctx: AnalogParser.StatementContext):
+        # if ctx.expr() is not None:
+        #     return self.visit(ctx.expr())
         child = ctx.getChild(0)
         return self.visit(child)
     
@@ -155,20 +180,6 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         return decl
     
     ## Statements ##
-    
-    def visitEvolve_stmt(self, ctx: AnalogParser.Evolve_stmtContext):
-        targets = self.visit(ctx.targets())
-        hamiltonian = self.visit(ctx.expr(0))
-        duration = self.visit(ctx.expr(1))
-        return Evolve(hamiltonian=hamiltonian, duration=duration, targets=targets)
-
-    def visitMeasure_stmt(self, ctx: AnalogParser.Measure_stmtContext):
-        targets = self.visit(ctx.targets())
-        return Measure(targets=targets)
-    
-    def visitInit_stmt(self, ctx: AnalogParser.Init_stmtContext):
-        targets = self.visit(ctx.targets())
-        return Initialize(targets=targets)
     
     def visitTargets(self, ctx: AnalogParser.TargetsContext):
         return self.visit(ctx.expr())
@@ -227,23 +238,24 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             right = self.visit(aexprs[1])
             return op_cls(expr1=left, expr2=right)
         
-        if ctx.atom() is not None:
-            return self.visit(ctx.atom())
+        if ctx.terminal() is not None:
+            return self.visit(ctx.terminal())
         if aexprs and len(aexprs) == 1:
             return self.visit(aexprs[0])
         
         raise ValueError('Undefined value')
     
-    def visitAnalog_list_extract(self, ctx: AnalogParser.Analog_list_extractContext):
-        access = self.visit(ctx.access())
-        index = int(ctx.INT().getText())
-        return AnalogListExtract(access=access, index=index)
-    
     def visitAnalog_list(self, ctx: AnalogParser.Analog_listContext):
         values = [self.visit(e) for e in ctx.expr()]
         return AnalogList(values=values)
     
-    def visitAtom(self, ctx: AnalogParser.AtomContext):
+    def visitAnalog_list_extract(self, ctx: AnalogParser.Analog_list_extractContext):
+        return Extract(
+            access=self.visit(ctx.access()),
+            index=int(ctx.INT().getText()),
+        )
+    
+    def visitTerminal(self, ctx: AnalogParser.TerminalContext):
         return self.visitChildren(ctx)
     
     def visitAccess(self, ctx: AnalogParser.AccessContext):
@@ -271,23 +283,20 @@ class _AnalogASTBuilder(AnalogParserVisitor):
     ## Math Terminals ##
     
     def visitMath_terminal(self, ctx: AnalogParser.Math_terminalContext):
-        for i in range(ctx.getChildCount()):
-            child = ctx.getChild(i)
-            if isinstance(child, TerminalNodeImpl):
-                tt = child.symbol.type
-                text = child.getText()
-                if tt == AnalogLexer.INT:
-                    return MathNum(value=int(text))
-                if tt == AnalogLexer.FLOAT:
-                    return MathNum(value=float(text))
-                if tt == AnalogLexer.MATH_VAR:
-                    return MathVar(name=text)
-                if tt == AnalogLexer.IMAG:
-                    return MathImag()
-                if tt == AnalogLexer.ID:
-                    return Access(name=text)
-            else:
-                return self.visit(child)
+        if ctx.INT() is not None:
+            return MathNum(value=int(ctx.INT().getText()))
+        if ctx.FLOAT() is not None:
+            return MathNum(value=float(ctx.FLOAT().getText()))
+        if ctx.MATH_VAR() is not None:
+            return MathVar(name=ctx.MATH_VAR().getText())
+        if ctx.IMAG() is not None:
+            return MathImag()
+        if ctx.access() is not None:
+            return self.visit(ctx.access())
+        if ctx.pexpr() is not None:
+            return self.visit(ctx.pexpr())
+        if ctx.fexpr() is not None:
+            return self.visit(ctx.fexpr())
         raise ValueError("Empty math_terminal")
     
     ## Arithmetic Expressions ##
@@ -355,8 +364,8 @@ class _AnalogASTBuilder(AnalogParserVisitor):
     
     def visitEexpr(self, ctx: AnalogParser.EexprContext):
         if ctx.getChildCount() == 1:
-            return self.visit(ctx.atom())
-        base = self.visit(ctx.atom())
+            return self.visit(ctx.terminal())
+        base = self.visit(ctx.terminal())
         exp = self.visit(ctx.uexpr())
         return MathPow(expr1=base, expr2=exp)
     
@@ -364,9 +373,28 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         return self.visit(ctx.aexpr())
     
     def visitFexpr(self, ctx: AnalogParser.FexprContext):
-        func_name = _get_text(ctx.math_func_name()).lower()
-        arg = self.visit(ctx.pexpr())
-        return MathFunc(func=func_name, expr=arg)
+        fn_ctx = ctx.func_names()
+        tt = _get_token_type(fn_ctx.getChild(0))
+        args = [self.visit(ax) for ax in ctx.aexpr()]
+        if tt == AnalogLexer.EVOLVE:
+            if len(args) != 3:
+                raise ValueError(f"evolve expects 3 arguments, got {len(args)}")
+            return Evolve(hamiltonian=args[1], duration=args[2], targets=args[0])
+        if tt == AnalogLexer.MEASURE:
+            if len(args) != 1:
+                raise ValueError(f"measure expects 1 argument, got {len(args)}")
+            return Measure(targets=args[0])
+        if tt == AnalogLexer.INITIALIZE:
+            if len(args) != 1:
+                raise ValueError(f"initialize expects 1 argument, got {len(args)}")
+            return Initialize(targets=args[0])
+        name = _FUNC_TOKEN_TO_NAME.get(tt)
+        if name is None:
+            raise ValueError(f"Unknown function token type: {tt}")
+        if name == "atan2":
+            return MathFunc(func=name, expr=args)
+        
+        return MathFunc(func=name, expr=args[0])
     
     ## Bool Expressions ##
 
