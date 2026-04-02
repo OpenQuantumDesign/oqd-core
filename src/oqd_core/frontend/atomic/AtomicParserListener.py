@@ -35,12 +35,12 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#atom.
-    def enterAtom(self, ctx:AtomicParser.AtomContext):
+    # Enter a parse tree produced by AtomicParser#terminal.
+    def enterTerminal(self, ctx:AtomicParser.TerminalContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#atom.
-    def exitAtom(self, ctx:AtomicParser.AtomContext):
+    # Exit a parse tree produced by AtomicParser#terminal.
+    def exitTerminal(self, ctx:AtomicParser.TerminalContext):
         pass
 
 
@@ -143,48 +143,12 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#beam_expr.
-    def enterBeam_expr(self, ctx:AtomicParser.Beam_exprContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#beam_expr.
-    def exitBeam_expr(self, ctx:AtomicParser.Beam_exprContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#vec3.
-    def enterVec3(self, ctx:AtomicParser.Vec3Context):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#vec3.
-    def exitVec3(self, ctx:AtomicParser.Vec3Context):
-        pass
-
-
     # Enter a parse tree produced by AtomicParser#parallel_stmt.
     def enterParallel_stmt(self, ctx:AtomicParser.Parallel_stmtContext):
         pass
 
     # Exit a parse tree produced by AtomicParser#parallel_stmt.
     def exitParallel_stmt(self, ctx:AtomicParser.Parallel_stmtContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#pulse_stmt.
-    def enterPulse_stmt(self, ctx:AtomicParser.Pulse_stmtContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#pulse_stmt.
-    def exitPulse_stmt(self, ctx:AtomicParser.Pulse_stmtContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#measured.
-    def enterMeasured(self, ctx:AtomicParser.MeasuredContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#measured.
-    def exitMeasured(self, ctx:AtomicParser.MeasuredContext):
         pass
 
 
@@ -305,12 +269,12 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#math_func_name.
-    def enterMath_func_name(self, ctx:AtomicParser.Math_func_nameContext):
+    # Enter a parse tree produced by AtomicParser#func_names.
+    def enterFunc_names(self, ctx:AtomicParser.Func_namesContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#math_func_name.
-    def exitMath_func_name(self, ctx:AtomicParser.Math_func_nameContext):
+    # Exit a parse tree produced by AtomicParser#func_names.
+    def exitFunc_names(self, ctx:AtomicParser.Func_namesContext):
         pass
 
 

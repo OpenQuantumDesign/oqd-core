@@ -34,7 +34,7 @@ from pydantic import (
 __all__ = [
     "AnalogExpr",
     "CastAnalogExpr",
-    "Atom",
+    "Terminal",
     "Access",
     "MathNum",
     "MathVar",
@@ -330,11 +330,11 @@ class ModeRegister(RegisterExpr):
 ########################################################################################
 
 
-def _Atom_discriminator(value):
+def _Terminal_discriminator(value):
     return value["class_"] if isinstance(value, dict) else getattr(value, "class_")
 
 
-Atom = Annotated[
+Terminal = Annotated[
     Union[
         Annotated[Bool, Tag("Bool")],
         Annotated[MathVar, Tag("MathVar")],
@@ -351,7 +351,7 @@ Atom = Annotated[
         Annotated[QuantumRegister, Tag("QuantumRegister")],
         Annotated[ModeRegister, Tag("ModeRegister")],
     ],
-    Discriminator(discriminator=_Atom_discriminator),
+    Discriminator(discriminator=_Terminal_discriminator),
 ]
 
 
@@ -734,7 +734,7 @@ def _AnalogExprSubtypes_discriminator(value):
         "Measure",
         "Initialize",
     ]:
-        class_ = "Atom"
+        class_ = "Terminal"
 
     return class_
 
@@ -765,7 +765,7 @@ AnalogExprSubtypes = Annotated[
         Annotated[Evolve, Tag("Evolve")],
         Annotated[Measure, Tag("Measure")],
         Annotated[Initialize, Tag("Initialize")],
-        Annotated[Atom, Tag("Atom")],
+        Annotated[Terminal, Tag("Terminal")],
     ],
     Discriminator(discriminator=_AnalogExprSubtypes_discriminator),
 ]

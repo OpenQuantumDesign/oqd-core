@@ -24,8 +24,8 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AtomicParser#atom.
-    def visitAtom(self, ctx:AtomicParser.AtomContext):
+    # Visit a parse tree produced by AtomicParser#terminal.
+    def visitTerminal(self, ctx:AtomicParser.TerminalContext):
         return self.visitChildren(ctx)
 
 
@@ -84,28 +84,8 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AtomicParser#beam_expr.
-    def visitBeam_expr(self, ctx:AtomicParser.Beam_exprContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AtomicParser#vec3.
-    def visitVec3(self, ctx:AtomicParser.Vec3Context):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AtomicParser#parallel_stmt.
     def visitParallel_stmt(self, ctx:AtomicParser.Parallel_stmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AtomicParser#pulse_stmt.
-    def visitPulse_stmt(self, ctx:AtomicParser.Pulse_stmtContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AtomicParser#measured.
-    def visitMeasured(self, ctx:AtomicParser.MeasuredContext):
         return self.visitChildren(ctx)
 
 
@@ -174,8 +154,8 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AtomicParser#math_func_name.
-    def visitMath_func_name(self, ctx:AtomicParser.Math_func_nameContext):
+    # Visit a parse tree produced by AtomicParser#func_names.
+    def visitFunc_names(self, ctx:AtomicParser.Func_namesContext):
         return self.visitChildren(ctx)
 
 

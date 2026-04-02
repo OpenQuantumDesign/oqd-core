@@ -168,8 +168,6 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         return statements
     
     def visitStatement(self, ctx: AnalogParser.StatementContext):
-        # if ctx.expr() is not None:
-        #     return self.visit(ctx.expr())
         child = ctx.getChild(0)
         return self.visit(child)
     

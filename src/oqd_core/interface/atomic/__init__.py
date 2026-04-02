@@ -15,7 +15,6 @@
 from .circuit import AtomicCircuit
 from .species import Ba133IIBuilder, IonBuilder, Yb171IIBuilder
 from .statement import (
-    Pulse,
     ParallelProtocol,
     While,
     IfElse,
@@ -24,13 +23,13 @@ from .statement import (
     Declaration,
 )
 from .expr import (
+    Pulse,
     AtomicExpr,
     AtomicExprSubtypes,
     AtomicList,
-    AtomicListExtract,
-    Atom,
+    Extract,
+    Terminal,
     Bool,
-    IonQubit,
     IonRegister,
     Beam,
     Access,
@@ -62,8 +61,8 @@ __all__ = [
     "AtomicExpr",
     "AtomicExprSubtypes",
     "AtomicList",
-    "AtomicListExtract",
-    "Atom",
+    "Extract",
+    "Terminal",
     "Bool",
     "Beam",
     "Pulse",
@@ -72,7 +71,6 @@ __all__ = [
     "IonBuilder",
     "Yb171IIBuilder",
     "Ba133IIBuilder",
-    "IonQubit",
     "IonRegister",
     "Declaration",
     "Access",

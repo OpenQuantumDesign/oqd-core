@@ -30,13 +30,12 @@ from pydantic import (
 __all__ = [
     "AtomicExpr",
     "CastAtomicExpr",
-    "Atom",
+    "Terminal",
     "Access",
     "MathNum",
     "MathVar",
     "MathImag",
     "Bool",
-    "IonQubit",
     "IonRegister",
     "MathExpr",
     "MathFunc",
@@ -57,7 +56,7 @@ __all__ = [
     "BoolGreaterThanEq",
     "BoolExpr",
     "AtomicList",
-    "AtomicListExtract",
+    "Extract",
     "Beam",
 ]
 
@@ -130,6 +129,19 @@ class MathExpr(AtomicExpr): ...
 
 class BoolExpr(AtomicExpr): ...
 
+
+class IonExpr(AtomicExpr): ...
+
+
+class CollectionExpr(AtomicExpr): ...
+
+
+class IndexingExpr(AtomicExpr): ...
+
+
+class RegisterExpr(CollectionExpr): ...
+
+
 ########################################################################################
 
 
@@ -201,26 +213,25 @@ class Bool(BoolExpr):
 class IonRegister(AtomicExpr):
     size: NonNegativeInt
 
-class Beam(AtomicExpr):
-    """
-    Class representing a referenced optical channel/beam for the trapped-ion device.
-
-    Attributes:
-        rabi: Rabi frequency of the referenced transition driven by the beam.
-        phase: Phase relative to the ion's clock.
-        polarization: Polarization of the beam.
-        wavevector: Wavevector of the beam.
-    """
-    frequency: CastAtomicExpr
-    rabi: CastAtomicExpr
-    phase: CastAtomicExpr
-    polarization: CastAtomicExpr
-    wavevector:CastAtomicExpr
-
 
 ########################################################################################
 
-Atom = Union[Bool, MathVar, MathNum, MathImag, Access, IonRegister, Beam]
+
+def _Terminal_discriminator(value):
+    return value["class_"] if isinstance(value, dict) else getattr(value, "class_")
+
+
+Terminal = Annotated[
+    Union[
+        Annotated[Bool, Tag("Bool")],
+        Annotated[MathVar, Tag("MathVar")],
+        Annotated[MathNum, Tag("MathNum")],
+        Annotated[MathImag, Tag("MathImag")],
+        Annotated[Access, Tag("Access")],
+        Annotated[IonRegister, Tag("IonRegister")],
+    ],
+    Discriminator(discriminator=_Terminal_discriminator),
+]
 
 ########################################################################################
 
@@ -463,21 +474,88 @@ class AtomicList(AtomicExpr):
     values: List[CastAtomicExpr]
 
 
-class AtomicListExtract(AtomicExpr):
-    access: Access
-    index: NonNegativeInt
-    
-    
-class IonQubit(AtomicExpr):
+class Extract(AtomicExpr):
     access: Access
     index: NonNegativeInt
 
 
 ########################################################################################
 
+
+class Beam(AtomicExpr):
+    """
+    Class representing a referenced optical channel/beam for the trapped-ion device.
+
+    Attributes:
+        frequency: frequency of the beam.
+        rabi: Rabi frequency of the referenced transition driven by the beam.
+        phase: Phase relative to the ion's clock.
+        polarization: Polarization of the beam.
+        wavevector: Wavevector of the beam.
+    """
+    frequency: CastAtomicExpr
+    rabi: CastAtomicExpr
+    phase: CastAtomicExpr
+    polarization: CastAtomicExpr
+    wavevector: CastAtomicExpr
+
+
+class Pulse(TypeReflectBaseModel):
+    """
+    Class representing the application of the beam for some duration.
+
+    Attributes:
+        beam: Optical channel/beam to turn on.
+        duration: Period of time to turn the optical channel on for.
+        target: Target ion of the beam.
+        measured: Boolean that tracks if the pulse has been measured.
+    """
+    duration: AtomicExprSubtypes
+    target: AtomicExprSubtypes
+    beam: AtomicExprSubtypes
+    measured: AtomicExprSubtypes
+
+
+########################################################################################
+
+
+
+def _AtomicExprSubtypes_discriminator(value):
+    if isinstance(value, dict):
+        class_ = value["class_"]
+    else:
+        class_ = getattr(value, "class_")
+
+    if class_ not in [
+        "BoolAnd",
+        "BoolOr",
+        "BoolNot",
+        "BoolEq",
+        "BoolNotEq",
+        "BoolLessThan",
+        "BoolLessThanEq",
+        "BoolGreaterThan",
+        "BoolGreaterThanEq",
+        "MathFunc",
+        "MathAdd",
+        "MathSub",
+        "MathMul",
+        "MathDiv",
+        "MathPow",
+        "AtomicList",
+        "Extract",
+        "Beam",
+        "Pulse",
+    ]:
+        class_ = "Terminal"
+
+    return class_
+
+
 AtomicExprSubtypes = Annotated[
     Union[
         Annotated[Beam, Tag("Beam")],
+        Annotated[Pulse, Tag("Pulse")],
         Annotated[Bool, Tag("Bool")],
         Annotated[MathVar, Tag("MathVar")],
         Annotated[MathNum, Tag("MathNum")],
@@ -499,11 +577,11 @@ AtomicExprSubtypes = Annotated[
         Annotated[MathMul, Tag("MathMul")],
         Annotated[MathDiv, Tag("MathDiv")],
         Annotated[MathPow, Tag("MathPow")],
-        Annotated[IonQubit, Tag("IonQubit")],
         Annotated[AtomicList, Tag("AtomicList")],
-        Annotated[AtomicListExtract, Tag("AtomicListExtract")],
+        Annotated[Extract, Tag("Extract")],
+        Annotated[Terminal, Tag("Terminal")],
     ],
-    Discriminator(lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")),
+    Discriminator(discriminator=_AtomicExprSubtypes_discriminator),
 ]
 
 CastAtomicExpr = Annotated[AtomicExprSubtypes, BeforeValidator(AtomicExpr.cast)]

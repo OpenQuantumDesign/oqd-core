@@ -17,27 +17,27 @@ beam_mw = beam(2.0 * pi * 1e6, omega, phi, [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]);
 beam_det = beam(2.0 * pi * 2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]);
 
 // pulse statements
-pulse q0 with beam_mw for t_gate;                 // measured defaults to false
-pulse q1 with beam_det for 3e-6, true;            // explicit measured=true
-pulse targets with beam_mw for 2e-6, false;       // explicit measured=false
+pulse(q0, beam_mw, t_gate);                 // measured defaults to false
+pulse(q1, beam_det, 3e-6, true);            // explicit measured=true
+pulse(targets, beam_mw, 2e-6, false);       // explicit measured=false
 
 // parallel block
 parallel {
-    pulse q0 with beam_mw for 5e-6;
-    pulse q1 with beam_det for 5e-6;
+    pulse(q0, beam_mw, 5e-6);
+    pulse(q1, beam_det, 5e-6);
 }
 
 // control flow
 if (flag) {
-    pulse targets with beam_mw for 2e-6;
+    pulse(targets, beam_mw, 2e-6);
 }
 else {
-    pulse targets with beam_det for 2e-5, true;
+    pulse(targets, beam_det, 2e-5, true);
 }
 
 while (n > 0) {
     parallel {
-        pulse targets with beam_mw for 1e-6;
+        pulse(targets, beam_mw, 1e-6);
     }
     n = n - 1;
     if (n == 1) {

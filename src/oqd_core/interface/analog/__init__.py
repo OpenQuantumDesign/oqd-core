@@ -19,7 +19,7 @@ from oqd_core.interface.analog.expr import (
     AnalogExpr,
     AnalogExprSubtypes,
     AnalogList,
-    Atom,
+    Terminal,
     Bool,
     BoolAnd,
     BoolEq,
@@ -69,7 +69,7 @@ from oqd_core.interface.analog.statement import (
 
 __all__ = [
     "Access",
-    "Atom",
+    "Terminal",
     "Bool",
     "MathImag",
     "MathNum",

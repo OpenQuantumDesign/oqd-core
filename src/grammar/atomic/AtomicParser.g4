@@ -8,19 +8,19 @@ program: block EOF;
 
 statement
     : declaration
-    | pulse_stmt
     | parallel_stmt
     | while_stmt
     | ifelse_stmt
     | break_stmt
     | continue_stmt
+    | expr
     ;
 
 block: (statement EOL | EOL)* (statement)?;
 
 /** ================================================================================= */
 
-atom: ion_register | math_terminal | bool_literal;
+terminal: ion_register | math_terminal | bool_literal;
 expr
     : aexpr (comparators aexpr)+
     | expr (bool_and_op|bool_or_op) expr
@@ -28,9 +28,9 @@ expr
     | LBRACKET expr RBRACKET
     | atomic_list_extract 
     | atomic_list 
-    | atom
+    | terminal
     | aexpr
-    | beam_expr;
+    ;
 cond: expr;
 atomic_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
 
@@ -57,12 +57,7 @@ ifelse_stmt
 // Quantum
 ion_register: IONREGISTER LBRACKET INT RBRACKET;
 
-beam_expr: BEAM LBRACKET expr COMMA expr COMMA expr COMMA vec3 COMMA vec3 RBRACKET;
-vec3: SQUARELBRACKET expr COMMA expr COMMA expr SQUARERBRACKET;
-
 parallel_stmt: PARALLEL LBRACE block RBRACE;
-pulse_stmt: PULSE targets WITH expr FOR expr (COMMA measured)?;
-measured: expr;
 targets: expr;
 
 /** ================================================================================= */
@@ -93,15 +88,15 @@ comparators
 
 // Math
 
-math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr;
+math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr | atomic_list;
 
-math_func_name: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
+func_names: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
     | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2
-    | HEAVISIDE | CONJ | REAL | IMAG_FN;
+    | HEAVISIDE | CONJ | REAL | IMAG_FN | BEAM | PULSE;
 
 pexpr: LBRACKET aexpr RBRACKET;
 
-fexpr: math_func_name pexpr;
+fexpr: func_names LBRACKET (aexpr (COMMA aexpr)*)? RBRACKET;
 
 aexpr: mexpr | aexpr (PLUS|MINUS) mexpr;
 
@@ -109,4 +104,4 @@ mexpr: uexpr | mexpr (MULT|DIV) uexpr;
 
 uexpr: eexpr | (PLUS|MINUS) eexpr;
 
-eexpr: atom | atom POWER uexpr;
+eexpr: terminal | terminal POWER uexpr;

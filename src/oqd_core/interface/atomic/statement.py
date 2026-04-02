@@ -16,10 +16,7 @@ from __future__ import annotations
 from typing import List, Union, Annotated
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from pydantic import (
-    Discriminator,
-    Tag
-)
+from pydantic import Discriminator, Tag
 from .expr import AtomicExprSubtypes, Identifier
 
 ########################################################################################
@@ -43,23 +40,9 @@ class Declaration(TypeReflectBaseModel):
 
 
 class ParallelProtocol(TypeReflectBaseModel):
-    pulses: List[Pulse]
+    pulses: List[Statement]
 
-class Pulse(TypeReflectBaseModel):
-    """
-    Class representing the application of the beam for some duration.
 
-    Attributes:
-        beam: Optical channel/beam to turn on.
-        duration: Period of time to turn the optical channel on for.
-        target: Target ion of the beam.
-        measured: Boolean that tracks if the pulse has been measured.
-    """
-    duration: AtomicExprSubtypes
-    target: AtomicExprSubtypes
-    beam: AtomicExprSubtypes
-    measured: AtomicExprSubtypes
-    
 
 class IfElse(TypeReflectBaseModel):
     """
@@ -91,16 +74,35 @@ class Continue(TypeReflectBaseModel):
     """
     pass
 
+########################################################################################
+
+
+"""
+Union of classes
+"""
+
+
+def _Statement_discriminator(value):
+    if isinstance(value, dict):
+        class_ = value["class_"]
+    else:
+        class_ = getattr(value, "class_")
+
+    if class_ not in ["Declaration", "IfElse", "While", "Break", "Continue", "ParallelProtocol"]:
+        class_ = "AtomicExpr"
+
+    return class_
+
 
 Statement = Annotated[
     Union[
         Annotated[Declaration, Tag("Declaration")],
-        Annotated[Pulse, Tag("Pulse")],
-        Annotated[ParallelProtocol, Tag("ParallelProtocol")],
         Annotated[IfElse, Tag("IfElse")],
         Annotated[While, Tag("While")],
         Annotated[Break, Tag("Break")],
         Annotated[Continue, Tag("Continue")],
+        Annotated[ParallelProtocol, Tag("ParallelProtocol")],
+        Annotated[AtomicExprSubtypes, Tag("AtomicExpr")],
     ],
-    Discriminator(lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")),
+    Discriminator(discriminator=_Statement_discriminator),
 ]

@@ -13,7 +13,7 @@
       "class_": "Declaration",
       "name": "q0",
       "value": {
-        "class_": "AtomicListExtract",
+        "class_": "Extract",
         "access": {
           "class_": "Access",
           "name": "ions"
@@ -25,7 +25,7 @@
       "class_": "Declaration",
       "name": "q1",
       "value": {
-        "class_": "AtomicListExtract",
+        "class_": "Extract",
         "access": {
           "class_": "Access",
           "name": "ions"
