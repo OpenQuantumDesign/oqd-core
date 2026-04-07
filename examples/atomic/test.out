@@ -1,0 +1,35 @@
+ions = ionreg(2);
+q0 = ions[0];
+q1 = ions[1];
+targets = [q0, q1];
+pi = 3.14159;
+omega = #omega;
+phi = #phi;
+t_gate = 1e-05;
+flag = true;
+n = 3;
+beam_mw = beam(2.0 * pi * 1000000.0, omega, phi, [1.0, 0.0, 0.0], [0.0, 0.0, 1.0]);;
+beam_det = beam(2.0 * pi * 2000000.0, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]);;
+pulse(q0, beam_mw, t_gate, false);
+pulse(q1, beam_det, 3e-06, true);
+pulse(targets, beam_mw, 2e-06, false);
+parallel {
+pulse(q0, beam_mw, 5e-06, false);
+pulse(q1, beam_det, 5e-06, false);
+}
+if (flag) {
+pulse(targets, beam_mw, 2e-06, false);
+} else {
+pulse(targets, beam_det, 2e-05, true);
+}
+while (n > 0) {
+parallel {
+pulse(targets, beam_mw, 1e-06, false);
+}
+n = n - 1;
+if (n == 1) {
+continue;
+}
+if (n == 0) {
+break;
+}}
