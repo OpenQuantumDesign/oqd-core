@@ -58,6 +58,19 @@ tests = ["pytest"]
 where = ["src"]
 include = ["oqd_core*"]
 
+[tool.ruff]
+exclude = [
+  "src/oqd_core/frontend/analog/AnalogCircuitAST.py",
+  "src/oqd_core/frontend/analog/AnalogLexer.py",
+  "src/oqd_core/frontend/analog/AnalogParser.py",
+  "src/oqd_core/frontend/analog/AnalogParserListener.py",
+  "src/oqd_core/frontend/analog/AnalogParserVisitor.py",
+  "src/oqd_core/frontend/analog/AtomicCircuitAST.py",
+  "src/oqd_core/frontend/analog/AtomicLexer.py",
+  "src/oqd_core/frontend/analog/AtomicParser.py",
+  "src/oqd_core/frontend/analog/AtomicParserListener.py",
+  "src/oqd_core/frontend/analog/AtomicParserVisitor.py",
+]
 
 [tool.ruff.lint]
 select = ["E4", "E7", "E9", "F", "I"]
@@ -67,10 +80,7 @@ fixable = ["ALL"]
 oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure" }
 
 [dependency-groups]
-dev = [
-    "jupyter>=1.1.1",
-    "pre-commit>=4.1.0",
-]
+dev = ["jupyter>=1.1.1", "pre-commit>=4.1.0", "ruff>=0.15.9"]
 
 
 [project.urls]
