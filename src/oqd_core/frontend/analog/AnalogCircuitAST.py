@@ -377,7 +377,7 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         if tt == AnalogLexer.EVOLVE:
             if len(args) != 3:
                 raise ValueError(f"evolve expects 3 arguments, got {len(args)}")
-            return Evolve(hamiltonian=args[1], duration=args[2], targets=args[0])
+            return Evolve(hamiltonian=args[0], duration=args[1], targets=args[2])
         if tt == AnalogLexer.MEASURE:
             if len(args) != 1:
                 raise ValueError(f"measure expects 1 argument, got {len(args)}")
