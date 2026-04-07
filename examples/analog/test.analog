@@ -65,11 +65,14 @@ if (a > b) {
 
 
 initialize(r);
+
 // evolve(hamiltonian, duration, target)
 evolve(H_single, 2.0, r);
 evolve(H_pair, 1.0, targets);
 evolve(%X * 0.5, pi, q0);
+
 measure(r);
+measurement = measure(q0);
 
 // Bool expressions
 

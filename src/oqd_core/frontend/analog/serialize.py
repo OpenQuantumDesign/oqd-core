@@ -76,41 +76,41 @@ class SerializeAnalog(ConversionRule):
 
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
         statements = operands["statements"]
-        return "\n".join(statements) + "\n"
+        return ";\n".join(statements) + ";\n"
 
     ## Statements ##
 
     def map_Declaration(self, model: Declaration, operands):
-        return f"{operands['name']} = {operands['value']};"
+        return f"{operands['name']} = {operands['value']}"
 
     def map_While(self, model: While, operands):
-        body = "\n".join(operands["body"])
+        body = ";\n".join(operands["body"]) + ";\n"
         return f"while ({operands['condition']}) {{\n{body}}}"
 
     def map_IfElse(self, model: IfElse, operands):
-        then_branch = "\n".join(operands["then_branch"])
+        then_branch = ";\n".join(operands["then_branch"]) + ";\n"
         else_branch = operands["else_branch"]
         if else_branch:
-            else_branch = "\n".join(else_branch)
+            else_branch = ";\n".join(else_branch) + ";\n"
             return f"if ({operands['condition']}) {{\n{then_branch}\n}} else {{\n{else_branch}\n}}"
         return f"if ({operands['condition']}) {{\n{then_branch}\n}}"
 
     def map_Break(self, model: Break, operands):
-        return "break;"
+        return "break"
 
     def map_Continue(self, model: Continue, operands):
-        return "continue;"
+        return "continue"
 
     ## Expressions ##
 
     def map_Evolve(self, model: Evolve, operands):
-        return f"evolve({operands['hamiltonian']}, {operands['duration']}, {operands['targets']});"
+        return f"evolve({operands['hamiltonian']}, {operands['duration']}, {operands['targets']})"
 
     def map_Measure(self, model: Measure, operands):
-        return f"measure({operands['targets']});"
+        return f"measure({operands['targets']})"
 
     def map_Initialize(self, model: Initialize, operands):
-        return f"initialize({operands['targets']});"
+        return f"initialize({operands['targets']})"
 
     def map_AnalogList(self, model: AnalogList, operands):
         return "[" + ", ".join(operands["values"]) + "]"
