@@ -15,6 +15,7 @@
 from .AnalogLexer import AnalogLexer
 from .AnalogParser import AnalogParser
 from .AnalogCircuitAST import _AnalogASTBuilder
+from .deserialize import deserialize_analog
 from pathlib import Path
 import antlr4
 import typer
@@ -25,12 +26,19 @@ app = typer.Typer()
 
 @app.command()
 def main(
-    input_file: Path = typer.Option(None, "-i", "--input", help="Input .analog file"),
-    output_file: Path = typer.Option("examples/analog/output.ast", "-o", "--output", help="Output file with parse tree"),
+    input_file: Path = typer.Option(None, "-i", "--input", help="Input file"),
+    output_file: Path = typer.Option(None, "-o", "--output", help="Output file"),
+    deserialize: bool = typer.Option(False, "-d", "--deserialize", help="Convert .ast to .analog"),
 ):
     
     with open(input_file, encoding="utf-8") as f:
         source = f.read()
+        
+    if deserialize:
+        code = deserialize_analog(source)
+        with open(output_file, 'w') as f:
+            f.write(code)
+        return
         
     stream = antlr4.InputStream(source)
     lexer = AnalogLexer(stream)
