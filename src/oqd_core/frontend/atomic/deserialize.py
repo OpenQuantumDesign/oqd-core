@@ -103,11 +103,11 @@ class Deserialize(ConversionRule):
         return f"beam({frequency}, {rabi}, {phase}, {polarization}, {wavevector});"
     
     def map_Pulse(self, model: Pulse, operands):
-        target = operands["target"]
         beam = operands["beam"]
         duration = operands["duration"]
         measured = operands["measured"]
-        return f"pulse({target}, {beam}, {duration}, {measured});"
+        target = operands["target"]
+        return f"pulse({beam}, {duration}, {target}, {measured});"
     
     def map_AtomicList(self, model: AtomicList, operands):
         return "[" + ", ".join(operands['values']) + "]"

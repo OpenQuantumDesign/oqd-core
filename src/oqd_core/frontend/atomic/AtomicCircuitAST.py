@@ -336,9 +336,9 @@ class _AtomicASTBuilder(AtomicParserVisitor):
             return Beam(frequency=args[0], rabi=args[1], phase=args[2], polarization=args[3], wavevector=args[4])
         if tt == AtomicLexer.PULSE:
             if len(args) == 4:
-                return Pulse(duration=args[2], target=args[0], beam=args[1], measured=args[3])
+                return Pulse(beam=args[0], duration=args[1], target=args[2], measured=args[3])
             elif len(args) == 3:
-                return Pulse(duration=args[2], target=args[0], beam=args[1], measured=Bool(value=False))
+                return Pulse(beam=args[0], duration=args[1], target=args[2], measured=Bool(value=False))
             raise ValueError(f"pulse expects 3/4 arguments, got {len(args)}")
         name = _FUNC_TOKEN_TO_NAME.get(tt)
         if name is None:
