@@ -66,35 +66,35 @@ class SerializeAtomic(ConversionRule):
 
     def map_AtomicCircuit(self, model: AtomicCircuit, operands):
         statements = operands["statements"]
-        return "\n".join(statements) + "\n"
+        return ";\n".join(statements) + "\n"
 
     ## Statements ##
 
     def map_ParallelProtocol(self, model: ParallelProtocol, operands):
         pulses = operands["pulses"]
-        body = "\n".join(pulses)
+        body = ";\n".join(pulses) + ";\n"
         return f"parallel {{\n{body}\n}}"
 
     def map_Declaration(self, model: Declaration, operands):
-        return f"{operands['name']} = {operands['value']};"
+        return f"{operands['name']} = {operands['value']}"
 
     def map_While(self, model: While, operands):
-        body = "\n".join(operands["body"])
+        body = ";\n".join(operands["body"]) + ";\n"
         return f"while ({operands['condition']}) {{\n{body}}}"
 
     def map_IfElse(self, model: IfElse, operands):
-        then_branch = "\n".join(operands["then_branch"])
+        then_branch = ";\n".join(operands["then_branch"])  + ";\n"
         else_branch = operands["else_branch"]
         if else_branch:
-            else_branch = "\n".join(else_branch)
+            else_branch = ";\n".join(else_branch)  + ";\n"
             return f"if ({operands['condition']}) {{\n{then_branch}\n}} else {{\n{else_branch}\n}}"
         return f"if ({operands['condition']}) {{\n{then_branch}\n}}"
 
     def map_Break(self, model: Break, operands):
-        return "break;"
+        return "break"
 
     def map_Continue(self, model: Continue, operands):
-        return "continue;"
+        return "continue"
 
     ## Expressions ##
 
@@ -104,14 +104,14 @@ class SerializeAtomic(ConversionRule):
         phase = operands["phase"]
         polarization = operands["polarization"]
         wavevector = operands["wavevector"]
-        return f"beam({frequency}, {rabi}, {phase}, {polarization}, {wavevector});"
+        return f"beam({frequency}, {rabi}, {phase}, {polarization}, {wavevector})"
 
     def map_Pulse(self, model: Pulse, operands):
         beam = operands["beam"]
         duration = operands["duration"]
         measured = operands["measured"]
         target = operands["target"]
-        return f"pulse({beam}, {duration}, {target}, {measured});"
+        return f"pulse({beam}, {duration}, {target}, {measured})"
 
     def map_AtomicList(self, model: AtomicList, operands):
         return "[" + ", ".join(operands["values"]) + "]"
