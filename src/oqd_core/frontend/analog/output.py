@@ -12,46 +12,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .AnalogLexer import AnalogLexer
-from .AnalogParser import AnalogParser
-from .AnalogCircuitAST import _AnalogASTBuilder
-from .deserialize import deserialize_analog
 from pathlib import Path
-import antlr4
+
 import typer
+
+from .AnalogCircuitAST import parse_analog
 
 ########################################################################################
 
 app = typer.Typer()
 
+
 @app.command()
 def main(
     input_file: Path = typer.Option(None, "-i", "--input", help="Input file"),
     output_file: Path = typer.Option(None, "-o", "--output", help="Output file"),
-    deserialize: bool = typer.Option(False, "-d", "--deserialize", help="Convert .ast to .analog"),
 ):
-    
     with open(input_file, encoding="utf-8") as f:
         source = f.read()
-        
-    if deserialize:
-        code = deserialize_analog(source)
-        with open(output_file, 'w') as f:
-            f.write(code)
-        return
-        
-    stream = antlr4.InputStream(source)
-    lexer = AnalogLexer(stream)
-    parser = AnalogParser(antlr4.CommonTokenStream(lexer))
-    tree = parser.program()
-    builder = _AnalogASTBuilder()
-    
-    ast = builder.visit(tree)
-    tree = ast.model_dump_json(indent=2, serialize_as_any=True)
 
-    with open(output_file, 'w') as f:
+    circuit = parse_analog(source)
+    tree = circuit.model_dump_json(indent=2, serialize_as_any=True)
+
+    with open(output_file, "w") as f:
         f.write(tree)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     app()
-    

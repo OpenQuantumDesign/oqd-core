@@ -13,58 +13,65 @@
 # limitations under the License.
 
 from __future__ import annotations
+
+import antlr4
 from antlr4.tree.Tree import TerminalNodeImpl
+
 from oqd_core.frontend.analog.AnalogLexer import AnalogLexer
 from oqd_core.frontend.analog.AnalogParser import AnalogParser
 from oqd_core.frontend.analog.AnalogParserVisitor import AnalogParserVisitor
 from oqd_core.interface.analog import (
-    AnalogCircuit,
-    Extract,
-    Declaration,
-    Evolve,
-    Initialize,
-    Measure,
     Access,
+    AnalogCircuit,
     AnalogList,
-    QuantumRegister,
-    ModeRegister,
-    IfElse,
-    While,
-    Break,
-    Continue,
-    MathNum,
-    MathVar,
-    MathImag,
-    MathAdd,
-    MathSub,
-    MathMul,
-    MathDiv,
-    MathPow,
-    MathFunc,
+    Bool,
     BoolAnd,
-    BoolOr,
-    BoolNot,
     BoolEq,
-    BoolNotEq,
-    BoolLessThan,
-    BoolLessThanEq,
     BoolGreaterThan,
     BoolGreaterThanEq,
-    Bool,
+    BoolLessThan,
+    BoolLessThanEq,
+    BoolNot,
+    BoolNotEq,
+    BoolOr,
+    Break,
+    Continue,
+    Declaration,
+    Evolve,
+    Extract,
+    IfElse,
+    Initialize,
+    MathAdd,
+    MathDiv,
+    MathFunc,
+    MathImag,
+    MathMul,
+    MathNum,
+    MathPow,
+    MathSub,
+    MathVar,
+    Measure,
+    ModeRegister,
+    QuantumRegister,
+    While,
 )
 from oqd_core.interface.analog.expr import (
+    Annihilation,
+    Creation,
+    Identity,
+    OperatorAdd,
+    OperatorKron,
+    OperatorMul,
+    OperatorSub,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
-    Creation,
-    Annihilation,
-    Identity,
-    OperatorAdd,
-    OperatorSub,
-    OperatorMul,
-    OperatorKron,
 )
+
+########################################################################################
+
+__all__ = ["AnalogASTBuilder", "parse_analog"]
 
 ########################################################################################
 
@@ -82,13 +89,13 @@ _BOOL_OP_MAP = {
 }
 
 _OP_TERMINAL_MAP = {
-    'I': PauliI, 
-    'X': PauliX, 
-    'Y': PauliY, 
-    'Z': PauliZ,
-    'C': Creation, 
-    'A': Annihilation, 
-    'J': Identity,
+    "I": PauliI,
+    "X": PauliX,
+    "Y": PauliY,
+    "Z": PauliZ,
+    "C": Creation,
+    "A": Annihilation,
+    "J": Identity,
 }
 
 _FUNC_TOKEN_TO_NAME = {
@@ -114,6 +121,7 @@ _FUNC_TOKEN_TO_NAME = {
     AnalogLexer.ATAN2: "atan2",
 }
 
+
 def _get_token_type(node) -> int:
     """Extract token type from a terminal or context"""
     if isinstance(node, TerminalNodeImpl):
@@ -121,9 +129,11 @@ def _get_token_type(node) -> int:
     payload = getattr(node, "getPayload", lambda: None)()
     return getattr(payload, "type", -1) if payload else -1
 
+
 def _get_text(node) -> str:
     """Get text from a parse tree node"""
     return node.getText() if hasattr(node, "getText") else str(node)
+
 
 def _comparator_to_bool_class(cmp_ctx: AnalogParser.ComparatorsContext):
     op_ctx = (
@@ -142,23 +152,26 @@ def _comparator_to_bool_class(cmp_ctx: AnalogParser.ComparatorsContext):
         raise ValueError(f"Unknown comparator token type: {tt}")
     return cls
 
+
 ########################################################################################
 
-class _AnalogASTBuilder(AnalogParserVisitor):
+
+class AnalogASTBuilder(AnalogParserVisitor):
     """
     Visitor that converts ANTLR parse tree to Analog interface AST
     """
+
     def __init__(self):
         self._loop_depth = 0
-    
+
     def visitProgram(self, ctx: AnalogParser.ProgramContext):
         block = ctx.block()
         statements = []
         if block:
             statements = self.visit(block)
-        
+
         return AnalogCircuit(statements=statements)
-    
+
     def visitBlock(self, ctx: AnalogParser.BlockContext):
         statements = []
         for stmt_ctx in ctx.statement():
@@ -166,22 +179,22 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             if stmt is not None:
                 statements.append(stmt)
         return statements
-    
+
     def visitStatement(self, ctx: AnalogParser.StatementContext):
         child = ctx.getChild(0)
         return self.visit(child)
-    
+
     def visitDeclaration(self, ctx: AnalogParser.DeclarationContext):
         name = ctx.ID().getText()
         val = self.visit(ctx.expr())
         decl = Declaration(name=name, value=val)
         return decl
-    
+
     ## Statements ##
-    
+
     def visitTargets(self, ctx: AnalogParser.TargetsContext):
         return self.visit(ctx.expr())
-    
+
     def visitWhile_stmt(self, ctx: AnalogParser.While_stmtContext):
         self._loop_depth += 1
         try:
@@ -190,35 +203,34 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             return While(condition=cond, body=body)
         finally:
             self._loop_depth -= 1
-    
+
     def visitIfelse_stmt(self, ctx: AnalogParser.Ifelse_stmtContext):
         cond = self.visit(ctx.cond())
         blocks = list(ctx.block())
         then_branch = self.visit(blocks[0]) if blocks else []
         else_branch = self.visit(blocks[1]) if len(blocks) > 1 else []
         return IfElse(condition=cond, then_branch=then_branch, else_branch=else_branch)
-    
+
     def visitBreak_stmt(self, ctx):
         if self._loop_depth == 0:
             raise SyntaxError("break outside of loop")
         return Break()
-    
+
     def visitContinue_stmt(self, ctx):
         if self._loop_depth == 0:
             raise SyntaxError("continue outside of loop")
         return Continue()
-    
+
     ## Expressions ##
-    
+
     def visitExpr(self, ctx: AnalogParser.ExprContext):
-        
         if ctx.bool_and_op() or ctx.bool_or_op():
             left = self.visit(ctx.expr()[0])
             right = self.visit(ctx.expr()[1])
             if ctx.bool_and_op():
                 return BoolAnd(expr1=left, expr2=right)
             return BoolOr(expr1=left, expr2=right)
-        
+
         if ctx.bool_not_op():
             return BoolNot(expr=self.visit(ctx.expr(0)))
         if ctx.LBRACKET():
@@ -227,7 +239,7 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             return self.visit(ctx.analog_list_extract())
         if ctx.analog_list() is not None:
             return self.visit(ctx.analog_list())
-        
+
         comps = ctx.comparators()
         aexprs = ctx.aexpr()
         if comps:
@@ -235,51 +247,51 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             left = self.visit(aexprs[0])
             right = self.visit(aexprs[1])
             return op_cls(expr1=left, expr2=right)
-        
+
         if ctx.terminal() is not None:
             return self.visit(ctx.terminal())
         if aexprs and len(aexprs) == 1:
             return self.visit(aexprs[0])
-        
-        raise ValueError('Undefined value')
-    
+
+        raise ValueError("Undefined value")
+
     def visitAnalog_list(self, ctx: AnalogParser.Analog_listContext):
         values = [self.visit(e) for e in ctx.expr()]
         return AnalogList(values=values)
-    
+
     def visitAnalog_list_extract(self, ctx: AnalogParser.Analog_list_extractContext):
         return Extract(
             access=self.visit(ctx.access()),
             index=int(ctx.INT().getText()),
         )
-    
+
     def visitTerminal(self, ctx: AnalogParser.TerminalContext):
         return self.visitChildren(ctx)
-    
+
     def visitAccess(self, ctx: AnalogParser.AccessContext):
         return Access(name=ctx.ID().getText())
-    
+
     ## Register and operator terminals ##
-    
+
     def visitQuantum_register(self, ctx: AnalogParser.Quantum_registerContext):
         return QuantumRegister(size=int(ctx.INT().getText()))
-    
+
     def visitMode_register(self, ctx: AnalogParser.Mode_registerContext):
         return ModeRegister(size=int(ctx.INT().getText()))
-    
+
     def visitOperator_terminal(self, ctx: AnalogParser.Operator_terminalContext):
         child = ctx.getChild(0)
         text = _get_text(child)
-        if text[0] != '%':
+        if text[0] != "%":
             raise ValueError("Operator terminals must begin with '%'")
-        
+
         op = _OP_TERMINAL_MAP.get(text[1])
         if op is None:
             raise ValueError(f"Unknown operator terminal: {text}")
         return op()
-        
+
     ## Math Terminals ##
-    
+
     def visitMath_terminal(self, ctx: AnalogParser.Math_terminalContext):
         if ctx.INT() is not None:
             return MathNum(value=int(ctx.INT().getText()))
@@ -296,10 +308,9 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         if ctx.fexpr() is not None:
             return self.visit(ctx.fexpr())
         raise ValueError("Empty math_terminal")
-    
+
     ## Arithmetic Expressions ##
-    
-    
+
     def visitAexpr(self, ctx: AnalogParser.AexprContext):
         if ctx.getChildCount() == 1:
             return self.visit(ctx.mexpr())
@@ -310,7 +321,12 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             c = ctx.getChild(i)
             if isinstance(c, TerminalNodeImpl):
                 tt = c.symbol.type
-                if tt in (AnalogLexer.PLUS, AnalogLexer.MINUS, AnalogLexer.OP_ADD, AnalogLexer.OP_MINUS):
+                if tt in (
+                    AnalogLexer.PLUS,
+                    AnalogLexer.MINUS,
+                    AnalogLexer.OP_ADD,
+                    AnalogLexer.OP_MINUS,
+                ):
                     op_token = tt
                     break
         if op_token == AnalogLexer.OP_ADD:
@@ -322,7 +338,7 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         if op_token == AnalogLexer.MINUS:
             return MathSub(expr1=left, expr2=right)
         return self.visitChildren(ctx)
-    
+
     def visitMexpr(self, ctx: AnalogParser.MexprContext):
         if ctx.getChildCount() == 1:
             return self.visit(ctx.uexpr())
@@ -333,7 +349,12 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             c = ctx.getChild(i)
             if isinstance(c, TerminalNodeImpl):
                 tt = c.symbol.type
-                if tt in (AnalogLexer.MULT, AnalogLexer.DIV, AnalogLexer.OP_MUL, AnalogLexer.AT):
+                if tt in (
+                    AnalogLexer.MULT,
+                    AnalogLexer.DIV,
+                    AnalogLexer.OP_MUL,
+                    AnalogLexer.AT,
+                ):
                     op_token = tt
                     break
         if op_token == AnalogLexer.AT:
@@ -345,31 +366,34 @@ class _AnalogASTBuilder(AnalogParserVisitor):
         if op_token == AnalogLexer.DIV:
             return MathDiv(expr1=left, expr2=right)
         return self.visitChildren(ctx)
-    
+
     def visitUexpr(self, ctx: AnalogParser.UexprContext):
         if ctx.getChildCount() == 1:
             return self.visit(ctx.eexpr())
         sign = None
         for i in range(ctx.getChildCount()):
             c = ctx.getChild(i)
-            if isinstance(c, TerminalNodeImpl) and c.symbol.type in (AnalogLexer.PLUS, AnalogLexer.MINUS):
+            if isinstance(c, TerminalNodeImpl) and c.symbol.type in (
+                AnalogLexer.PLUS,
+                AnalogLexer.MINUS,
+            ):
                 sign = c.symbol.type
                 break
         val = self.visit(ctx.eexpr())
         if sign == AnalogLexer.MINUS:
             return MathMul(expr1=MathNum(value=-1), expr2=val)
         return val
-    
+
     def visitEexpr(self, ctx: AnalogParser.EexprContext):
         if ctx.getChildCount() == 1:
             return self.visit(ctx.terminal())
         base = self.visit(ctx.terminal())
         exp = self.visit(ctx.uexpr())
         return MathPow(expr1=base, expr2=exp)
-    
+
     def visitPexpr(self, ctx: AnalogParser.PexprContext):
         return self.visit(ctx.aexpr())
-    
+
     def visitFexpr(self, ctx: AnalogParser.FexprContext):
         fn_ctx = ctx.func_names()
         tt = _get_token_type(fn_ctx.getChild(0))
@@ -391,17 +415,33 @@ class _AnalogASTBuilder(AnalogParserVisitor):
             raise ValueError(f"Unknown function token type: {tt}")
         if name == "atan2":
             return MathFunc(func=name, expr=args)
-        
+
         return MathFunc(func=name, expr=args[0])
-    
+
     ## Bool Expressions ##
 
     def visitCond(self, ctx: AnalogParser.CondContext):
         return self.visit(ctx.expr())
-    
+
     def visitBool_literal(self, ctx: AnalogParser.Bool_literalContext):
         token = ctx.getChild(0).getText()
-        if token == 'true':
+        if token == "true":
             return Bool(value=True)
         return Bool(value=False)
-    
+
+
+########################################################################################
+
+
+def parse_analog(source):
+    stream = antlr4.InputStream(source)
+    lexer = AnalogLexer(stream)
+    tokens = antlr4.CommonTokenStream(lexer)
+    parse_result = AnalogParser(tokens)
+    tree = parse_result.program()
+
+    builder = AnalogASTBuilder()
+
+    circuit = builder.visit(tree)
+
+    return circuit
