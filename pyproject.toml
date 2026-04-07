@@ -60,12 +60,10 @@ include = ["oqd_core*"]
 
 [tool.ruff]
 exclude = [
-  "src/oqd_core/frontend/analog/AnalogCircuitAST.py",
   "src/oqd_core/frontend/analog/AnalogLexer.py",
   "src/oqd_core/frontend/analog/AnalogParser.py",
   "src/oqd_core/frontend/analog/AnalogParserListener.py",
   "src/oqd_core/frontend/analog/AnalogParserVisitor.py",
-  "src/oqd_core/frontend/analog/AtomicCircuitAST.py",
   "src/oqd_core/frontend/analog/AtomicLexer.py",
   "src/oqd_core/frontend/analog/AtomicParser.py",
   "src/oqd_core/frontend/analog/AtomicParserListener.py",
