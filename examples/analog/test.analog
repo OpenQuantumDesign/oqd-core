@@ -35,12 +35,12 @@ if (x > 0){
     initialize(r);
 }
 if (x == 1) {
-    evolve (r, H_single, 1.0);
+    evolve(H_single, 1.0, r);
 }
-else { evolve(r, H_pair, 0.5); }
+else { evolve(H_pair, 0.5, r); }
 n = 3;
 while (n > 0){
-    evolve(targets, H_rabi, 0.1);
+    evolve(H_rabi, 0.1, targets);
     n = n - 1;
 }
 
@@ -65,10 +65,14 @@ if (a > b) {
 
 
 initialize(r);
-evolve(r, H_single, 2.0);
-evolve(targets, H_pair, 1.0);
-evolve(q0, %X * 0.5, pi);
+
+// evolve(hamiltonian, duration, target)
+evolve(H_single, 2.0, r);
+evolve(H_pair, 1.0, targets);
+evolve(%X * 0.5, pi, q0);
+
 measure(r);
+measurement = measure(q0);
 
 // Bool expressions
 
