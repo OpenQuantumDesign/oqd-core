@@ -32,5 +32,5 @@ Run the Typer app:
 python3 -m oqd_core.frontend.analog.output -i examples/analog/test.analog -o examples/analog/test.ast
 ```
 
-This example saves the Analog Circuit AST in `examples/analog/test.ast`.
+This example generates the Analog Circuit AST in `examples/analog/test.ast`.
 
