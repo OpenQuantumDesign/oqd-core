@@ -270,6 +270,8 @@ class AtomicASTBuilder(AtomicParserVisitor):
             return self.visit(ctx.fexpr())
         if ctx.atomic_list() is not None:
             return self.visit(ctx.atomic_list())
+        if ctx.atomic_list_extract() is not None:
+            return self.visit(ctx.atomic_list_extract())
         raise ValueError("Empty math_terminal")
 
     ## Arithmetic Expressions ##

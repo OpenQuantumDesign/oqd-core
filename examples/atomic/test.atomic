@@ -21,6 +21,9 @@ pulse(beam_mw, t_gate, q0)              // measured defaults to false
 pulse(beam_det, 3e-6, q1, true)         // explicit measured=true
 pulse(beam_mw, 2e-6, targets, false)    // explicit measured=false
 
+pulse(beam_mw, t_gate, r[0])              // measured defaults to false
+pulse(beam_det, 3e-6, r[1], true)
+
 // parallel block
 parallel {
     pulse(beam_mw, 5e-6, q0)
