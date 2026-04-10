@@ -628,6 +628,17 @@
     },
     {
       "class_": "Declaration",
+      "name": "measurement",
+      "value": {
+        "class_": "Measure",
+        "targets": {
+          "class_": "Access",
+          "name": "q0"
+        }
+      }
+    },
+    {
+      "class_": "Declaration",
       "name": "flag",
       "value": {
         "class_": "MathNum",

@@ -1,6 +1,6 @@
 # Copyright 2024-2025 Open Quantum Design
 
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the "License")
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
@@ -76,7 +76,7 @@ class SerializeAnalog(ConversionRule):
 
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
         statements = operands["statements"]
-        return ";\n".join(statements) + ";\n"
+        return "\n".join(statements) + "\n"
 
     ## Statements ##
 
@@ -84,14 +84,14 @@ class SerializeAnalog(ConversionRule):
         return f"{operands['name']} = {operands['value']}"
 
     def map_While(self, model: While, operands):
-        body = ";\n".join(operands["body"]) + ";\n"
+        body = "\n".join(operands["body"]) + "\n"
         return f"while ({operands['condition']}) {{\n{body}}}"
 
     def map_IfElse(self, model: IfElse, operands):
-        then_branch = ";\n".join(operands["then_branch"]) + ";\n"
+        then_branch = "\n".join(operands["then_branch"])
         else_branch = operands["else_branch"]
         if else_branch:
-            else_branch = ";\n".join(else_branch) + ";\n"
+            else_branch = "\n".join(else_branch)
             return f"if ({operands['condition']}) {{\n{then_branch}\n}} else {{\n{else_branch}\n}}"
         return f"if ({operands['condition']}) {{\n{then_branch}\n}}"
 
