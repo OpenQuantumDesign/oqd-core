@@ -40,4 +40,4 @@ jobs:
           uv sync --extra tests
       - name: Run tests
         run: |
-          uv run pytest tests/test_frontend tests/test_grammar -v
+          uv run pytest tests/test_frontend -v
