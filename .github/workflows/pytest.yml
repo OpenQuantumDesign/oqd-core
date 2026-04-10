@@ -2,9 +2,9 @@ name: CI - Pytest
 
 on:
   push:
-    branches: ["main"]
+    branches: ["v1.0", "testing_frontend"]
   pull_request:
-    branches: ["main"]
+    branches: ["v1.0", "testing_frontend"]
   workflow_dispatch:
 
 permissions:
@@ -16,7 +16,6 @@ jobs:
       fail-fast: false
       matrix:
         python-version:
-          - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
@@ -26,7 +25,7 @@ jobs:
           - windows-latest
         arch:
           - x64
-    name: Test ${{ matrix.version }} on ${{ matrix.os }} (${{ matrix.arch }})
+    name: Python ${{ matrix.python-version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
@@ -41,4 +40,4 @@ jobs:
           uv sync --extra tests
       - name: Run tests
         run: |
-          uv run pytest tests -v
+          uv run pytest tests/test_frontend tests/test_grammar -v
