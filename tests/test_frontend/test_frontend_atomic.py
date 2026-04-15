@@ -13,9 +13,9 @@
 # limitations under the License.
 
 import pytest
+
 from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
 from oqd_core.frontend.atomic.serialize import serialize_atomic
-
 from oqd_core.interface.atomic import (
     Access,
     AtomicCircuit,

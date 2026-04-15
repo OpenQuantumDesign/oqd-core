@@ -13,9 +13,12 @@
 # limitations under the License.
 
 from typing import List
+
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from .statement import Statement, ParallelProtocol
-from .expr import Pulse, Beam
+
+from .expr import Beam, Pulse
+from .statement import ParallelProtocol, Statement
+
 ########################################################################################
 
 __all__ = [
