@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from __future__ import annotations
+import re
 
 from oqd_compiler_infrastructure import ConversionRule, Post
 
@@ -136,6 +137,8 @@ class SerializeAtomic(ConversionRule):
             value = str(int(model.value))
         if isinstance(model.value, (int, float)):
             value = str(model.value)
+            if 'e' in value:
+                value = re.sub(r'e([+-]?)0+(\d)', r'e\1\2', value)
         return value
 
     def map_MathImag(self, model: MathImag, operands):

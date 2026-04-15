@@ -222,7 +222,7 @@ class TestAtomicStatements:
     def beam(self):
         return "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n"
     
-    def test_beam(self, register, beam):
+    def test_beam(self, register):
         circuit = parse_atomic(register + "beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n")
         statement = circuit.statements[1]
         assert isinstance(statement, Beam)
@@ -337,5 +337,28 @@ def test_atomic_serialize():
     assert isinstance(circuit, AtomicCircuit)
     serialized = serialize_atomic(circuit)
     assert isinstance(serialized, str)
-    
+
+
+class TestAtomicSerialize:
+
+    @pytest.mark.parametrize(
+        "program",
+        ["r = ionreg(2)",
+         "list = [1, 2, 3]",
+         "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
+         "pulse(beam_mw, 1e-5, r, true)",
+         "parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
+         "x = 1\n if (x > 0) {\n y = 2\n}",
+         "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
+         "n = 3\nwhile (n > 0) {\n    n = n - 1\n}",
+         "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}",
+        ],
+    )
+    def test_atomic_serialize(self, program):
+        circuit = parse_atomic(program)
+        assert isinstance(circuit, AtomicCircuit)
+        serialized = serialize_atomic(circuit)
+        deserialized_circuit = parse_atomic(serialized)
+        assert circuit == deserialized_circuit
+
 
