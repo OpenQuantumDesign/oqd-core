@@ -24,7 +24,6 @@ from .expr import AtomicExprSubtypes, Identifier
 ########################################################################################
 
 __all__ = [
-    "Pulse",
     "Declaration",
     "ParallelProtocol",
     "IfElse",

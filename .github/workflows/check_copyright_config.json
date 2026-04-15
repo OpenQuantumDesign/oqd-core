@@ -7,7 +7,6 @@
         "exclude": [
             "docs/**",
             "**/*.ini",
-            "**/test.py",
             "src/oqd_core/frontend/**",
             "src/grammar/**",
             "**/__init__.py"
