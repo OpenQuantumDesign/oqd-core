@@ -11,6 +11,17 @@ Qubits consist of a pair of states (spin $\uparrow$ and spin $\downarrow$).
 Bosonic degrees of freedom form a fock space.
 ///
 
+/// tab | Registers
+//// html | div[style='float: right']
+[![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.QuantumRegister]
+////
+//// html | div[style='float: right']
+[![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.ModeRegister]
+////
+- [`QuantumRegister`][oqd_core.interface.analog.expr.QuantumRegister] creates a qubit register
+- [`ModeRegister`][oqd_core.interface.analog.expr.ModeRegister] creates a bosonic mode register
+///
+
 ## Operators
 
 /// tab | Pauli
@@ -38,100 +49,36 @@ The basis of operators for the bosonic degree of freedom are the ladder operator
 
 The basis operators can be combined with the operations:
 
-- Addition <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operator.OperatorAdd] </div>
+- Addition <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorAdd] </div>
 
-- Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operator.OperatorMul] </div>
+- Subtraction <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorSub] </div>
 
-- Tensor Product <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operator.OperatorKron] </div>
+- Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorMul] </div>
 
-- Scalar Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operator.OperatorScalarMul] </div>
+- Tensor Product <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorKron] </div>
 
-## Hamiltonian
+## Quantum Operations
 
-The Hamiltonian is an operator that governs interactions between quantum degrees of freedom.
+- [`Initialize`][oqd_core.interface.analog.expr.Initialize]
+- [`Evolve`][oqd_core.interface.analog.expr.Evolve]
+- [`Measure`][oqd_core.interface.analog.expr.Measure]
 
-The state of the system evolves under the unitary:
-
+`Evolve` applies a Hamiltonian for a duration on targets:
 $$
-U = e^{i H t}
-$$
-
-<!-- prettier-ignore -->
-/// admonition | Example
-    type: example
-Spin-dependent force Hamiltonian:
-
-$$
-H = \sigma^+ \otimes a + \sigma^- \otimes a^{\dagger}
+U = e^{iHt}
 $$
 
-```py
-H = PauliPlus() @ Annihilation() + PauliMinus() @ Creation()
-```
+## Analog Circuit <div style="float:right;"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.circuit.AnalogCircuit] </div>
 
-///
+The [AnalogCircuit][oqd_core.interface.analog.circuit.AnalogCircuit] is the top level structure that contains analog statements and control flow.
 
-## Analog Gate <div style="float:right;"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operation.AnalogGate] </div>
-
-The [AnalogGate][oqd_core.interface.analog.operation.AnalogGate] wraps the Hamiltonian.
-
-```py
-gate = AnalogGate(hamiltonian=H)
-```
-
-<!-- prettier-ignore -->
-/// admonition | Note
-    type: note
-The purpose of the [AnalogGate][oqd_core.interface.analog.operation.AnalogGate] is to accomodate dissipation during the time evolution in the future.
-///
-
-## Analog Circuit <div style="float:right;"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operation.AnalogCircuit] </div>
-
-The [AnalogCircuit][oqd_core.interface.analog.operation.AnalogCircuit] is the top level structure that describes a quantum experiment at the analog layer.
-
-An [AnalogCircuit][oqd_core.interface.analog.operation.AnalogCircuit] consist of different kinds of statements:
-
-/// tab | Initialize
-
-//// html | div[style='float: right']
-[![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operation.Initialize]
-////
-
-Initializes all quantum degrees of freedom in the experiment:
-
-- Qubits $\rightarrow$ $| \downarrow \rangle$
-- Bosons $\rightarrow$ $| 0 \rangle$
-
-<!-- prettier-ignore -->
-//// admonition | Not Implemented
-    type: warning
-Initialize describes a global initialization. There is no support for individual initialization currently.
-////
-///
-
-/// tab | Evolve
-
-//// html | div[style='float: right']
-[![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operation.Evolve]
-////
-
-Evolve desribes the evolution of the system with an AnalogGate for a set duration.
-///
-
-/// tab | Measure
-
-//// html | div[style='float: right']
-[![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.operation.Measure]
-////
-
-Performs a projective measurement of all quantum degrees of freedom.
-
-<!-- prettier-ignore -->
-//// admonition | Not Implemented
-    type: warning
-Measure describes a global measurement. There is no support for individual measurement currently.
-////
-///
+It supports:
+- quantum operations (`initialize`, `evolve`, `measure`)
+- declarations
+- lists
+- conditionals (`if`/`else`)
+- loops (`while`)
+- loop controls (`break`, `continue`)
 
 ## Usage
 
