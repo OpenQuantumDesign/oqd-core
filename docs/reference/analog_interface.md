@@ -1,43 +1,77 @@
-## Operations
+::: oqd_core.interface.analog
 
+## Circuit
 <!-- prettier-ignore -->
-::: oqd_core.interface.analog.operation
+::: oqd_core.interface.analog.circuit
     options:
         heading_level: 3
         members: [
             "AnalogCircuit",
-            "AnalogGate",
-            "AnalogOperation",
-            "Evolve",
-            "Measure",
-            "Initialize",
         ]
 
-## Operators
 
+## Expressions
 <!-- prettier-ignore -->
-::: oqd_core.interface.analog.operator
+::: oqd_core.interface.analog.expr
     options:
         heading_level: 3
         members: [
-            "Operator",
-            "OperatorTerminal",
-            "Pauli",
+            "AnalogExpr",
+            "AnalogExprSubtypes",
+            "CastAnalogExpr",
+            "Terminal",
+            "Access",
+            "QuantumRegister",
+            "ModeRegister",
+            "MathExpr",
+            "MathVar",
+            "MathNum",
+            "MathImag",
+            "MathFunc",
+            "MathAdd",
+            "MathSub",
+            "MathMul",
+            "MathDiv",
+            "MathPow",
+            "BoolExpr",
+            "Bool",
+            "BoolNot",
+            "BoolAnd",
+            "BoolOr",
+            "BoolEq",
+            "BoolNotEq",
+            "BoolLessThan",
+            "BoolLessThanEq",
+            "BoolGreaterThan",
+            "BoolGreaterThanEq",
             "PauliI",
             "PauliX",
             "PauliY",
             "PauliZ",
-            "PauliPlus",
-            "PauliMinus",
-            "Ladder",
             "Creation",
             "Annihilation",
             "Identity",
-            "OperatorBinaryOp",
             "OperatorAdd",
             "OperatorSub",
             "OperatorMul",
-            "OperatorScalarMul",
             "OperatorKron",
-            "OperatorSubtypes",
+            "AnalogList",
+            "Extract",
+            "Initialize",
+            "Evolve",
+            "Measure",
+        ]
+
+
+## Statements
+<!-- prettier-ignore -->
+::: oqd_core.interface.analog.statement
+    options:
+        heading_level: 3
+        members: [
+            "Declaration",
+            "IfElse",
+            "While",
+            "Break",
+            "Continue",
         ]
