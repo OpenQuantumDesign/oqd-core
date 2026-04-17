@@ -26,6 +26,10 @@ nav:
       - Analog: interfaces/analog_interface.md
       - Atomic: interfaces/atomic_interface.md
       - Canonicalization: interfaces/canonicalization.md
+  
+  - Grammar:
+      - Analog: grammar/analog_grammar.md
+      - Atomic: grammar/atomic_grammar.md
 
   - API Reference:
       - Interface:
