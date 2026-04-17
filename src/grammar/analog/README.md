@@ -18,19 +18,3 @@ antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/analog A
 antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/analog AnalogParser.g4 
 ```
 
-## Run the example
-
-The example code is in `examples/analog/test.analog`. This file contains the expected syntax of the Parser.
-Navigate to the project root directory:
-```bash
-cd ../../..
-```
-
-Run the Typer app:
-```bash
-# Run example
-python3 -m oqd_core.frontend.analog.output -i examples/analog/test.analog -o examples/analog/test.ast
-```
-
-This example generates the Analog Circuit AST in `examples/analog/test.ast`.
-

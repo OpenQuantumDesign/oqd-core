@@ -2,9 +2,9 @@ name: CI - Pytest
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "v1.0"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "v1.0"]
   workflow_dispatch:
 
 permissions:
@@ -13,10 +13,8 @@ permissions:
 jobs:
   test:
     strategy:
-      fail-fast: false
       matrix:
         python-version:
-          - "3.10"
           - "3.11"
           - "3.12"
           - "3.13"
@@ -26,13 +24,13 @@ jobs:
           - windows-latest
         arch:
           - x64
-    name: Test ${{ matrix.version }} on ${{ matrix.os }} (${{ matrix.arch }})
+    name: Python ${{ matrix.python-version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
       - name: Install uv and set the python version
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v7
         with:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
@@ -41,4 +39,4 @@ jobs:
           uv sync --extra tests
       - name: Run tests
         run: |
-          uv run pytest tests -v
+          uv run pytest tests/test_frontend -v

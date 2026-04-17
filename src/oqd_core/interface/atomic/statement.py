@@ -13,16 +13,17 @@
 # limitations under the License.
 
 from __future__ import annotations
-from typing import List, Union, Annotated
+
+from typing import Annotated, List, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import Discriminator, Tag
+
 from .expr import AtomicExprSubtypes, Identifier
 
 ########################################################################################
 
 __all__ = [
-    "Pulse",
     "Declaration",
     "ParallelProtocol",
     "IfElse",
