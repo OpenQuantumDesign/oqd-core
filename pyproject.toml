@@ -42,6 +42,7 @@ dependencies = [
   "antlr4-tools>=0.2.2",
   "antlr4-python3-runtime>=4.13.2",
   "typer>=0.24.1",
+  "pytest>=8.4.2",
 ]
 
 [project.optional-dependencies]
@@ -64,10 +65,15 @@ exclude = [
   "src/oqd_core/frontend/analog/AnalogParser.py",
   "src/oqd_core/frontend/analog/AnalogParserListener.py",
   "src/oqd_core/frontend/analog/AnalogParserVisitor.py",
-  "src/oqd_core/frontend/analog/AtomicLexer.py",
-  "src/oqd_core/frontend/analog/AtomicParser.py",
-  "src/oqd_core/frontend/analog/AtomicParserListener.py",
-  "src/oqd_core/frontend/analog/AtomicParserVisitor.py",
+  "src/oqd_core/frontend/atomic/AtomicLexer.py",
+  "src/oqd_core/frontend/atomic/AtomicParser.py",
+  "src/oqd_core/frontend/atomic/AtomicParserListener.py",
+  "src/oqd_core/frontend/atomic/AtomicParserVisitor.py",
+  "src/oqd_core/compiler/*",
+  "tests/test_analog/*",
+  "tests/test_atomic/*",
+  "tests/test_math/*",
+  "tests/test_serialization.py",
 ]
 
 [tool.ruff.lint]

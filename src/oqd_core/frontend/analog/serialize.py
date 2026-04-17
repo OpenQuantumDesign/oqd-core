@@ -1,6 +1,6 @@
 # Copyright 2024-2025 Open Quantum Design
 
-# Licensed under the Apache License, Version 2.0 (the "License");
+# Licensed under the Apache License, Version 2.0 (the "License")
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from __future__ import annotations
+
+import re
 
 from oqd_compiler_infrastructure import ConversionRule, Post
 
@@ -76,7 +78,7 @@ class SerializeAnalog(ConversionRule):
 
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
         statements = operands["statements"]
-        return ";\n".join(statements) + ";\n"
+        return "\n".join(statements) + "\n"
 
     ## Statements ##
 
@@ -84,14 +86,14 @@ class SerializeAnalog(ConversionRule):
         return f"{operands['name']} = {operands['value']}"
 
     def map_While(self, model: While, operands):
-        body = ";\n".join(operands["body"]) + ";\n"
+        body = "\n".join(operands["body"]) + "\n"
         return f"while ({operands['condition']}) {{\n{body}}}"
 
     def map_IfElse(self, model: IfElse, operands):
-        then_branch = ";\n".join(operands["then_branch"]) + ";\n"
+        then_branch = "\n".join(operands["then_branch"])
         else_branch = operands["else_branch"]
         if else_branch:
-            else_branch = ";\n".join(else_branch) + ";\n"
+            else_branch = "\n".join(else_branch)
             return f"if ({operands['condition']}) {{\n{then_branch}\n}} else {{\n{else_branch}\n}}"
         return f"if ({operands['condition']}) {{\n{then_branch}\n}}"
 
@@ -138,6 +140,8 @@ class SerializeAnalog(ConversionRule):
             value = str(int(model.value))
         if isinstance(model.value, (int, float)):
             value = str(model.value)
+            if 'e' in value:
+                value = re.sub(r'e([+-]?)0+(\d)', r'e\1\2', value)
         return value
 
     def map_MathImag(self, model: MathImag, operands):

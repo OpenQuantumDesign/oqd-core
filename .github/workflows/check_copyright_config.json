@@ -6,7 +6,10 @@
         ],
         "exclude": [
             "docs/**",
-            "**/*.ini"
+            "**/*.ini",
+            "src/oqd_core/frontend/**",
+            "src/grammar/**",
+            "**/__init__.py"
         ],
         "license": ".github/workflows/copyright.txt"
     }

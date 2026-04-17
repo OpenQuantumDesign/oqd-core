@@ -88,7 +88,7 @@ comparators
 
 // Math
 
-math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr | atomic_list;
+math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr | atomic_list | atomic_list_extract;
 
 func_names: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
     | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2

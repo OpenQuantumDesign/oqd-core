@@ -290,6 +290,52 @@
       }
     },
     {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "Access",
+        "name": "t_gate"
+      },
+      "target": {
+        "class_": "Extract",
+        "access": {
+          "class_": "Access",
+          "name": "r"
+        },
+        "index": 0
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_mw"
+      },
+      "measured": {
+        "class_": "Bool",
+        "value": false
+      }
+    },
+    {
+      "class_": "Pulse",
+      "duration": {
+        "class_": "MathNum",
+        "value": 3e-6
+      },
+      "target": {
+        "class_": "Extract",
+        "access": {
+          "class_": "Access",
+          "name": "r"
+        },
+        "index": 1
+      },
+      "beam": {
+        "class_": "Access",
+        "name": "beam_det"
+      },
+      "measured": {
+        "class_": "Bool",
+        "value": true
+      }
+    },
+    {
       "class_": "ParallelProtocol",
       "pulses": [
         {

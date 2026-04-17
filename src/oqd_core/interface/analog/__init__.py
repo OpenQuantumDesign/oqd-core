@@ -19,7 +19,6 @@ from oqd_core.interface.analog.expr import (
     AnalogExpr,
     AnalogExprSubtypes,
     AnalogList,
-    Terminal,
     Bool,
     BoolAnd,
     BoolEq,
@@ -56,6 +55,7 @@ from oqd_core.interface.analog.expr import (
     PauliY,
     PauliZ,
     QuantumRegister,
+    Terminal,
 )
 from oqd_core.interface.analog.statement import (
     Break,

@@ -13,16 +13,23 @@
 # limitations under the License.
 
 from abc import ABC, abstractmethod
+from typing import Annotated, List, Literal, Union
 
 import numpy as np
-from oqd_compiler_infrastructure import Post, Pre, PrettyPrint, RewriteRule, TypeReflectBaseModel
-from scipy.constants import physical_constants
-from typing import Union, List, Annotated, Literal
+from oqd_compiler_infrastructure import (
+    Post,
+    Pre,
+    PrettyPrint,
+    RewriteRule,
+    TypeReflectBaseModel,
+)
 from pydantic import (
     AfterValidator,
     NonNegativeFloat,
     NonNegativeInt,
 )
+from scipy.constants import physical_constants
+
 ########################################################################################
 
 def is_halfint(v: float) -> bool:

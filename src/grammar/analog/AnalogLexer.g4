@@ -3,7 +3,7 @@ lexer grammar AnalogLexer;
 /** ================================================================================= */
 
 WHITESPACE: [ \t]+ -> channel(HIDDEN);
-EOL: (';' [\r\n]* | [\r\n]+);
+EOL: ([\r\n]+) | COMMENT;
 NEWLINE: [\r\n]+ -> channel(HIDDEN);
 COMMENT: '//' ~[\n\r]* NEWLINE -> skip;
 
