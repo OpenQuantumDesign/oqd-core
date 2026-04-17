@@ -72,7 +72,7 @@ The grammar supports the core analog statements through `initialize`, `evolve`, 
 
 ## Generate Parser Files for Frontend
 
-Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/analog`.
+Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/analog`. Run `antlr4` on the Lexer first, and then the Parser, as the Parser depends on the Lexer.
 
 ```bash
 uv sync

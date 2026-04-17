@@ -74,7 +74,7 @@ The grammar supports the core atomic statements through `beam`, `pulse`, and `pa
 
 ## Generate Parser Files for Frontend
 
-Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/atomic`.
+Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/atomic`. Run `antlr4` on the Lexer first, and then the Parser, as the Parser depends on the Lexer.
 
 ```bash
 uv sync

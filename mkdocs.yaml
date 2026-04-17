@@ -30,6 +30,10 @@ nav:
   - Grammar:
       - Analog: grammar/analog_grammar.md
       - Atomic: grammar/atomic_grammar.md
+  
+  - Frontend:
+      - Analog: frontend/analog_frontend.md
+      - Atomic: frontend/atomic_frontend.md
 
   - API Reference:
       - Interface:
