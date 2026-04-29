@@ -58,7 +58,7 @@
         members: [
             "Declaration",
             "ParallelProtocol",
-            "SerialProtocol"
+            "SerialProtocol",
             "IfElse",
             "While",
             "Break",
