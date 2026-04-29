@@ -9,6 +9,7 @@ program: block EOF;
 statement
     : declaration
     | parallel_stmt
+    | serial_stmt
     | while_stmt
     | ifelse_stmt
     | break_stmt
@@ -58,6 +59,7 @@ ifelse_stmt
 ion_register: IONREGISTER LBRACKET INT RBRACKET;
 
 parallel_stmt: PARALLEL LBRACE block RBRACE;
+serial_stmt: SERIAL LBRACE block RBRACE;
 targets: expr;
 
 /** ================================================================================= */

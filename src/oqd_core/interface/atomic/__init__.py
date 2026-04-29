@@ -54,6 +54,7 @@ from .statement import (
     Declaration,
     IfElse,
     ParallelProtocol,
+    SerialProtocol,
     While,
 )
 

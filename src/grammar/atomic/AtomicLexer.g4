@@ -11,6 +11,7 @@ COMMENT: '//' ~[\n\r]* NEWLINE -> skip;
 
 // Statement keyword
 PARALLEL: 'parallel';
+SERIAL: 'serial';
 IF: 'if';
 ELSE: 'else';
 WHILE: 'while';

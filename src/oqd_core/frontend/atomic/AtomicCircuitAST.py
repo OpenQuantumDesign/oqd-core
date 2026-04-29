@@ -49,6 +49,7 @@ from oqd_core.interface.atomic import (
     MathSub,
     MathVar,
     ParallelProtocol,
+    SerialProtocol,
     Pulse,
     While,
 )
@@ -172,6 +173,10 @@ class AtomicASTBuilder(AtomicParserVisitor):
     def visitParallel_stmt(self, ctx: AtomicParser.Parallel_stmtContext):
         body = self.visit(ctx.block())
         return ParallelProtocol(pulses=body)
+    
+    def visitSerial_stmt(self, ctx: AtomicParser.Serial_stmtContext):
+        body = self.visit(ctx.block())
+        return SerialProtocol(pulses=body)
 
     def visitWhile_stmt(self, ctx: AtomicParser.While_stmtContext):
         self._loop_depth += 1

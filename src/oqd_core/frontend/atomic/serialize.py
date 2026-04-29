@@ -49,6 +49,7 @@ from oqd_core.interface.atomic import (
     MathSub,
     MathVar,
     ParallelProtocol,
+    SerialProtocol,
     Pulse,
     While,
 )
@@ -76,6 +77,11 @@ class SerializeAtomic(ConversionRule):
         pulses = operands["pulses"]
         body = "\n".join(pulses)
         return f"parallel {{\n{body}\n}}"
+    
+    def map_SerialProtocol(self, model: SerialProtocol, operands):
+        pulses = operands["pulses"]
+        body = "\n".join(pulses)
+        return f"serial {{\n{body}\n}}"
 
     def map_Declaration(self, model: Declaration, operands):
         return f"{operands['name']} = {operands['value']}"
