@@ -56,7 +56,7 @@ The lexer defines:
 
 ### Built-in Functions
 
-The grammar supports the core atomic statements through `beam`, `pulse`, and `parallel`.
+The grammar supports the core atomic statements through `beam`, `pulse`, `parallel`, and `serial`.
 
 - `beam(frequency, rabi, phase, polarization, wavevector)`
   - `frequency`: math expression (`aexpr`)
@@ -71,6 +71,8 @@ The grammar supports the core atomic statements through `beam`, `pulse`, and `pa
   - `measured`: boolean expression (`aexpr`), optional, defaults to `false`
 - `parallel { ... }`
   - `...`: block (`block`) containing pulse statements to run in parallel
+- `serial { ... }`
+  - `...`: block (`block`) containing pulse statements to run in serial
 
 ## Generate Parser Files for Frontend
 

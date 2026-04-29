@@ -61,6 +61,8 @@ The [`AtomicCircuit`][oqd_core.interface.atomic.circuit.AtomicCircuit] is the to
 
 - [`ParallelProtocol`][oqd_core.interface.atomic.statement.ParallelProtocol] composes pulses in a parallel fashion.
 
+- [`SerialProtocol`][oqd_core.interface.atomic.statement.SerialProtocol] composes pulses in a serial fashion.
+
 ### Declarations
 
 - [`Declaration`][oqd_core.interface.atomic.statement.Declaration] binds an expression result to a named identifier for later use.
