@@ -68,6 +68,7 @@ __all__ = [
     "Beam",
     "Pulse",
     "ParallelProtocol",
+    "SerialProtocol",
     "AtomicCircuit",
     "IonBuilder",
     "Yb171IIBuilder",

@@ -17,7 +17,7 @@ from typing import List
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 
 from .expr import Beam, Pulse
-from .statement import SerialProtocol, ParallelProtocol, Statement
+from .statement import ParallelProtocol, SerialProtocol, Statement
 
 ########################################################################################
 

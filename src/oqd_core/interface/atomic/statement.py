@@ -26,7 +26,7 @@ from .expr import AtomicExprSubtypes, Identifier
 __all__ = [
     "Declaration",
     "ParallelProtocol",
-    "SerialProtocol"
+    "SerialProtocol",
     "IfElse",
     "While",
     "Break", 

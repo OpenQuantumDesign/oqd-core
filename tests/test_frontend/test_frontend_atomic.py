@@ -47,8 +47,8 @@ from oqd_core.interface.atomic import (
     MathSub,
     MathVar,
     ParallelProtocol,
-    SerialProtocol,
     Pulse,
+    SerialProtocol,
     While,
 )
 
