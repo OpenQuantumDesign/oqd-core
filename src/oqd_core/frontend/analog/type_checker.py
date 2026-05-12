@@ -14,9 +14,12 @@
 
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 from types import UnionType
 from typing import Annotated, Dict, Union, get_args, get_origin
+
+from oqd_core.frontend.analog.cfg import gen_cfg
 from oqd_core.interface.analog import (
     Access,
     AnalogCircuit,
@@ -63,7 +66,6 @@ from oqd_core.interface.analog import (
 )
 from oqd_core.interface.analog.expr import Annihilation, Creation, Identity, Terminal
 from oqd_core.interface.analog.statement import Statement
-from oqd_core.frontend.analog.cfg import gen_cfg
 
 ########################################################################################
 
@@ -544,11 +546,6 @@ class AnalogTypeChecker:
 
 def type_check_analog(circuit: AnalogCircuit) -> None:
     checker = AnalogTypeChecker()
-    return checker.analyze_dataflow(circuit)
-
-    for stmt in circuit.statements:
-        checker.check_stmt(stmt)
-    
+    checker.analyze_dataflow(circuit)
     return
-    return checker.root.to_dict()
 

@@ -398,7 +398,7 @@ class TestAnalogSerialize:
          "initialize(r)",
          "evolve(%X, 1.0, r)",
          "measure(r)",
-         "x = 1\n if (x > 0) {\n y = 2\n}"
+         "x = 1\n if (x > 0) {\n y = 2\n}",
          "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
          "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}",
         ],

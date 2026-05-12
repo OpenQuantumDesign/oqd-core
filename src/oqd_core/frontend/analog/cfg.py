@@ -15,9 +15,10 @@
 
 from __future__ import annotations
 
-
 from oqd_compiler_infrastructure import RewriteRule
-from oqd_core.interface.analog import AnalogCircuit, IfElse, While, Break, Continue
+
+from oqd_core.interface.analog import AnalogCircuit, Break, Continue, IfElse, While
+
 
 class CFGNode:
     def __init__(self, register_id, stmt,  preds = None, kind = "stmt"):
