@@ -242,13 +242,15 @@ class AnalogTypeChecker:
     
     
     def leq(self, t1, t2):
+        if t1 is TBottom:
+            return True
         if isinstance(t1, TList) and isinstance(t2, TList):
             return self.leq(t1.elem, t2.elem)
         if isinstance(t1, TList) or isinstance(t2, TList):
             return False
         if not issubclass(t1, TAnalog) or not issubclass(t2, TAnalog):
             return False
-        if t1 is TBottom or t1 is t2:
+        if t1 is t2:
             return True
         return t2 in self.atomic_ancestors(t1)
     
@@ -295,15 +297,13 @@ class AnalogTypeChecker:
         if not pred_envs:
             return {}
         
-        common_keys = set(pred_envs[0].keys())
-        for env in pred_envs[1:]:
-            common_keys &= set(env.keys())
+        all_keys = set().union(*(env.keys() for env in pred_envs))
             
         merged = {}
-        for name in common_keys:
-            t = pred_envs[0][name]
-            for env in pred_envs[1:]:
-                t = self.join(t, env[name])
+        for name in all_keys:
+            t = TBottom
+            for env in pred_envs:
+                t = self.join(t, env.get(name, TBottom))
             merged[name] = t
         
         return merged
@@ -336,23 +336,20 @@ class AnalogTypeChecker:
     def analyze_dataflow(self, circuit: AnalogCircuit):
         cfg = gen_cfg(circuit)
         in_state = {nid: None for nid in cfg}
-        out_state = {nid: None for nid in cfg}
-        
-        worklist = list(cfg.keys())
+        out_state = {nid: {} for nid in cfg}
+
+        start_id = next(nid for nid, node in cfg.items() if node.kind == "start")
+        in_state[start_id] = {}
+        out_state[start_id] = self.transfer_node(cfg[start_id], {})
+
+        worklist = [nid for nid in cfg if nid != start_id]
         
         while worklist:
             nid = worklist.pop(0)
             node = cfg[nid]
             
-            if node.kind == "start":
-                new_in = {}
-            else:
-                pred_outs = [
-                    out_state[p.register_id] 
-                    for p in node.preds
-                    if out_state[p.register_id] is not None
-                ]
-                new_in = self.merge_envs(pred_outs) if pred_outs else {}
+            pred_outs = [out_state[p.register_id] for p in node.preds]
+            new_in = self.merge_envs(pred_outs) if pred_outs else {}
                 
             new_out = self.transfer_node(node, new_in)
             

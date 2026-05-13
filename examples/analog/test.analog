@@ -25,9 +25,9 @@ I = %I
 C = %C
 A = %A
 J = %J
-H_single = 0.5 * %X + 0.5 * %Z
+H_single = 0.5 %* %X %+ 0.5 %* %Z
 H_pair = (%X %@ %I) %+ (%I %@ %X)
-H_rabi = (0.5 * #t) * (%X %@ %I) %+ 0.5 * (%I %@ %Y)
+H_rabi = (0.5 * #t) %* (%X %@ %I) %+ 0.5 %* (%I %@ %Y)
 
 //control flow
 x = 1
@@ -69,7 +69,7 @@ initialize(r)
 // evolve(hamiltonian, duration, target)
 evolve(H_single, 2.0, r)
 evolve(H_pair, 1.0, targets)
-evolve(%X * 0.5, pi, q0)
+evolve(%X %* 0.5, pi, q0)
 
 measure(r)
 measurement = measure(q0)
