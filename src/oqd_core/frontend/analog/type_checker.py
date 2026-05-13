@@ -151,6 +151,37 @@ PARENTS = {
     TAnalog: (),
 }
 
+
+BIN_SIG_TABLE = {
+    MathAdd: ((TScalar, TScalar), TScalar),
+    MathSub: ((TScalar, TScalar), TScalar),
+    MathMul: ((TScalar, TScalar), TScalar),
+    MathDiv: ((TScalar, TScalar), TScalar),
+    MathPow: ((TScalar, TScalar), TScalar),
+
+    BoolAnd: ((TBool, TBool), TBool),
+    BoolOr: ((TBool, TBool), TBool),
+
+    BoolLessThan: ((TScalar, TScalar), TBool),
+    BoolLessThanEq: ((TScalar, TScalar), TBool),
+    BoolGreaterThan: ((TScalar, TScalar), TBool),
+    BoolGreaterThanEq: ((TScalar, TScalar), TBool),
+}
+
+OP_TABLE = {
+    OperatorAdd: ((TOp, TOp), TOp),
+    OperatorSub: ((TOp, TOp), TOp),
+    OperatorKron: ((TOp, TOp), TOp),
+}
+
+
+OPMUL_ALLOWED = {
+    (TOp, TOp): TOp,
+    (TOp, TScalar): TOp,
+    (TScalar, TOp): TOp,
+}
+
+
 ########################################################################################
 
 @dataclass
@@ -369,12 +400,10 @@ class AnalogTypeChecker:
             if not expr.values:
                 return TList(elem=TBottom)
             
-            head = self.infer_expr(expr.values[0])
+            t = self.infer_expr(expr.values[0])
             for v in expr.values[1:]:
-                t = self.infer_expr(v)
-                if t != head:
-                    raise AnalogTypeError(f"Analog list: {type_name(head)} vs {type_name(t)}")
-            return TList(elem=head)
+                t = self.join(t, self.infer_expr(v))
+            return TList(elem=t)
         
         if isinstance(expr, Extract):
             base = self.scope.lookup(expr.access.name)
@@ -386,12 +415,23 @@ class AnalogTypeChecker:
                 return base.elem
             raise AnalogTypeError(f"Cannot index into {type_name(base)}")
         
-        if isinstance(expr, (MathAdd, MathSub, MathDiv, MathPow, MathMul)):
+        sig = BIN_SIG_TABLE.get(type(expr))
+        if sig is not None:
+            (lreq, rreq), out = sig
             t1 = self.infer_expr(expr.expr1)
             t2 = self.infer_expr(expr.expr2)
-            if t1 is not TScalar or t2 is not TScalar:
-                raise AnalogTypeError(f"{type(expr).__name__} expects scalar, got {type_name(t1)}, {type_name(t2)}")
-            return TScalar
+            if not self.leq(t1, lreq) or not self.leq(t2, rreq):
+                raise AnalogTypeError(f"{type(expr).__name__} got {type_name(t1)}, {type_name(t2)} expected {type_name(lreq)}, {type_name(rreq)}")
+            return out
+        
+        sig = OP_TABLE.get(type(expr))
+        if sig is not None:
+            (lreq, rreq), out = sig
+            t1 = self.infer_expr(expr.op1)
+            t2 = self.infer_expr(expr.op2)
+            if not self.leq(t1, lreq) or not self.leq(t2, rreq):
+                raise AnalogTypeError(f"{type(expr).__name__} got {type_name(t1)}, {type_name(t2)} expected {type_name(lreq)}, {type_name(rreq)}")
+            return out
         
         if isinstance(expr, MathFunc):
             math_funcs =  {
@@ -402,7 +442,7 @@ class AnalogTypeChecker:
             if expr.func in math_funcs:
                 arg = expr.expr
                 t = self.infer_expr(arg)
-                if t is not TScalar:
+                if not self.leq(t, TScalar):
                     raise AnalogTypeError(f"{expr.func} expects scalar, got {type_name(t)}")
                 return TScalar
             
@@ -412,39 +452,19 @@ class AnalogTypeChecker:
                     raise AnalogTypeError("atan2 expects exactly 2 arguments")
                 t1 = self.infer_expr(arg[0])
                 t2 = self.infer_expr(arg[1])
-                if t1 is not TScalar or t2 is not TScalar:
+                if not self.leq(t1, TScalar) or not self.leq(t2, TScalar):
                     raise AnalogTypeError(f"{expr.func} expects scalar, got {type_name(t1)}, {type_name(t2)}")
                 return TScalar
             
             raise AnalogTypeError(f"Unsupported math function: {expr.func}")
-            
-            
-        
-        if isinstance(expr, (OperatorAdd, OperatorSub, OperatorKron)):
-            op1 = self.infer_expr(expr.op1)
-            op2 = self.infer_expr(expr.op2)
-            if op1 is not TOp or op2 is not TOp:
-                raise AnalogTypeError(f"{type(expr).__name__} expects operator, got {type_name(op1)}, {type_name(op2)}")
-            return TOp
         
         if isinstance(expr, OperatorMul):
-            op1 = self.infer_expr(expr.op1)
-            op2 = self.infer_expr(expr.op2)
-            allowed = (
-                (op1 is TOp and op2 is TOp) or
-                (op1 is TOp and op2 is TScalar) or
-                (op1 is TScalar and op2 is TOp)
-            )
-            if not allowed:
-                raise AnalogTypeError(f"{type(expr).__name__} expects operator or scalar, got {type_name(op1)}, {type_name(op2)}")
-            return TOp
-        
-        if isinstance(expr, (BoolAnd, BoolOr)):
-            t1 = self.infer_expr(expr.expr1)
-            t2 = self.infer_expr(expr.expr2)
-            if t1 is not TBool or t2 is not TBool:
-                raise AnalogTypeError(f"{type(expr).__name__} expects bool, got {type_name(t1)}, {type_name(t2)}")
-            return TBool
+            t1 = self.infer_expr(expr.op1)
+            t2 = self.infer_expr(expr.op2)
+            out = OPMUL_ALLOWED.get((t1, t2))
+            if out is None:
+                raise AnalogTypeError(f"{type(expr).__name__} expects operator or scalar, got {type_name(t1)}, {type_name(t2)}")
+            return out
         
         if isinstance(expr, (BoolEq, BoolNotEq)):
             t1 = self.infer_expr(expr.expr1)
@@ -455,17 +475,9 @@ class AnalogTypeChecker:
                 raise AnalogTypeError(f"{type(expr).__name__}: got {type_name(t1)} vs {type_name(t2)}")
             return TBool
         
-        
-        if isinstance(expr, (BoolLessThan, BoolLessThanEq, BoolGreaterThan, BoolGreaterThanEq)):
-            t1 = self.infer_expr(expr.expr1)
-            t2 = self.infer_expr(expr.expr2)
-            if t1 is not TScalar or t2 is not TScalar:
-                raise AnalogTypeError(f"{type(expr).__name__} expects bool, got {type_name(t1)}, {type_name(t2)}")
-            return TBool
-        
         if isinstance(expr, BoolNot):
             t = self.infer_expr(expr.expr)
-            if t is not TBool:
+            if not self.leq(t, TBool):
                 raise AnalogTypeError(f"{type(expr).__name__} expects bool, got {type_name(t)}")
             return TBool
         
@@ -473,9 +485,9 @@ class AnalogTypeChecker:
         if isinstance(expr, (Initialize, Measure)):
             t = self.infer_expr(expr.targets)
             if isinstance(t, TList):
-                if t.elem not in (TQRef, TMRef):
+                if not self.leq(t.elem, TTargetRef):
                     raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(t)}")
-            elif t not in (TQReg, TMReg, TQRef, TMRef):
+            elif not self.leq(t, TTarget):
                 raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(t)}")
             return TAnalog
         
@@ -483,17 +495,17 @@ class AnalogTypeChecker:
         if isinstance(expr, Evolve):
             tt = self.infer_expr(expr.targets)
             if isinstance(tt, TList):
-                if tt.elem not in (TQRef, TMRef):
+                if not self.leq(tt.elem, TTargetRef):
                     raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(tt)}")
-            elif tt not in (TQReg, TMReg, TQRef, TMRef):
+            elif not self.leq(tt, TTarget):
                 raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(tt)}")
             
             td = self.infer_expr(expr.duration)
-            if td is not TScalar:
+            if not self.leq(td, TScalar):
                 raise AnalogTypeError(f"{type(expr).__name__} expects scalar duration, got {type_name(td)}")
             
             th = self.infer_expr(expr.hamiltonian)
-            if th is not TOp:
+            if not self.leq(th, TOp):
                 raise AnalogTypeError(f"{type(expr).__name__} expects operator hamiltonian, got {type_name(th)}")
             
             return TAnalog
