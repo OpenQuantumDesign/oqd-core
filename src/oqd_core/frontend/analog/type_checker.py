@@ -15,9 +15,9 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from types import UnionType
-from typing import Annotated, Dict, Union, get_args, get_origin
+from typing import Annotated, Union, get_args, get_origin
 
 from oqd_core.frontend.analog.cfg import gen_cfg
 from oqd_core.interface.analog import (
@@ -40,7 +40,6 @@ from oqd_core.interface.analog import (
     Declaration,
     Evolve,
     Extract,
-    IfElse,
     Initialize,
     MathAdd,
     MathDiv,
@@ -62,10 +61,8 @@ from oqd_core.interface.analog import (
     PauliY,
     PauliZ,
     QuantumRegister,
-    While,
 )
 from oqd_core.interface.analog.expr import Annihilation, Creation, Identity, Terminal
-from oqd_core.interface.analog.statement import Statement
 
 ########################################################################################
 
@@ -88,7 +85,6 @@ def alias_types(alias):
     return ()
 
 EXPR_NODE_TYPES = alias_types(AnalogExprSubtypes)
-STATEMENT_NODE_TYPES = alias_types(Statement)
 TERMINAL_NODE_TYPES = alias_types(Terminal)
 
 ########################################################################################
@@ -184,47 +180,10 @@ OPMUL_ALLOWED = {
 
 ########################################################################################
 
-@dataclass
-class Scope:
-    parent: Union[Scope, None] = None
-    symbols: Dict[str, Union[type[TAnalog], TList]] = field(default_factory=dict)
-    children: list[Scope] = field(default_factory=list)
-    
-    def lookup(self, name):
-        scope = self
-        while scope is not None:
-            if name in scope.symbols:
-                return scope.symbols[name]
-            scope = scope.parent
-        raise AnalogTypeError(f"Undefined variable: {name}")
-            
-    def declare(self, name: str, datatype: Union[type[TAnalog], TList]):
-        self.symbols[name] = datatype
-        
-    def to_dict(self):
-        if not self.symbols and not self.children:
-            return None
-        return {
-            "symbols": {k: type_name(v) for k, v in self.symbols.items()},
-            "children": [child.to_dict() for child in self.children],
-        }
-
 
 class AnalogTypeChecker:
     def __init__(self):
-        self.root = Scope()
-        self.scope = self.root
-        
-    
-    def push_scope(self):
-        child = Scope(parent=self.scope)
-        self.scope.children.append(child)
-        self.scope = child
-
-    
-    def pop_scope(self):
-        assert self.scope.parent is not None
-        self.scope = self.scope.parent
+        pass
         
     
     def atomic_ancestors(self, t):
@@ -313,24 +272,19 @@ class AnalogTypeChecker:
         stmt = node.stmt
         if isinstance(stmt, str):
             return dict(in_env)
-        old_scope = self.scope
-        self.scope = Scope(parent=None, symbols=dict(in_env))
-        try:
-            if node.kind == "branch":
-                condition_t = self.infer_expr(stmt)
-                if condition_t is not TBool:
-                    raise AnalogTypeError("branch condition must be bool")
-                return dict(in_env)
-            if isinstance(stmt, Declaration):
-                out_env = dict(in_env)
-                out_env[stmt.name] = self.infer_expr(stmt.value)
-                return out_env
-            if isinstance(stmt, (Break, Continue)):
-                return dict(in_env)
-            self.infer_expr(stmt)
+        if node.kind == "branch":
+            condition_t = self.infer_expr(stmt, in_env)
+            if condition_t is not TBool:
+                raise AnalogTypeError("branch condition must be bool")
             return dict(in_env)
-        finally:
-            self.scope = old_scope
+        if isinstance(stmt, Declaration):
+            out_env = dict(in_env)
+            out_env[stmt.name] = self.infer_expr(stmt.value, in_env)
+            return out_env
+        if isinstance(stmt, (Break, Continue)):
+            return dict(in_env)
+        self.infer_expr(stmt, in_env)
+        return dict(in_env)
     
     
     def analyze_dataflow(self, circuit: AnalogCircuit):
@@ -375,7 +329,7 @@ class AnalogTypeChecker:
         }
         
     
-    def infer_expr(self, expr):
+    def infer_expr(self, expr, env):
         if not isinstance(expr, EXPR_NODE_TYPES):
             raise AnalogTypeError(f"Unsupported expression node: {type(expr).__name__}")
 
@@ -391,19 +345,23 @@ class AnalogTypeChecker:
             if isinstance(expr, ModeRegister):
                 return TMReg
             if isinstance(expr, Access):
-                return self.scope.lookup(expr.name)
+                if expr.name not in env:
+                    raise AnalogTypeError(f"Undefined variable: {expr.name}")
+                return env[expr.name]
     
         if isinstance(expr, AnalogList):
             if not expr.values:
                 return TList(elem=TBottom)
             
-            t = self.infer_expr(expr.values[0])
+            t = self.infer_expr(expr.values[0], env)
             for v in expr.values[1:]:
-                t = self.join(t, self.infer_expr(v))
+                t = self.join(t, self.infer_expr(v, env))
             return TList(elem=t)
         
         if isinstance(expr, Extract):
-            base = self.scope.lookup(expr.access.name)
+            if expr.access.name not in env:
+                raise AnalogTypeError(f"Undefined variable: {expr.access.name}")
+            base = env[expr.access.name]
             if base is TQReg:
                 return TQRef
             if base is TMReg:
@@ -415,8 +373,8 @@ class AnalogTypeChecker:
         sig = BIN_SIG_TABLE.get(type(expr))
         if sig is not None:
             (lreq, rreq), out = sig
-            t1 = self.infer_expr(expr.expr1)
-            t2 = self.infer_expr(expr.expr2)
+            t1 = self.infer_expr(expr.expr1, env)
+            t2 = self.infer_expr(expr.expr2, env)
             if not self.leq(t1, lreq) or not self.leq(t2, rreq):
                 raise AnalogTypeError(f"{type(expr).__name__} got {type_name(t1)}, {type_name(t2)} expected {type_name(lreq)}, {type_name(rreq)}")
             return out
@@ -424,8 +382,8 @@ class AnalogTypeChecker:
         sig = OP_TABLE.get(type(expr))
         if sig is not None:
             (lreq, rreq), out = sig
-            t1 = self.infer_expr(expr.op1)
-            t2 = self.infer_expr(expr.op2)
+            t1 = self.infer_expr(expr.op1, env)
+            t2 = self.infer_expr(expr.op2, env)
             if not self.leq(t1, lreq) or not self.leq(t2, rreq):
                 raise AnalogTypeError(f"{type(expr).__name__} got {type_name(t1)}, {type_name(t2)} expected {type_name(lreq)}, {type_name(rreq)}")
             return out
@@ -438,7 +396,7 @@ class AnalogTypeChecker:
             }
             if expr.func in math_funcs:
                 arg = expr.expr
-                t = self.infer_expr(arg)
+                t = self.infer_expr(arg, env)
                 if not self.leq(t, TScalar):
                     raise AnalogTypeError(f"{expr.func} expects scalar, got {type_name(t)}")
                 return TScalar
@@ -447,8 +405,8 @@ class AnalogTypeChecker:
                 arg = expr.expr
                 if len(arg) != 2:
                     raise AnalogTypeError("atan2 expects exactly 2 arguments")
-                t1 = self.infer_expr(arg[0])
-                t2 = self.infer_expr(arg[1])
+                t1 = self.infer_expr(arg[0], env)
+                t2 = self.infer_expr(arg[1], env)
                 if not self.leq(t1, TScalar) or not self.leq(t2, TScalar):
                     raise AnalogTypeError(f"{expr.func} expects scalar, got {type_name(t1)}, {type_name(t2)}")
                 return TScalar
@@ -456,16 +414,16 @@ class AnalogTypeChecker:
             raise AnalogTypeError(f"Unsupported math function: {expr.func}")
         
         if isinstance(expr, OperatorMul):
-            t1 = self.infer_expr(expr.op1)
-            t2 = self.infer_expr(expr.op2)
+            t1 = self.infer_expr(expr.op1, env)
+            t2 = self.infer_expr(expr.op2, env)
             out = OPMUL_ALLOWED.get((t1, t2))
             if out is None:
                 raise AnalogTypeError(f"{type(expr).__name__} expects operator or scalar, got {type_name(t1)}, {type_name(t2)}")
             return out
         
         if isinstance(expr, (BoolEq, BoolNotEq)):
-            t1 = self.infer_expr(expr.expr1)
-            t2 = self.infer_expr(expr.expr2)
+            t1 = self.infer_expr(expr.expr1, env)
+            t2 = self.infer_expr(expr.expr2, env)
             if t1 not in (TBool, TScalar) or t2 not in (TBool, TScalar):
                 raise AnalogTypeError(f"{type(expr).__name__} expects bool or scalar, got {type_name(t1)}, {type_name(t2)}")
             if t1 is not t2:
@@ -473,14 +431,14 @@ class AnalogTypeChecker:
             return TBool
         
         if isinstance(expr, BoolNot):
-            t = self.infer_expr(expr.expr)
+            t = self.infer_expr(expr.expr, env)
             if not self.leq(t, TBool):
                 raise AnalogTypeError(f"{type(expr).__name__} expects bool, got {type_name(t)}")
             return TBool
         
         
         if isinstance(expr, (Initialize, Measure)):
-            t = self.infer_expr(expr.targets)
+            t = self.infer_expr(expr.targets, env)
             if isinstance(t, TList):
                 if not self.leq(t.elem, TTargetRef):
                     raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(t)}")
@@ -490,68 +448,23 @@ class AnalogTypeChecker:
         
         
         if isinstance(expr, Evolve):
-            tt = self.infer_expr(expr.targets)
+            tt = self.infer_expr(expr.targets, env)
             if isinstance(tt, TList):
                 if not self.leq(tt.elem, TTargetRef):
                     raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(tt)}")
             elif not self.leq(tt, TTarget):
                 raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(tt)}")
             
-            td = self.infer_expr(expr.duration)
+            td = self.infer_expr(expr.duration, env)
             if not self.leq(td, TScalar):
                 raise AnalogTypeError(f"{type(expr).__name__} expects scalar duration, got {type_name(td)}")
             
-            th = self.infer_expr(expr.hamiltonian)
+            th = self.infer_expr(expr.hamiltonian, env)
             if not self.leq(th, TOp):
                 raise AnalogTypeError(f"{type(expr).__name__} expects operator hamiltonian, got {type_name(th)}")
             
             return TAnalog
         
-        
-
-    
-    def check_stmt(self, stmt):
-        
-        if not isinstance(stmt, STATEMENT_NODE_TYPES):
-            raise AnalogTypeError(f"Unsupported statement node: {type(stmt).__name__}")
-    
-        if isinstance(stmt, Declaration):
-            datatype = self.infer_expr(stmt.value)
-            self.scope.declare(stmt.name, datatype)
-            return
-        
-        if isinstance(stmt, IfElse):
-            condition = self.infer_expr(stmt.condition)
-            if condition is not TBool:
-                raise AnalogTypeError("if condition must be bool")
-            self.push_scope()
-            for s in stmt.then_branch:
-                self.check_stmt(s)
-            self.pop_scope()
-            self.push_scope()
-            for s in stmt.else_branch:
-                self.check_stmt(s)
-            self.pop_scope()
-            return
-        
-        if isinstance(stmt, While):
-            condition = self.infer_expr(stmt.condition)
-            if condition is not TBool:
-                raise AnalogTypeError("while condition must be bool")
-            self.push_scope()
-            for s in stmt.body:
-                self.check_stmt(s)
-            self.pop_scope()
-            return
-
-        if isinstance(stmt, Break):
-            return
-        
-        if isinstance(stmt, Continue):
-            return
-        
-        self.infer_expr(stmt)
-    
 
 def type_check_analog(circuit: AnalogCircuit) -> None:
     checker = AnalogTypeChecker()
