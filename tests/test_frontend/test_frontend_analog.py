@@ -15,8 +15,9 @@
 import pytest
 
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+from oqd_core.frontend.analog.cfg import AnalogCFGBuilder
 from oqd_core.frontend.analog.serialize import serialize_analog
-from oqd_core.frontend.analog.type_checker import type_check_analog, AnalogTypeError
+from oqd_core.frontend.analog.type_checker import AnalogTypeChecker, AnalogTypeError
 from oqd_core.interface.analog import (
     Access,
     AnalogCircuit,
@@ -432,7 +433,11 @@ class TestAnalogTypeChecker:
     )
     def test_analog_type_checker(self, program):
         circuit = parse_analog(program)
-        assert type_check_analog(circuit) is None
+        checker = AnalogTypeChecker()
+        cfg = AnalogCFGBuilder().run(circuit)
+        # SCCAnalysis(cfg).infinite_loop_check()
+        checker.analyze_dataflow(cfg)
+        # assert out is None
         
     @pytest.mark.parametrize(
         "program",
@@ -451,7 +456,9 @@ class TestAnalogTypeChecker:
     def test_analog_type_checker_error(self, program):
         circuit = parse_analog(program)
         with pytest.raises(AnalogTypeError):
-            type_check_analog(circuit)
-    
-    
+            checker = AnalogTypeChecker()
+            cfg = AnalogCFGBuilder().run(circuit)
+            checker.analyze_dataflow(cfg)
+        
+
     

@@ -19,10 +19,9 @@ from dataclasses import dataclass
 from types import UnionType
 from typing import Annotated, Union, get_args, get_origin
 
-from oqd_core.frontend.analog.cfg import gen_cfg
+from oqd_core.frontend.analog.cfg import CFGNode
 from oqd_core.interface.analog import (
     Access,
-    AnalogCircuit,
     AnalogExprSubtypes,
     AnalogList,
     Bool,
@@ -287,8 +286,7 @@ class AnalogTypeChecker:
         return dict(in_env)
     
     
-    def analyze_dataflow(self, circuit: AnalogCircuit):
-        cfg = gen_cfg(circuit)
+    def analyze_dataflow(self, cfg: CFGNode):
         in_state = {nid: None for nid in cfg}
         out_state = {nid: {} for nid in cfg}
 
@@ -465,9 +463,3 @@ class AnalogTypeChecker:
             
             return TAnalog
         
-
-def type_check_analog(circuit: AnalogCircuit) -> None:
-    checker = AnalogTypeChecker()
-    checker.analyze_dataflow(circuit)
-    return
-

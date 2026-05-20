@@ -17,7 +17,14 @@ from __future__ import annotations
 
 from oqd_compiler_infrastructure import RewriteRule
 
-from oqd_core.interface.analog import AnalogCircuit, Break, Continue, IfElse, While
+from oqd_core.interface.analog import (
+    AnalogCircuit,
+    Bool,
+    Break,
+    Continue,
+    IfElse,
+    While,
+)
 
 
 class CFGNode:
@@ -155,7 +162,7 @@ class AnalogCFGBuilder(RewriteRule):
     
     def map_Break(self, model: Break):
         if not self.loop_stack:
-            raise ValueError("break statement used outside loop")
+            raise TypeError("break statement used outside loop")
         break_node = self.new_node(self.preds, model)
         self.loop_stack[-1].exit_nodes.append(break_node)
         self.fallthrough_labels[break_node.register_id] = "break"
@@ -163,7 +170,7 @@ class AnalogCFGBuilder(RewriteRule):
     
     def map_Continue(self, model: Continue):
         if not self.loop_stack:
-            raise ValueError("continue statement used outside loop")
+            raise TypeError("continue statement used outside loop")
         continue_node = self.new_node(self.preds, model)
         self.loop_stack[-1].add_pred(continue_node, label="continue")
         return []
@@ -172,7 +179,89 @@ class AnalogCFGBuilder(RewriteRule):
         return [self.new_node(self.preds, model)]
     
 
-def gen_cfg(circuit):
-    return AnalogCFGBuilder().run(circuit)
+class SCCAnalysis:
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.time = 0
+        self.disc = {nid: -1 for nid in cfg}
+        self.low = {nid: -1 for nid in cfg}
+        self.on_stack = {nid: False for nid in cfg}
+        self.stack = []
+        self.sccs = []
     
+    def dfs(self, u):
+        self.disc[u] = self.time
+        self.low[u] = self.time
+        self.time += 1
+        self.stack.append(u)
+        self.on_stack[u] = True
+        for succ in self.cfg[u].succs:
+            v = succ.register_id
+            if self.disc[v] == -1:
+                self.dfs(v)
+                self.low[u] = min(self.low[u], self.low[v])
+            elif self.on_stack[v]:
+                self.low[u] = min(self.low[u], self.disc[v])
+        if self.low[u] == self.disc[u]:
+            comp = set()
+            while True:
+                w = self.stack.pop()
+                self.on_stack[w] = False
+                comp.add(w)
+                if w == u:
+                    break
+            self.sccs.append(comp)
+
+    def run(self):
+        for nid in self.cfg:
+            if self.disc[nid] == -1:
+                self.dfs(nid)
+        return self.sccs
     
+    def edge_feasible(self, src, dst_id):
+        if src.kind == "branch" and isinstance(src.stmt, Bool):
+            label = src.edge_labels.get(dst_id)
+            if src.stmt.value is True and label == "false":
+                return False
+            if src.stmt.value is False and label == "true":
+                return False
+        return True
+    
+    def infinite_loop_check(self):
+        sccs = self.run()
+        stop_ids = {nid for nid, node in self.cfg.items() if node.kind == "stop"}
+        for comp in sccs:
+            has_cycle = len(comp) > 1 or any(
+                succ.register_id == nid
+                for nid in comp
+                for succ in self.cfg[nid].succs
+            )
+            if not has_cycle:
+                continue
+
+            has_exit = any(
+                (succ.register_id not in comp) and self.edge_feasible(self.cfg[nid], succ.register_id)
+                for nid in comp
+                for succ in self.cfg[nid].succs
+            )
+            
+            stack = list(comp)
+            seen = set(comp)
+            can_reach_stop = False
+            while stack:
+                curr = stack.pop()
+                if curr in stop_ids:
+                    can_reach_stop = True
+                    break
+                for succ in self.cfg[curr].succs:
+                    sid = succ.register_id
+                    if not self.edge_feasible(self.cfg[curr], sid):
+                        continue
+                    if sid not in seen:
+                        seen.add(sid)
+                        stack.append(sid)
+
+            if not has_exit and not can_reach_stop:
+                raise TypeError(
+                    f"Infinite loop detected in circuit: {sorted(comp)}"
+                )
