@@ -89,6 +89,11 @@ class AtomicParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by AtomicParser#serial_stmt.
+    def visitSerial_stmt(self, ctx:AtomicParser.Serial_stmtContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by AtomicParser#targets.
     def visitTargets(self, ctx:AtomicParser.TargetsContext):
         return self.visitChildren(ctx)

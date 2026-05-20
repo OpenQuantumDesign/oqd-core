@@ -152,6 +152,15 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AtomicParser#serial_stmt.
+    def enterSerial_stmt(self, ctx:AtomicParser.Serial_stmtContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#serial_stmt.
+    def exitSerial_stmt(self, ctx:AtomicParser.Serial_stmtContext):
+        pass
+
+
     # Enter a parse tree produced by AtomicParser#targets.
     def enterTargets(self, ctx:AtomicParser.TargetsContext):
         pass

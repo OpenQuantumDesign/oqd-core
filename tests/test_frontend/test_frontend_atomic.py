@@ -48,6 +48,7 @@ from oqd_core.interface.atomic import (
     MathVar,
     ParallelProtocol,
     Pulse,
+    SerialProtocol,
     While,
 )
 
@@ -259,6 +260,27 @@ class TestAtomicStatements:
         assert isinstance(pulse1, Pulse)
         pulse2 = statement.pulses[1]
         assert isinstance(pulse2, Pulse)
+    
+    def test_serial(self, register, beam):
+        circuit = parse_atomic(register + beam + "serial {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}")
+        statement = circuit.statements[2]
+        assert isinstance(statement, SerialProtocol)
+        pulse1 = statement.pulses[0]
+        assert isinstance(pulse1, Pulse)
+        pulse2 = statement.pulses[1]
+        assert isinstance(pulse2, Pulse)
+    
+    def test_nested_parallel_serial(self, register, beam):
+        circuit = parse_atomic(register + beam + "parallel {\n serial {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}}")
+        statement = circuit.statements[2]
+        assert isinstance(statement, ParallelProtocol)
+        statement = statement.pulses[0]
+        assert isinstance(statement, SerialProtocol)
+        pulse1 = statement.pulses[0]
+        assert isinstance(pulse1, Pulse)
+        pulse2 = statement.pulses[1]
+        assert isinstance(pulse2, Pulse)
+        
     
 
 

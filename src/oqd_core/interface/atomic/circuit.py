@@ -17,7 +17,7 @@ from typing import List
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 
 from .expr import Beam, Pulse
-from .statement import ParallelProtocol, Statement
+from .statement import ParallelProtocol, SerialProtocol, Statement
 
 ########################################################################################
 
@@ -51,5 +51,10 @@ class AtomicCircuit(TypeReflectBaseModel):
     def parallel(self, pulses):
         self.statements.append(
             ParallelProtocol(pulses=pulses)
+        )
+    
+    def series(self, pulses):
+        self.statements.append(
+            SerialProtocol(pulses=pulses)
         )
         
