@@ -54,6 +54,7 @@ from .statement import (
     Declaration,
     IfElse,
     ParallelProtocol,
+    SerialProtocol,
     While,
 )
 
@@ -67,6 +68,7 @@ __all__ = [
     "Beam",
     "Pulse",
     "ParallelProtocol",
+    "SerialProtocol",
     "AtomicCircuit",
     "IonBuilder",
     "Yb171IIBuilder",

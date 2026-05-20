@@ -30,6 +30,20 @@ parallel {
     pulse(beam_det, 5e-6, q1)
 }
 
+serial {
+    pulse(beam_mw, 5e-6, q0)
+    pulse(beam_det, 5e-6, q1)
+}
+
+parallel {
+    serial {
+        pulse(beam_mw, 5e-6, q0)
+        pulse(beam_det, 5e-6, q1)
+    }
+    pulse(beam_mw, 5e-6, q0)
+    pulse(beam_det, 5e-6, q1)
+}
+
 // control flow
 if (flag) {
     pulse(beam_mw, 2e-6, targets)

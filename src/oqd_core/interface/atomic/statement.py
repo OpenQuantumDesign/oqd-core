@@ -26,6 +26,7 @@ from .expr import AtomicExprSubtypes, Identifier
 __all__ = [
     "Declaration",
     "ParallelProtocol",
+    "SerialProtocol",
     "IfElse",
     "While",
     "Break", 
@@ -43,7 +44,8 @@ class Declaration(TypeReflectBaseModel):
 class ParallelProtocol(TypeReflectBaseModel):
     pulses: List[Statement]
 
-
+class SerialProtocol(TypeReflectBaseModel):
+    pulses: List[Statement]
 
 class IfElse(TypeReflectBaseModel):
     """
@@ -89,7 +91,7 @@ def _Statement_discriminator(value):
     else:
         class_ = getattr(value, "class_")
 
-    if class_ not in ["Declaration", "IfElse", "While", "Break", "Continue", "ParallelProtocol"]:
+    if class_ not in ["Declaration", "IfElse", "While", "Break", "Continue", "ParallelProtocol", "SerialProtocol"]:
         class_ = "AtomicExpr"
 
     return class_
@@ -103,6 +105,7 @@ Statement = Annotated[
         Annotated[Break, Tag("Break")],
         Annotated[Continue, Tag("Continue")],
         Annotated[ParallelProtocol, Tag("ParallelProtocol")],
+        Annotated[SerialProtocol, Tag("SerialProtocol")],
         Annotated[AtomicExprSubtypes, Tag("AtomicExpr")],
     ],
     Discriminator(discriminator=_Statement_discriminator),
