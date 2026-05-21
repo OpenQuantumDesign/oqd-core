@@ -17,7 +17,10 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from types import UnionType
-from typing import Annotated, Union, get_args, get_origin
+from typing import Annotated, Iterable, Union, get_args, get_origin
+
+from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
+from oqd_compiler_infrastructure.lattice import LatticeBase, TBottom, TTop
 
 from oqd_core.frontend.analog.cfg import CFGNode
 from oqd_core.interface.analog import (
@@ -88,7 +91,22 @@ TERMINAL_NODE_TYPES = alias_types(Terminal)
 
 ########################################################################################
 
-class TAnalog:
+
+@dataclass
+class TList(TTop):
+    elem: "LatticeValue"
+
+LatticeValue = Union[TList, type[TTop]]
+
+def type_name(t: LatticeValue) -> str:
+    if isinstance(t, TList):
+        return f"TList[{type_name(t.elem)}]"
+    if isinstance(t, type) and issubclass(t, TTop):
+        return t.__name__
+    return str(t)
+
+
+class TAnalog(TTop):
     pass
 
 class TScalar(TAnalog):
@@ -118,33 +136,49 @@ class TQRef(TTargetRef):
 class TMRef(TTargetRef):
     pass
 
-class TBottom(TAnalog):
-    pass
 
-@dataclass
-class TList(TAnalog):
-    elem: Union[TList, type[TAnalog]]
-
-def type_name(t):
-    if isinstance(t, TList):
-        return f"TList[{type_name(t.elem)}]"
-    if isinstance(t, type) and issubclass(t, TAnalog):
-        return t.__name__
-    return str(t)
-
-PARENTS = {
-    TBottom: [],
-    TScalar: (TAnalog,),
-    TBool: (TAnalog,),
-    TOp: (TAnalog,),
-    TTarget: (TAnalog,),
-    TTargetRef: (TTarget,),
-    TQReg: (TTarget,),
-    TMReg: (TTarget,),
-    TQRef: (TTargetRef,),
-    TMRef: (TTargetRef,),
-    TAnalog: (),
-}
+class AnalogLattice(LatticeBase[LatticeValue]):
+    def __init__(self):
+        super().__init__()
+        self.add_node(TAnalog, TTop)
+        self.add_node(TScalar, TAnalog)
+        self.add_node(TBool, TAnalog)
+        self.add_node(TOp, TAnalog)
+        self.add_node(TTarget, TAnalog)
+        self.add_node(TTargetRef, TTarget)
+        self.add_node(TQReg, TTarget)
+        self.add_node(TMReg, TTarget)
+        self.add_node(TQRef, TTargetRef)
+        self.add_node(TMRef, TTargetRef)
+    
+    def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
+        if t1 is TBottom:
+            return True
+        if isinstance(t1, TList) and isinstance(t2, TList):
+            return self.leq(t1.elem, t2.elem)
+        if isinstance(t1, TList) or isinstance(t2, TList):
+            return False
+        return super().leq(t1, t2)
+    
+    def join(self, t1: LatticeValue, t2: LatticeValue) -> LatticeValue:
+        if self.leq(t1, t2):
+            return t2
+        if self.leq(t2, t1):
+            return t1
+        if isinstance(t1, TList) and isinstance(t2, TList):
+            return TList(elem=self.join(t1.elem, t2.elem))
+        if isinstance(t1, TList) or isinstance(t2, TList):
+            return TAnalog
+        return super().join(t1, t2)
+    
+    def meet(self, t1: LatticeValue, t2: LatticeValue) -> LatticeValue:
+        if self.leq(t1, t2):
+            return t1
+        if self.leq(t2, t1):
+            return t2
+        if isinstance(t1, TList) and isinstance(t2, TList):
+            return TList(elem=self.meet(t1.elem, t2.elem))
+        return super().meet(t1, t2)
 
 
 BIN_SIG_TABLE = {
@@ -180,75 +214,49 @@ OPMUL_ALLOWED = {
 ########################################################################################
 
 
+class AnalogCFG:
+    def __init__(self, cfg: CFGNode):
+        self.cfg = cfg
+    def nodes(self) -> Iterable[int]:
+        return self.cfg.keys()
+    def predecessors(self, node: int) -> Iterable[int]:
+        return (pred.register_id for pred in self.cfg[node].preds)
+    def successors(self, node: int) -> Iterable[int]:
+        return (succ.register_id for succ in self.cfg[node].succs)
+
+
+class AnalogForwardDataflow(ForwardDataflowAnalysis[int, dict[str, LatticeValue]]):
+    def __init__(self, checker: AnalogTypeChecker, cfg: CFGNode, start_id: int):
+        self.checker = checker
+        self.cfg = cfg
+        self.start_id = start_id
+    def bottom(self) -> dict[str, LatticeValue]:
+        return {}
+    def boundary_state(self, node: int) -> dict[str, LatticeValue]:
+        return {} if node == self.start_id else {}
+    def merge(self, states: Iterable[dict[str, LatticeValue]]) -> dict[str, LatticeValue]:
+        return self.checker.merge_envs(list(states))
+    def transfer(self, node: int, state_in: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
+        return self.checker.transfer_node(self.cfg[node], state_in)
+
+
+########################################################################################
+  
+
 class AnalogTypeChecker:
     def __init__(self):
-        pass
+        self.lattice = AnalogLattice()
         
-    
-    def atomic_ancestors(self, t):
-        if not issubclass(t, TAnalog):
-            raise AnalogTypeError(f"Expected analog type class, got {t}")
-        out = {t}
-        stack = [t]
-        while stack:
-            curr = stack.pop()
-            for p in PARENTS.get(curr, ()):
-                if p not in out:
-                    out.add(p)
-                    stack.append(p)
-        return out
-    
-    
     def leq(self, t1, t2):
-        if t1 is TBottom:
-            return True
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return self.leq(t1.elem, t2.elem)
-        if isinstance(t1, TList) or isinstance(t2, TList):
-            return False
-        if not issubclass(t1, TAnalog) or not issubclass(t2, TAnalog):
-            return False
-        if t1 is t2:
-            return True
-        return t2 in self.atomic_ancestors(t1)
+        return self.lattice.leq(t1, t2)
     
     
     def join(self, t1, t2):
-        if self.leq(t1, t2):
-            return t2
-        if self.leq(t2, t1):
-            return t1
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.join(t1.elem, t2.elem))
-        if isinstance(t1, TList) or isinstance(t2, TList):
-            return TAnalog
-        if not issubclass(t1, TAnalog) or not issubclass(t2, TAnalog):
-            return TAnalog
-        common_ancestors = self.atomic_ancestors(t1).intersection(self.atomic_ancestors(t2))
-        if not common_ancestors:
-            return TAnalog
-        
-        minimal_ancestors = set()
-        for candidate in common_ancestors:
-            smaller = any(
-                other is not candidate and self.leq(other, candidate)
-                for other in common_ancestors
-            )
-            if not smaller:
-                minimal_ancestors.add(candidate)
-        if len(minimal_ancestors) != 1:
-            return TAnalog
-        return next(iter(minimal_ancestors))
+        return self.lattice.join(t1, t2)
     
     
     def meet(self, t1, t2):
-        if self.leq(t1, t2):
-            return t1
-        if self.leq(t2, t1):
-            return t2
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.meet(t1.elem, t2.elem))
-        return TBottom
+        return self.lattice.meet(t1, t2)
     
 
     def merge_envs(self, pred_envs):
@@ -287,42 +295,19 @@ class AnalogTypeChecker:
     
     
     def analyze_dataflow(self, cfg: CFGNode):
-        in_state = {nid: None for nid in cfg}
-        out_state = {nid: {} for nid in cfg}
-
         start_id = next(nid for nid, node in cfg.items() if node.kind == "start")
-        in_state[start_id] = {}
-        out_state[start_id] = self.transfer_node(cfg[start_id], {})
-
-        worklist = [nid for nid in cfg if nid != start_id]
-        
-        while worklist:
-            nid = worklist.pop(0)
-            node = cfg[nid]
-            
-            pred_outs = [out_state[p.register_id] for p in node.preds]
-            new_in = self.merge_envs(pred_outs) if pred_outs else {}
-                
-            new_out = self.transfer_node(node, new_in)
-            
-            if in_state[nid] != new_in or out_state[nid] != new_out:
-                in_state[nid] = new_in
-                out_state[nid] = new_out
-                
-                for succ in node.succs:
-                    sid = succ.register_id
-                    if sid not in worklist:
-                        worklist.append(sid)
+        analysis = AnalogForwardDataflow(self, cfg, start_id)
+        result = analysis.analyze(AnalogCFG(cfg))
         
         return {
             "cfg": {nid: node.to_dict() for nid, node in cfg.items()},
             "in": {
                 nid: {name: type_name(t) for name, t in env.items()}
-                for nid, env in in_state.items()
+                for nid, env in result.in_states.items()
             },
             "out": {
                 nid: {name: type_name(t) for name, t in env.items()}
-                for nid, env in out_state.items()
+                for nid, env in result.out_states.items()
             },
         }
         
