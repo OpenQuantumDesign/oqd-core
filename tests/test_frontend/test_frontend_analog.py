@@ -15,7 +15,7 @@
 import pytest
 
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
-from oqd_core.frontend.analog.cfg import AnalogCFGBuilder
+from oqd_core.frontend.analog.cfg import AnalogCFGBuilder, SCCAnalysis
 from oqd_core.frontend.analog.serialize import serialize_analog
 from oqd_core.frontend.analog.type_checker import AnalogTypeChecker, AnalogTypeError
 from oqd_core.interface.analog import (
@@ -412,6 +412,23 @@ class TestAnalogSerialize:
         assert circuit == deserialized_circuit
 
 
+## Control Flow Graph ##
+
+class TestAnalogCFG:
+    def test_analog_cfg(self):
+        program = "r = qreg(3) \n x = 1"
+        circuit = parse_analog(program)
+        cfg = AnalogCFGBuilder().run(circuit)
+        assert cfg is not None
+    
+    def test_analog_cfg_infinite_loop(self):
+        program = "while(true) {y = 2}"
+        circuit = parse_analog(program)
+        cfg = AnalogCFGBuilder().run(circuit)
+        with pytest.raises(TypeError):
+            SCCAnalysis(cfg).infinite_loop_check()
+        
+
 ## Type Checker ##
 
 class TestAnalogTypeChecker:
@@ -435,9 +452,7 @@ class TestAnalogTypeChecker:
         circuit = parse_analog(program)
         checker = AnalogTypeChecker()
         cfg = AnalogCFGBuilder().run(circuit)
-        # SCCAnalysis(cfg).infinite_loop_check()
         checker.analyze_dataflow(cfg)
-        # assert out is None
         
     @pytest.mark.parametrize(
         "program",
