@@ -1,4 +1,4 @@
-The analog frontend provides tools to convert analog source text into a parsed tree and to convert a parsed tree back into source text.
+The analog frontend provides tools to convert analog source text into a typed Abstract Syntax Tree (AST) and to convert a typed AST back into source text.
 
 ## Frontend Components
 
@@ -21,7 +21,7 @@ For more details on the analog grammar, see [`analog_grammar.md`](../grammar/ana
 
 ### AST Builder
 
-[`AnalogCircuitAST.py`](../../src/oqd_core/frontend/analog/AnalogCircuitAST.py) contains the implementation of the AST Builder. The `parse_analog` function uses the `AnalogASTBuilder` class to convert the analog source text into an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit].
+[`AnalogCircuitAST.py`](../../src/oqd_core/frontend/analog/AnalogCircuitAST.py) contains the implementation of the AST Builder. The `parse_analog` function uses the `AnalogASTBuilder` class to convert the analog source text into an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit]. It produces a typed AST of the source code.
 
 ### Serializer
 
@@ -65,3 +65,12 @@ serialized = serialize_analog(circuit)
 ```
 
 ///
+
+### Type Checker
+
+The analog type checker is implemented by the `AnalogTypeChecker` class in [`type_checker.py`](../../src/oqd_core/frontend/analog/type_checker.py). The `AnalogLattice` class defines a concrete lattice for analog types with `leq`, `join`, and `meet` methods. The type checker builds a Control Flow Graph (CFG) using methods from `cfg.py` from the typed AST, and runs the forward dataflow analysis on the CFG.
+
+### Control Flow Graph
+
+The analog Control Flow Graph (CFG) is implemented by the `CFGNode` and `AnalogCFGBuilder` classes in [`cfg.py`](../../src/oqd_core/frontend/analog/cfg.py). This script also implements an infinite loop checker by identifying strongly connected components (SCCs) in the CFG.
+
