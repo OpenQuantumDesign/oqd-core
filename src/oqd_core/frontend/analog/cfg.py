@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from oqd_compiler_infrastructure import RewriteRule
 
-from oqd_core.frontend.utils.utils import CFGNode
+from oqd_core.frontend.analysis.utils import CFGNode
 from oqd_core.interface.analog import (
     AnalogCircuit,
     Break,

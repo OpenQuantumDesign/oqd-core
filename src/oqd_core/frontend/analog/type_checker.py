@@ -22,7 +22,7 @@ from typing import Annotated, Iterable, Union, get_args, get_origin
 from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
 from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
 
-from oqd_core.frontend.utils.utils import CFGNode
+from oqd_core.frontend.analysis.utils import CFGNode
 from oqd_core.interface.analog import (
     Access,
     AnalogExprSubtypes,
@@ -137,7 +137,7 @@ class TMRef(TTargetRef):
     pass
 
 
-class AnalogLattice(LatticeBase[LatticeValue]):
+class AnalogTypeLattice(LatticeBase[LatticeValue]):
     def __init__(self):
         super().__init__()
         self.add_node(TAnalog, LatticeTop)
@@ -245,7 +245,7 @@ class AnalogForwardDataflow(ForwardDataflowAnalysis[int, dict[str, LatticeValue]
 
 class AnalogTypeChecker:
     def __init__(self):
-        self.lattice = AnalogLattice()
+        self.lattice = AnalogTypeLattice()
         
     def leq(self, t1, t2):
         return self.lattice.leq(t1, t2)
