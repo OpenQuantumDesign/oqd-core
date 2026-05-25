@@ -20,9 +20,9 @@ from types import UnionType
 from typing import Annotated, Iterable, Union, get_args, get_origin
 
 from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
-from oqd_compiler_infrastructure.lattice import LatticeBase, TBottom, TTop
+from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
 
-from oqd_core.frontend.analog.cfg import CFGNode
+from oqd_core.frontend.utils.utils import CFGNode
 from oqd_core.interface.analog import (
     Access,
     AnalogExprSubtypes,
@@ -93,20 +93,20 @@ TERMINAL_NODE_TYPES = alias_types(Terminal)
 
 
 @dataclass
-class TList(TTop):
+class TList(LatticeTop):
     elem: "LatticeValue"
 
-LatticeValue = Union[TList, type[TTop]]
+LatticeValue = Union[TList, type[LatticeTop]]
 
 def type_name(t: LatticeValue) -> str:
     if isinstance(t, TList):
         return f"TList[{type_name(t.elem)}]"
-    if isinstance(t, type) and issubclass(t, TTop):
+    if isinstance(t, type) and issubclass(t, LatticeTop):
         return t.__name__
     return str(t)
 
 
-class TAnalog(TTop):
+class TAnalog(LatticeTop):
     pass
 
 class TScalar(TAnalog):
@@ -140,7 +140,7 @@ class TMRef(TTargetRef):
 class AnalogLattice(LatticeBase[LatticeValue]):
     def __init__(self):
         super().__init__()
-        self.add_node(TAnalog, TTop)
+        self.add_node(TAnalog, LatticeTop)
         self.add_node(TScalar, TAnalog)
         self.add_node(TBool, TAnalog)
         self.add_node(TOp, TAnalog)
@@ -152,7 +152,7 @@ class AnalogLattice(LatticeBase[LatticeValue]):
         self.add_node(TMRef, TTargetRef)
     
     def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
-        if t1 is TBottom:
+        if t1 is LatticeBottom:
             return True
         if isinstance(t1, TList) and isinstance(t2, TList):
             return self.leq(t1.elem, t2.elem)
@@ -267,9 +267,9 @@ class AnalogTypeChecker:
             
         merged = {}
         for name in all_keys:
-            t = TBottom
+            t = LatticeBottom
             for env in pred_envs:
-                t = self.join(t, env.get(name, TBottom))
+                t = self.join(t, env.get(name, LatticeBottom))
             merged[name] = t
         
         return merged
@@ -334,7 +334,7 @@ class AnalogTypeChecker:
     
         if isinstance(expr, AnalogList):
             if not expr.values:
-                return TList(elem=TBottom)
+                return TList(elem=LatticeBottom)
             
             t = self.infer_expr(expr.values[0], env)
             for v in expr.values[1:]:
