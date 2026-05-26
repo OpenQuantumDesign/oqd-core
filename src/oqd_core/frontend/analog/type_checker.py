@@ -431,20 +431,20 @@ class AnalogTypeChecker:
         
         
         if isinstance(expr, Evolve):
-            tt = self.infer_expr(expr.targets, env)
-            if isinstance(tt, TList):
-                if not self.leq(tt.elem, TTargetRef):
-                    raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(tt)}")
-            elif not self.leq(tt, TTarget):
+            target_t = self.infer_expr(expr.targets, env)
+            if isinstance(target_t, TList):
+                if not self.leq(target_t.elem, TTargetRef):
+                    raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(target_t)}")
+            elif not self.leq(target_t, TTarget):
                 raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(tt)}")
             
-            td = self.infer_expr(expr.duration, env)
-            if not self.leq(td, TScalar):
-                raise AnalogTypeError(f"{type(expr).__name__} expects scalar duration, got {type_name(td)}")
+            duration_t = self.infer_expr(expr.duration, env)
+            if not self.leq(duration_t, TScalar):
+                raise AnalogTypeError(f"{type(expr).__name__} expects scalar duration, got {type_name(duration_t)}")
             
-            th = self.infer_expr(expr.hamiltonian, env)
-            if not self.leq(th, TOp):
-                raise AnalogTypeError(f"{type(expr).__name__} expects operator hamiltonian, got {type_name(th)}")
+            hamiltonian_t = self.infer_expr(expr.hamiltonian, env)
+            if not self.leq(hamiltonian_t, TOp):
+                raise AnalogTypeError(f"{type(expr).__name__} expects operator hamiltonian, got {type_name(hamiltonian_t)}")
             
             return TAnalog
         
