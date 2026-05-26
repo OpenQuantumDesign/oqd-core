@@ -436,7 +436,7 @@ class AnalogTypeChecker:
                 if not self.leq(target_t.elem, TTargetRef):
                     raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(target_t)}")
             elif not self.leq(target_t, TTarget):
-                raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(tt)}")
+                raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(target_t)}")
             
             duration_t = self.infer_expr(expr.duration, env)
             if not self.leq(duration_t, TScalar):
