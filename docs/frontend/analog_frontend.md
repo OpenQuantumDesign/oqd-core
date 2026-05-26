@@ -68,7 +68,7 @@ serialized = serialize_analog(circuit)
 
 ### Type Checker
 
-The analog type checker is implemented by the `AnalogTypeChecker` class in [`type_checker.py`](../../src/oqd_core/frontend/analog/type_checker.py). The `AnalogLattice` class defines a concrete lattice for analog types with `leq`, `join`, and `meet` methods. The type checker builds a Control Flow Graph (CFG) using methods from `cfg.py` from the typed AST, and runs the forward dataflow analysis on the CFG.
+The analog type checker is implemented by the `AnalogTypeChecker` class in [`type_checker.py`](../../src/oqd_core/frontend/analog/type_checker.py). The `AnalogTypeLattice` class defines a concrete lattice for analog types with `leq`, `join`, and `meet` methods. The type checker builds a Control Flow Graph (CFG) using methods from `cfg.py` from the typed AST, and runs the forward dataflow analysis on the CFG.
 
 ### Control Flow Graph
 

@@ -22,7 +22,7 @@ from typing import Annotated, Iterable, Union, get_args, get_origin
 from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
 from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
 
-from oqd_core.frontend.analysis.utils import CFGNode
+from oqd_core.analysis.utils import CFGNode
 from oqd_core.interface.analog import (
     Access,
     AnalogExprSubtypes,
