@@ -14,8 +14,11 @@
 
 import pytest
 
+from oqd_core.analysis.utils import SCCAnalysis
 from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
+from oqd_core.frontend.atomic.cfg import AtomicCFGBuilder
 from oqd_core.frontend.atomic.serialize import serialize_atomic
+from oqd_core.frontend.atomic.type_checker import AtomicTypeChecker, AtomicTypeError
 from oqd_core.interface.atomic import (
     Access,
     AtomicCircuit,
@@ -384,3 +387,75 @@ class TestAtomicSerialize:
         assert circuit == deserialized_circuit
 
 
+
+## Control Flow Graph ##
+
+class TestAtomicCFG:
+    def test_atomic_cfg(self):
+        program = "r = ionreg(3) \n x = 1"
+        circuit = parse_atomic(program)
+        cfg = AtomicCFGBuilder().run(circuit)
+        assert cfg is not None
+    
+    def test_atomic_cfg_infinite_loop(self):
+        program = "while(true) {y = 2}"
+        circuit = parse_atomic(program)
+        cfg = AtomicCFGBuilder().run(circuit)
+        with pytest.raises(TypeError):
+            SCCAnalysis(cfg).infinite_loop_check()
+        
+
+## Type Checker ##
+
+class TestAtomicTypeChecker:
+    @pytest.mark.parametrize(
+        "program",
+        ["r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, r, true)",
+         "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])",
+         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
+         "s = 5 * 4",
+         "s = 5 + 2",
+         "cond = true and false",
+         "cond = true and false \n if (cond) {t = 0.2}",
+         "cond = true or false \n while (cond) {t = 0.2}",
+         "r = ionreg(3) \n target = [r[0], r[1], r[2]]",
+         "if (5 <= 4) {s = true}",
+         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])\n }\n}",
+         "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            p0 = pulse(beam_mw, 5e-6, r[0]) \n p1 = pulse(beam_mw, 5e-6, r[1]) \n \
+            p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
+         "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            pulse(b, 1e-5, r[0], false)",
+        ],
+    )
+    def test_atomic_type_checker(self, program):
+        circuit = parse_atomic(program)
+        checker = AtomicTypeChecker()
+        cfg = AtomicCFGBuilder().run(circuit)
+        checker.analyze_dataflow(cfg)
+        
+    @pytest.mark.parametrize(
+        "program",
+        ["r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, r, true)",
+         "s = 5 * true",
+         "cond = true and 4",
+         "cond = 5 \n if (cond) {t = 0.2}",
+         "s = 5 \n r = ionreg(3) \n target = [r[0], r[1], r[2], s] \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, target, true)",
+         "r = ionreg(3) \n parallel {pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, ionreg(2), true) \n r[0]}",
+         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n serial {\n pulse(beam_mw, 5e-6, r[0])\n }\n r[1]\n}",
+         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n }\n}",
+        ],
+    )
+    def test_atomic_type_checker_error(self, program):
+        circuit = parse_atomic(program)
+        with pytest.raises(AtomicTypeError):
+            checker = AtomicTypeChecker()
+            cfg = AtomicCFGBuilder().run(circuit)
+            checker.analyze_dataflow(cfg)
+        
+
+    
