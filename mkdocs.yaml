@@ -35,6 +35,8 @@ nav:
       - Analog: frontend/analog_frontend.md
       - Atomic: frontend/atomic_frontend.md
 
+  - Analysis: analysis.md
+
   - API Reference:
       - Interface:
           - Analog: reference/analog_interface.md
