@@ -94,7 +94,7 @@ TERMINAL_NODE_TYPES = alias_types(Terminal)
 
 @dataclass
 class TList(LatticeTop):
-    elem: "LatticeValue"
+    elem: LatticeValue
 
 LatticeValue = Union[TList, type[LatticeTop]]
 
