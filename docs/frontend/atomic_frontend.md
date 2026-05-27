@@ -73,3 +73,8 @@ serialized = serialize_atomic(circuit)
 ```
 
 ///
+
+### Type Checker
+
+The atomic type checker is implemented by the `AtomicTypeChecker` class in [`type_checker.py`](../../src/oqd_core/frontend/atomic/type_checker.py). The `AtomicTypeLattice` class defines a concrete lattice for atomic types with `leq`, `join`, and `meet` methods. The type checker builds a Control Flow Graph (CFG) from the typed AST, and runs the forward dataflow analysis on the CFG. The atomic Control Flow Graph (CFG) is implemented by the `AtomicCFGBuilder` class in [`cfg.py`](../../src/oqd_core/frontend/atomic/cfg.py). This CFGBuilder uses `CFGNode` and `SCCAnalysis` defined in the [analysis module](../../src/oqd_core/analysis/utils.py).
+
