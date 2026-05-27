@@ -395,14 +395,14 @@ class TestAnalogControlFlow:
 class TestAnalogSerialize:
     @pytest.mark.parametrize(
         "program",
-        ["r = qreg(2)",
-         "list = [1, 2, 3]",
-         "initialize(r)",
-         "evolve(%X, 1.0, r)",
-         "measure(r)",
-         "x = 1\n if (x > 0) {\n y = 2\n}",
-         "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
-         "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}",
+        [   "r = qreg(2)",
+            "list = [1, 2, 3]",
+            "initialize(r)",
+            "evolve(%X, 1.0, r)",
+            "measure(r)",
+            "x = 1\n if (x > 0) {\n y = 2\n}",
+            "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
+            "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}",
         ],
     )
     def test_analog_serialize(self, program):
@@ -435,18 +435,18 @@ class TestAnalogCFG:
 class TestAnalogTypeChecker:
     @pytest.mark.parametrize(
         "program",
-        ["r = qreg(2) \n initialize(r)",
-         "r = qreg(2) \n measure(r)",
-         "r = qreg(2) \n evolve(%X, 1.0, r)",
-         "s = 5 * 4",
-         "s = 5 + 2",
-         "s = qmode(3) \n initialize(s)",
-         "H = %X %* %I",
-         "cond = true and false",
-         "cond = true and false \n if (cond) {t = 0.2}",
-         "cond = true or false \n while (cond) {t = 0.2}",
-         "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
-         "if (5 <= 4) {s = true}"
+        [   "r = qreg(2) \n initialize(r)",
+            "r = qreg(2) \n measure(r)",
+            "r = qreg(2) \n evolve(%X, 1.0, r)",
+            "s = 5 * 4",
+            "s = 5 + 2",
+            "s = qmode(3) \n initialize(s)",
+            "H = %X %* %I",
+            "cond = true and false",
+            "cond = true and false \n if (cond) {t = 0.2}",
+            "cond = true or false \n while (cond) {t = 0.2}",
+            "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
+            "if (5 <= 4) {s = true}"
         ],
     )
     def test_analog_type_checker(self, program):
@@ -457,16 +457,16 @@ class TestAnalogTypeChecker:
         
     @pytest.mark.parametrize(
         "program",
-        ["initialize(r)",
-         "measure(r)",
-         "evolve(%X, 1.0, r)",
-         "s = 5 * true",
-         "s = 5 + %I",
-         "H = %X * %I",
-         "cond = true and 4",
-         "cond = 5 \n if (cond) {t = 0.2}",
-         "cond = %I \n while (cond) {t = 0.2}",
-         "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)"
+        [   "initialize(r)",
+            "measure(r)",
+            "evolve(%X, 1.0, r)",
+            "s = 5 * true",
+            "s = 5 + %I",
+            "H = %X * %I",
+            "cond = true and 4",
+            "cond = 5 \n if (cond) {t = 0.2}",
+            "cond = %I \n while (cond) {t = 0.2}",
+            "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)"
         ],
     )
     def test_analog_type_checker_error(self, program):
