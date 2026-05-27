@@ -368,15 +368,15 @@ class TestAtomicSerialize:
 
     @pytest.mark.parametrize(
         "program",
-        ["r = ionreg(2)",
-         "list = [1, 2, 3]",
-         "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
-         "pulse(beam_mw, 1e-5, r, true)",
-         "parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
-         "x = 1\n if (x > 0) {\n y = 2\n}",
-         "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
-         "n = 3\nwhile (n > 0) {\n    n = n - 1\n}",
-         "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}",
+        [   "r = ionreg(2)",
+            "list = [1, 2, 3]",
+            "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
+            "pulse(beam_mw, 1e-5, r, true)",
+            "parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
+            "x = 1\n if (x > 0) {\n y = 2\n}",
+            "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
+            "n = 3\nwhile (n > 0) {\n    n = n - 1\n}",
+            "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}",
         ],
     )
     def test_atomic_serialize(self, program):
@@ -410,23 +410,23 @@ class TestAtomicCFG:
 class TestAtomicTypeChecker:
     @pytest.mark.parametrize(
         "program",
-        ["r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, r, true)",
-         "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])",
-         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+        [   "r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, r, true)",
+            "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
-         "s = 5 * 4",
-         "s = 5 + 2",
-         "cond = true and false",
-         "cond = true and false \n if (cond) {t = 0.2}",
-         "cond = true or false \n while (cond) {t = 0.2}",
-         "r = ionreg(3) \n target = [r[0], r[1], r[2]]",
-         "if (5 <= 4) {s = true}",
-         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            "s = 5 * 4",
+            "s = 5 + 2",
+            "cond = true and false",
+            "cond = true and false \n if (cond) {t = 0.2}",
+            "cond = true or false \n while (cond) {t = 0.2}",
+            "r = ionreg(3) \n target = [r[0], r[1], r[2]]",
+            "if (5 <= 4) {s = true}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])\n }\n}",
-         "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             p0 = pulse(beam_mw, 5e-6, r[0]) \n p1 = pulse(beam_mw, 5e-6, r[1]) \n \
             p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
-         "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             pulse(b, 1e-5, r[0], false)",
         ],
     )
@@ -438,16 +438,17 @@ class TestAtomicTypeChecker:
         
     @pytest.mark.parametrize(
         "program",
-        ["r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, r, true)",
-         "s = 5 * true",
-         "cond = true and 4",
-         "cond = 5 \n if (cond) {t = 0.2}",
-         "s = 5 \n r = ionreg(3) \n target = [r[0], r[1], r[2], s] \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, target, true)",
-         "r = ionreg(3) \n parallel {pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, ionreg(2), true) \n r[0]}",
-         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+        [   "r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, r, true)",
+            "s = 5 * true",
+            "cond = true and 4",
+            "cond = 5 \n if (cond) {t = 0.2}",
+            "s = 5 \n r = ionreg(3) \n target = [r[0], r[1], r[2], s] \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, target, true)",
+            "r = ionreg(3) \n parallel {pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, ionreg(2), true) \n r[0]}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             parallel {\n serial {\n pulse(beam_mw, 5e-6, r[0])\n }\n r[1]\n}",
-         "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n }\n}",
+            "r = true \n if (r) { \n r = 5} \n r = r + 2",
         ],
     )
     def test_atomic_type_checker_error(self, program):
