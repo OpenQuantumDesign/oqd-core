@@ -19,7 +19,7 @@ from dataclasses import dataclass
 from types import UnionType
 from typing import Annotated, Iterable, Union, get_args, get_origin
 
-from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
+from oqd_compiler_infrastructure.dataflow import MapForwardDataflowAnalysis
 from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
 
 from oqd_core.analysis.utils import CFGNode
@@ -166,7 +166,7 @@ class AnalogTypeLattice(LatticeBase[LatticeValue]):
         if self.leq(t2, t1):
             return t1
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.join(t1.elem, t2.elem))
+            return TList(elem=self.lattice.join(t1.elem, t2.elem))
         if isinstance(t1, TList) or isinstance(t2, TList):
             return TAnalog
         return super().join(t1, t2)
@@ -177,7 +177,7 @@ class AnalogTypeLattice(LatticeBase[LatticeValue]):
         if self.leq(t2, t1):
             return t2
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.meet(t1.elem, t2.elem))
+            return TList(elem=self.lattice.meet(t1.elem, t2.elem))
         return super().meet(t1, t2)
 
 
@@ -225,93 +225,46 @@ class AnalogCFG:
         return (succ.register_id for succ in self.cfg[node].succs)
 
 
-class AnalogForwardDataflow(ForwardDataflowAnalysis[int, dict[str, LatticeValue]]):
-    def __init__(self, checker: AnalogTypeChecker, cfg: CFGNode, start_id: int):
-        self.checker = checker
-        self.cfg = cfg
-        self.start_id = start_id
-    def bottom(self) -> dict[str, LatticeValue]:
-        return {}
-    def boundary_state(self, node: int) -> dict[str, LatticeValue]:
-        return {} if node == self.start_id else {}
-    def merge(self, states: Iterable[dict[str, LatticeValue]]) -> dict[str, LatticeValue]:
-        return self.checker.merge_envs(list(states))
-    def transfer(self, node: int, state_in: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
-        return self.checker.transfer_node(self.cfg[node], state_in)
-
-
 ########################################################################################
   
 
-class AnalogTypeChecker:
+class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
     def __init__(self):
         self.lattice = AnalogTypeLattice()
+        super().__init__(self.lattice)
+        self.cfg = None
         
     def leq(self, t1, t2):
         return self.lattice.leq(t1, t2)
     
-    
-    def join(self, t1, t2):
-        return self.lattice.join(t1, t2)
-    
-    
-    def meet(self, t1, t2):
-        return self.lattice.meet(t1, t2)
-    
-
-    def merge_envs(self, pred_envs):
-        if not pred_envs:
-            return {}
-        
-        all_keys = set().union(*(env.keys() for env in pred_envs))
-            
-        merged = {}
-        for name in all_keys:
-            t = LatticeBottom
-            for env in pred_envs:
-                t = self.join(t, env.get(name, LatticeBottom))
-            merged[name] = t
-        
-        return merged
-        
-    
-    def transfer_node(self, node, in_env):
-        stmt = node.stmt
+    def transfer(self, node_id, state_in):
+        cfg_node = self.cfg[node_id]
+        stmt = cfg_node.stmt
         if isinstance(stmt, str):
-            return dict(in_env)
-        if node.kind == "branch":
-            condition_t = self.infer_expr(stmt, in_env)
+            return dict(state_in)
+        if cfg_node.kind == "branch":
+            condition_t = self.infer_expr(stmt, state_in)
             if condition_t is not TBool:
                 raise AnalogTypeError("branch condition must be bool")
-            return dict(in_env)
+            return dict(state_in)
         if isinstance(stmt, Declaration):
-            out_env = dict(in_env)
-            out_env[stmt.name] = self.infer_expr(stmt.value, in_env)
-            return out_env
+            state_out = dict(state_in)
+            state_out[stmt.name] = self.infer_expr(stmt.value, state_in)
+            return state_out
         if isinstance(stmt, (Break, Continue)):
-            return dict(in_env)
-        self.infer_expr(stmt, in_env)
-        return dict(in_env)
+            return dict(state_in)
+        self.infer_expr(stmt, state_in)
+        return dict(state_in)
     
     
     def analyze_dataflow(self, cfg: CFGNode):
-        start_id = next(nid for nid, node in cfg.items() if node.kind == "start")
-        analysis = AnalogForwardDataflow(self, cfg, start_id)
-        result = analysis.analyze(AnalogCFG(cfg))
+        self.cfg = cfg
+        try:
+            return self.analyze(AnalogCFG(cfg))
+        except Exception as e:
+            raise AnalogTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
         
-        return {
-            "cfg": {nid: node.to_dict() for nid, node in cfg.items()},
-            "in": {
-                nid: {name: type_name(t) for name, t in env.items()}
-                for nid, env in result.in_states.items()
-            },
-            "out": {
-                nid: {name: type_name(t) for name, t in env.items()}
-                for nid, env in result.out_states.items()
-            },
-        }
         
-    
     def infer_expr(self, expr, env):
         if not isinstance(expr, EXPR_NODE_TYPES):
             raise AnalogTypeError(f"Unsupported expression node: {type(expr).__name__}")
@@ -338,7 +291,7 @@ class AnalogTypeChecker:
             
             t = self.infer_expr(expr.values[0], env)
             for v in expr.values[1:]:
-                t = self.join(t, self.infer_expr(v, env))
+                t = self.lattice.join(t, self.infer_expr(v, env))
             return TList(elem=t)
         
         if isinstance(expr, Extract):
