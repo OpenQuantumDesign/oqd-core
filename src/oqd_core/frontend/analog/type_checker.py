@@ -19,7 +19,10 @@ from dataclasses import dataclass
 from types import UnionType
 from typing import Annotated, Iterable, Union, get_args, get_origin
 
-from oqd_compiler_infrastructure.dataflow import MapForwardDataflowAnalysis
+from oqd_compiler_infrastructure.dataflow import (
+    DataflowResult,
+    MapForwardDataflowAnalysis,
+)
 from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
 
 from oqd_core.analysis.utils import CFGNode
@@ -69,9 +72,11 @@ from oqd_core.interface.analog.expr import Annihilation, Creation, Identity, Ter
 ########################################################################################
 
 class AnalogTypeError(TypeError):
+    """Type Error class for Analog."""
     pass
 
 def alias_types(alias):
+    """Flatten `Annotated`/`Union` aliases into a tuple of concrete Python types."""
     origin = get_origin(alias)
     if origin is Annotated:
         return alias_types(get_args(alias)[0])
@@ -91,14 +96,15 @@ TERMINAL_NODE_TYPES = alias_types(Terminal)
 
 ########################################################################################
 
-
 @dataclass
 class TList(LatticeTop):
+    """Lattice value representing a list."""
     elem: LatticeValue
 
 LatticeValue = Union[TList, type[LatticeTop]]
 
 def type_name(t: LatticeValue) -> str:
+    """Format a lattice value into a readable type name for error messages."""
     if isinstance(t, TList):
         return f"TList[{type_name(t.elem)}]"
     if isinstance(t, type) and issubclass(t, LatticeTop):
@@ -138,6 +144,7 @@ class TMRef(TTargetRef):
 
 
 class AnalogTypeLattice(LatticeBase[LatticeValue]):
+    """Type lattice for analog expressions."""
     def __init__(self):
         super().__init__()
         self.add_node(TAnalog, LatticeTop)
@@ -166,7 +173,7 @@ class AnalogTypeLattice(LatticeBase[LatticeValue]):
         if self.leq(t2, t1):
             return t1
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.lattice.join(t1.elem, t2.elem))
+            return TList(elem=self.join(t1.elem, t2.elem))
         if isinstance(t1, TList) or isinstance(t2, TList):
             return TAnalog
         return super().join(t1, t2)
@@ -177,10 +184,14 @@ class AnalogTypeLattice(LatticeBase[LatticeValue]):
         if self.leq(t2, t1):
             return t2
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.lattice.meet(t1.elem, t2.elem))
+            return TList(elem=self.meet(t1.elem, t2.elem))
         return super().meet(t1, t2)
 
 
+########################################################################################
+
+
+# Binary expression signature table: node -> ((left_type, right_type), output_type)
 BIN_SIG_TABLE = {
     MathAdd: ((TScalar, TScalar), TScalar),
     MathSub: ((TScalar, TScalar), TScalar),
@@ -197,6 +208,8 @@ BIN_SIG_TABLE = {
     BoolGreaterThanEq: ((TScalar, TScalar), TBool),
 }
 
+
+# Operator expression signatures
 OP_TABLE = {
     OperatorAdd: ((TOp, TOp), TOp),
     OperatorSub: ((TOp, TOp), TOp),
@@ -204,6 +217,7 @@ OP_TABLE = {
 }
 
 
+# Allowed type pairs for OperatorMul
 OPMUL_ALLOWED = {
     (TOp, TOp): TOp,
     (TOp, TScalar): TOp,
@@ -215,6 +229,7 @@ OPMUL_ALLOWED = {
 
 
 class AnalogCFG:
+    """Presents CFGNode with the GraphProtocol required by DataflowAnalysis."""
     def __init__(self, cfg: CFGNode):
         self.cfg = cfg
     def nodes(self) -> Iterable[int]:
@@ -229,15 +244,18 @@ class AnalogCFG:
   
 
 class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
+    """Forward dataflow type checker over the analog CFG."""
     def __init__(self):
         self.lattice = AnalogTypeLattice()
         super().__init__(self.lattice)
-        self.cfg = None
-        
-    def leq(self, t1, t2):
+        self.cfg: CFGNode | None = None
+    
+    
+    def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
         return self.lattice.leq(t1, t2)
     
-    def transfer(self, node_id, state_in):
+    
+    def transfer(self, node_id: int, state_in: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
         cfg_node = self.cfg[node_id]
         stmt = cfg_node.stmt
         if isinstance(stmt, str):
@@ -257,7 +275,7 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
         return dict(state_in)
     
     
-    def analyze_dataflow(self, cfg: CFGNode):
+    def analyze_dataflow(self, cfg: CFGNode) -> DataflowResult[int, dict[str, LatticeValue]]:
         self.cfg = cfg
         try:
             return self.analyze(AnalogCFG(cfg))
@@ -265,7 +283,7 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
             raise AnalogTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
         
         
-    def infer_expr(self, expr, env):
+    def infer_expr(self, expr: type, env: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
         if not isinstance(expr, EXPR_NODE_TYPES):
             raise AnalogTypeError(f"Unsupported expression node: {type(expr).__name__}")
 
