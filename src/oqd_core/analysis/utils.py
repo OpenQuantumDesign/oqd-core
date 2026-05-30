@@ -51,7 +51,8 @@ class ControlFlowGraph(GraphProtocol[int]):
 
 class CFGNode:
     """Represents one control flow node with incoming / outgoing edges and metadata."""
-    def __init__(self, register_id, stmt,  preds = None, kind = "stmt"):
+    def __init__(self, register_id: int, stmt: object,  preds: Iterable[CFGNode] | None = None, \
+        kind: str = "stmt") -> None:
         self.register_id = register_id
         self.stmt = stmt
         self.preds = list(preds) if preds is not None else []
@@ -60,22 +61,22 @@ class CFGNode:
         self.exit_nodes = []
         self.edge_labels = {}
     
-    def add_succ(self, succ, label=None):
+    def add_succ(self, succ: CFGNode, label: str | None = None) -> None:
         if succ not in self.succs:
             self.succs.append(succ)
         if label is not None:
             self.edge_labels[succ.register_id] = label
 
-    def add_pred(self, pred, label=None):
+    def add_pred(self, pred: CFGNode, label: str | None = None) -> None:
         if pred not in self.preds:
             self.preds.append(pred)
         pred.add_succ(self, label=label)
 
-    def add_preds(self, preds, label=None):
+    def add_preds(self, preds: Iterable[CFGNode], label: str | None = None) -> None:
         for pred in preds:
             self.add_pred(pred, label=label)
     
-    def to_dict(self):
+    def to_dict(self) -> dict[str, object]:
         if isinstance(self.stmt, str):
             stmt_repr = self.stmt
         elif hasattr(self.stmt, "class_"):
@@ -101,7 +102,7 @@ class SCCAnalysis:
     Tarjan's algorithm to identify strongly connected components (SCCs)
     of the CFG and check for infinite loops in the program.
     """
-    def __init__(self, graph: ControlFlowGraph):
+    def __init__(self, graph: ControlFlowGraph) -> None:
         self.cfg = graph.cfg_nodes
         self.time = 0
         self.disc = {nid: -1 for nid in self.cfg}
@@ -110,7 +111,7 @@ class SCCAnalysis:
         self.stack = []
         self.sccs = []
     
-    def dfs(self, u):
+    def dfs(self, u: int) -> None:
         self.disc[u] = self.time
         self.low[u] = self.time
         self.time += 1
@@ -133,13 +134,13 @@ class SCCAnalysis:
                     break
             self.sccs.append(comp)
 
-    def run(self):
+    def run(self) -> list[set[int]]:
         for nid in self.cfg:
             if self.disc[nid] == -1:
                 self.dfs(nid)
         return self.sccs
     
-    def edge_feasible(self, src, dst_id):
+    def edge_feasible(self, src: CFGNode, dst_id: int) -> bool:
         if src.kind == "branch":
             label = src.edge_labels.get(dst_id)
             if src.stmt.value is True and label == "false":
@@ -148,7 +149,7 @@ class SCCAnalysis:
                 return False
         return True
     
-    def infinite_loop_check(self):
+    def infinite_loop_check(self) -> None:
         sccs = self.run()
         stop_ids = {nid for nid, node in self.cfg.items() if node.kind == "stop"}
         for comp in sccs:

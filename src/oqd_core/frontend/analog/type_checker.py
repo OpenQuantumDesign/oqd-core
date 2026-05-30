@@ -211,7 +211,7 @@ OPMUL_ALLOWED = {
 
 class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
     """Forward dataflow type checker over the analog CFG."""
-    def __init__(self, graph: ControlFlowGraph):
+    def __init__(self, graph: ControlFlowGraph) -> None:
         self.lattice = AnalogTypeLattice()
         super().__init__(self.lattice)
         self.cfg_nodes = graph.cfg_nodes
