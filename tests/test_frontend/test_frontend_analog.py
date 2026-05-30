@@ -451,9 +451,8 @@ class TestAnalogTypeChecker:
     )
     def test_analog_type_checker(self, program):
         circuit = parse_analog(program)
-        checker = AnalogTypeChecker()
         cfg = AnalogCFGBuilder().run(circuit)
-        checker.analyze_dataflow(cfg)
+        AnalogTypeChecker(cfg)
         
     @pytest.mark.parametrize(
         "program",
@@ -472,9 +471,8 @@ class TestAnalogTypeChecker:
     def test_analog_type_checker_error(self, program):
         circuit = parse_analog(program)
         with pytest.raises(AnalogTypeError):
-            checker = AnalogTypeChecker()
             cfg = AnalogCFGBuilder().run(circuit)
-            checker.analyze_dataflow(cfg)
+            AnalogTypeChecker(cfg)
         
 
     

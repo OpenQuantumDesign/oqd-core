@@ -16,8 +16,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from types import UnionType
-from typing import Annotated, Iterable, Union, get_args, get_origin
+from typing import Union
 
 from oqd_compiler_infrastructure.dataflow import (
     DataflowResult,
@@ -25,7 +24,7 @@ from oqd_compiler_infrastructure.dataflow import (
 )
 from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
 
-from oqd_core.analysis.utils import CFGNode
+from oqd_core.analysis.utils import ControlFlowGraph, alias_types
 from oqd_core.interface.analog import (
     Access,
     AnalogExprSubtypes,
@@ -75,26 +74,8 @@ class AnalogTypeError(TypeError):
     """Type Error class for Analog."""
     pass
 
-def alias_types(alias):
-    """Flatten `Annotated`/`Union` aliases into a tuple of concrete Python types."""
-    origin = get_origin(alias)
-    if origin is Annotated:
-        return alias_types(get_args(alias)[0])
-    
-    if origin in (Union, UnionType):
-        out: list[type] = []
-        for arg in get_args(alias):
-            out.extend(alias_types(arg))
-        return tuple(dict.fromkeys(out))
-    
-    if isinstance(alias, type):
-        return (alias,)
-    return ()
-
 EXPR_NODE_TYPES = alias_types(AnalogExprSubtypes)
 TERMINAL_NODE_TYPES = alias_types(Terminal)
-
-########################################################################################
 
 @dataclass
 class TList(LatticeTop):
@@ -226,29 +207,19 @@ OPMUL_ALLOWED = {
 
 
 ########################################################################################
-
-
-class AnalogCFG:
-    """Presents CFGNode with the GraphProtocol required by DataflowAnalysis."""
-    def __init__(self, cfg: CFGNode):
-        self.cfg = cfg
-    def nodes(self) -> Iterable[int]:
-        return self.cfg.keys()
-    def predecessors(self, node: int) -> Iterable[int]:
-        return (pred.register_id for pred in self.cfg[node].preds)
-    def successors(self, node: int) -> Iterable[int]:
-        return (succ.register_id for succ in self.cfg[node].succs)
-
-
-########################################################################################
   
 
 class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
     """Forward dataflow type checker over the analog CFG."""
-    def __init__(self):
+    def __init__(self, graph: ControlFlowGraph):
         self.lattice = AnalogTypeLattice()
         super().__init__(self.lattice)
-        self.cfg: CFGNode | None = None
+        self.cfg_nodes = graph.cfg_nodes
+        self.result : DataflowResult[int, dict[str, LatticeValue]] | None = None
+        try:
+            self.result = self.analyze(graph)
+        except Exception as e:
+            raise AnalogTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
     
     
     def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
@@ -256,7 +227,7 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
     
     
     def transfer(self, node_id: int, state_in: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
-        cfg_node = self.cfg[node_id]
+        cfg_node = self.cfg_nodes[node_id]
         stmt = cfg_node.stmt
         if isinstance(stmt, str):
             return dict(state_in)
@@ -273,15 +244,7 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
             return dict(state_in)
         self.infer_expr(stmt, state_in)
         return dict(state_in)
-    
-    
-    def analyze_dataflow(self, cfg: CFGNode) -> DataflowResult[int, dict[str, LatticeValue]]:
-        self.cfg = cfg
-        try:
-            return self.analyze(AnalogCFG(cfg))
-        except Exception as e:
-            raise AnalogTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
-        
+
         
     def infer_expr(self, expr: type, env: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
         if not isinstance(expr, EXPR_NODE_TYPES):
@@ -390,7 +353,6 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
                 raise AnalogTypeError(f"{type(expr).__name__} expects bool, got {type_name(t)}")
             return TBool
         
-        
         if isinstance(expr, (Initialize, Measure)):
             t = self.infer_expr(expr.targets, env)
             if isinstance(t, TList):
@@ -399,7 +361,6 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
             elif not self.leq(t, TTarget):
                 raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(t)}")
             return TAnalog
-        
         
         if isinstance(expr, Evolve):
             target_t = self.infer_expr(expr.targets, env)

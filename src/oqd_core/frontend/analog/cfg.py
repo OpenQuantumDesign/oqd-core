@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from oqd_compiler_infrastructure import RewriteRule
 
-from oqd_core.analysis.utils import CFGNode
+from oqd_core.analysis.utils import CFGNode, ControlFlowGraph
 from oqd_core.interface.analog import (
     AnalogCircuit,
     Break,
@@ -77,7 +77,7 @@ class AnalogCFGBuilder(RewriteRule):
             first = False
         return pred
     
-    def run(self, circuit: AnalogCircuit):
+    def run(self, circuit: AnalogCircuit) -> ControlFlowGraph:
         self.registry = 0
         self.cache = {}
         self.loop_stack = []
@@ -86,7 +86,7 @@ class AnalogCFGBuilder(RewriteRule):
         self.founder = self.new_node([], "start", kind="start")
         exits = self.walk_stmt(circuit, [self.founder])
         self.last_node = self.new_node(exits, "stop", kind="stop")
-        return self.cache
+        return ControlFlowGraph(self.cache)
     
     def map_AnalogCircuit(self, model: AnalogCircuit):
         return self.walk_block(model.statements, self.preds)

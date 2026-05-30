@@ -12,9 +12,45 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
+from types import UnionType
+from typing import Annotated, Iterable, Union, get_args, get_origin
+
+from oqd_compiler_infrastructure.dataflow import GraphProtocol
+
+
+def alias_types(alias: object) -> tuple[type, ...]:
+    """Flatten `Annotated`/`Union` aliases into a tuple of concrete Python types."""
+    origin = get_origin(alias)
+    if origin is Annotated:
+        return alias_types(get_args(alias)[0])
+    
+    if origin in (Union, UnionType):
+        out: list[type] = []
+        for arg in get_args(alias):
+            out.extend(alias_types(arg))
+        return tuple(dict.fromkeys(out))
+    
+    if isinstance(alias, type):
+        return (alias,)
+    return ()
+
+
+class ControlFlowGraph(GraphProtocol[int]):
+    """Defines a Control Flow Graph (CFG) with the GraphProtocol required by DataflowAnalysis."""
+    def __init__(self, cfg_nodes: CFGNode):
+        self.cfg_nodes = cfg_nodes
+    def nodes(self) -> Iterable[int]:
+        return self.cfg_nodes.keys()
+    def predecessors(self, node: int) -> Iterable[int]:
+        return (pred.register_id for pred in self.cfg_nodes[node].preds)
+    def successors(self, node: int) -> Iterable[int]:
+        return (succ.register_id for succ in self.cfg_nodes[node].succs)
 
 
 class CFGNode:
+    """Represents one control flow node with incoming / outgoing edges and metadata."""
     def __init__(self, register_id, stmt,  preds = None, kind = "stmt"):
         self.register_id = register_id
         self.stmt = stmt
@@ -60,15 +96,17 @@ class CFGNode:
         }
 
 
-
-
 class SCCAnalysis:
-    def __init__(self, cfg):
-        self.cfg = cfg
+    """
+    Tarjan's algorithm to identify strongly connected components (SCCs)
+    of the CFG and check for infinite loops in the program.
+    """
+    def __init__(self, graph: ControlFlowGraph):
+        self.cfg = graph.cfg_nodes
         self.time = 0
-        self.disc = {nid: -1 for nid in cfg}
-        self.low = {nid: -1 for nid in cfg}
-        self.on_stack = {nid: False for nid in cfg}
+        self.disc = {nid: -1 for nid in self.cfg}
+        self.low = {nid: -1 for nid in self.cfg}
+        self.on_stack = {nid: False for nid in self.cfg}
         self.stack = []
         self.sccs = []
     
