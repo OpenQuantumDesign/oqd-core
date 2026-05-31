@@ -1531,7 +1531,7 @@ wheels = [
 [[package]]
 name = "oqd-compiler-infrastructure"
 version = "0.1.0"
-source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure?branch=dataflow#9c57ef6e2e521e663d0aff4142bb011991864ccc" }
+source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure?branch=dataflow#21bed6d1f7c5c8a749aec2c021e0268de1f1ab8d" }
 dependencies = [
     { name = "ast-comments" },
     { name = "pydantic" },
