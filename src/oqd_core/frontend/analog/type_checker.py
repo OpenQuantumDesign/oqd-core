@@ -213,7 +213,6 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
     """Forward dataflow type checker over the analog CFG."""
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.lattice = AnalogTypeLattice()
-        super().__init__(self.lattice)
         self.cfg_nodes = graph.cfg_nodes
         self.result : DataflowResult[int, dict[str, LatticeValue]] | None = None
         try:
