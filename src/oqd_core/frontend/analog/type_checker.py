@@ -20,9 +20,14 @@ from typing import Union
 
 from oqd_compiler_infrastructure.dataflow import (
     DataflowResult,
-    MapForwardDataflowAnalysis,
+    ForwardDataflowAnalysis,
 )
-from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
+from oqd_compiler_infrastructure.lattice import (
+    LatticeBase,
+    LatticeBottom,
+    LatticeTop,
+    MapLattice,
+)
 
 from oqd_core.analysis.utils import ControlFlowGraph, alias_types
 from oqd_core.interface.analog import (
@@ -209,10 +214,11 @@ OPMUL_ALLOWED = {
 ########################################################################################
   
 
-class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
+class AnalogTypeChecker(ForwardDataflowAnalysis[int, LatticeValue]):
     """Forward dataflow type checker over the analog CFG."""
     def __init__(self, graph: ControlFlowGraph) -> None:
-        self.lattice = AnalogTypeLattice()
+        self.value_lattice = AnalogTypeLattice()
+        self.lattice = MapLattice(self.value_lattice)
         self.cfg_nodes = graph.cfg_nodes
         self.result : DataflowResult[int, dict[str, LatticeValue]] | None = None
         try:
@@ -222,7 +228,7 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
     
     
     def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
-        return self.lattice.leq(t1, t2)
+        return self.value_lattice.leq(t1, t2)
     
     
     def transfer(self, node_id: int, state_in: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
@@ -271,7 +277,7 @@ class AnalogTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
             
             t = self.infer_expr(expr.values[0], env)
             for v in expr.values[1:]:
-                t = self.lattice.join(t, self.infer_expr(v, env))
+                t = self.value_lattice.join(t, self.infer_expr(v, env))
             return TList(elem=t)
         
         if isinstance(expr, Extract):
