@@ -16,12 +16,20 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from types import UnionType
-from typing import Annotated, Iterable, Union, get_args, get_origin
+from typing import Union
 
-from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeBottom, LatticeTop
+from oqd_compiler_infrastructure.dataflow import (
+    DataflowResult,
+    ForwardDataflowAnalysis,
+)
+from oqd_compiler_infrastructure.lattice import (
+    LatticeBase,
+    LatticeBottom,
+    LatticeTop,
+    MapLattice,
+)
 
-from oqd_core.analysis.utils import CFGNode
+from oqd_core.analysis.utils import ControlFlowGraph, alias_types
 from oqd_core.interface.atomic import (
     Access,
     AtomicExprSubtypes,
@@ -57,32 +65,11 @@ from oqd_core.interface.atomic import (
     Terminal,
 )
 
-from .dataflow import (
-    DataflowResult,
-    MapForwardDataflowAnalysis,
-)
-
 ########################################################################################
 
 class AtomicTypeError(TypeError):
     """Type Error class for Atomic."""
     pass
-
-def alias_types(alias):
-    """Flatten `Annotated`/`Union` aliases into a tuple of concrete Python types."""
-    origin = get_origin(alias)
-    if origin is Annotated:
-        return alias_types(get_args(alias)[0])
-    
-    if origin in (Union, UnionType):
-        out: list[type] = []
-        for arg in get_args(alias):
-            out.extend(alias_types(arg))
-        return tuple(dict.fromkeys(out))
-    
-    if isinstance(alias, type):
-        return (alias,)
-    return ()
 
 EXPR_NODE_TYPES = alias_types(AtomicExprSubtypes)
 TERMINAL_NODE_TYPES = alias_types(Terminal)
@@ -202,33 +189,25 @@ BIN_SIG_TABLE = {
 ########################################################################################
 
 
-class AtomicCFG:
-    def __init__(self, cfg: CFGNode):
-        self.cfg = cfg
-    def nodes(self) -> Iterable[int]:
-        return self.cfg.keys()
-    def predecessors(self, node: int) -> Iterable[int]:
-        return (pred.register_id for pred in self.cfg[node].preds)
-    def successors(self, node: int) -> Iterable[int]:
-        return (succ.register_id for succ in self.cfg[node].succs)
-
-
-########################################################################################
-
-
-class AtomicTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
+class AtomicTypeChecker(ForwardDataflowAnalysis[int, LatticeValue]):
     """Forward dataflow type checker over the CFG."""
-    def __init__(self):
-        self.lattice = AtomicTypeLattice()
-        super().__init__(self.lattice)
-        self.cfg: CFGNode | None = None
+    def __init__(self, graph: ControlFlowGraph) -> None:
+        self.value_lattice = AtomicTypeLattice()
+        self.lattice = MapLattice(self.value_lattice)
+        self.cfg_nodes = graph.cfg_nodes
+        self.result : DataflowResult[int, dict[str, LatticeValue]] | None = None
+        try:
+            self.result = self.analyze(graph)
+        except Exception as e:
+            raise AtomicTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
+    
         
     def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
-        return self.lattice.leq(t1, t2)
+        return self.value_lattice.leq(t1, t2)
         
     
     def transfer(self, node_id: int, state_in: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
-        cfg_node = self.cfg[node_id]
+        cfg_node = self.cfg_nodes[node_id]
         stmt = cfg_node.stmt
         if isinstance(stmt, str):
             return dict(state_in)
@@ -258,15 +237,7 @@ class AtomicTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
             return dict(state_in)
         self.infer_expr(stmt, state_in)
         return dict(state_in)
-    
-    
-    def analyze_dataflow(self, cfg: CFGNode) -> DataflowResult[int, dict[str, LatticeValue]]:
-        self.cfg = cfg
-        try:
-            return self.analyze(AtomicCFG(cfg))
-        except Exception as e:
-            raise AtomicTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
-        
+
     
     def infer_expr(self, expr: type, env: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
         if not isinstance(expr, EXPR_NODE_TYPES):
@@ -290,7 +261,7 @@ class AtomicTypeChecker(MapForwardDataflowAnalysis[int, LatticeValue]):
             
             t = self.infer_expr(expr.values[0], env)
             for v in expr.values[1:]:
-                t = self.lattice.join(t, self.infer_expr(v, env))
+                t = self.value_lattice.join(t, self.infer_expr(v, env))
             return TList(elem=t)
         
         if isinstance(expr, Extract):

@@ -432,9 +432,8 @@ class TestAtomicTypeChecker:
     )
     def test_atomic_type_checker(self, program):
         circuit = parse_atomic(program)
-        checker = AtomicTypeChecker()
         cfg = AtomicCFGBuilder().run(circuit)
-        checker.analyze_dataflow(cfg)
+        AtomicTypeChecker(cfg)
         
     @pytest.mark.parametrize(
         "program",
@@ -454,9 +453,8 @@ class TestAtomicTypeChecker:
     def test_atomic_type_checker_error(self, program):
         circuit = parse_atomic(program)
         with pytest.raises(AtomicTypeError):
-            checker = AtomicTypeChecker()
             cfg = AtomicCFGBuilder().run(circuit)
-            checker.analyze_dataflow(cfg)
+            AtomicTypeChecker(cfg)
         
 
     
