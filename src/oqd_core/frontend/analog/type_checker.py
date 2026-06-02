@@ -26,7 +26,7 @@ from oqd_compiler_infrastructure.lattice import (
     LatticeBase,
     LatticeBottom,
     LatticeTop,
-    MapLattice,
+    maplattice,
 )
 
 from oqd_core.analysis.utils import ControlFlowGraph, alias_types
@@ -85,11 +85,11 @@ TERMINAL_NODE_TYPES = alias_types(Terminal)
 @dataclass
 class TList(LatticeTop):
     """Lattice value representing a list."""
-    elem: LatticeValue
+    elem: TLatticeValue
 
-LatticeValue = Union[TList, type[LatticeTop]]
+TLatticeValue = Union[TList, type[LatticeTop]]
 
-def type_name(t: LatticeValue) -> str:
+def type_name(t: TLatticeValue) -> str:
     """Format a lattice value into a readable type name for error messages."""
     if isinstance(t, TList):
         return f"TList[{type_name(t.elem)}]"
@@ -129,22 +129,10 @@ class TMRef(TTargetRef):
     pass
 
 
-class AnalogTypeLattice(LatticeBase[LatticeValue]):
+class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for analog expressions."""
-    def __init__(self):
-        super().__init__()
-        self.add_node(TAnalog, LatticeTop)
-        self.add_node(TScalar, TAnalog)
-        self.add_node(TBool, TAnalog)
-        self.add_node(TOp, TAnalog)
-        self.add_node(TTarget, TAnalog)
-        self.add_node(TTargetRef, TTarget)
-        self.add_node(TQReg, TTarget)
-        self.add_node(TMReg, TTarget)
-        self.add_node(TQRef, TTargetRef)
-        self.add_node(TMRef, TTargetRef)
-    
-    def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
+
+    def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
         if t1 is LatticeBottom:
             return True
         if isinstance(t1, TList) and isinstance(t2, TList):
@@ -153,7 +141,7 @@ class AnalogTypeLattice(LatticeBase[LatticeValue]):
             return False
         return super().leq(t1, t2)
     
-    def join(self, t1: LatticeValue, t2: LatticeValue) -> LatticeValue:
+    def join(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
         if self.leq(t1, t2):
             return t2
         if self.leq(t2, t1):
@@ -164,7 +152,7 @@ class AnalogTypeLattice(LatticeBase[LatticeValue]):
             return TAnalog
         return super().join(t1, t2)
     
-    def meet(self, t1: LatticeValue, t2: LatticeValue) -> LatticeValue:
+    def meet(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
         if self.leq(t1, t2):
             return t1
         if self.leq(t2, t1):
@@ -212,46 +200,47 @@ OPMUL_ALLOWED = {
 
 
 ########################################################################################
-  
 
-class AnalogTypeChecker(ForwardDataflowAnalysis[int, LatticeValue]):
+
+class AnalogTypeChecker(ForwardDataflowAnalysis[int, TLatticeValue]):
     """Forward dataflow type checker over the analog CFG."""
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.value_lattice = AnalogTypeLattice()
-        self.lattice = MapLattice(self.value_lattice)
+        self.lattice = maplattice(AnalogTypeLattice)()
         self.cfg_nodes = graph.cfg_nodes
-        self.result : DataflowResult[int, dict[str, LatticeValue]] | None = None
+        self.result : DataflowResult[int, dict[str, TLatticeValue]] | None = None
         try:
             self.result = self.analyze(graph)
         except Exception as e:
             raise AnalogTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
     
     
-    def leq(self, t1: LatticeValue, t2: LatticeValue) -> bool:
+    def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
         return self.value_lattice.leq(t1, t2)
     
     
-    def transfer(self, node_id: int, state_in: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
+    def transfer(self, node_id: int, state_in: dict[str, TLatticeValue]) -> dict[str, TLatticeValue]:
+        env = {} if state_in is LatticeBottom else dict(state_in)
         cfg_node = self.cfg_nodes[node_id]
         stmt = cfg_node.stmt
         if isinstance(stmt, str):
-            return dict(state_in)
+            return env
         if cfg_node.kind == "branch":
-            condition_t = self.infer_expr(stmt, state_in)
+            condition_t = self.infer_expr(stmt, env)
             if condition_t is not TBool:
                 raise AnalogTypeError("branch condition must be bool")
-            return dict(state_in)
+            return env
         if isinstance(stmt, Declaration):
-            state_out = dict(state_in)
-            state_out[stmt.name] = self.infer_expr(stmt.value, state_in)
+            state_out = dict(env)
+            state_out[stmt.name] = self.infer_expr(stmt.value, env)
             return state_out
         if isinstance(stmt, (Break, Continue)):
-            return dict(state_in)
-        self.infer_expr(stmt, state_in)
-        return dict(state_in)
+            return env
+        self.infer_expr(stmt, env)
+        return env
 
         
-    def infer_expr(self, expr: type, env: dict[str, LatticeValue]) -> dict[str, LatticeValue]:
+    def infer_expr(self, expr: type, env: dict[str, TLatticeValue]) -> dict[str, TLatticeValue]:
         if not isinstance(expr, EXPR_NODE_TYPES):
             raise AnalogTypeError(f"Unsupported expression node: {type(expr).__name__}")
 
