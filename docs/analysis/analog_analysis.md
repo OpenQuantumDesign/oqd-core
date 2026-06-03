@@ -31,4 +31,4 @@ The output of the type checker is stored in `type_checker.result`.
 
 ## Strongly Connected Components (SCC)
 
-The `SCCAnalysis` class identifies the strongly connected components of the CFG to check for infinite loops in the program. The implementation follows [Tarjan's algorithm](https://www.geeksforgeeks.org/dsa/tarjan-algorithm-find-strongly-connected-components/).
+The `AnalogSCC` class identifies the strongly connected components of the CFG to check for infinite loops in the program. The implementation follows [Tarjan's algorithm](https://www.geeksforgeeks.org/dsa/tarjan-algorithm-find-strongly-connected-components/).

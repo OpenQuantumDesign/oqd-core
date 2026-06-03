@@ -1,6 +1,6 @@
 # Copyright 2024-2025 Open Quantum Design
 
-# Licensed under the Apache License, Version 2.0 (the "License")
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
@@ -20,6 +20,7 @@ from oqd_compiler_infrastructure import RewriteRule
 from oqd_core.analysis.utils import CFGNode, ControlFlowGraph
 from oqd_core.interface.atomic import (
     AtomicCircuit,
+    Bool,
     Break,
     Continue,
     IfElse,
@@ -141,4 +142,98 @@ class AtomicCFGBuilder(RewriteRule):
     def generic_map(self, model):
         return [self.new_node(self.preds, model)]
     
+
+class AtomicSCC:
+    """
+    Tarjan's algorithm to identify strongly connected components (SCCs)
+    of the CFG and check for infinite loops in the program.
+    """
+    def __init__(self, graph: ControlFlowGraph) -> None:
+        self.cfg = graph.cfg_nodes
+        self.time = 0
+        self.disc = {nid: -1 for nid in self.cfg}
+        self.low = {nid: -1 for nid in self.cfg}
+        self.on_stack = {nid: False for nid in self.cfg}
+        self.stack = []
+        self.sccs = []
+    
+    def dfs(self, u: int) -> None:
+        self.disc[u] = self.time
+        self.low[u] = self.time
+        self.time += 1
+        self.stack.append(u)
+        self.on_stack[u] = True
+        for succ in self.cfg[u].succs:
+            v = succ.register_id
+            if self.disc[v] == -1:
+                self.dfs(v)
+                self.low[u] = min(self.low[u], self.low[v])
+            elif self.on_stack[v]:
+                self.low[u] = min(self.low[u], self.disc[v])
+        if self.low[u] == self.disc[u]:
+            comp = set()
+            while True:
+                w = self.stack.pop()
+                self.on_stack[w] = False
+                comp.add(w)
+                if w == u:
+                    break
+            self.sccs.append(comp)
+
+    def run(self) -> list[set[int]]:
+        for nid in self.cfg:
+            if self.disc[nid] == -1:
+                self.dfs(nid)
+        return self.sccs
+    
+    def edge_feasible(self, src: CFGNode, dst_id: int) -> bool:
+        if src.kind == "branch":
+            label = src.edge_labels.get(dst_id)
+            if isinstance(src.stmt, Bool):
+                if src.stmt.value is True and label == "false":
+                    return False
+                if src.stmt.value is False and label == "true":
+                    return False
+        return True
+    
+    def infinite_loop_check(self) -> None:
+        sccs = self.run()
+        stop_ids = {nid for nid, node in self.cfg.items() if node.kind == "stop"}
+        for comp in sccs:
+            has_cycle = len(comp) > 1 or any(
+                succ.register_id == nid
+                for nid in comp
+                for succ in self.cfg[nid].succs
+            )
+            if not has_cycle:
+                continue
+
+            has_exit = any(
+                (succ.register_id not in comp) and self.edge_feasible(self.cfg[nid], succ.register_id)
+                for nid in comp
+                for succ in self.cfg[nid].succs
+            )
+            
+            stack = list(comp)
+            seen = set(comp)
+            can_reach_stop = False
+            while stack:
+                curr = stack.pop()
+                if curr in stop_ids:
+                    can_reach_stop = True
+                    break
+                for succ in self.cfg[curr].succs:
+                    sid = succ.register_id
+                    if not self.edge_feasible(self.cfg[curr], sid):
+                        continue
+                    if sid not in seen:
+                        seen.add(sid)
+                        stack.append(sid)
+
+            if not has_exit and not can_reach_stop:
+                raise TypeError(
+                    f"Infinite loop detected in circuit: {sorted(comp)}"
+                )
+
+
 

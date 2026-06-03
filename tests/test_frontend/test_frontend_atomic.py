@@ -14,11 +14,10 @@
 
 import pytest
 
-from oqd_core.analysis.utils import SCCAnalysis
+from oqd_core.analysis.atomic.cfg import AtomicCFGBuilder, AtomicSCC
+from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker, AtomicTypeError
 from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
-from oqd_core.frontend.atomic.cfg import AtomicCFGBuilder
 from oqd_core.frontend.atomic.serialize import serialize_atomic
-from oqd_core.frontend.atomic.type_checker import AtomicTypeChecker, AtomicTypeError
 from oqd_core.interface.atomic import (
     Access,
     AtomicCircuit,
@@ -402,7 +401,7 @@ class TestAtomicCFG:
         circuit = parse_atomic(program)
         cfg = AtomicCFGBuilder().run(circuit)
         with pytest.raises(TypeError):
-            SCCAnalysis(cfg).infinite_loop_check()
+            AtomicSCC(cfg).infinite_loop_check()
         
 
 ## Type Checker ##
@@ -416,6 +415,13 @@ class TestAtomicTypeChecker:
             parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
             "s = 5 * 4",
             "s = 5 + 2",
+            "s = 5 - 2",
+            "s = 6 / 2",
+            "s = 2 ^ 3",
+            "s = #omega + 1",
+            "s = 1j * 2",
+            "s = sin(1)",
+            "s = atan2(1, 2)",
             "cond = true and false",
             "cond = true and false \n if (cond) {t = 0.2}",
             "cond = true or false \n while (cond) {t = 0.2}",
@@ -428,6 +434,15 @@ class TestAtomicTypeChecker:
             p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
             "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             pulse(b, 1e-5, r[0], false)",
+            "c = 1 < 2",
+            "c = 3 >= 2",
+            "if (1 < 2) {x = 0}",
+            "if (5 <= 4) {s = true}",
+            "c = 1 == 2",
+            "c = true != false",
+            "c = not true",
+            "x = 1 \n x = 2 \n y = x + 1",
+            "n = 3 \n while (n > 0) { n = n - 1 }"
         ],
     )
     def test_atomic_type_checker(self, program):
@@ -439,6 +454,10 @@ class TestAtomicTypeChecker:
         "program",
         [   "r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, r, true)",
             "s = 5 * true",
+            "s = 5 - true",
+            "s = sin(true)",
+            "s = atan2(1, true)",
+            "s = 5 \n x = s[0]",
             "cond = true and 4",
             "cond = 5 \n if (cond) {t = 0.2}",
             "s = 5 \n r = ionreg(3) \n target = [r[0], r[1], r[2], s] \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, target, true)",
@@ -448,6 +467,12 @@ class TestAtomicTypeChecker:
             "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n }\n}",
             "r = true \n if (r) { \n r = 5} \n r = r + 2",
+            "c = 1 == true",
+            "c = true != 5",
+            "c = not 5",
+            "c = 5 and true",
+            "c = true < false",
+            "c = true \n x = c[0]",
         ],
     )
     def test_atomic_type_checker_error(self, program):

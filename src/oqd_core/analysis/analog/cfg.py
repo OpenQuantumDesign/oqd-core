@@ -134,7 +134,7 @@ class AnalogCFGBuilder(RewriteRule):
     
 
 
-class SCCAnalysis:
+class AnalogSCC:
     """
     Tarjan's algorithm to identify strongly connected components (SCCs)
     of the CFG and check for infinite loops in the program.
