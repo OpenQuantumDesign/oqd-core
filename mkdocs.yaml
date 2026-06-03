@@ -32,6 +32,10 @@ nav:
       - Atomic: grammar/atomic_grammar.md
   
   - Frontend:
+      - Analog: analysis/analog_analysis.md
+      - Atomic: analysis/atomic_analysis.md
+
+  - Analysis:
       - Analog: frontend/analog_frontend.md
       - Atomic: frontend/atomic_frontend.md
 
