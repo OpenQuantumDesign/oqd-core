@@ -14,10 +14,10 @@
 
 import pytest
 
-from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder, SCCAnalysis
-from oqd_core.frontend.analog.serialize import serialize_analog
 from oqd_core.analysis.analog.type_checker import AnalogTypeChecker, AnalogTypeError
+from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+from oqd_core.frontend.analog.serialize import serialize_analog
 from oqd_core.interface.analog import (
     Access,
     AnalogCircuit,

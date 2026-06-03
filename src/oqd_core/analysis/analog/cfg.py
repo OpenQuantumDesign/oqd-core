@@ -1,6 +1,6 @@
 # Copyright 2024-2025 Open Quantum Design
 
-# Licensed under the Apache License, Version 2.0 (the "License")
+# Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
 
@@ -20,11 +20,11 @@ from oqd_compiler_infrastructure import RewriteRule
 from oqd_core.analysis.utils import CFGNode, ControlFlowGraph
 from oqd_core.interface.analog import (
     AnalogCircuit,
+    Bool,
     Break,
     Continue,
     IfElse,
     While,
-    Bool
 )
 
 

@@ -1,6 +1,6 @@
-from .utils import CFGNode
 from .analog.cfg import AnalogCFGBuilder, SCCAnalysis
 from .analog.type_checker import AnalogTypeChecker, AnalogTypeError
+from .utils import CFGNode
 
 ########################################################################################
 __all__ = [
