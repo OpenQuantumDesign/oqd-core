@@ -14,7 +14,7 @@
 
 import pytest
 
-from oqd_core.analysis.analog.cfg import AnalogCFGBuilder, SCCAnalysis
+from oqd_core.analysis.analog.cfg import AnalogCFGBuilder, AnalogSCC
 from oqd_core.analysis.analog.type_checker import AnalogTypeChecker, AnalogTypeError
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 from oqd_core.frontend.analog.serialize import serialize_analog
@@ -426,7 +426,7 @@ class TestAnalogCFG:
         circuit = parse_analog(program)
         cfg = AnalogCFGBuilder().run(circuit)
         with pytest.raises(TypeError):
-            SCCAnalysis(cfg).infinite_loop_check()
+            AnalogSCC(cfg).infinite_loop_check()
         
 
 ## Type Checker ##

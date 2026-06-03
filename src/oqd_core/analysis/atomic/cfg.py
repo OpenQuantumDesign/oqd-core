@@ -18,17 +18,19 @@ from __future__ import annotations
 from oqd_compiler_infrastructure import RewriteRule
 
 from oqd_core.analysis.utils import CFGNode, ControlFlowGraph
-from oqd_core.interface.analog import (
-    AnalogCircuit,
+from oqd_core.interface.atomic import (
+    AtomicCircuit,
     Bool,
     Break,
     Continue,
     IfElse,
+    ParallelProtocol,
+    SerialProtocol,
     While,
 )
 
 
-class AnalogCFGBuilder(RewriteRule):
+class AtomicCFGBuilder(RewriteRule):
     def __init__(self):
         super().__init__()
         self.registry = 0
@@ -78,7 +80,7 @@ class AnalogCFGBuilder(RewriteRule):
             first = False
         return pred
     
-    def run(self, circuit: AnalogCircuit) -> ControlFlowGraph:
+    def run(self, circuit: AtomicCircuit) -> ControlFlowGraph:
         self.registry = 0
         self.cache = {}
         self.loop_stack = []
@@ -89,7 +91,7 @@ class AnalogCFGBuilder(RewriteRule):
         self.last_node = self.new_node(exits, "stop", kind="stop")
         return ControlFlowGraph(self.cache)
     
-    def map_AnalogCircuit(self, model: AnalogCircuit):
+    def map_AtomicCircuit(self, model: AtomicCircuit):
         return self.walk_block(model.statements, self.preds)
     
     def map_IfElse(self, model: IfElse):
@@ -129,12 +131,19 @@ class AnalogCFGBuilder(RewriteRule):
         self.loop_stack[-1].add_pred(continue_node, label="continue")
         return []
     
+    def map_ParallelProtocol(self, model: ParallelProtocol):
+        node = self.new_node(self.preds, model)
+        return self.walk_block(model.pulses, [node])
+    
+    def map_SerialProtocol(self, model: SerialProtocol):
+        node = self.new_node(self.preds, model)
+        return self.walk_block(model.pulses, [node])
+    
     def generic_map(self, model):
         return [self.new_node(self.preds, model)]
     
 
-
-class AnalogSCC:
+class AtomicSCC:
     """
     Tarjan's algorithm to identify strongly connected components (SCCs)
     of the CFG and check for infinite loops in the program.
@@ -225,5 +234,6 @@ class AnalogSCC:
                 raise TypeError(
                     f"Infinite loop detected in circuit: {sorted(comp)}"
                 )
+
 
 
