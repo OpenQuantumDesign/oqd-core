@@ -39,40 +39,41 @@ def alias_types(alias: object) -> tuple[type, ...]:
 
 class ControlFlowGraph(GraphProtocol[int]):
     """Defines a Control Flow Graph (CFG) with the GraphProtocol required by DataflowAnalysis."""
-    def __init__(self, cfg_nodes: CFGNode):
-        self.cfg_nodes = cfg_nodes
+    def __init__(self, blocks: dict[int, Block]):
+        self.blocks = blocks
     def nodes(self) -> Iterable[int]:
-        return self.cfg_nodes.keys()
+        return self.blocks.keys()
     def predecessors(self, node: int) -> Iterable[int]:
-        return (pred.register_id for pred in self.cfg_nodes[node].preds)
+        return (pred.register_id for pred in self.blocks[node].preds)
     def successors(self, node: int) -> Iterable[int]:
-        return (succ.register_id for succ in self.cfg_nodes[node].succs)
+        return (succ.register_id for succ in self.blocks[node].succs)
 
 
-class CFGNode:
+class Block:
     """Represents one control flow node with incoming / outgoing edges and metadata."""
-    def __init__(self, register_id: int, stmt: object,  preds: Iterable[CFGNode] | None = None, \
-        kind: str = "stmt") -> None:
+    def __init__(self, register_id: int, stmt: object,  preds: Iterable[Block] | None = None, \
+        kind: str = "stmt", scope: int = 0) -> None:
         self.register_id = register_id
         self.stmt = stmt
         self.preds = list(preds) if preds is not None else []
         self.succs = []
         self.kind = kind
+        self.scope = scope
         self.exit_nodes = []
         self.edge_labels = {}
     
-    def add_succ(self, succ: CFGNode, label: str | None = None) -> None:
+    def add_succ(self, succ: Block, label: str | None = None) -> None:
         if succ not in self.succs:
             self.succs.append(succ)
         if label is not None:
             self.edge_labels[succ.register_id] = label
 
-    def add_pred(self, pred: CFGNode, label: str | None = None) -> None:
+    def add_pred(self, pred: Block, label: str | None = None) -> None:
         if pred not in self.preds:
             self.preds.append(pred)
         pred.add_succ(self, label=label)
 
-    def add_preds(self, preds: Iterable[CFGNode], label: str | None = None) -> None:
+    def add_preds(self, preds: Iterable[Block], label: str | None = None) -> None:
         for pred in preds:
             self.add_pred(pred, label=label)
     
@@ -86,6 +87,7 @@ class CFGNode:
         return {
             "id": self.register_id,
             "kind": self.kind,
+            "scope": self.scope,
             "stmt": stmt_repr,
             "preds": [p.register_id for p in self.preds],
             "succs": [c.register_id for c in self.succs],
