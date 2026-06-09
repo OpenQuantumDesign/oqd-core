@@ -14,7 +14,7 @@
 
 import pytest
 
-from oqd_core.analysis.atomic.cfg import AtomicCFGBuilder, AtomicSCC
+from oqd_core.analysis.atomic.cfg import AtomicCFGBuilder
 from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker, AtomicTypeError
 from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
 
@@ -26,13 +26,6 @@ class TestAtomicCFG:
         circuit = parse_atomic(program)
         cfg = AtomicCFGBuilder().run(circuit)
         assert cfg is not None
-    
-    def test_atomic_cfg_infinite_loop(self):
-        program = "while(true) {y = 2}"
-        circuit = parse_atomic(program)
-        cfg = AtomicCFGBuilder().run(circuit)
-        with pytest.raises(TypeError):
-            AtomicSCC(cfg).infinite_loop_check()
         
 
 ## Type Checker ##

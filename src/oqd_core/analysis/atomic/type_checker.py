@@ -178,14 +178,16 @@ BIN_SIG_TABLE = {
 
 
 class AtomicTypeChecker(ForwardDataflowAnalysis[int, TLatticeValue]):
-    """Forward dataflow type checker over the CFG."""
+    """Forward dataflow type checker over the Control Flow Graph."""
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.value_lattice = AtomicTypeLattice()
         self.lattice = maplattice(AtomicTypeLattice)()
-        self.cfg_nodes = graph.cfg_nodes
-        self.result : DataflowResult[int, dict[str, TLatticeValue]] | None = None
+        self.blocks = graph.blocks
+        self.dataflow_result : DataflowResult[int, dict[str, TLatticeValue]] | None = None
         try:
-            self.result = self.analyze(graph)
+            self.dataflow_result = self.analyze(graph, self.merge_union)
+        except AtomicTypeError as e:
+            raise e
         except Exception as e:
             raise AtomicTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
     
@@ -196,7 +198,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TLatticeValue]):
     
     def transfer(self, node_id: int, state_in: dict[str, TLatticeValue]) -> dict[str, TLatticeValue]:
         env = {} if state_in is LatticeBottom else dict(state_in)
-        cfg_node = self.cfg_nodes[node_id]
+        cfg_node = self.blocks[node_id]
         stmt = cfg_node.stmt
         if isinstance(stmt, str):
             return env

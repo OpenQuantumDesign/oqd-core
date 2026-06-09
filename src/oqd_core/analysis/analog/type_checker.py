@@ -29,7 +29,7 @@ from oqd_compiler_infrastructure.lattice import (
     maplattice,
 )
 
-from oqd_core.analysis.utils import ControlFlowGraph, alias_types
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph, alias_types
 from oqd_core.interface.analog import (
     Access,
     AnalogExprSubtypes,
@@ -203,25 +203,27 @@ OPMUL_ALLOWED = {
 
 
 class AnalogTypeChecker(ForwardDataflowAnalysis[int, TLatticeValue]):
-    """Forward dataflow type checker over the analog CFG."""
+    """Forward dataflow type checker over the Control Flow Graph."""
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.value_lattice = AnalogTypeLattice()
         self.lattice = maplattice(AnalogTypeLattice)()
-        self.cfg_nodes = graph.cfg_nodes
-        self.result : DataflowResult[int, dict[str, TLatticeValue]] | None = None
+        self.blocks = graph.blocks
+        self.dataflow_result : DataflowResult[int, dict[str, TLatticeValue]] | None = None
         try:
-            self.result = self.analyze(graph)
+            self.dataflow_result = self.analyze(graph, self.merge_union)
+        except AnalogTypeError as e:
+            raise e
         except Exception as e:
             raise AnalogTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
-    
-    
+
+
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
         return self.value_lattice.leq(t1, t2)
     
     
     def transfer(self, node_id: int, state_in: dict[str, TLatticeValue]) -> dict[str, TLatticeValue]:
         env = {} if state_in is LatticeBottom else dict(state_in)
-        cfg_node = self.cfg_nodes[node_id]
+        cfg_node = self.blocks[node_id]
         stmt = cfg_node.stmt
         if isinstance(stmt, str):
             return env
@@ -240,7 +242,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TLatticeValue]):
         return env
 
         
-    def infer_expr(self, expr: type, env: dict[str, TLatticeValue]) -> dict[str, TLatticeValue]:
+    def infer_expr(self, expr: type, env: dict[str, TLatticeValue]) -> TLatticeValue:
         if not isinstance(expr, EXPR_NODE_TYPES):
             raise AnalogTypeError(f"Unsupported expression node: {type(expr).__name__}")
 

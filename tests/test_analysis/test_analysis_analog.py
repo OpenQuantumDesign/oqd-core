@@ -14,7 +14,7 @@
 
 import pytest
 
-from oqd_core.analysis.analog.cfg import AnalogCFGBuilder, AnalogSCC
+from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
 from oqd_core.analysis.analog.type_checker import AnalogTypeChecker, AnalogTypeError
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 
@@ -26,13 +26,6 @@ class TestAnalogCFG:
         circuit = parse_analog(program)
         cfg = AnalogCFGBuilder().run(circuit)
         assert cfg is not None
-
-    def test_analog_cfg_infinite_loop(self):
-        program = "while(true) {y = 2}"
-        circuit = parse_analog(program)
-        cfg = AnalogCFGBuilder().run(circuit)
-        with pytest.raises(TypeError):
-            AnalogSCC(cfg).infinite_loop_check()
         
 
 ## Type Checker ##

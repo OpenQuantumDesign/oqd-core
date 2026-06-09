@@ -1,18 +1,16 @@
-from .analog.cfg import AnalogCFGBuilder, AnalogSCC
+from .analog.cfg import AnalogCFGBuilder
 from .analog.type_checker import AnalogTypeChecker, AnalogTypeError
-from .atomic.cfg import AtomicCFGBuilder, AtomicSCC
+from .atomic.cfg import AtomicCFGBuilder
 from .atomic.type_checker import AtomicTypeChecker, AtomicTypeError
-from .utils import CFGNode
+from .utils.control_flow import Block
 
 ########################################################################################
 __all__ = [
-    "CFGNode",
+    "Block",
     "AnalogCFGBuilder",
-    "AnalogSCC",
     "AnalogTypeChecker",
     "AnalogTypeError",
     "AtomicCFGBuilder",
-    "AtomicSCC",
     "AtomicTypeChecker",
     "AtomicTypeError",
 ]

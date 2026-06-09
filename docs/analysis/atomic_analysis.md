@@ -1,7 +1,6 @@
+# Type Checker
 
-### Type Checker
-
-The atomic type checker is implemented by the `AtomicTypeChecker` class in [`type_checker.py`](../../src/oqd_core/analysis/atomic/type_checker.py). The `AtomicTypeLattice` class defines a concrete lattice for atomic types with `leq`, `join`, and `meet` methods. The type checker builds a Control Flow Graph (CFG) from the typed AST, and runs the forward dataflow analysis on the CFG. The atomic Control Flow Graph (CFG) is implemented by the `AtomicCFGBuilder` class in [`cfg.py`](../../src/oqd_core/analysis/atomic/cfg.py). This CFGBuilder uses `ControlFlowGraph` and `CFGNode` defined in the [analysis module](../../src/oqd_core/analysis/utils.py).
+The atomic type checker is implemented by the `AtomicTypeChecker` class in [`type_checker.py`](../../src/oqd_core/analysis/atomic/type_checker.py). The `AtomicTypeLattice` class defines a concrete lattice for atomic types with `leq`, `join`, and `meet` methods. The type checker builds a Control Flow Graph (CFG) from the typed AST, and runs the forward dataflow analysis on the CFG. The atomic Control Flow Graph (CFG) is implemented by the `AtomicCFGBuilder` class in [`cfg.py`](../../src/oqd_core/analysis/atomic/cfg.py). This CFGBuilder uses `ControlFlowGraph` and `Block` defined in the [analysis module](../../src/oqd_core/analysis/utils/control_flow.py).
 
 
 ## Usage of the type checker
@@ -29,7 +28,3 @@ type_checker = AtomicTypeChecker(cfg)
 ///
 
 The output of the type checker is stored in `type_checker.result`.
-
-## Strongly Connected Components (SCC)
-
-The `AtomicSCC` class identifies the strongly connected components of the CFG to check for infinite loops in the program. The implementation follows [Tarjan's algorithm](https://www.geeksforgeeks.org/dsa/tarjan-algorithm-find-strongly-connected-components/).
