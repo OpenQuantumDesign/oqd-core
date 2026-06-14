@@ -1,0 +1,167 @@
+# Copyright 2024-2025 Open Quantum Design
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Union
+
+from oqd_compiler_infrastructure.lattice import (
+    LatticeBase,
+    LatticeBottom,
+    LatticeTop,
+)
+
+from oqd_core.interface.analog import (
+    BoolAnd,
+    BoolGreaterThan,
+    BoolGreaterThanEq,
+    BoolLessThan,
+    BoolLessThanEq,
+    BoolOr,
+    MathAdd,
+    MathDiv,
+    MathMul,
+    MathPow,
+    MathSub,
+    OperatorAdd,
+    OperatorKron,
+    OperatorSub,
+)
+
+########################################################################################
+
+
+class AnalogTypeError(TypeError):
+    """Type Error class for Analog."""
+    pass
+
+@dataclass
+class TList(LatticeTop):
+    """Lattice value representing a list."""
+    elem: TLatticeValue
+
+TLatticeValue = Union[TList, type[LatticeTop]]
+TypeEnv = dict[str, TLatticeValue]
+
+def type_name(t: TLatticeValue) -> str:
+    """Format a lattice value into a readable type name for error messages."""
+    if isinstance(t, TList):
+        return f"TList[{type_name(t.elem)}]"
+    if isinstance(t, type) and issubclass(t, LatticeTop):
+        return t.__name__
+    return str(t)
+
+
+class TAnalog(LatticeTop):
+    pass
+
+class TScalar(TAnalog):
+    pass
+
+class TBool(TAnalog):
+    pass
+
+class TOp(TAnalog):
+    pass
+
+class TTarget(TAnalog):
+    pass
+
+class TTargetRef(TTarget):
+    pass
+
+class TQReg(TTarget):
+    pass
+
+class TMReg(TTarget):
+    pass
+
+class TQRef(TTargetRef):
+    pass
+
+class TMRef(TTargetRef):
+    pass
+
+
+class AnalogTypeLattice(LatticeBase[TLatticeValue]):
+    """Type lattice for analog expressions."""
+
+    def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
+        if t1 is LatticeBottom:
+            return True
+        if isinstance(t1, TList) and isinstance(t2, TList):
+            return self.leq(t1.elem, t2.elem)
+        if isinstance(t1, TList) or isinstance(t2, TList):
+            return False
+        return super().leq(t1, t2)
+    
+    def join(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
+        if self.leq(t1, t2):
+            return t2
+        if self.leq(t2, t1):
+            return t1
+        if isinstance(t1, TList) and isinstance(t2, TList):
+            return TList(elem=self.join(t1.elem, t2.elem))
+        if isinstance(t1, TList) or isinstance(t2, TList):
+            return TAnalog
+        return super().join(t1, t2)
+    
+    def meet(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
+        if self.leq(t1, t2):
+            return t1
+        if self.leq(t2, t1):
+            return t2
+        if isinstance(t1, TList) and isinstance(t2, TList):
+            return TList(elem=self.meet(t1.elem, t2.elem))
+        return super().meet(t1, t2)
+
+
+########################################################################################
+
+
+# Binary expression signature table: node -> ((left_type, right_type), output_type)
+BIN_SIG_TABLE = {
+    MathAdd: ((TScalar, TScalar), TScalar),
+    MathSub: ((TScalar, TScalar), TScalar),
+    MathMul: ((TScalar, TScalar), TScalar),
+    MathDiv: ((TScalar, TScalar), TScalar),
+    MathPow: ((TScalar, TScalar), TScalar),
+
+    BoolAnd: ((TBool, TBool), TBool),
+    BoolOr: ((TBool, TBool), TBool),
+
+    BoolLessThan: ((TScalar, TScalar), TBool),
+    BoolLessThanEq: ((TScalar, TScalar), TBool),
+    BoolGreaterThan: ((TScalar, TScalar), TBool),
+    BoolGreaterThanEq: ((TScalar, TScalar), TBool),
+}
+
+
+# Operator expression signatures
+OP_TABLE = {
+    OperatorAdd: ((TOp, TOp), TOp),
+    OperatorSub: ((TOp, TOp), TOp),
+    OperatorKron: ((TOp, TOp), TOp),
+}
+
+
+# Allowed type pairs for OperatorMul
+OPMUL_ALLOWED = {
+    (TOp, TOp): TOp,
+    (TOp, TScalar): TOp,
+    (TScalar, TOp): TOp,
+}
+

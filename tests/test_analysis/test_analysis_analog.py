@@ -15,7 +15,9 @@
 import pytest
 
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
-from oqd_core.analysis.analog.type_checker import AnalogTypeChecker, AnalogTypeError
+from oqd_core.analysis.analog.symbol_table import AnalogSymbolTableBuilder
+from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
+from oqd_core.analysis.analog.types import AnalogTypeError
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 
 ## Control Flow Graph ##
@@ -73,7 +75,7 @@ class TestAnalogTypeChecker:
     def test_analog_type_checker(self, program):
         circuit = parse_analog(program)
         cfg = AnalogCFGBuilder().run(circuit)
-        AnalogTypeChecker(cfg)
+        type_checker = AnalogTypeChecker(cfg)
         
     @pytest.mark.parametrize(
         "program",
@@ -115,5 +117,18 @@ class TestAnalogTypeChecker:
         circuit = parse_analog(program)
         with pytest.raises(AnalogTypeError):
             cfg = AnalogCFGBuilder().run(circuit)
-            AnalogTypeChecker(cfg)
+            type_checker = AnalogTypeChecker(cfg)
+
+
+## Symbol Table
+
+class TestAnalogSymbolTable:
+    def test_analog_symbol_table(self):
+        program = "r = qreg(3) \n x = 1"
+        circuit = parse_analog(program)
+        cfg = AnalogCFGBuilder().run(circuit)
+        type_checker = AnalogTypeChecker(cfg)
+        symbol_analysis = AnalogSymbolTableBuilder(cfg, type_checker.dataflow_result)
+        symbol_table = symbol_analysis.symbol_table
+        assert symbol_table is not None
         
