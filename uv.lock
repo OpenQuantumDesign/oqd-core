@@ -1557,7 +1557,7 @@ wheels = [
 [[package]]
 name = "oqd-compiler-infrastructure"
 version = "0.1.0"
-source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure?branch=dataflow#3ecd96330d3eedd42c2fa3ccb6fddf6aa367f4a0" }
+source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure#02527d1f5420f9094f056a28522e66c5f204c45c" }
 dependencies = [
     { name = "ast-comments" },
     { name = "pydantic" },
@@ -1621,7 +1621,7 @@ requires-dist = [
     { name = "mkdocstrings", extras = ["python"], specifier = ">=0.30.0" },
     { name = "mkdocstrings-python", marker = "extra == 'docs'" },
     { name = "numpy" },
-    { name = "oqd-compiler-infrastructure", git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure?branch=dataflow" },
+    { name = "oqd-compiler-infrastructure", git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure" },
     { name = "pydantic", specifier = ">=2.10.6" },
     { name = "pymdown-extensions", specifier = ">=10.16.1" },
     { name = "pymdown-extensions", marker = "extra == 'docs'" },
