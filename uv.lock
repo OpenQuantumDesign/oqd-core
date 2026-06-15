@@ -474,6 +474,15 @@ wheels = [
 ]
 
 [[package]]
+name = "emojidb"
+version = "0.0.3"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/1e/04/ed89d873909df4f847dd7c77f7b762a4b1e793109237cd7f64facad96d6d/emojidb-0.0.3.tar.gz", hash = "sha256:0ca32c886062fae528bb91033db699d2261f0c4c3532b40b2e58daecbc4b4a1a", size = 49604, upload-time = "2023-02-21T17:49:24.743Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1d/91/6f0804e564f7428cbf9215775da3fa9e1c7fe23630456f6e8b9c6d61983b/emojidb-0.0.3-py3-none-any.whl", hash = "sha256:bec087eb05f10294041908e70855272b74081c9adade849d03890cd2bfc95c86", size = 52342, upload-time = "2023-02-21T17:49:22.497Z" },
+]
+
+[[package]]
 name = "exceptiongroup"
 version = "1.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1038,6 +1047,18 @@ wheels = [
 ]
 
 [[package]]
+name = "markdown-extensions"
+version = "0.0.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "emojidb" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/01/3a/fef0446add951ffd47ff7f9cc7a05d6eb6b27acc7d6522d6742e4dcfd230/markdown_extensions-0.0.1.tar.gz", hash = "sha256:3f49786be3c24dfe3414ac3cf4453cfbae29db9318cee3ee89b50dd0f15e6a99", size = 3682, upload-time = "2023-02-21T18:44:31.835Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e7/2e/85c585f786bd9a29713b1ff138923fb1b5747eb79a9d50d5480e1bd14044/markdown_extensions-0.0.1-py3-none-any.whl", hash = "sha256:4d899785af591d505953ebb5322137d33113f8374a52c7c56a542732f21791ce", size = 4737, upload-time = "2023-02-21T18:44:29.929Z" },
+]
+
+[[package]]
 name = "markdown-it-py"
 version = "4.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1260,6 +1281,11 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/e2/0a/7e4776217d4802009c8238c75c5345e23014a4706a8414a62c0498858183/mkdocstrings-0.30.0.tar.gz", hash = "sha256:5d8019b9c31ddacd780b6784ffcdd6f21c408f34c0bd1103b5351d609d5b4444", size = 106597, upload-time = "2025-07-22T23:48:45.998Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/de/b4/3c5eac68f31e124a55d255d318c7445840fa1be55e013f507556d6481913/mkdocstrings-0.30.0-py3-none-any.whl", hash = "sha256:ae9e4a0d8c1789697ac776f2e034e2ddd71054ae1cf2c2bb1433ccfd07c226f2", size = 36579, upload-time = "2025-07-22T23:48:44.152Z" },
+]
+
+[package.optional-dependencies]
+python = [
+    { name = "mkdocstrings-python" },
 ]
 
 [[package]]
@@ -1544,10 +1570,17 @@ source = { editable = "." }
 dependencies = [
     { name = "antlr4-python3-runtime" },
     { name = "antlr4-tools" },
+    { name = "markdown" },
+    { name = "markdown-extensions" },
+    { name = "mdx-truly-sane-lists" },
+    { name = "mkdocs" },
+    { name = "mkdocs-material" },
+    { name = "mkdocstrings", extra = ["python"] },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.3.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "oqd-compiler-infrastructure" },
     { name = "pydantic" },
+    { name = "pymdown-extensions" },
     { name = "pytest" },
     { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "scipy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -1577,13 +1610,20 @@ dev = [
 requires-dist = [
     { name = "antlr4-python3-runtime", specifier = ">=4.13.2" },
     { name = "antlr4-tools", specifier = ">=0.2.2" },
+    { name = "markdown", specifier = ">=3.8.2" },
+    { name = "markdown-extensions", specifier = ">=0.0.1" },
+    { name = "mdx-truly-sane-lists", specifier = ">=1.3" },
     { name = "mdx-truly-sane-lists", marker = "extra == 'docs'" },
+    { name = "mkdocs", specifier = ">=1.6.1" },
+    { name = "mkdocs-material", specifier = ">=9.6.18" },
     { name = "mkdocs-material", marker = "extra == 'docs'" },
     { name = "mkdocstrings", marker = "extra == 'docs'" },
+    { name = "mkdocstrings", extras = ["python"], specifier = ">=0.30.0" },
     { name = "mkdocstrings-python", marker = "extra == 'docs'" },
     { name = "numpy" },
     { name = "oqd-compiler-infrastructure", git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure?branch=dataflow" },
     { name = "pydantic", specifier = ">=2.10.6" },
+    { name = "pymdown-extensions", specifier = ">=10.16.1" },
     { name = "pymdown-extensions", marker = "extra == 'docs'" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest", marker = "extra == 'tests'" },
