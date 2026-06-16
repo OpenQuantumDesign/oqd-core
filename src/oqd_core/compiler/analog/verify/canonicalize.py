@@ -17,10 +17,11 @@ from typing import Union
 from oqd_compiler_infrastructure import RewriteRule
 
 from oqd_core.compiler.analog.error import CanonicalFormError
-from oqd_core.compiler.analog.passes.analysis import analysis_term_index
+from oqd_core.compiler.analog.operator_dim import is_scalar_mul, coeff_and_op
+from oqd_core.compiler.analog.term_index import analysis_term_index
 
 ########################################################################################
-from oqd_core.interface.analog import (
+from oqd_core.interface.analog.expr import (
     Annihilation,
     Creation,
     Identity,
@@ -28,7 +29,6 @@ from oqd_core.interface.analog import (
     OperatorAdd,
     OperatorKron,
     OperatorMul,
-    OperatorScalarMul,
     OperatorSub,
     OperatorTerminal,
     Pauli,
@@ -56,7 +56,7 @@ class CanVerPauliAlgebra(RewriteRule):
     Checks whether there is any incomplete Pauli Algebra computation
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -72,6 +72,8 @@ class CanVerPauliAlgebra(RewriteRule):
     """
 
     def map_OperatorMul(self, model: OperatorMul):
+        if is_scalar_mul(model):
+            return
         if isinstance(model.op1, Pauli) and isinstance(model.op2, Pauli):
             raise CanonicalFormError("Incomplete Pauli Algebra")
         elif isinstance(model.op1, Pauli) and isinstance(model.op2, Ladder):
@@ -87,7 +89,7 @@ class CanVerGatherMathExpr(RewriteRule):
     there is any scalar multiplication within a term)
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -102,24 +104,21 @@ class CanVerGatherMathExpr(RewriteRule):
     """
 
     def map_OperatorMul(self, model: OperatorMul):
-        return self._mulkron(model)
+        if is_scalar_mul(model):
+            _, inner = coeff_and_op(model)
+            if is_scalar_mul(inner):
+                raise CanonicalFormError(
+                    "Incomplete scalar multiplications after GatherMathExpression"
+                )
+            return
+        self._mulkron(model)
 
     def map_OperatorKron(self, model: OperatorKron):
-        return self._mulkron(model)
+        self._mulkron(model)
 
     def _mulkron(self, model: Union[OperatorMul, OperatorKron]):
-        if isinstance(model.op1, OperatorScalarMul) or isinstance(
-            model.op2, OperatorScalarMul
-        ):
+        if is_scalar_mul(model.op1) or is_scalar_mul(model.op2):
             raise CanonicalFormError("Incomplete Gather Math Expression")
-        return None
-
-    def map_OperatorScalarMul(self, model: OperatorScalarMul):
-        if isinstance(model.op, OperatorScalarMul):
-            raise CanonicalFormError(
-                "Incomplete scalar multiplications after GatherMathExpression"
-            )
-        return None
 
 
 class CanVerOperatorDistribute(RewriteRule):
@@ -127,7 +126,7 @@ class CanVerOperatorDistribute(RewriteRule):
     Checks for incomplete distribution of Operators
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -142,13 +141,12 @@ class CanVerOperatorDistribute(RewriteRule):
 
     def __init__(self):
         super().__init__()
-        self.allowed_ops = Union[
+        self.allowed_ops = (
             OperatorTerminal,
             Ladder,
             OperatorMul,
-            OperatorScalarMul,
             OperatorKron,
-        ]
+        )
 
     def map_OperatorMul(self, model):
         return self._OperatorMulKron(model)
@@ -159,25 +157,26 @@ class CanVerOperatorDistribute(RewriteRule):
     def _OperatorMulKron(self, model: Union[OperatorMul, OperatorKron]):
         if (
             isinstance(model, OperatorMul)
+            and not is_scalar_mul(model)
             and isinstance(model.op1, OperatorKron)
             and isinstance(model.op2, OperatorKron)
         ):
             raise CanonicalFormError(
                 "Incomplete Operator Distribution (multiplication of OperatorKron present)"
             )
-        elif not (
+        if is_scalar_mul(model):
+            _, inner = coeff_and_op(model)
+            if not isinstance(inner, self.allowed_ops):
+                raise CanonicalFormError(
+                    "Scalar multiplication of operators not simplified fully"
+                )
+            return
+        if not (
             isinstance(model.op1, self.allowed_ops)
             and isinstance(model.op2, self.allowed_ops)
         ):
             raise CanonicalFormError("Incomplete Operator Distribution")
 
-        pass
-
-    def map_OperatorScalarMul(self, model: OperatorScalarMul):
-        if not (isinstance(model.op, self.allowed_ops)):
-            raise CanonicalFormError(
-                "Scalar multiplication of operators not simplified fully"
-            )
         pass
 
     def map_OperatorSub(self, model: OperatorSub):
@@ -192,7 +191,7 @@ class CanVerProperOrder(RewriteRule):
     Please see example for clarification
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -210,8 +209,14 @@ class CanVerProperOrder(RewriteRule):
         pass
 
     def map_OperatorMul(self, model: OperatorMul):
+        if is_scalar_mul(model):
+            _, inner = coeff_and_op(model)
+            if isinstance(inner, OperatorMul):
+                raise CanonicalFormError(
+                    "Incorrect Proper Ordering (for scalar multiplication)"
+                )
+            return
         self._OperatorAddMulKron(model)
-        pass
 
     def map_OperatorKron(self, model: OperatorKron):
         self._OperatorAddMulKron(model)
@@ -222,20 +227,13 @@ class CanVerProperOrder(RewriteRule):
             raise CanonicalFormError("Incorrect Proper Ordering")
         pass
 
-    def map_OperatorScalarMul(self, model: OperatorScalarMul):
-        if isinstance(model.op, model.__class__):
-            raise CanonicalFormError(
-                "Incorrect Proper Ordering (for scalar multiplication)"
-            )
-        pass
-
 
 class CanVerPruneIdentity(RewriteRule):
     """
     Checks if there is any ladder Identity present in ladder multiplication
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -250,6 +248,8 @@ class CanVerPruneIdentity(RewriteRule):
     """
 
     def map_OperatorMul(self, model: OperatorMul):
+        if is_scalar_mul(model):
+            return
         if isinstance(model.op1, Identity) or isinstance(model.op2, Identity):
             raise CanonicalFormError("Prune Identity is not complete")
         pass
@@ -260,7 +260,7 @@ class CanVerGatherPauli(RewriteRule):
     Checks whether pauli and ladder have been separated.
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -277,11 +277,12 @@ class CanVerGatherPauli(RewriteRule):
     """
 
     def map_OperatorKron(self, model: OperatorKron):
+        _, op1 = coeff_and_op(model.op1)
         if isinstance(model.op2, Pauli):
-            if isinstance(model.op1, (Ladder, OperatorMul)):
+            if isinstance(op1, (Ladder, OperatorMul)):
                 raise CanonicalFormError("Incorrect GatherPauli")
-            if isinstance(model.op1, OperatorKron):
-                if isinstance(model.op1.op2, (Ladder, OperatorMul)):
+            if isinstance(op1, OperatorKron):
+                if isinstance(op1.op2, (Ladder, OperatorMul)):
                     raise CanonicalFormError("Incorrect GatherPauli")
         pass
 
@@ -291,7 +292,7 @@ class CanVerNormalOrder(RewriteRule):
     Checks whether the ladder operations are in normal order
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -311,6 +312,8 @@ class CanVerNormalOrder(RewriteRule):
     """
 
     def map_OperatorMul(self, model: OperatorMul):
+        if is_scalar_mul(model):
+            return
         if isinstance(model.op2, Creation):
             if isinstance(model.op1, Annihilation):
                 raise CanonicalFormError("Incorrect NormalOrder")
@@ -326,7 +329,7 @@ class CanVerSortedOrder(RewriteRule):
     Please see example for further clarification
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -362,7 +365,7 @@ class CanVerScaleTerm(RewriteRule):
     Checks whether all terms have a scalar multiplication.
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -388,11 +391,10 @@ class CanVerScaleTerm(RewriteRule):
     def map_Expectation(self, model):
         self._single_term_scaling_needed = False
 
-    def map_OperatorScalarMul(self, model: OperatorScalarMul):
-        self._single_term_scaling_needed = True
-        pass
-
     def map_OperatorMul(self, model: OperatorMul):
+        if is_scalar_mul(model):
+            self._single_term_scaling_needed = True
+            return
         if not self._single_term_scaling_needed:
             raise CanonicalFormError("Single term operator has not been scaled")
 
@@ -400,17 +402,16 @@ class CanVerScaleTerm(RewriteRule):
         if not self._single_term_scaling_needed:
             raise CanonicalFormError("Single term operator has not been scaled")
 
-    def map_OperatorTerminal(self, model: OperatorKron):
+    def map_OperatorTerminal(self, model: OperatorTerminal):
         if not self._single_term_scaling_needed:
             raise CanonicalFormError("Single term operator has not been scaled")
 
     def map_OperatorAdd(self, model: OperatorAdd):
         self._single_term_scaling_needed = True
-        if isinstance(model.op2, OperatorScalarMul) and isinstance(
-            model.op1, Union[OperatorScalarMul, OperatorAdd]
+        if is_scalar_mul(model.op2) and (
+            is_scalar_mul(model.op1) or isinstance(model.op1, OperatorAdd)
         ):
-            pass
-        else:
-            raise CanonicalFormError(
-                "some operators between addition are not scaled properly"
-            )
+            return
+        raise CanonicalFormError(
+            "some operators between addition are not scaled properly"
+        )

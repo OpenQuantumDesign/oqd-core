@@ -31,11 +31,11 @@ from oqd_core.compiler.analog.verify.canonicalize import (
 )
 
 ########################################################################################
-from oqd_core.interface.analog import (
+from oqd_core.interface.analog.expr import (
     Annihilation,
     Creation,
     Identity,
-    Operator,
+    OperatorExpr,
     PauliI,
     PauliX,
     PauliY,
@@ -56,7 +56,7 @@ X, Y, Z, PI, A, C, LI = (
 
 
 def apply_pass(
-    operator: Operator, rule: RewriteRule, walk_method: WalkBase, reverse: bool
+    operator: OperatorExpr, rule: RewriteRule, walk_method: WalkBase, reverse: bool
 ):
     walk_method(rule, reverse=reverse)(operator)
 
@@ -543,7 +543,12 @@ class TestCanonicalizationVerificationSortedOrder(CanonicalFormErrors):
 
     def test_nested_pass(self):
         """Nested Pass"""
-        op = (X @ Y + (2 * (3j) * (X @ Z))) + (Y @ PI) + (Z @ PI)
+        op = (
+            1 * (X @ Y)
+            + 1 * (X @ Z)
+            + 1 * (Y @ PI)
+            + 1 * (Z @ PI)
+        )
         self.assert_canonical_form_error_not_raised(operator=op, rule=self.rule)
 
     def test_nested_fail(self):

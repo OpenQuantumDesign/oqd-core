@@ -15,23 +15,19 @@
 from oqd_compiler_infrastructure import Post
 
 ########################################################################################
-from oqd_core.compiler.analog.rewrite.assign import AssignAnalogIRDim
-from oqd_core.compiler.analog.verify.task import (
-    VerifyAnalogArgsDim,
-    VerifyAnalogCircuitDim,
-)
+from oqd_core.compiler.analog.rewrite.assign import InferAnalogCircuitDim
+from oqd_core.interface.analog import AnalogCircuit
 
 ########################################################################################
 
 __all__ = [
-    "assign_analog_circuit_dim",
-    "verify_analog_args_dim",
+    "infer_analog_circuit_dim",
 ]
 
 ########################################################################################
 
 
-def assign_analog_circuit_dim(model):
+def infer_analog_circuit_dim(model: AnalogCircuit) -> tuple[int, int]:
     """
     This pass assigns n_qreg and n_qmode in the analog circuit and then verifies the assignment
 
@@ -44,27 +40,7 @@ def assign_analog_circuit_dim(model):
     Assumptions:
         All [`Operator`][oqd_core.interface.analog.operator.Operator] inside [`AnalogCircuit`][oqd_core.interface.analog.operations.AnalogCircuit] must be canonicalized
     """
-    assigned_model = Post(AssignAnalogIRDim())(model)
-    Post(
-        VerifyAnalogCircuitDim(
-            n_qreg=assigned_model.n_qreg, n_qmode=assigned_model.n_qmode
-        )
-    )(assigned_model)
-    return assigned_model
+    rule = InferAnalogCircuitDim()
+    Post(rule)(model)
+    return rule.dim or (0, 0)
 
-
-def verify_analog_args_dim(model, n_qreg, n_qmode):
-    """
-    This pass checks whether the assigned n_qreg and n_qmode in AnalogCircuit match the n_qreg and n_qmode
-    in any Operators (like the Operator inside Expectation) in TaskArgsAnalog
-
-    Args:
-        model (TaskArgsAnalog):
-
-    Returns:
-        model (TaskArgsAnalog):
-
-    Assumptions:
-        All  [`Operator`][oqd_core.interface.analog.operator.Operator] inside TaskArgsAnalog must be canonicalized
-    """
-    Post(VerifyAnalogArgsDim(n_qreg=n_qreg, n_qmode=n_qmode))(model)

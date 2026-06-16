@@ -16,12 +16,15 @@ from typing import Union
 
 from oqd_compiler_infrastructure import RewriteRule
 
+from oqd_core.compiler.analog.error import CanonicalFormError
+from oqd_core.compiler.analog.term_index import is_scalar_mul, coeff_and_op
+
+
 ########################################################################################
-from oqd_core.interface.analog import (
+from oqd_core.interface.analog.expr import (
     Ladder,
     OperatorAdd,
     OperatorMul,
-    OperatorScalarMul,
     OperatorTerminal,
     Pauli,
 )
@@ -29,13 +32,13 @@ from oqd_core.interface.analog import (
 ########################################################################################
 
 __all__ = [
-    "VerifyHilberSpaceDim",
+    "VerifyHilbertSpaceDim",
 ]
 
 ########################################################################################
 
 
-class VerifyHilberSpaceDim(RewriteRule):
+class VerifyHilbertSpaceDim(RewriteRule):
     """
     Checks whether the hilbert spaces are correct between additions.
 
@@ -73,6 +76,12 @@ class VerifyHilberSpaceDim(RewriteRule):
 
     def map_Expectation(self, model):
         self._reset()
+    
+    def _term_dim_from_node(self, node):
+        _, op = coeff_and_op(node)
+        if isinstance(op, (OperatorTerminal, OperatorMul)):
+            return self._get_dim(op)
+        return self._dim
 
     def _get_dim(self, model):
         if isinstance(model, Pauli):
@@ -83,34 +92,32 @@ class VerifyHilberSpaceDim(RewriteRule):
     def map_OperatorKron(self, model):
         new = self._get_dim(model.op2)
         self._dim = (self._dim[0] + new[0], self._dim[1] + new[1])
-        if isinstance(model.op1, Union[OperatorTerminal, OperatorMul]):
+        if isinstance(model.op1, (OperatorTerminal, OperatorMul)):
             new = self._get_dim(model.op1)
             self._dim = (self._dim[0] + new[0], self._dim[1] + new[1])
             if self._final_add_term:
-                assert self._term_dim == self._dim, "Incorrect Hilbert space dimension"
+                if self._term_dim != self._dim:
+                    raise CanonicalFormError("Incorrect Hilbert space dimension")
 
     def map_OperatorAdd(self, model):
-        new = self._dim
-        if isinstance(model.op2, Union[OperatorMul, OperatorTerminal]):
-            new = self._get_dim(model.op2)
-        elif isinstance(model.op2, OperatorScalarMul):
-            if isinstance(model.op2.op, Union[OperatorTerminal, OperatorMul]):
-                new = self._get_dim(model.op2.op)
-
+        new = self._term_dim_from_node(model.op2)
+        
         if self._term_dim is None:
             self._term_dim = new
         else:
-            assert self._term_dim == new, "Incorrect Hilbert space dimension"
-
-        if isinstance(model.op1, Union[OperatorTerminal, OperatorMul]):
-            assert self._term_dim == self._get_dim(model.op1), (
-                "Incorrect Hilbert space dimension"
-            )
-        elif isinstance(model.op1, OperatorScalarMul):
-            if isinstance(model.op1.op, Union[OperatorTerminal, OperatorMul]):
-                assert self._term_dim == self._get_dim(model.op1.op), (
-                    "Incorrect Hilbert space dimension"
-                )
+            if self._term_dim != new:
+                raise CanonicalFormError("Incorrect Hilbert space dimension")
+            
+        if isinstance(model.op1, OperatorAdd):
+            pass
+        elif is_scalar_mul(model.op1):
+            _, op = coeff_and_op(model.op1)
+            if isinstance(op, Union[OperatorTerminal, OperatorMul]):
+                if self._term_dim != self._get_dim(op):
+                    raise CanonicalFormError("Incorrect Hilbert space dimension")
+        elif isinstance(model.op1, Union[OperatorTerminal, OperatorMul]):
+            if self._term_dim != self._get_dim(model.op1):
+                raise CanonicalFormError("Incorrect Hilbert space dimension")
 
         if not isinstance(model.op1, OperatorAdd):
             self._final_add_term = True

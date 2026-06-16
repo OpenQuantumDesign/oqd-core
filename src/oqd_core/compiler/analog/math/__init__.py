@@ -12,30 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .assign import InferAnalogCircuitDim
-from .canonicalize import (
-    GatherMathExpr,
-    GatherPauli,
-    NormalOrder,
-    OperatorDistribute,
-    PauliAlgebra,
-    ProperOrder,
-    PruneIdentity,
-    PruneZeros,
-    ScaleTerms,
-    SortedOrder,
-)
+from . import passes, rules
 
-__all__ = [
-    "InferAnalogCircuitDim",
-    "OperatorDistribute",
-    "GatherMathExpr",
-    "GatherPauli",
-    "PruneIdentity",
-    "PauliAlgebra",
-    "NormalOrder",
-    "ProperOrder",
-    "ScaleTerms",
-    "SortedOrder",
-    "PruneZeros",
-]
+__all__ = ["passes", "rules"]

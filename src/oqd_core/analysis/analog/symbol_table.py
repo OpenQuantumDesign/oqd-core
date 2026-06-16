@@ -44,6 +44,8 @@ from oqd_core.interface.analog import (
     AnalogList,
     Declaration,
     Extract,
+    ModeRegister,
+    QuantumRegister,
 )
 
 ########################################################################################
@@ -60,15 +62,16 @@ class SymbolBinding:
     target_dim: tuple[int, int]
     list_elem: SymbolBinding | None = None
 
-SymbolEnv = dict[str, SymbolBinding]
+RegisterEnv = dict[str, SymbolBinding]
 
 @dataclass
 class AnalogSymbolTable:
-    in_env: dict[int, SymbolEnv]
+    in_env: dict[int, RegisterEnv]
     stmt_index: dict[int, int]
     
-    def env_before(self, stmt) -> SymbolEnv:
-        return self.in_env[self.stmt_index[id(stmt)]]
+    def env_before(self, stmt) -> RegisterEnv:
+        node_id = self.stmt_index.get(id(stmt))
+        return self.in_env[node_id]
 
 
 class SymbolBindingLattice(Lattice[Union[SymbolBinding, type[LatticeTop]]]):
@@ -120,7 +123,7 @@ def is_target_lattice_type(t: TLatticeValue) -> bool:
     return False
 
 
-def bind_target_value(expr, t: TLatticeValue, env: SymbolEnv) -> SymbolBinding:
+def bind_target_value(expr, t: TLatticeValue, env: RegisterEnv) -> SymbolBinding:
     
     if isinstance(expr, Access):
         if expr.name not in env:
@@ -166,7 +169,44 @@ def bind_target_value(expr, t: TLatticeValue, env: SymbolEnv) -> SymbolBinding:
     raise AnalogSymbolError(f"Unsupported target expression: {type(expr).__name__}")
 
 
-class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, SymbolEnv]):
+def target_dim(expr, env: RegisterEnv):
+    if isinstance(expr, Access):
+        if expr.name not in env:
+            raise AnalogSymbolError(f"Undefined Variable: {expr.name}")
+        return env[expr.name].target_dim
+    
+    if isinstance(expr, Extract):
+        if expr.access.name not in env:
+            raise AnalogSymbolError(f"Undefined Variable: {expr.access.name}")
+        base = env[expr.access.name]
+        n_qreg, n_qmode = base.target_dim
+        if n_qreg > 0:
+            if expr.index >= n_qreg:
+                raise AnalogSymbolError("Extract index out of range")
+            return (1, 0)
+        if n_qmode > 0:
+            if expr.index >= n_qmode:
+                raise AnalogSymbolError("Extract index out of range")
+            return (0,1)
+        raise AnalogSymbolError("Extract index out of range")
+    
+    if isinstance(expr, AnalogList):
+        dim = (0, 0)
+        for value in expr.values:
+            new = target_dim(value, env)
+            dim = (dim[0] + new[0], dim[1] + new[1])
+        return dim
+    
+    if isinstance(expr, QuantumRegister):
+        return (expr.size, 0)
+        
+    if isinstance(expr, ModeRegister):
+        return (0, expr.size)
+    
+    raise AnalogSymbolError(f"Invalid target: {type(expr).__name__} ")
+
+
+class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
     """Forward dataflow symbol table for register / target dimension checking."""
     def __init__(self, graph: ControlFlowGraph, type_result: DataflowResult[int, TypeEnv]) -> None:
         self.type_out_states = type_result.out_states
@@ -184,7 +224,7 @@ class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, SymbolEnv]):
             },
         )
     
-    def merge_symbol_env(self, states: Iterable[SymbolEnv]) -> SymbolEnv:
+    def merge_symbol_env(self, states: Iterable[RegisterEnv]) -> RegisterEnv:
         states_list = list(states)
         if not states_list:
             return self.lattice.bottom()
@@ -203,7 +243,7 @@ class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, SymbolEnv]):
                     raise AnalogSymbolError(f"Incompatible register bindings for {name}")
         return merged
     
-    def transfer(self, node_id: int, state_in: SymbolEnv) -> SymbolEnv:
+    def transfer(self, node_id: int, state_in: RegisterEnv) -> RegisterEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         stmt = self.blocks[node_id].stmt
         if isinstance(stmt, Declaration):

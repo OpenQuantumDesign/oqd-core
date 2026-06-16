@@ -23,11 +23,7 @@ from .canonicalize import (
     CanVerScaleTerm,
     CanVerSortedOrder,
 )
-from .operator import VerifyHilberSpaceDim
-from .task import (
-    VerifyAnalogArgsDim,
-    VerifyAnalogCircuitDim,
-)
+from .operator import VerifyHilbertSpaceDim
 
 __all__ = [
     "CanVerPauliAlgebra",
@@ -39,7 +35,5 @@ __all__ = [
     "CanVerNormalOrder",
     "CanVerSortedOrder",
     "CanVerScaleTerm",
-    "VerifyAnalogCircuitDim",
-    "VerifyAnalogArgsDim",
-    "VerifyHilberSpaceDim",
+    "VerifyHilbertSpaceDim",
 ]

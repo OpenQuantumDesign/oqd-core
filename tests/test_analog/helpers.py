@@ -12,30 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .assign import InferAnalogCircuitDim
-from .canonicalize import (
-    GatherMathExpr,
-    GatherPauli,
-    NormalOrder,
-    OperatorDistribute,
-    PauliAlgebra,
-    ProperOrder,
-    PruneIdentity,
-    PruneZeros,
-    ScaleTerms,
-    SortedOrder,
-)
+from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+from oqd_core.interface.analog import Declaration, AnalogExpr
 
-__all__ = [
-    "InferAnalogCircuitDim",
-    "OperatorDistribute",
-    "GatherMathExpr",
-    "GatherPauli",
-    "PruneIdentity",
-    "PauliAlgebra",
-    "NormalOrder",
-    "ProperOrder",
-    "ScaleTerms",
-    "SortedOrder",
-    "PruneZeros",
-]
+
+def parse_math(source: str | AnalogExpr):
+    if isinstance(source, AnalogExpr):
+        return source
+    circuit = parse_analog(f"x = {source}")
+    assert circuit.statements, f"Failed to parse: {source!r}"
+    stmt = circuit.statements[0]
+    assert isinstance(stmt, Declaration)
+    return stmt.value
+

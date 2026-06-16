@@ -12,14 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .analysis import analysis_canonical_hamiltonian_dim, analysis_term_index
-from .assign import assign_analog_circuit_dim, verify_analog_args_dim
+from .assign import infer_analog_circuit_dim
 from .canonicalize import analog_operator_canonicalization
+from .compile import compile_analog_circuit
 
 __all__ = [
-    "assign_analog_circuit_dim",
-    "verify_analog_args_dim",
     "analog_operator_canonicalization",
-    "analysis_canonical_hamiltonian_dim",
-    "analysis_term_index",
+    "infer_analog_circuit_dim",
+    "compile_analog_circuit",
 ]

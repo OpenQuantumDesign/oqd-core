@@ -150,7 +150,43 @@ class MathExpr(AnalogExpr): ...
 class BoolExpr(AnalogExpr): ...
 
 
-class OperatorExpr(AnalogExpr): ...
+class OperatorExpr(AnalogExpr):
+    @classmethod
+    def cast(cls, value: Any):
+        if isinstance(value, AnalogExpr):
+            return value
+        if isinstance(value, (int, float, complex, np.complex128)):
+            return AnalogExpr.cast(value)
+        if isinstance(value, str):
+            return AnalogExpr.cast(value)
+        raise TypeError
+        
+    def __neg__(self):
+        return OperatorMul(op1=MathNum(value=-1), op2=self)
+
+    def __add__(self, other):
+        return OperatorAdd(op1=self, op2=OperatorExpr.cast(other))
+
+    def __sub__(self, other):
+        return OperatorSub(op1=self, op2=OperatorExpr.cast(other))
+
+    def __mul__(self, other):
+        return OperatorMul(op1=self, op2=OperatorExpr.cast(other))
+
+    def __matmul__(self, other):
+        return OperatorKron(op1=self, op2=OperatorExpr.cast(other))
+
+    def __radd__(self, other):
+        return OperatorAdd(op1=OperatorExpr.cast(other), op2=self)
+
+    def __rsub__(self, other):
+        return OperatorSub(op1=OperatorExpr.cast(other), op2=self)
+
+    def __rmul__(self, other):
+        return OperatorMul(op1=OperatorExpr.cast(other), op2=self)
+
+    def __rmatmul__(self, other):
+        return OperatorKron(op1=OperatorExpr.cast(other), op2=self)
 
 
 class QuantumExpr(AnalogExpr): ...

@@ -15,22 +15,22 @@
 from typing import Union
 
 from oqd_compiler_infrastructure import RewriteRule
-
-from oqd_core.compiler.analog.passes.analysis import analysis_canonical_hamiltonian_dim
+from oqd_core.compiler.analog.error import CanonicalFormError
 
 ########################################################################################
-from oqd_core.interface.analog import AnalogCircuit, Evolve, IfElse, While
+from oqd_core.interface.analog import Evolve
+from oqd_core.compiler.analog.operator_dim import operator_dim
 
 ########################################################################################
 
 __all__ = [
-    "AssignAnalogIRDim",
+    "InferAnalogCircuitDim",
 ]
 
 ########################################################################################
 
 
-class AssignAnalogIRDim(RewriteRule):
+class InferAnalogCircuitDim(RewriteRule):
     """
     RewriteRule which gets the dimensions from analysis pass
     analysis_canonical_hamiltonian_dim and then inserts the dimension in the Analog IR
@@ -49,11 +49,9 @@ class AssignAnalogIRDim(RewriteRule):
         super().__init__()
         self.dim: Union[tuple, None] = None
 
-    def map_AnalogCircuit(self, model: AnalogCircuit):
-        model.n_qreg = self.dim[0]
-        model.n_qmode = self.dim[1]
-        return model
-
-    def map_Evolve(self, model):
+    def map_Evolve(self, model: Evolve):
+        dim = operator_dim(model.hamiltonian)
         if self.dim is None:
-            self.dim = analysis_canonical_hamiltonian_dim(model.hamiltonian)
+            self.dim = dim
+        elif self.dim != dim:
+            raise CanonicalFormError("Inconsistent Hilbert space dimensions between Evolve statements.")

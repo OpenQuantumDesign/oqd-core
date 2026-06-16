@@ -27,7 +27,7 @@ from oqd_core.compiler.analog.rewrite.canonicalize import (
     ScaleTerms,
     SortedOrder,
 )
-from oqd_core.compiler.analog.verify import (
+from oqd_core.compiler.analog.verify.canonicalize import (
     CanVerGatherMathExpr,
     CanVerGatherPauli,
     CanVerNormalOrder,
@@ -37,10 +37,13 @@ from oqd_core.compiler.analog.verify import (
     CanVerPruneIdentity,
     CanVerScaleTerm,
     CanVerSortedOrder,
-    VerifyHilberSpaceDim,
 )
-from oqd_core.compiler.math.passes import canonicalize_math_expr
-from oqd_core.interface.analog import AnalogCircuit, Declaration, Evolve, Operator, IfElse, While
+from oqd_core.compiler.analog.verify.operator import VerifyHilbertSpaceDim
+from oqd_core.compiler.analog.error import CanonicalFormError
+from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
+from oqd_core.interface.analog import AnalogCircuit, Declaration, Evolve, IfElse, While
+from oqd_core.interface.analog.expr import OperatorExpr, Access
+from oqd_core.interface.analog.statement import Statement
 
 ########################################################################################
 
@@ -88,6 +91,34 @@ verify_canonicalization = Chain(
 )
 
 
+def resolve_operator_expr(expr, symbols: dict):
+    if isinstance(expr, Access):
+        if expr.name not in symbols:
+            raise CanonicalFormError(f"Undefined access: {expr.name}")
+        expr = symbols[expr.name]
+        if isinstance(expr, Access):
+            return resolve_operator_expr(expr, symbols)
+        if not isinstance(expr, OperatorExpr):
+            raise CanonicalFormError(f" Access {expr.name} is not an operator.")
+    return expr
+    
+
+def canonicalize_stmt(stmt: Statement, symbols: dict) -> Statement:
+    if isinstance(stmt, Declaration):
+        if isinstance(stmt.value, OperatorExpr):
+            stmt.value = analog_operator_canonicalization(stmt.value)
+        symbols[stmt.name] = stmt.value
+    elif isinstance(stmt, Evolve):
+        resolved = resolve_operator_expr(stmt.hamiltonian, symbols)
+        stmt.hamiltonian = analog_operator_canonicalization(resolved)
+    elif isinstance(stmt, IfElse):
+        stmt.then_branch = [canonicalize_stmt(s, symbols) for s in stmt.then_branch]
+        stmt.else_branch = [canonicalize_stmt(s, symbols) for s in stmt.else_branch]
+    elif isinstance(stmt, While):
+        stmt.body = [canonicalize_stmt(s, symbols) for s in stmt.body]
+    return stmt
+
+
 def analog_operator_canonicalization(model):
     """
     This pass runs canonicalization chain for Operators with a verifies for canonicalization.
@@ -112,16 +143,8 @@ def analog_operator_canonicalization(model):
     """
     
     if isinstance(model, AnalogCircuit):
-        for stmt in model.statements:
-            if isinstance(stmt, Evolve):
-                stmt.hamiltonian = analog_operator_canonicalization(stmt.hamiltonian)
-            elif isinstance(stmt, Declaration) and isinstance(stmt.value, Operator):
-                stmt.value = analog_operator_canonicalization(stmt.value)
-            elif isinstance(stmt, IfElse):
-                stmt.then_branch = analog_operator_canonicalization(stmt.then_branch)
-                stmt.else_branch = analog_operator_canonicalization(stmt.else_branch)
-            elif isinstance(stmt, While):
-                stmt.body = analog_operator_canonicalization(stmt.body)
+        symbols = {}
+        model.statements = [canonicalize_stmt(s, symbols) for s in model.statements]
         return model
     
     return Chain(
@@ -129,7 +152,7 @@ def analog_operator_canonicalization(model):
         FixedPoint(Post(ProperOrder())),
         FixedPoint(pauli_chain),
         FixedPoint(Post(GatherPauli())),
-        In(VerifyHilberSpaceDim(), reverse=True),
+        In(VerifyHilbertSpaceDim(), reverse=True),
         FixedPoint(normal_order_chain),
         FixedPoint(Post(PruneIdentity())),
         FixedPoint(scale_terms_chain),

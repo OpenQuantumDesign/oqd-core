@@ -14,23 +14,36 @@
 
 from typing import Union
 
-from oqd_compiler_infrastructure import RewriteRule
+from oqd_compiler_infrastructure import In, RewriteRule
 
 ########################################################################################
-from oqd_core.interface.analog import (
+from oqd_core.interface.analog.expr import (
     Annihilation,
     Creation,
     Identity,
     Ladder,
+    MathAdd,
+    MathDiv,
+    MathFunc,
+    MathImag,
+    MathMul,
+    MathNum,
+    MathPow,
+    MathSub,
+    MathVar,
     OperatorAdd,
+    OperatorSub,
     OperatorKron,
     OperatorMul,
     OperatorTerminal,
+    Pauli,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
 )
+
+from .operator_dim import is_scalar_mul, coeff_and_op, MATH_EXPR_TYPES, OPERATOR_EXPR_TYPES
 
 ########################################################################################
 
@@ -42,8 +55,6 @@ class TermIndex(RewriteRule):
 
     Args:
         model (VisitableBaseModel):
-            The rule only analyses [`Operator`][oqd_core.interface.analog.operator.Operator] in Analog level
-
     Returns:
         model (VisitableBaseModel):
 
@@ -80,6 +91,14 @@ class TermIndex(RewriteRule):
             return (1, 1)
         if isinstance(model, Identity):
             return (0, 0)
+    
+    def _visit_operator(self, model):
+        if isinstance(model, OperatorKron):
+            self.map_OperatorKron(model)
+        elif isinstance(model, OperatorTerminal):
+            self.map_OperatorTerminal(model)
+        elif isinstance(model, OperatorMul):
+            self.map_OperatorMul(model)
 
     def map_OperatorKron(self, model: OperatorKron):
         if isinstance(model.op1, Union[OperatorTerminal, OperatorMul]):
@@ -103,6 +122,11 @@ class TermIndex(RewriteRule):
         self.term_idx.append([])
 
     def map_OperatorMul(self, model):
+        if is_scalar_mul(model):
+            _, op = coeff_and_op(model)
+            self._visit_operator(op)
+            return
+        
         if isinstance(model.op1, Ladder) and isinstance(model.op2, Ladder):
             if self._potential_terminal:
                 self.term_idx[-1] = []
@@ -119,3 +143,10 @@ class TermIndex(RewriteRule):
                 self.term_idx[-1][idx][0] + new[0],
                 self.term_idx[-1][idx][1] + new[1],
             )
+
+
+def analysis_term_index(model):
+    walker = In(TermIndex())
+    walker(model=model)
+    return walker.children[0].term_idx
+
