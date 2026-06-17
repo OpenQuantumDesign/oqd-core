@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .assign import InferAnalogCircuitDim
 from .canonicalize import (
     GatherMathExpr,
     GatherPauli,
@@ -27,7 +26,6 @@ from .canonicalize import (
 )
 
 __all__ = [
-    "InferAnalogCircuitDim",
     "OperatorDistribute",
     "GatherMathExpr",
     "GatherPauli",

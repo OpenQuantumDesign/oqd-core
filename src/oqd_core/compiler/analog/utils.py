@@ -14,7 +14,7 @@
 
 
 from oqd_compiler_infrastructure import ConversionRule, Post
-from oqd_core.compiler.analog.term_index import is_scalar_mul, coeff_and_op
+from oqd_core.compiler.analog.operator_dim import is_scalar_mul, coeff_and_op
 from oqd_core.compiler.analog.math.rules import PrintMathExpr
 from oqd_core.interface.analog.expr import (
     MathExpr,
@@ -24,7 +24,6 @@ from oqd_core.interface.analog.expr import (
     OperatorMul,
     OperatorSub,
     OperatorTerminal,
-    MathFunc,
 )
 
 ########################################################################################

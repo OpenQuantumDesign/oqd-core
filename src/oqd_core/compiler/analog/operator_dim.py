@@ -37,6 +37,7 @@ from oqd_core.interface.analog.expr import (
     PauliY,
     PauliZ,
 )
+from oqd_core.compiler.analog.error import AnalogCompilerError
 
 MATH_EXPR_TYPES = (
     MathNum,
@@ -117,13 +118,13 @@ def operator_dim(expr):
         if ref is None:
             ref = dim
         elif ref != dim:
-            raise ValueError("Incorrect Hilbert space dimension")
+            raise AnalogCompilerError("Incorrect Hilbert space dimension")
         curr = curr.op1
         
     last = term_dim(curr)
     if ref is None:
         return last
     if ref != last:
-        raise ValueError("Incorrect Hilbert space dimension")
+        raise AnalogCompilerError("Incorrect Hilbert space dimension")
     return ref
             

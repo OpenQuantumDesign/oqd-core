@@ -11,8 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-from oqd_compiler_infrastructure import Chain, FixedPoint, In, Post, Pre
+from oqd_compiler_infrastructure import Chain, FixedPoint, Post, Pre
 
 ########################################################################################
 from oqd_core.compiler.analog.rewrite.canonicalize import (
@@ -38,20 +37,21 @@ from oqd_core.compiler.analog.verify.canonicalize import (
     CanVerScaleTerm,
     CanVerSortedOrder,
 )
-from oqd_core.compiler.analog.verify.operator import VerifyHilbertSpaceDim
-from oqd_core.compiler.analog.error import CanonicalFormError
+from oqd_core.compiler.analog.operator_dim import operator_dim
+from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
-from oqd_core.interface.analog import AnalogCircuit, Declaration, Evolve, IfElse, While
 from oqd_core.interface.analog.expr import OperatorExpr, Access
-from oqd_core.interface.analog.statement import Statement
 
-########################################################################################
 
 __all__ = [
     "analog_operator_canonicalization",
 ]
 
 ########################################################################################
+
+
+########################################################################################
+
 
 dist_chain = Chain(
     FixedPoint(Post(OperatorDistribute())),
@@ -90,33 +90,38 @@ verify_canonicalization = Chain(
     Pre(CanVerScaleTerm()),
 )
 
+def verify_operator_dim(expr):
+    operator_dim(expr)
+    return expr
 
 def resolve_operator_expr(expr, symbols: dict):
     if isinstance(expr, Access):
         if expr.name not in symbols:
-            raise CanonicalFormError(f"Undefined access: {expr.name}")
+            raise AnalogCompilerError(f"Undefined access: {expr.name}")
         expr = symbols[expr.name]
         if isinstance(expr, Access):
             return resolve_operator_expr(expr, symbols)
         if not isinstance(expr, OperatorExpr):
-            raise CanonicalFormError(f" Access {expr.name} is not an operator.")
+            raise AnalogCompilerError(f" Access {expr.name} is not an operator.")
     return expr
     
+def canonicalize_operator_expr(model):
+    return Chain(
+        FixedPoint(dist_chain),
+        FixedPoint(Post(ProperOrder())),
+        FixedPoint(pauli_chain),
+        FixedPoint(Post(GatherPauli())),
+        FixedPoint(normal_order_chain),
+        FixedPoint(Post(PruneIdentity())),
+        FixedPoint(scale_terms_chain),
+        FixedPoint(Post(SortedOrder())),
+        verify_operator_dim,
+        canonicalize_math_expr,
+        FixedPoint(Post(PruneZeros())),
+        verify_canonicalization,
+    )(model=model)
 
-def canonicalize_stmt(stmt: Statement, symbols: dict) -> Statement:
-    if isinstance(stmt, Declaration):
-        if isinstance(stmt.value, OperatorExpr):
-            stmt.value = analog_operator_canonicalization(stmt.value)
-        symbols[stmt.name] = stmt.value
-    elif isinstance(stmt, Evolve):
-        resolved = resolve_operator_expr(stmt.hamiltonian, symbols)
-        stmt.hamiltonian = analog_operator_canonicalization(resolved)
-    elif isinstance(stmt, IfElse):
-        stmt.then_branch = [canonicalize_stmt(s, symbols) for s in stmt.then_branch]
-        stmt.else_branch = [canonicalize_stmt(s, symbols) for s in stmt.else_branch]
-    elif isinstance(stmt, While):
-        stmt.body = [canonicalize_stmt(s, symbols) for s in stmt.body]
-    return stmt
+########################################################################################
 
 
 def analog_operator_canonicalization(model):
@@ -142,22 +147,5 @@ def analog_operator_canonicalization(model):
         This code was inspired by [Liang.jl](https://github.com/Roger-luo/Liang.jl/blob/main/src/canonicalize/entry.jl#L8).
     """
     
-    if isinstance(model, AnalogCircuit):
-        symbols = {}
-        model.statements = [canonicalize_stmt(s, symbols) for s in model.statements]
-        return model
-    
-    return Chain(
-        FixedPoint(dist_chain),
-        FixedPoint(Post(ProperOrder())),
-        FixedPoint(pauli_chain),
-        FixedPoint(Post(GatherPauli())),
-        In(VerifyHilbertSpaceDim(), reverse=True),
-        FixedPoint(normal_order_chain),
-        FixedPoint(Post(PruneIdentity())),
-        FixedPoint(scale_terms_chain),
-        FixedPoint(Post(SortedOrder())),
-        canonicalize_math_expr,
-        FixedPoint(Post(PruneZeros())),
-        verify_canonicalization,
-    )(model=model)
+    return canonicalize_operator_expr(model)
+

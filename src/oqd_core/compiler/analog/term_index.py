@@ -22,28 +22,17 @@ from oqd_core.interface.analog.expr import (
     Creation,
     Identity,
     Ladder,
-    MathAdd,
-    MathDiv,
-    MathFunc,
-    MathImag,
-    MathMul,
-    MathNum,
-    MathPow,
-    MathSub,
-    MathVar,
     OperatorAdd,
-    OperatorSub,
     OperatorKron,
     OperatorMul,
     OperatorTerminal,
-    Pauli,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
 )
 
-from .operator_dim import is_scalar_mul, coeff_and_op, MATH_EXPR_TYPES, OPERATOR_EXPR_TYPES
+from .operator_dim import is_scalar_mul, coeff_and_op
 
 ########################################################################################
 

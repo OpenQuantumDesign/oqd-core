@@ -70,6 +70,11 @@ from oqd_core.interface.analog.expr import Annihilation, Creation, Identity, Ter
 EXPR_NODE_TYPES = alias_types(AnalogExprSubtypes)
 TERMINAL_NODE_TYPES = alias_types(Terminal)
 
+MATH_FUNCS =  {
+    "abs", "sin", "cos", "tan", "exp", "log",
+    "sinh", "cosh", "tanh", "atan", "acos", "asin",
+    "atanh", "asinh", "acosh", "heaviside", "conj", "real", "imag",
+}
 
 class AnalogSemantics:
     def __init__(self, value_lattice: AnalogTypeLattice):
@@ -135,12 +140,7 @@ class AnalogSemantics:
             return out
         
         if isinstance(expr, MathFunc):
-            math_funcs =  {
-                "abs", "sin", "cos", "tan", "exp", "log",
-                "sinh", "cosh", "tanh", "atan", "acos", "asin",
-                "atanh", "asinh", "acosh", "heaviside", "conj", "real", "imag",
-            }
-            if expr.func in math_funcs:
+            if expr.func in MATH_FUNCS:
                 arg = expr.expr
                 t = self.infer_type(arg, env)
                 if not self.value_lattice.leq(t, TScalar):

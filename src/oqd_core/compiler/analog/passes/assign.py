@@ -12,22 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_compiler_infrastructure import Post
-
 ########################################################################################
-from oqd_core.compiler.analog.rewrite.assign import InferAnalogCircuitDim
-from oqd_core.interface.analog import AnalogCircuit
+from oqd_core.interface.analog import Evolve
+from oqd_core.compiler.analog.error import AnalogCompilerError
+from oqd_core.compiler.analog.operator_dim import operator_dim
+from oqd_core.compiler.analog.cfg_walk import iter_stmt_blocks
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+
 
 ########################################################################################
 
 __all__ = [
-    "infer_analog_circuit_dim",
+    "infer_analog_circuit_dim_cfg",
 ]
 
 ########################################################################################
 
-
-def infer_analog_circuit_dim(model: AnalogCircuit) -> tuple[int, int]:
+def infer_analog_circuit_dim_cfg(cfg: ControlFlowGraph):
     """
     This pass assigns n_qreg and n_qmode in the analog circuit and then verifies the assignment
 
@@ -40,7 +41,14 @@ def infer_analog_circuit_dim(model: AnalogCircuit) -> tuple[int, int]:
     Assumptions:
         All [`Operator`][oqd_core.interface.analog.operator.Operator] inside [`AnalogCircuit`][oqd_core.interface.analog.operations.AnalogCircuit] must be canonicalized
     """
-    rule = InferAnalogCircuitDim()
-    Post(rule)(model)
-    return rule.dim or (0, 0)
+    dim = None
+    for _, block in iter_stmt_blocks(cfg):
+        if not isinstance(block.stmt, Evolve):
+            continue
+        d = operator_dim(block.stmt.hamiltonian)
+        if dim is None:
+            dim = d
+        elif dim != d:
+            raise AnalogCompilerError("Inconsistent Hilbert space dimensions between Evolve statements")
+    return dim or (0, 0)
 

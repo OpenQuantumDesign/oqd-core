@@ -16,7 +16,7 @@ from typing import Union
 
 from oqd_compiler_infrastructure import RewriteRule
 
-from oqd_core.compiler.analog.error import CanonicalFormError
+from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.operator_dim import is_scalar_mul, coeff_and_op
 from oqd_core.compiler.analog.term_index import analysis_term_index
 
@@ -75,11 +75,11 @@ class CanVerPauliAlgebra(RewriteRule):
         if is_scalar_mul(model):
             return
         if isinstance(model.op1, Pauli) and isinstance(model.op2, Pauli):
-            raise CanonicalFormError("Incomplete Pauli Algebra")
+            raise AnalogCompilerError("Incomplete Pauli Algebra")
         elif isinstance(model.op1, Pauli) and isinstance(model.op2, Ladder):
-            raise CanonicalFormError("Incorrect Ladder and Pauli multiplication")
+            raise AnalogCompilerError("Incorrect Ladder and Pauli multiplication")
         elif isinstance(model.op1, Ladder) and isinstance(model.op2, Pauli):
-            raise CanonicalFormError("Incorrect Ladder and Pauli multiplication")
+            raise AnalogCompilerError("Incorrect Ladder and Pauli multiplication")
         pass
 
 
@@ -107,7 +107,7 @@ class CanVerGatherMathExpr(RewriteRule):
         if is_scalar_mul(model):
             _, inner = coeff_and_op(model)
             if is_scalar_mul(inner):
-                raise CanonicalFormError(
+                raise AnalogCompilerError(
                     "Incomplete scalar multiplications after GatherMathExpression"
                 )
             return
@@ -118,7 +118,7 @@ class CanVerGatherMathExpr(RewriteRule):
 
     def _mulkron(self, model: Union[OperatorMul, OperatorKron]):
         if is_scalar_mul(model.op1) or is_scalar_mul(model.op2):
-            raise CanonicalFormError("Incomplete Gather Math Expression")
+            raise AnalogCompilerError("Incomplete Gather Math Expression")
 
 
 class CanVerOperatorDistribute(RewriteRule):
@@ -161,13 +161,13 @@ class CanVerOperatorDistribute(RewriteRule):
             and isinstance(model.op1, OperatorKron)
             and isinstance(model.op2, OperatorKron)
         ):
-            raise CanonicalFormError(
+            raise AnalogCompilerError(
                 "Incomplete Operator Distribution (multiplication of OperatorKron present)"
             )
         if is_scalar_mul(model):
             _, inner = coeff_and_op(model)
             if not isinstance(inner, self.allowed_ops):
-                raise CanonicalFormError(
+                raise AnalogCompilerError(
                     "Scalar multiplication of operators not simplified fully"
                 )
             return
@@ -175,13 +175,13 @@ class CanVerOperatorDistribute(RewriteRule):
             isinstance(model.op1, self.allowed_ops)
             and isinstance(model.op2, self.allowed_ops)
         ):
-            raise CanonicalFormError("Incomplete Operator Distribution")
+            raise AnalogCompilerError("Incomplete Operator Distribution")
 
         pass
 
     def map_OperatorSub(self, model: OperatorSub):
         if isinstance(model, OperatorSub):
-            raise CanonicalFormError("Subtraction of terms present")
+            raise AnalogCompilerError("Subtraction of terms present")
         pass
 
 
@@ -212,7 +212,7 @@ class CanVerProperOrder(RewriteRule):
         if is_scalar_mul(model):
             _, inner = coeff_and_op(model)
             if isinstance(inner, OperatorMul):
-                raise CanonicalFormError(
+                raise AnalogCompilerError(
                     "Incorrect Proper Ordering (for scalar multiplication)"
                 )
             return
@@ -224,7 +224,7 @@ class CanVerProperOrder(RewriteRule):
 
     def _OperatorAddMulKron(self, model: Union[OperatorAdd, OperatorMul, OperatorKron]):
         if isinstance(model.op2, model.__class__):
-            raise CanonicalFormError("Incorrect Proper Ordering")
+            raise AnalogCompilerError("Incorrect Proper Ordering")
         pass
 
 
@@ -251,7 +251,7 @@ class CanVerPruneIdentity(RewriteRule):
         if is_scalar_mul(model):
             return
         if isinstance(model.op1, Identity) or isinstance(model.op2, Identity):
-            raise CanonicalFormError("Prune Identity is not complete")
+            raise AnalogCompilerError("Prune Identity is not complete")
         pass
 
 
@@ -280,10 +280,10 @@ class CanVerGatherPauli(RewriteRule):
         _, op1 = coeff_and_op(model.op1)
         if isinstance(model.op2, Pauli):
             if isinstance(op1, (Ladder, OperatorMul)):
-                raise CanonicalFormError("Incorrect GatherPauli")
+                raise AnalogCompilerError("Incorrect GatherPauli")
             if isinstance(op1, OperatorKron):
                 if isinstance(op1.op2, (Ladder, OperatorMul)):
-                    raise CanonicalFormError("Incorrect GatherPauli")
+                    raise AnalogCompilerError("Incorrect GatherPauli")
         pass
 
 
@@ -316,10 +316,10 @@ class CanVerNormalOrder(RewriteRule):
             return
         if isinstance(model.op2, Creation):
             if isinstance(model.op1, Annihilation):
-                raise CanonicalFormError("Incorrect NormalOrder")
+                raise AnalogCompilerError("Incorrect NormalOrder")
             if isinstance(model.op1, OperatorMul):
                 if isinstance(model.op1.op2, Annihilation):
-                    raise CanonicalFormError("Incorrect NormalOrder")
+                    raise AnalogCompilerError("Incorrect NormalOrder")
         pass
 
 
@@ -354,9 +354,9 @@ class CanVerSortedOrder(RewriteRule):
         else:
             term1 = analysis_term_index(model.op1)
         if term1 > term2:
-            raise CanonicalFormError("Terms are not in sorted order")
+            raise AnalogCompilerError("Terms are not in sorted order")
         elif term1 == term2:
-            raise CanonicalFormError("Duplicate terms present")
+            raise AnalogCompilerError("Duplicate terms present")
         pass
 
 
@@ -396,15 +396,15 @@ class CanVerScaleTerm(RewriteRule):
             self._single_term_scaling_needed = True
             return
         if not self._single_term_scaling_needed:
-            raise CanonicalFormError("Single term operator has not been scaled")
+            raise AnalogCompilerError("Single term operator has not been scaled")
 
     def map_OperatorKron(self, model: OperatorKron):
         if not self._single_term_scaling_needed:
-            raise CanonicalFormError("Single term operator has not been scaled")
+            raise AnalogCompilerError("Single term operator has not been scaled")
 
     def map_OperatorTerminal(self, model: OperatorTerminal):
         if not self._single_term_scaling_needed:
-            raise CanonicalFormError("Single term operator has not been scaled")
+            raise AnalogCompilerError("Single term operator has not been scaled")
 
     def map_OperatorAdd(self, model: OperatorAdd):
         self._single_term_scaling_needed = True
@@ -412,6 +412,6 @@ class CanVerScaleTerm(RewriteRule):
             is_scalar_mul(model.op1) or isinstance(model.op1, OperatorAdd)
         ):
             return
-        raise CanonicalFormError(
+        raise AnalogCompilerError(
             "some operators between addition are not scaled properly"
         )

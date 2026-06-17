@@ -17,6 +17,8 @@ from oqd_core.analysis.analog.symbol_table import AnalogSymbolTable, target_dim
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.analog import Evolve, Initialize, Measure
 from oqd_core.backend.metric import Expectation
+from oqd_core.compiler.analog.error import AnalogCompilerError
+from oqd_core.compiler.analog.cfg_walk import iter_stmt_blocks
 
 __all__ = [
     "verify_analog_args_dim",
@@ -46,43 +48,33 @@ def verify_analog_args_dim(model, n_qreg, n_qmode):
         dim = operator_dim(metric.operator)
     
         if dim is None or dim != expected:
-            raise ValueError(f"Inconsistent Hilbert space dimension.")
+            raise AnalogCompilerError(f"Inconsistent Hilbert space dimension.")
         
     return model
 
 
 def verify_register_access_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable):
     
-    statements = []
-    for block in cfg.blocks.values():
-        if isinstance(block.stmt, str):
-            continue
-        statements.append(block.stmt)
-    
-    for stmt in statements:
+    for node_id, block in iter_stmt_blocks(cfg):
+        stmt = block.stmt
         if not isinstance(stmt, (Evolve, Initialize, Measure)):
             continue
-        env = symbol_table.env_before(stmt)
+        env = symbol_table.in_env[node_id]
         target_dim(stmt.targets, env)
         
     return cfg
 
 def verify_hamiltonian_target_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable):
     
-    statements = []
-    for block in cfg.blocks.values():
-        if isinstance(block.stmt, str):
-            continue
-        statements.append(block.stmt)
-    
-    for stmt in statements:
+    for node_id, block in iter_stmt_blocks(cfg):
+        stmt = block.stmt
         if not isinstance(stmt, Evolve):
             continue
-        env = symbol_table.env_before(stmt)
+        env = symbol_table.in_env[node_id]
         h_dim = operator_dim(stmt.hamiltonian)
         t_dim = target_dim(stmt.targets, env)
         if h_dim != t_dim:
-            raise ValueError(f"Inconsistent Hilbert space dimension.")
+            raise AnalogCompilerError(f"Inconsistent Hilbert space dimension.")
         
     return cfg
 

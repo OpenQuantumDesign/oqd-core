@@ -15,11 +15,11 @@
 from typing import Union
 
 import pytest
-from oqd_compiler_infrastructure import ConversionRule, In, Post, RewriteRule, WalkBase
+from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule, WalkBase
 
 from oqd_core.compiler.analog.utils import PrintOperator
-from oqd_core.compiler.analog.verify.operator import VerifyHilbertSpaceDim
-from oqd_core.compiler.analog.error import CanonicalFormError
+from oqd_core.compiler.analog.operator_dim import operator_dim
+from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.operator_dim import scalar_mul
 
 ########################################################################################
@@ -210,53 +210,29 @@ class TestComplexFinalStringVerbosePrintOp:
 
 
 class TestHilbertSpaceDimVerification:
-    def setup_method(self):
-        self._rule = VerifyHilbertSpaceDim()
-        self._walk_method = In
-        self._reverse = True
 
     def test_simple_addition_fail(self):
         """Addition fail"""
         op = 2 * (X @ Z @ Z) + 3 * (Y @ PI) + 2 * (Z @ Z)
-        with pytest.raises(CanonicalFormError):
-            apply_pass(
-                operator=op,
-                rule=self._rule,
-                walk_method=self._walk_method,
-                reverse=self._reverse,
-            )
+        with pytest.raises(AnalogCompilerError):
+            operator_dim(op)
 
     def test_simple_addition_pass_single(self):
         """Addition pass single"""
         op = 2 * X + 3 * Y + Z + Y  # + 2 * (Z @ Z)
-        apply_pass(
-            operator=op,
-            rule=self._rule,
-            walk_method=self._walk_method,
-            reverse=self._reverse,
-        )
+        assert operator_dim(op) == (1, 0)
 
     def test_simple_addition_fail_single_with_ladder(self):
         """Addition fail single term with ladder"""
         op = 2 * X + Y + A + Z + Y  # + 2 * (Z @ Z)
-        with pytest.raises(CanonicalFormError):
-            apply_pass(
-                operator=op,
-                rule=self._rule,
-                walk_method=self._walk_method,
-                reverse=self._reverse,
-            )
+        with pytest.raises(AnalogCompilerError):
+            operator_dim(op)
 
     def test_simple_addition_fail_ladder(self):
         """Addition fail with ladder"""
         op = 2 * (X @ Z @ A) + 3 * (Y @ PI @ C) + 2 * (Z @ Z @ (C * C * PI) @ A)
-        with pytest.raises(CanonicalFormError):
-            apply_pass(
-                operator=op,
-                rule=self._rule,
-                walk_method=self._walk_method,
-                reverse=self._reverse,
-            )
+        with pytest.raises(AnalogCompilerError):
+            operator_dim(op)
 
     def test_simple_addition_pass_ladder(self):
         """Addition pass with ladder"""
@@ -266,9 +242,4 @@ class TestHilbertSpaceDimVerification:
             + 2 * (Z @ Z @ (C * C * PI))
             + (Y @ PI @ (C * A * A * C * LI))
         )
-        apply_pass(
-            operator=op,
-            rule=self._rule,
-            walk_method=self._walk_method,
-            reverse=self._reverse,
-        )
+        assert operator_dim(op) == (2, 1)

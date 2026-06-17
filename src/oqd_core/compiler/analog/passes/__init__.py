@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .assign import infer_analog_circuit_dim
 from .canonicalize import analog_operator_canonicalization
 from .compile import compile_analog_circuit
+from .assign import infer_analog_circuit_dim_cfg
 
 __all__ = [
     "analog_operator_canonicalization",
-    "infer_analog_circuit_dim",
     "compile_analog_circuit",
+    "infer_analog_circuit_dim_cfg",
 ]

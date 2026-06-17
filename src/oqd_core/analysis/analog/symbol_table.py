@@ -68,10 +68,6 @@ RegisterEnv = dict[str, SymbolBinding]
 class AnalogSymbolTable:
     in_env: dict[int, RegisterEnv]
     stmt_index: dict[int, int]
-    
-    def env_before(self, stmt) -> RegisterEnv:
-        node_id = self.stmt_index.get(id(stmt))
-        return self.in_env[node_id]
 
 
 class SymbolBindingLattice(Lattice[Union[SymbolBinding, type[LatticeTop]]]):

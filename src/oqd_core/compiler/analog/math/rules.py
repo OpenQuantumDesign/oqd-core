@@ -479,7 +479,7 @@ class EvaluateMathExpr(ConversionRule):
         if model.func == "heaviside":
             return np.heaviside(operands["expr"], 1)
 
-        raise ValueError("Unsupported function")
+        raise AnalogCompilerError("Unsupported function")
 
     def map_MathAdd(self, model: MathAdd, operands):
         return operands["expr1"] + operands["expr2"]
