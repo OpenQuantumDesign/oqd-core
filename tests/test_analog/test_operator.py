@@ -18,9 +18,9 @@ import pytest
 from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule, WalkBase
 
 from oqd_core.compiler.analog.utils import PrintOperator
-from oqd_core.compiler.analog.operator_dim import operator_dim
+from oqd_core.compiler.analog.operator.dim import operator_dim
 from oqd_core.compiler.analog.error import AnalogCompilerError
-from oqd_core.compiler.analog.operator_dim import scalar_mul
+from oqd_core.compiler.analog.operator.dim import scalar_mul
 
 ########################################################################################
 from oqd_core.interface.analog.expr import (

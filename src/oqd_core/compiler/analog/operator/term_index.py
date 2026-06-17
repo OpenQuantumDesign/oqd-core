@@ -32,7 +32,7 @@ from oqd_core.interface.analog.expr import (
     PauliZ,
 )
 
-from .operator_dim import is_scalar_mul, coeff_and_op
+from .dim import is_scalar_mul, coeff_and_op
 
 ########################################################################################
 

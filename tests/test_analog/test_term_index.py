@@ -14,7 +14,7 @@
 
 from oqd_compiler_infrastructure import In
 
-from oqd_core.compiler.analog.term_index import TermIndex
+from oqd_core.compiler.analog.operator.term_index import TermIndex
 from oqd_core.interface.analog.expr import (
     Annihilation,
     Creation,

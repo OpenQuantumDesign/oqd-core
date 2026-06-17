@@ -12,10 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .compile import compile_analog_circuit
-from .assign import infer_analog_circuit_dim_cfg
+from .walk import canonicalize_math_block, canonicalize_math_cfg
+from .operator_env import canonicalize_operators_cfg
+
 
 __all__ = [
-    "compile_analog_circuit",
-    "infer_analog_circuit_dim_cfg",
+    "canonicalize_math_block",
+    "canonicalize_math_cfg",
+    "canonicalize_operators_cfg",
 ]

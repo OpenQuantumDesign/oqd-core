@@ -23,7 +23,7 @@ from oqd_compiler_infrastructure.lattice import (
     LatticeTop,
     maplattice,
 )
-from oqd_core.compiler.analog.passes.canonicalize import (
+from oqd_core.compiler.analog.operator.canonicalize import (
     resolve_operator_expr,
     canonicalize_operator_expr,
 )
@@ -32,9 +32,9 @@ from oqd_core.interface.analog import Declaration, Evolve
 from oqd_core.interface.analog.expr import OperatorExpr
 from oqd_core.compiler.analog.error import AnalogCompilerError
 
+########################################################################################
+
 OperatorEnv = dict[str, OperatorExpr]
-
-
 
 
 class OperatorExprLattice(Lattice[Union[OperatorExpr, type[LatticeTop]]]):
@@ -127,7 +127,6 @@ class OperatorEnvBuilder(ForwardDataflowAnalysis[int, OperatorEnv]):
         
         return env
     
-
 
 def canonicalize_operators_cfg(cfg: ControlFlowGraph):
     OperatorEnvBuilder(cfg)

@@ -11,47 +11,31 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-from oqd_compiler_infrastructure import Chain, FixedPoint, Post, Pre
 
-########################################################################################
+
+from oqd_compiler_infrastructure import Chain, FixedPoint, Pre, Post
 from oqd_core.compiler.analog.rewrite.canonicalize import (
-    GatherMathExpr,
-    GatherPauli,
-    NormalOrder,
-    OperatorDistribute,
-    PauliAlgebra,
-    ProperOrder,
-    PruneIdentity,
-    PruneZeros,
-    ScaleTerms,
-    SortedOrder,
+    GatherMathExpr, GatherPauli, NormalOrder, OperatorDistribute,
+    PauliAlgebra, ProperOrder, PruneIdentity, PruneZeros, ScaleTerms, SortedOrder,
 )
 from oqd_core.compiler.analog.verify.canonicalize import (
-    CanVerGatherMathExpr,
-    CanVerGatherPauli,
-    CanVerNormalOrder,
-    CanVerOperatorDistribute,
-    CanVerPauliAlgebra,
-    CanVerProperOrder,
-    CanVerPruneIdentity,
-    CanVerScaleTerm,
-    CanVerSortedOrder,
+    CanVerGatherMathExpr, CanVerGatherPauli, CanVerNormalOrder,
+    CanVerOperatorDistribute, CanVerPauliAlgebra, CanVerProperOrder,
+    CanVerPruneIdentity, CanVerScaleTerm, CanVerSortedOrder,
 )
-from oqd_core.compiler.analog.operator_dim import operator_dim
+from oqd_core.compiler.analog.operator.dim import operator_dim
 from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
 from oqd_core.interface.analog.expr import OperatorExpr, Access
 
+########################################################################################
 
 __all__ = [
-    "analog_operator_canonicalization",
+    "resolve_operator_expr",
+    "canonicalize_operator_expr",
 ]
 
 ########################################################################################
-
-
-########################################################################################
-
 
 dist_chain = Chain(
     FixedPoint(Post(OperatorDistribute())),
@@ -121,31 +105,4 @@ def canonicalize_operator_expr(model):
         verify_canonicalization,
     )(model=model)
 
-########################################################################################
-
-
-def analog_operator_canonicalization(model):
-    """
-    This pass runs canonicalization chain for Operators with a verifies for canonicalization.
-
-    Args:
-        model (VisitableBaseModel):
-
-    Returns:
-        model (VisitableBaseModel):  [`Operator`][oqd_core.interface.analog.operator.Operator] of Analog level are in canonical form
-
-    Assumptions:
-        None
-
-    Example:
-        - for model = X@(Y + Z), output is 1*(X@Y) + 1 * (X@Z)
-        - for model = [`AnalogGate`][oqd_core.interface.analog.operations.AnalogGate](hamiltonian = (A * J)@X), output is
-            [`AnalogGate`][oqd_core.interface.analog.operations.AnalogGate](hamiltonian = 1 * (X@A))
-            (where A = Annhiliation(), J = Identity() [Ladder])
-
-    Acknowledgement:
-        This code was inspired by [Liang.jl](https://github.com/Roger-luo/Liang.jl/blob/main/src/canonicalize/entry.jl#L8).
-    """
-    
-    return canonicalize_operator_expr(model)
 

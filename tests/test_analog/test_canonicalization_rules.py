@@ -38,7 +38,7 @@ from oqd_core.interface.analog.expr import (
     MathNum,
     MathMul,
 )
-from oqd_core.compiler.analog.operator_dim import scalar_mul
+from oqd_core.compiler.analog.operator.dim import scalar_mul
 
 from helpers import parse_math
 

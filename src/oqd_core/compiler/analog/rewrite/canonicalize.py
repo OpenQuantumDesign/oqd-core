@@ -15,8 +15,8 @@
 from typing import Union
 
 from oqd_compiler_infrastructure import RewriteRule
-from oqd_core.compiler.analog.term_index import analysis_term_index
-from oqd_core.compiler.analog.operator_dim import (
+from oqd_core.compiler.analog.operator.term_index import analysis_term_index
+from oqd_core.compiler.analog.operator.dim import (
     coeff_and_op,
     is_scalar_mul,
     scalar_mul,

@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from oqd_compiler_infrastructure import ConversionRule, Post
-from oqd_core.compiler.analog.operator_dim import is_scalar_mul, coeff_and_op
+
+from oqd_core.compiler.analog.operator.dim import is_scalar_mul, coeff_and_op
+
 from oqd_core.compiler.analog.math.rules import PrintMathExpr
 from oqd_core.interface.analog.expr import (
     MathExpr,
@@ -145,3 +146,4 @@ class PrintOperator(ConversionRule):
         )
         string = f"{s1} {operator_dict[model.__class__.__name__]} {s2}"
         return string
+
