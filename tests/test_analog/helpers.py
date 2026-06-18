@@ -12,26 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .canonicalize import (
-    CanVerGatherMathExpr,
-    CanVerGatherPauli,
-    CanVerNormalOrder,
-    CanVerOperatorDistribute,
-    CanVerPauliAlgebra,
-    CanVerProperOrder,
-    CanVerPruneIdentity,
-    CanVerScaleTerm,
-    CanVerSortedOrder,
-)
+from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+from oqd_core.interface.analog import Declaration, AnalogExpr
 
-__all__ = [
-    "CanVerPauliAlgebra",
-    "CanVerGatherMathExpr",
-    "CanVerOperatorDistribute",
-    "CanVerProperOrder",
-    "CanVerPruneIdentity",
-    "CanVerGatherPauli",
-    "CanVerNormalOrder",
-    "CanVerSortedOrder",
-    "CanVerScaleTerm",
-]
+
+def parse_math(source: str | AnalogExpr):
+    if isinstance(source, AnalogExpr):
+        return source
+    circuit = parse_analog(f"x = {source}")
+    assert circuit.statements, f"Failed to parse: {source!r}"
+    stmt = circuit.statements[0]
+    assert isinstance(stmt, Declaration)
+    return stmt.value
+

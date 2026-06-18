@@ -12,22 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from oqd_compiler_infrastructure import ConversionRule, Post
 
-from oqd_core.compiler.math.rules import PrintMathExpr
+from oqd_core.compiler.analog.operator.dim import is_scalar_mul, coeff_and_op
 
-########################################################################################
-from oqd_core.interface.analog import (
+from oqd_core.compiler.analog.math.rules import PrintMathExpr
+from oqd_core.interface.analog.expr import (
+    MathExpr,
     OperatorAdd,
     OperatorBinaryOp,
     OperatorKron,
     OperatorMul,
-    OperatorScalarMul,
     OperatorSub,
     OperatorTerminal,
 )
-from oqd_core.interface.math import MathExpr
 
 ########################################################################################
 
@@ -65,6 +63,9 @@ class PrintOperator(ConversionRule):
 
     def map_MathExpr(self, model: MathExpr, operands):
         return Post(PrintMathExpr(verbose=self.verbose))(model)
+    
+    def map_MathFunc(self, model, operands):
+        return Post(PrintMathExpr(verbose=self.verbose))(model)
 
     def map_OperatorAdd(self, model: OperatorAdd, operands):
         if self.verbose:
@@ -84,19 +85,24 @@ class PrintOperator(ConversionRule):
         return string
 
     def map_OperatorMul(self, model: OperatorMul, operands):
+        if is_scalar_mul(model):
+            _, op = coeff_and_op(model)
+            if model.op1 is op:
+                return f"({operands['op2']}) * ({operands['op1']})"
+            return f"({operands['op1']}) * ({operands['op2']})"
         if self.verbose:
             return self._map_OperatorBinaryOp(model, operands)
         s1 = (
             f"({operands['op1']})"
             if isinstance(
-                model.op1, (OperatorAdd, OperatorSub, OperatorKron, OperatorScalarMul)
+                model.op1, (OperatorAdd, OperatorSub, OperatorKron)
             )
             else operands["op1"]
         )
         s2 = (
             f"({operands['op2']})"
             if isinstance(
-                model.op2, (OperatorAdd, OperatorSub, OperatorKron, OperatorScalarMul)
+                model.op2, (OperatorAdd, OperatorSub, OperatorKron)
             )
             else operands["op2"]
         )
@@ -109,41 +115,19 @@ class PrintOperator(ConversionRule):
         s1 = (
             f"({operands['op1']})"
             if isinstance(
-                model.op1, (OperatorAdd, OperatorSub, OperatorMul, OperatorScalarMul)
+                model.op1, (OperatorAdd, OperatorSub, OperatorMul)
             )
             else operands["op1"]
         )
         s2 = (
             f"({operands['op2']})"
             if isinstance(
-                model.op2, (OperatorAdd, OperatorSub, OperatorMul, OperatorScalarMul)
+                model.op2, (OperatorAdd, OperatorSub, OperatorMul)
             )
             else operands["op2"]
         )
 
         string = "{} @ {}".format(s1, s2)
-        return string
-
-    def map_OperatorScalarMul(self, model: OperatorScalarMul, operands):
-        if self.verbose:
-            s1 = (
-                f"({operands['op']})"
-                if not isinstance(model.op, OperatorTerminal)
-                else operands["op"]
-            )
-            s2 = f"({operands['expr']})"
-            string = f"{s2} * {s1}"
-            return string
-        s1 = (
-            f"({operands['op']})"
-            if isinstance(
-                model.op, (OperatorAdd, OperatorSub, OperatorMul, OperatorKron)
-            )
-            else operands["op"]
-        )
-        s2 = f"({operands['expr']})"
-
-        string = f"{s2} * {s1}"
         return string
 
     def _map_OperatorBinaryOp(self, model: OperatorBinaryOp, operands):
@@ -162,3 +146,4 @@ class PrintOperator(ConversionRule):
         )
         string = f"{s1} {operator_dict[model.__class__.__name__]} {s2}"
         return string
+

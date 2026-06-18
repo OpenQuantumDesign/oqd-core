@@ -13,13 +13,13 @@
 # limitations under the License.
 
 __all__ = [
-    "CanonicalFormError",
+    "AnalogCompilerError",
 ]
 
 ########################################################################################
 
 
-class CanonicalFormError(Exception):
+class AnalogCompilerError(Exception):
     """
     Error class for canonical form
     """

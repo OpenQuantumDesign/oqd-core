@@ -22,7 +22,7 @@ from pydantic import BaseModel, BeforeValidator
 from oqd_core.backend.metric import Metric
 
 ########################################################################################
-from oqd_core.interface.analog.operation import AnalogCircuit
+from oqd_core.interface.analog import AnalogCircuit
 from oqd_core.interface.atomic.circuit import AtomicCircuit
 from oqd_core.interface.digital.circuit import DigitalCircuit
 

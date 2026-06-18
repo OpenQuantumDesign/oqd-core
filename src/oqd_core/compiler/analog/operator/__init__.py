@@ -12,26 +12,3 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .canonicalize import (
-    CanVerGatherMathExpr,
-    CanVerGatherPauli,
-    CanVerNormalOrder,
-    CanVerOperatorDistribute,
-    CanVerPauliAlgebra,
-    CanVerProperOrder,
-    CanVerPruneIdentity,
-    CanVerScaleTerm,
-    CanVerSortedOrder,
-)
-
-__all__ = [
-    "CanVerPauliAlgebra",
-    "CanVerGatherMathExpr",
-    "CanVerOperatorDistribute",
-    "CanVerProperOrder",
-    "CanVerPruneIdentity",
-    "CanVerGatherPauli",
-    "CanVerNormalOrder",
-    "CanVerSortedOrder",
-    "CanVerScaleTerm",
-]

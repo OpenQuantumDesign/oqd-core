@@ -14,12 +14,12 @@
 
 from oqd_compiler_infrastructure import In
 
-from oqd_core.compiler.analog.analysis import TermIndex
-from oqd_core.interface.analog import (
+from oqd_core.compiler.analog.operator.term_index import TermIndex
+from oqd_core.interface.analog.expr import (
     Annihilation,
     Creation,
     Identity,
-    Operator,
+    OperatorExpr,
     PauliI,
     PauliX,
     PauliY,
@@ -37,7 +37,7 @@ X, Y, Z, PI, A, C, LI = (
 )
 
 
-def compute_term_index(operator: Operator):
+def compute_term_index(operator: OperatorExpr):
     analysis = In(TermIndex())
     analysis(model=operator)
     return analysis.children[0].term_idx
@@ -95,5 +95,13 @@ def test_kron_add_complicated():
 def test_kron_add_complicated_with_scalar():
     """Complicated kron add with scalar mul"""
     op = C @ (C * LI * A * C) + 3 * (X @ X) + A * C * A + 3 * Y + 2 * Z + C + LI
-    expected = [[(1, 1), (3, 2)], [1, 1], [(3, 1)], [2], [3], [(1, 1)], [(0, 0)]]
+    expected = [
+        [(1, 1), (3, 2)],
+        [1, 1, 1, 1],
+        [(3, 1)],
+        [2],
+        [3],
+        [(1, 1)],
+        [(0, 0)],
+    ]
     assert compute_term_index(operator=op) == expected

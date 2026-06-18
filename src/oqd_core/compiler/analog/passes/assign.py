@@ -12,26 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_compiler_infrastructure import Post
-
 ########################################################################################
-from oqd_core.compiler.analog.rewrite.assign import AssignAnalogIRDim
-from oqd_core.compiler.analog.verify.task import (
-    VerifyAnalogArgsDim,
-    VerifyAnalogCircuitDim,
-)
+from oqd_core.interface.analog import Evolve
+from oqd_core.compiler.analog.error import AnalogCompilerError
+from oqd_core.compiler.analog.operator.dim import operator_dim
+from oqd_core.compiler.analog.cfg_passes.walk import iter_stmt_blocks
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+
 
 ########################################################################################
 
 __all__ = [
-    "assign_analog_circuit_dim",
-    "verify_analog_args_dim",
+    "infer_analog_circuit_dim_cfg",
 ]
 
 ########################################################################################
 
-
-def assign_analog_circuit_dim(model):
+def infer_analog_circuit_dim_cfg(cfg: ControlFlowGraph):
     """
     This pass assigns n_qreg and n_qmode in the analog circuit and then verifies the assignment
 
@@ -44,27 +41,14 @@ def assign_analog_circuit_dim(model):
     Assumptions:
         All [`Operator`][oqd_core.interface.analog.operator.Operator] inside [`AnalogCircuit`][oqd_core.interface.analog.operations.AnalogCircuit] must be canonicalized
     """
-    assigned_model = Post(AssignAnalogIRDim())(model)
-    Post(
-        VerifyAnalogCircuitDim(
-            n_qreg=assigned_model.n_qreg, n_qmode=assigned_model.n_qmode
-        )
-    )(assigned_model)
-    return assigned_model
+    dim = None
+    for _, block in iter_stmt_blocks(cfg):
+        if not isinstance(block.stmt, Evolve):
+            continue
+        d = operator_dim(block.stmt.hamiltonian)
+        if dim is None:
+            dim = d
+        elif dim != d:
+            raise AnalogCompilerError("Inconsistent Hilbert space dimensions between Evolve statements")
+    return dim or (0, 0)
 
-
-def verify_analog_args_dim(model, n_qreg, n_qmode):
-    """
-    This pass checks whether the assigned n_qreg and n_qmode in AnalogCircuit match the n_qreg and n_qmode
-    in any Operators (like the Operator inside Expectation) in TaskArgsAnalog
-
-    Args:
-        model (TaskArgsAnalog):
-
-    Returns:
-        model (TaskArgsAnalog):
-
-    Assumptions:
-        All  [`Operator`][oqd_core.interface.analog.operator.Operator] inside TaskArgsAnalog must be canonicalized
-    """
-    Post(VerifyAnalogArgsDim(n_qreg=n_qreg, n_qmode=n_qmode))(model)

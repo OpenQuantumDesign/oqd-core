@@ -16,10 +16,10 @@ from typing import Union
 
 import numpy as np
 from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule
-from pydantic import TypeAdapter, ValidationError
+from pydantic import ValidationError
 
-from oqd_core.interface.math import (
-    ConstantMathExpr,
+from oqd_core.interface.analog.expr import (
+    Access,
     MathAdd,
     MathBinaryOp,
     MathDiv,
@@ -33,9 +33,28 @@ from oqd_core.interface.math import (
     MathTerminal,
     MathVar,
 )
-from oqd_core.interface.analog.operation import Access
+from oqd_core.compiler.analog.error import AnalogCompilerError
 
 ########################################################################################
+
+def _is_constant_math(model) -> bool:
+    if isinstance(model, (MathNum, MathImag)):
+        return True
+    if isinstance(model, MathVar):
+        return False
+    if isinstance(model, Access):
+        return False
+    if isinstance(model, MathFunc):
+        arg = model.expr
+        if isinstance(arg, list):
+            return all(_is_constant_math(a) for a in arg)
+        return _is_constant_math(arg)
+    if isinstance(model, (MathAdd, MathSub, MathMul, MathDiv, MathPow)):
+        return _is_constant_math(model.expr1) and _is_constant_math(model.expr2)
+    return False
+
+########################################################################################
+
 
 __all__ = [
     "PrintMathExpr",
@@ -45,7 +64,6 @@ __all__ = [
     "PruneMathExpr",
     "SimplifyMathExpr",
     "EvaluateMathExpr",
-    "PruneMathExpr",
 ]
 
 ########################################################################################
@@ -53,10 +71,10 @@ __all__ = [
 
 class PrintMathExpr(ConversionRule):
     """
-    This prints [`MathExpr`][oqd_core.interface.math.MathExpr] objects. Verbosity level can be given as an attribute.
+    This prints [`MathExpr`][oqd_core.interface.analog.MathExpr] objects. Verbosity level can be given as an attribute.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         string (str):
@@ -180,10 +198,10 @@ class PrintMathExpr(ConversionRule):
 
 class DistributeMathExpr(RewriteRule):
     """
-    This distributes [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+    This distributes [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -223,10 +241,10 @@ class DistributeMathExpr(RewriteRule):
 
 class PartitionMathExpr(RewriteRule):
     """
-    This separates real and complex portions of [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+    This separates real and complex portions of [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -293,10 +311,10 @@ class PartitionMathExpr(RewriteRule):
 
 class ProperOrderMathExpr(RewriteRule):
     """
-    This rearranges bracketing of [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+    This rearranges bracketing of [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -328,7 +346,7 @@ class PruneMathExpr(RewriteRule):
     This is constant fold operation where scalar addition, multiplication and power are simplified
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -372,7 +390,7 @@ class SubstituteMathVar(RewriteRule):
     This rule substitutes a MathVar with another MathExpr
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -407,7 +425,7 @@ class EvaluateMathExpr(ConversionRule):
     This evaluates MathExpr objects and raises a type error if a MathVar exist in the AST.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -462,7 +480,7 @@ class EvaluateMathExpr(ConversionRule):
         if model.func == "heaviside":
             return np.heaviside(operands["expr"], 1)
 
-        raise ValueError("Unsupported function")
+        raise AnalogCompilerError("Unsupported function")
 
     def map_MathAdd(self, model: MathAdd, operands):
         return operands["expr1"] + operands["expr2"]
@@ -488,7 +506,7 @@ class SimplifyMathExpr(RewriteRule):
     This simplifies MathExpr objects by evaluating all constants in the AST.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.analog.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -508,7 +526,8 @@ class SimplifyMathExpr(RewriteRule):
 
     def map_MathExpr(self, model):
         try:
-            TypeAdapter(ConstantMathExpr).validate_python(model)
+            if not _is_constant_math(model):
+                raise ValidationError.from_exception_data("ConstantMathExpr", [])
 
             value = Post(EvaluateMathExpr())(model)
 

@@ -16,7 +16,7 @@
 
 from oqd_compiler_infrastructure import Chain, FixedPoint, Post
 
-from oqd_core.compiler.math.rules import (
+from .rules import (
     DistributeMathExpr,
     EvaluateMathExpr,
     PartitionMathExpr,

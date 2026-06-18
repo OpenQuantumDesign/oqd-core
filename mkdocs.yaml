@@ -32,12 +32,12 @@ nav:
       - Atomic: grammar/atomic_grammar.md
   
   - Frontend:
-      - Analog: analysis/analog_analysis.md
-      - Atomic: analysis/atomic_analysis.md
-
-  - Analysis:
       - Analog: frontend/analog_frontend.md
       - Atomic: frontend/atomic_frontend.md
+      
+  - Analysis:
+      - Analog: analysis/analog_analysis.md
+      - Atomic: analysis/atomic_analysis.md
 
   - API Reference:
       - Interface:
@@ -45,8 +45,8 @@ nav:
           - Atomic: reference/atomic_interface.md
 
       - Compiler:
-          - Math: reference/math_compiler.md
           - Analog:
+              - Compiler: reference/analog_compiler.md
               - Canonicalization: reference/analog_canonicalization.md
           - Atomic:
               - Canonicalization: reference/atomic_canonicalization.md

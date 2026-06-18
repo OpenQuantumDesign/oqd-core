@@ -41,7 +41,7 @@ class AnalogCFGBuilder(RewriteRule):
         
     
     def new_node(self, preds, stmt, kind = "stmt"):
-        node = Block(register_id=self.registry, stmt=stmt,preds=preds, kind=kind)
+        node = Block(register_id=self.registry, stmt=stmt, preds=preds, kind=kind)
         self.cache[node.register_id] = node
         self.registry += 1
         

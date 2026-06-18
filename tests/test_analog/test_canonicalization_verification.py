@@ -17,7 +17,7 @@
 import pytest
 from oqd_compiler_infrastructure import Post, Pre, RewriteRule, WalkBase
 
-from oqd_core.compiler.analog.error import CanonicalFormError
+from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.verify.canonicalize import (
     CanVerGatherMathExpr,
     CanVerGatherPauli,
@@ -31,11 +31,11 @@ from oqd_core.compiler.analog.verify.canonicalize import (
 )
 
 ########################################################################################
-from oqd_core.interface.analog import (
+from oqd_core.interface.analog.expr import (
     Annihilation,
     Creation,
     Identity,
-    Operator,
+    OperatorExpr,
     PauliI,
     PauliX,
     PauliY,
@@ -56,16 +56,16 @@ X, Y, Z, PI, A, C, LI = (
 
 
 def apply_pass(
-    operator: Operator, rule: RewriteRule, walk_method: WalkBase, reverse: bool
+    operator: OperatorExpr, rule: RewriteRule, walk_method: WalkBase, reverse: bool
 ):
     walk_method(rule, reverse=reverse)(operator)
 
 
-class CanonicalFormErrors:
+class AnalogCompilerErrors:
     def assert_canonical_form_error_raised(
         self, operator, rule, walk_method=Post, reverse=False
     ):
-        with pytest.raises(CanonicalFormError):
+        with pytest.raises(AnalogCompilerError):
             apply_pass(
                 operator=operator, rule=rule, walk_method=walk_method, reverse=reverse
             )
@@ -73,18 +73,18 @@ class CanonicalFormErrors:
     def assert_canonical_form_error_not_raised(
         self, operator, rule, walk_method=Post, reverse=False
     ):
-        # Simply call the function and ensure it does not raise CanonicalFormError
+        # Simply call the function and ensure it does not raise AnalogCompilerError
         try:
             apply_pass(
                 operator=operator, rule=rule, walk_method=walk_method, reverse=reverse
             )
-        except CanonicalFormError:
+        except AnalogCompilerError:
             pytest.fail(
-                f"Unexpected CanonicalFormError was raised for operator {operator}"
+                f"Unexpected AnalogCompilerError was raised for operator {operator}"
             )
 
 
-class TestCanonicalizationVerificationOperatorDistribute(CanonicalFormErrors):
+class TestCanonicalizationVerificationOperatorDistribute(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerOperatorDistribute()
@@ -212,7 +212,7 @@ class TestCanonicalizationVerificationOperatorDistribute(CanonicalFormErrors):
         self.assert_canonical_form_error_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationGatherMathExpr(CanonicalFormErrors):
+class TestCanonicalizationVerificationGatherMathExpr(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerGatherMathExpr()
@@ -262,7 +262,7 @@ class TestCanonicalizationVerificationGatherMathExpr(CanonicalFormErrors):
         self.assert_canonical_form_error_not_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationProperOrder(CanonicalFormErrors):
+class TestCanonicalizationVerificationProperOrder(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerProperOrder()
@@ -318,7 +318,7 @@ class TestCanonicalizationVerificationProperOrder(CanonicalFormErrors):
         self.assert_canonical_form_error_not_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationPauliAlgebra(CanonicalFormErrors):
+class TestCanonicalizationVerificationPauliAlgebra(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerPauliAlgebra()
@@ -358,7 +358,7 @@ class TestCanonicalizationVerificationPauliAlgebra(CanonicalFormErrors):
         self.assert_canonical_form_error_not_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationGatherPauli(CanonicalFormErrors):
+class TestCanonicalizationVerificationGatherPauli(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerGatherPauli()
@@ -419,7 +419,7 @@ class TestCanonicalizationVerificationGatherPauli(CanonicalFormErrors):
         self.assert_canonical_form_error_not_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationNormalOrder(CanonicalFormErrors):
+class TestCanonicalizationVerificationNormalOrder(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerNormalOrder()
@@ -495,7 +495,7 @@ class TestCanonicalizationVerificationNormalOrder(CanonicalFormErrors):
         self.assert_canonical_form_error_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationPruneIdentity(CanonicalFormErrors):
+class TestCanonicalizationVerificationPruneIdentity(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerPruneIdentity()
@@ -521,7 +521,7 @@ class TestCanonicalizationVerificationPruneIdentity(CanonicalFormErrors):
         self.assert_canonical_form_error_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationSortedOrder(CanonicalFormErrors):
+class TestCanonicalizationVerificationSortedOrder(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerSortedOrder()
@@ -543,7 +543,12 @@ class TestCanonicalizationVerificationSortedOrder(CanonicalFormErrors):
 
     def test_nested_pass(self):
         """Nested Pass"""
-        op = (X @ Y + (2 * (3j) * (X @ Z))) + (Y @ PI) + (Z @ PI)
+        op = (
+            1 * (X @ Y)
+            + 1 * (X @ Z)
+            + 1 * (Y @ PI)
+            + 1 * (Z @ PI)
+        )
         self.assert_canonical_form_error_not_raised(operator=op, rule=self.rule)
 
     def test_nested_fail(self):
@@ -636,7 +641,7 @@ class TestCanonicalizationVerificationSortedOrder(CanonicalFormErrors):
         self.assert_canonical_form_error_raised(operator=op, rule=self.rule)
 
 
-class TestCanonicalizationVerificationScaleTerms(CanonicalFormErrors):
+class TestCanonicalizationVerificationScaleTerms(AnalogCompilerErrors):
     @pytest.fixture(autouse=True)
     def setup(self):
         self.rule = CanVerScaleTerm()

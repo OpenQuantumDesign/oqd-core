@@ -18,7 +18,7 @@ from oqd_compiler_infrastructure import VisitableBaseModel
 from pydantic.types import NonNegativeInt
 
 ########################################################################################
-from oqd_core.interface.analog.operator import CastOperator
+from oqd_core.interface.analog.expr import CastAnalogExpr
 
 ########################################################################################
 
@@ -32,7 +32,7 @@ __all__ = [
 
 
 class Expectation(VisitableBaseModel):
-    operator: CastOperator
+    operator: CastAnalogExpr
 
 
 class EntanglementEntropyVN(VisitableBaseModel):

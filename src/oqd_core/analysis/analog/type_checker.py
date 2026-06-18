@@ -15,364 +15,45 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import Union
+from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
+from oqd_compiler_infrastructure.lattice import LatticeBottom, maplattice
 
-from oqd_compiler_infrastructure.dataflow import (
-    DataflowResult,
-    ForwardDataflowAnalysis,
+from oqd_core.analysis.analog.semantics import AnalogSemantics
+from oqd_core.analysis.analog.types import (
+    AnalogTypeError,
+    AnalogTypeLattice,
+    TBool,
+    TypeEnv,
 )
-from oqd_compiler_infrastructure.lattice import (
-    LatticeBase,
-    LatticeBottom,
-    LatticeTop,
-    maplattice,
-)
-
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph, alias_types
-from oqd_core.interface.analog import (
-    Access,
-    AnalogExprSubtypes,
-    AnalogList,
-    Bool,
-    BoolAnd,
-    BoolEq,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolNot,
-    BoolNotEq,
-    BoolOr,
-    Break,
-    Continue,
-    Declaration,
-    Evolve,
-    Extract,
-    Initialize,
-    MathAdd,
-    MathDiv,
-    MathFunc,
-    MathImag,
-    MathMul,
-    MathNum,
-    MathPow,
-    MathSub,
-    MathVar,
-    Measure,
-    ModeRegister,
-    OperatorAdd,
-    OperatorKron,
-    OperatorMul,
-    OperatorSub,
-    PauliI,
-    PauliX,
-    PauliY,
-    PauliZ,
-    QuantumRegister,
-)
-from oqd_core.interface.analog.expr import Annihilation, Creation, Identity, Terminal
-
-########################################################################################
-
-class AnalogTypeError(TypeError):
-    """Type Error class for Analog."""
-    pass
-
-EXPR_NODE_TYPES = alias_types(AnalogExprSubtypes)
-TERMINAL_NODE_TYPES = alias_types(Terminal)
-
-@dataclass
-class TList(LatticeTop):
-    """Lattice value representing a list."""
-    elem: TLatticeValue
-
-TLatticeValue = Union[TList, type[LatticeTop]]
-
-def type_name(t: TLatticeValue) -> str:
-    """Format a lattice value into a readable type name for error messages."""
-    if isinstance(t, TList):
-        return f"TList[{type_name(t.elem)}]"
-    if isinstance(t, type) and issubclass(t, LatticeTop):
-        return t.__name__
-    return str(t)
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+from oqd_core.interface.analog import Break, Continue, Declaration
 
 
-class TAnalog(LatticeTop):
-    pass
-
-class TScalar(TAnalog):
-    pass
-
-class TBool(TAnalog):
-    pass
-
-class TOp(TAnalog):
-    pass
-
-class TTarget(TAnalog):
-    pass
-
-class TTargetRef(TTarget):
-    pass
-
-class TQReg(TTarget):
-    pass
-
-class TMReg(TTarget):
-    pass
-
-class TQRef(TTargetRef):
-    pass
-
-class TMRef(TTargetRef):
-    pass
-
-
-class AnalogTypeLattice(LatticeBase[TLatticeValue]):
-    """Type lattice for analog expressions."""
-
-    def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
-        if t1 is LatticeBottom:
-            return True
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return self.leq(t1.elem, t2.elem)
-        if isinstance(t1, TList) or isinstance(t2, TList):
-            return False
-        return super().leq(t1, t2)
-    
-    def join(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
-        if self.leq(t1, t2):
-            return t2
-        if self.leq(t2, t1):
-            return t1
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.join(t1.elem, t2.elem))
-        if isinstance(t1, TList) or isinstance(t2, TList):
-            return TAnalog
-        return super().join(t1, t2)
-    
-    def meet(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
-        if self.leq(t1, t2):
-            return t1
-        if self.leq(t2, t1):
-            return t2
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.meet(t1.elem, t2.elem))
-        return super().meet(t1, t2)
-
-
-########################################################################################
-
-
-# Binary expression signature table: node -> ((left_type, right_type), output_type)
-BIN_SIG_TABLE = {
-    MathAdd: ((TScalar, TScalar), TScalar),
-    MathSub: ((TScalar, TScalar), TScalar),
-    MathMul: ((TScalar, TScalar), TScalar),
-    MathDiv: ((TScalar, TScalar), TScalar),
-    MathPow: ((TScalar, TScalar), TScalar),
-
-    BoolAnd: ((TBool, TBool), TBool),
-    BoolOr: ((TBool, TBool), TBool),
-
-    BoolLessThan: ((TScalar, TScalar), TBool),
-    BoolLessThanEq: ((TScalar, TScalar), TBool),
-    BoolGreaterThan: ((TScalar, TScalar), TBool),
-    BoolGreaterThanEq: ((TScalar, TScalar), TBool),
-}
-
-
-# Operator expression signatures
-OP_TABLE = {
-    OperatorAdd: ((TOp, TOp), TOp),
-    OperatorSub: ((TOp, TOp), TOp),
-    OperatorKron: ((TOp, TOp), TOp),
-}
-
-
-# Allowed type pairs for OperatorMul
-OPMUL_ALLOWED = {
-    (TOp, TOp): TOp,
-    (TOp, TScalar): TOp,
-    (TScalar, TOp): TOp,
-}
-
-
-########################################################################################
-
-
-class AnalogTypeChecker(ForwardDataflowAnalysis[int, TLatticeValue]):
+class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.value_lattice = AnalogTypeLattice()
+        self.semantics = AnalogSemantics(self.value_lattice)
         self.lattice = maplattice(AnalogTypeLattice)()
         self.blocks = graph.blocks
-        self.dataflow_result : DataflowResult[int, dict[str, TLatticeValue]] | None = None
-        try:
-            self.dataflow_result = self.analyze(graph, self.merge_union)
-        except AnalogTypeError as e:
-            raise e
-        except Exception as e:
-            raise AnalogTypeError(f"Type checking failed during CFG / dataflow analysis: {e}")
+        
+        self.dataflow_result = self.analyze(graph, self.merge_union)
 
-
-    def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
-        return self.value_lattice.leq(t1, t2)
-    
-    
-    def transfer(self, node_id: int, state_in: dict[str, TLatticeValue]) -> dict[str, TLatticeValue]:
+    def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
-        cfg_node = self.blocks[node_id]
-        stmt = cfg_node.stmt
-        if isinstance(stmt, str):
-            return env
-        if cfg_node.kind == "branch":
-            condition_t = self.infer_expr(stmt, env)
-            if condition_t is not TBool:
-                raise AnalogTypeError("branch condition must be bool")
-            return env
+        stmt = self.blocks[node_id].stmt
+
         if isinstance(stmt, Declaration):
             state_out = dict(env)
-            state_out[stmt.name] = self.infer_expr(stmt.value, env)
+            state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
             return state_out
-        if isinstance(stmt, (Break, Continue)):
+
+        if isinstance(stmt, (str, Break, Continue)):
             return env
-        self.infer_expr(stmt, env)
+
+        t = self.semantics.infer_type(stmt, env)
+        if self.blocks[node_id].kind == "branch" and t is not TBool:
+            raise AnalogTypeError("branch condition must be bool")
+
         return env
 
-        
-    def infer_expr(self, expr: type, env: dict[str, TLatticeValue]) -> TLatticeValue:
-        if not isinstance(expr, EXPR_NODE_TYPES):
-            raise AnalogTypeError(f"Unsupported expression node: {type(expr).__name__}")
-
-        if isinstance(expr, TERMINAL_NODE_TYPES):
-            if isinstance(expr, (MathNum, MathVar, MathImag)):
-                return TScalar
-            if isinstance(expr, Bool):
-                return TBool
-            if isinstance(expr, (PauliI, PauliX, PauliY, PauliZ, Creation, Annihilation, Identity)):
-                return TOp
-            if isinstance(expr, QuantumRegister):
-                return TQReg
-            if isinstance(expr, ModeRegister):
-                return TMReg
-            if isinstance(expr, Access):
-                if expr.name not in env:
-                    raise AnalogTypeError(f"Undefined variable: {expr.name}")
-                return env[expr.name]
-    
-        if isinstance(expr, AnalogList):
-            if not expr.values:
-                return TList(elem=LatticeBottom)
-            
-            t = self.infer_expr(expr.values[0], env)
-            for v in expr.values[1:]:
-                t = self.value_lattice.join(t, self.infer_expr(v, env))
-            return TList(elem=t)
-        
-        if isinstance(expr, Extract):
-            if expr.access.name not in env:
-                raise AnalogTypeError(f"Undefined variable: {expr.access.name}")
-            base = env[expr.access.name]
-            if base is TQReg:
-                return TQRef
-            if base is TMReg:
-                return TMRef
-            if isinstance(base, TList):
-                return base.elem
-            raise AnalogTypeError(f"Cannot index into {type_name(base)}")
-        
-        sig = BIN_SIG_TABLE.get(type(expr))
-        if sig is not None:
-            (lreq, rreq), out = sig
-            t1 = self.infer_expr(expr.expr1, env)
-            t2 = self.infer_expr(expr.expr2, env)
-            if not self.leq(t1, lreq) or not self.leq(t2, rreq):
-                raise AnalogTypeError(f"{type(expr).__name__} got {type_name(t1)}, {type_name(t2)} expected {type_name(lreq)}, {type_name(rreq)}")
-            return out
-        
-        sig = OP_TABLE.get(type(expr))
-        if sig is not None:
-            (lreq, rreq), out = sig
-            t1 = self.infer_expr(expr.op1, env)
-            t2 = self.infer_expr(expr.op2, env)
-            if not self.leq(t1, lreq) or not self.leq(t2, rreq):
-                raise AnalogTypeError(f"{type(expr).__name__} got {type_name(t1)}, {type_name(t2)} expected {type_name(lreq)}, {type_name(rreq)}")
-            return out
-        
-        if isinstance(expr, MathFunc):
-            math_funcs =  {
-                "abs", "sin", "cos", "tan", "exp", "log",
-                "sinh", "cosh", "tanh", "atan", "acos", "asin",
-                "atanh", "asinh", "acosh", "heaviside", "conj", "real", "imag",
-            }
-            if expr.func in math_funcs:
-                arg = expr.expr
-                t = self.infer_expr(arg, env)
-                if not self.leq(t, TScalar):
-                    raise AnalogTypeError(f"{expr.func} expects scalar, got {type_name(t)}")
-                return TScalar
-            
-            if expr.func == "atan2":
-                arg = expr.expr
-                if len(arg) != 2:
-                    raise AnalogTypeError("atan2 expects exactly 2 arguments")
-                t1 = self.infer_expr(arg[0], env)
-                t2 = self.infer_expr(arg[1], env)
-                if not self.leq(t1, TScalar) or not self.leq(t2, TScalar):
-                    raise AnalogTypeError(f"{expr.func} expects scalar, got {type_name(t1)}, {type_name(t2)}")
-                return TScalar
-            
-            raise AnalogTypeError(f"Unsupported math function: {expr.func}")
-        
-        if isinstance(expr, OperatorMul):
-            t1 = self.infer_expr(expr.op1, env)
-            t2 = self.infer_expr(expr.op2, env)
-            out = OPMUL_ALLOWED.get((t1, t2))
-            if out is None:
-                raise AnalogTypeError(f"{type(expr).__name__} expects operator or scalar, got {type_name(t1)}, {type_name(t2)}")
-            return out
-        
-        if isinstance(expr, (BoolEq, BoolNotEq)):
-            t1 = self.infer_expr(expr.expr1, env)
-            t2 = self.infer_expr(expr.expr2, env)
-            if t1 not in (TBool, TScalar) or t2 not in (TBool, TScalar):
-                raise AnalogTypeError(f"{type(expr).__name__} expects bool or scalar, got {type_name(t1)}, {type_name(t2)}")
-            if t1 is not t2:
-                raise AnalogTypeError(f"{type(expr).__name__}: got {type_name(t1)} vs {type_name(t2)}")
-            return TBool
-        
-        if isinstance(expr, BoolNot):
-            t = self.infer_expr(expr.expr, env)
-            if not self.leq(t, TBool):
-                raise AnalogTypeError(f"{type(expr).__name__} expects bool, got {type_name(t)}")
-            return TBool
-        
-        if isinstance(expr, (Initialize, Measure)):
-            t = self.infer_expr(expr.targets, env)
-            if isinstance(t, TList):
-                if not self.leq(t.elem, TTargetRef):
-                    raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(t)}")
-            elif not self.leq(t, TTarget):
-                raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(t)}")
-            return TAnalog
-        
-        if isinstance(expr, Evolve):
-            target_t = self.infer_expr(expr.targets, env)
-            if isinstance(target_t, TList):
-                if not self.leq(target_t.elem, TTargetRef):
-                    raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(target_t)}")
-            elif not self.leq(target_t, TTarget):
-                raise AnalogTypeError(f"{type(expr).__name__} expects Quantum targets, got {type_name(target_t)}")
-            
-            duration_t = self.infer_expr(expr.duration, env)
-            if not self.leq(duration_t, TScalar):
-                raise AnalogTypeError(f"{type(expr).__name__} expects scalar duration, got {type_name(duration_t)}")
-            
-            hamiltonian_t = self.infer_expr(expr.hamiltonian, env)
-            if not self.leq(hamiltonian_t, TOp):
-                raise AnalogTypeError(f"{type(expr).__name__} expects operator hamiltonian, got {type_name(hamiltonian_t)}")
-            
-            return TAnalog
-        

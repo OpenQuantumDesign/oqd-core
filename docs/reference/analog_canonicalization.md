@@ -1,11 +1,11 @@
-## Passes
-
+## Operator Canonicalization
 <!-- prettier-ignore -->
-::: oqd_core.compiler.analog.passes.canonicalize
+::: oqd_core.compiler.analog.operator.canonicalize
     options:
         heading_level: 3
         members: [
-            "analog_operator_canonicalization",
+            "canonicalize_operator_expr",
+            "resolve_operator_expr",
         ]
 
 ## Rewrite Rules
@@ -24,6 +24,7 @@
             "ProperOrder",
             "ScaleTerms",
             "SortedOrder",
+            "PruneZeros",
         ]
 
 ## Verification Rules

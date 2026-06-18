@@ -15,8 +15,59 @@
 import pytest
 
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
-from oqd_core.analysis.analog.type_checker import AnalogTypeChecker, AnalogTypeError
+from oqd_core.analysis.analog.symbol_table import (
+    AnalogSymbolTableBuilder,
+)
+from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
+from oqd_core.analysis.analog.types import AnalogTypeError, TMReg, TQReg
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+from oqd_core.interface.analog import Initialize
+
+## Symbol Table ##
+
+def build_symbol_table(program: str):
+    circuit = parse_analog(program)
+    cfg = AnalogCFGBuilder().run(circuit)
+    type_checker = AnalogTypeChecker(cfg)
+    symbol_table = AnalogSymbolTableBuilder(
+        cfg, type_checker.dataflow_result
+    ).symbol_table
+    return symbol_table, circuit
+
+
+class TestAnalogSymbolTable:
+    def test_qreg_binding(self):
+        symbol_table, circuit = build_symbol_table("r = qreg(3) \n initialize(r)")
+        init = next(s for s in circuit.statements if isinstance(s, Initialize))
+        env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+        assert env["r"].target_dim == (3, 0)
+        assert env["r"].lattice_type is TQReg
+
+    def test_qmode_binding(self):
+        symbol_table, circuit = build_symbol_table("s = qmode(2) \n initialize(s)")
+        init = next(s for s in circuit.statements if isinstance(s, Initialize))
+        env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+        assert env["s"].target_dim == (0, 2)
+        assert env["s"].lattice_type is TMReg
+
+    def test_extract_binding(self):
+        program = "r = qreg(2) \n q = r[0] \n initialize(q)"
+        symbol_table, circuit = build_symbol_table(program)
+        init = next(s for s in circuit.statements if isinstance(s, Initialize))
+        env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+        assert env["q"].target_dim == (1, 0)
+        
+    def test_target_list_binding(self):
+        program = (
+            "r = qreg(3) \n"
+            "target = [r[0], r[1], r[2]] \n"
+            "initialize(target)"
+        )
+        symbol_table, circuit = build_symbol_table(program)
+        init = next(s for s in circuit.statements if isinstance(s, Initialize))
+        env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+        assert env["target"].target_dim == (3, 0)
+        
 
 ## Control Flow Graph ##
 
@@ -80,7 +131,7 @@ class TestAnalogTypeChecker:
         [   "initialize(r)",
             "measure(r)",
             "evolve(%X, 1.0, r)",
-            "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)"
+            "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)",
             "r = qreg(2) \n evolve(5, 1.0, r)",
             "r = qreg(2) \n evolve(%X, true, r)",
             "s = 5 \n initialize(s)",
@@ -116,4 +167,6 @@ class TestAnalogTypeChecker:
         with pytest.raises(AnalogTypeError):
             cfg = AnalogCFGBuilder().run(circuit)
             AnalogTypeChecker(cfg)
-        
+
+
+

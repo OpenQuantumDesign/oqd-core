@@ -26,17 +26,21 @@ from oqd_core.compiler.analog.rewrite.canonicalize import (
     ScaleTerms,
     SortedOrder,
 )
-from oqd_core.interface.analog import (
+from oqd_core.interface.analog.expr import (
     Annihilation,
     Creation,
     Identity,
-    Operator,
+    OperatorExpr,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
+    MathNum,
+    MathMul,
 )
-from oqd_core.interface.math import MathStr
+from oqd_core.compiler.analog.operator.dim import scalar_mul
+
+from helpers import parse_math
 
 X, Y, Z, PI, A, C, LI = (
     PauliX(),
@@ -50,7 +54,7 @@ X, Y, Z, PI, A, C, LI = (
 
 
 def canonicalize_operator(
-    operator: Operator, rule: RewriteRule, walk_method: WalkBase = Post
+    operator: OperatorExpr, rule: RewriteRule, walk_method: WalkBase = Post
 ):
     return FixedPoint(walk_method(rule))(operator)
 
@@ -79,15 +83,34 @@ def gather_math_expr_rule():
 
 def test_gather_math_expr_simple(gather_math_expr_rule):
     op = X @ (3 * Y) + (2 * X) @ Z
-    expected = 3 * (X @ Y) + 2 * (X @ Z)
+    expected = (
+        scalar_mul(MathMul(expr1=MathNum(value=1), expr2=MathNum(value=3)), X @ Y)
+        + scalar_mul(MathMul(expr1=MathNum(value=2), expr2=MathNum(value=1)), X @ Z)
+    )
     assert canonicalize_operator(operator=op, rule=gather_math_expr_rule) == expected
 
 
 def test_gather_math_expr_complicated(gather_math_expr_rule):
     op = X @ (3 * Y * (3 * Z)) @ (10 * PI) + (2 * X) @ Z @ (5 * Y)
-    expected = (MathStr(string="3*3*10")) * ((X @ (Y * Z)) @ PI) + MathStr(
-        string="2*5"
-    ) * (X @ Z @ Y)
+    expected = (
+        scalar_mul(
+            MathMul(
+                expr1=MathMul(
+                    expr1=MathNum(value=1),
+                    expr2=MathMul(expr1=MathNum(value=3), expr2=MathNum(value=3)),
+                ),
+                expr2=MathNum(value=10),
+            ),
+            (X @ (Y * Z)) @ PI,
+        )
+        + scalar_mul(
+            MathMul(
+                expr1=MathMul(expr1=MathNum(value=2), expr2=MathNum(value=1)),
+                expr2=MathNum(value=5),
+            ),
+            X @ Z @ Y,
+        )
+    )
     assert canonicalize_operator(operator=op, rule=gather_math_expr_rule) == expected
 
 
@@ -241,7 +264,7 @@ def scale_terms_rule():
 def test_scale_terms_simple(scale_terms_rule):
     """Simple test"""
     op = X @ (Y @ Z) + (Z @ (Y @ PI))
-    expected = MathStr(string="1") * (X @ (Y @ Z)) + MathStr(string="1") * (
+    expected = 1 * (X @ (Y @ Z)) + 1 * (
         Z @ (Y @ PI)
     )
     assert (
@@ -253,7 +276,7 @@ def test_scale_terms_simple(scale_terms_rule):
 def test_scale_terms_single_term(scale_terms_rule):
     """Single term sorted order"""
     op = X @ (Y @ Z)
-    expected = MathStr(string="1") * (X @ (Y @ Z))
+    expected = 1 * (X @ (Y @ Z))
     assert (
         canonicalize_operator(operator=op, rule=scale_terms_rule, walk_method=Pre)
         == expected
@@ -264,10 +287,10 @@ def test_scale_terms_terminals(scale_terms_rule):
     """Terminal term sorted order"""
     op = X + Y + Z + PI
     expected = (
-        MathStr(string="1") * X
-        + MathStr(string="1") * Y
-        + MathStr(string="1") * Z
-        + MathStr(string="1") * PI
+        1 * X
+        + 1 * Y
+        + 1 * Z
+        + 1 * PI
     )
     assert (
         canonicalize_operator(operator=op, rule=scale_terms_rule, walk_method=Pre)
