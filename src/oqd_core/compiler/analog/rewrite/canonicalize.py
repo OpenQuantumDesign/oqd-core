@@ -15,7 +15,7 @@
 from typing import Union
 
 from oqd_compiler_infrastructure import RewriteRule
-from oqd_core.compiler.analog.operator.term_index import analysis_term_index
+from oqd_core.compiler.analog.operator.term_index import term_index
 from oqd_core.compiler.analog.operator.dim import (
     coeff_and_op,
     is_scalar_mul,
@@ -429,8 +429,8 @@ class SortedOrder(RewriteRule):
 
     def map_OperatorAdd(self, model: OperatorAdd):
         if isinstance(model.op1, OperatorAdd):
-            term1 = analysis_term_index(model.op1.op2)
-            term2 = analysis_term_index(model.op2)
+            term1 = term_index(model.op1.op2)
+            term2 = term_index(model.op2)
 
             if term1 == term2:
                 expr1, _ = coeff_and_op(model.op1.op2)
@@ -453,8 +453,8 @@ class SortedOrder(RewriteRule):
                 return OperatorAdd(op1=model.op1, op2=model.op2)
 
         else:
-            term1 = analysis_term_index(model.op1)
-            term2 = analysis_term_index(model.op2)
+            term1 = term_index(model.op1)
+            term2 = term_index(model.op2)
 
             if term1 == term2:
                 expr1, _ = coeff_and_op(model.op1)

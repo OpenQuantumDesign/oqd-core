@@ -18,7 +18,7 @@ from oqd_compiler_infrastructure import RewriteRule
 
 from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.operator.dim import is_scalar_mul, coeff_and_op
-from oqd_core.compiler.analog.operator.term_index import analysis_term_index
+from oqd_core.compiler.analog.operator.term_index import term_index
 
 ########################################################################################
 from oqd_core.interface.analog.expr import (
@@ -348,11 +348,11 @@ class CanVerSortedOrder(RewriteRule):
     """
 
     def map_OperatorAdd(self, model: OperatorAdd):
-        term2 = analysis_term_index(model.op2)
+        term2 = term_index(model.op2)
         if isinstance(model.op1, OperatorAdd):
-            term1 = analysis_term_index(model.op1.op2)
+            term1 = term_index(model.op1.op2)
         else:
-            term1 = analysis_term_index(model.op1)
+            term1 = term_index(model.op1)
         if term1 > term2:
             raise AnalogCompilerError("Terms are not in sorted order")
         elif term1 == term2:

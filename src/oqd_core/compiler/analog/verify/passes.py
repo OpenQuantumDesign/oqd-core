@@ -18,7 +18,7 @@ from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.analog import Evolve, Initialize, Measure
 from oqd_core.backend.metric import Expectation
 from oqd_core.compiler.analog.error import AnalogCompilerError
-from oqd_core.compiler.analog.cfg.walk import iter_stmt_blocks
+from oqd_core.compiler.analog.cfg_passes.walk import iter_stmt_blocks
 
 __all__ = [
     "verify_analog_args_dim",

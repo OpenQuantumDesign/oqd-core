@@ -33,6 +33,7 @@ from oqd_core.interface.analog.expr import (
     MathTerminal,
     MathVar,
 )
+from oqd_core.compiler.analog.error import AnalogCompilerError
 
 ########################################################################################
 

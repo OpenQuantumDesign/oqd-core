@@ -61,7 +61,7 @@ The compile pipeline:
         heading_level: 3
         members: [
             "TermIndex",
-            "analysis_term_index",
+            "term_index",
         ]
 
 ## Verification Passes

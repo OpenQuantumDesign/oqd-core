@@ -134,7 +134,7 @@ class TermIndex(RewriteRule):
             )
 
 
-def analysis_term_index(model):
+def term_index(model):
     walker = In(TermIndex())
     walker(model=model)
     return walker.children[0].term_idx
