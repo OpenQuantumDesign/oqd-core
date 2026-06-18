@@ -14,7 +14,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Iterable, Union
 
 from oqd_compiler_infrastructure.dataflow import (
@@ -27,6 +26,7 @@ from oqd_compiler_infrastructure.lattice import (
     LatticeTop,
     maplattice,
 )
+from pydantic import BaseModel, ConfigDict
 
 from oqd_core.analysis.analog.types import (
     TLatticeValue,
@@ -56,16 +56,15 @@ class AnalogSymbolError(TypeError):
     pass
 
 
-@dataclass(frozen=True)
-class SymbolBinding:
+class SymbolBinding(BaseModel):
     lattice_type: TLatticeValue
     target_dim: tuple[int, int]
     list_elem: SymbolBinding | None = None
+    model_config = ConfigDict(frozen=True)
 
 RegisterEnv = dict[str, SymbolBinding]
 
-@dataclass
-class AnalogSymbolTable:
+class AnalogSymbolTable(BaseModel):
     in_env: dict[int, RegisterEnv]
     stmt_index: dict[int, int]
 
@@ -212,7 +211,10 @@ class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
         self.dataflow_result = self.analyze(graph, self.merge_symbol_env)
 
         self.symbol_table = AnalogSymbolTable(
-            in_env=dict(self.dataflow_result.in_states),
+            in_env={
+                node_id: {} if state is LatticeBottom else dict(state)
+                for node_id, state in self.dataflow_result.in_states.items()
+            },
             stmt_index={
                 id(block.stmt): node_id
                 for node_id, block in graph.blocks.items()

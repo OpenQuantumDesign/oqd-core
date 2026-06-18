@@ -12,9 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from dataclasses import dataclass
-
 from oqd_compiler_infrastructure import DataflowResult
+from pydantic import BaseModel, ConfigDict
 
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
 from oqd_core.analysis.analog.symbol_table import (
@@ -25,11 +24,11 @@ from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 
 
-@dataclass
-class AnalogAnalysisResult:
+class AnalogAnalysisResult(BaseModel):
     cfg : ControlFlowGraph
     dataflow_result: DataflowResult
     symbol_table: AnalogSymbolTable
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     
 
 class Analyze:
