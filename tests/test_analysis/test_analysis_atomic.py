@@ -15,7 +15,8 @@
 import pytest
 
 from oqd_core.analysis.atomic.cfg import AtomicCFGBuilder
-from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker, AtomicTypeError
+from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker
+from oqd_core.analysis.atomic.types import AtomicTypeError
 from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
 
 ## Control Flow Graph ##
