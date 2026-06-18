@@ -18,7 +18,8 @@ from oqd_core.compiler.analog.cfg_passes.operator_env import canonicalize_operat
 from oqd_core.compiler.analog.passes.assign import infer_analog_circuit_dim_cfg
 from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator_expr
 from oqd_core.compiler.analog.verify.passes import verify_analog_args_dim, verify_hamiltonian_target_dim, verify_register_access_dim
-from oqd_core.analysis.analog.analyze import AnalogAnalysisResult
+from oqd_core.analysis.analog.symbol_table import AnalogSymbolTable
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.analog import AnalogCircuit
 
 ########################################################################################
@@ -34,10 +35,8 @@ def canonicalize_args_metrics(args):
             metric.operator = canonicalize_operator_expr(metric.operator)
 
 
-def compile_analog_circuit(model: AnalogCircuit, analysis_result: AnalogAnalysisResult,  args=None):
+def compile_analog_circuit(model: AnalogCircuit, cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable, args=None):
     
-    cfg = analysis_result.cfg
-    symbol_table = analysis_result.symbol_table
     canonicalize_operators_cfg(cfg)
     canonicalize_math_cfg(cfg)
     

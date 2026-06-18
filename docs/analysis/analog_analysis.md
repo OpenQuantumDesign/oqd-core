@@ -1,6 +1,6 @@
 # Analysis
 
-The analog analysis pipeline is implemented in `oqd_core/src/analysis/analog`. The [`Analyze`][oqd_core.analysis.analog.analyze.Analyze] class builds a Control Flow Graph (CFG), runs the type checker, and builds the symbol table. The result is stored in [`AnalogAnalysisResult`][oqd_core.analysis.analog.analyze.AnalogAnalysisResult] containing the CFG, type dataflow result, and symbol table.
+The analog analysis pipeline is implemented in `src/oqd_core/analysis/analog`.
 
 ## Control Flow Graph
 
@@ -23,8 +23,7 @@ The analog symbol table is implemented in [`symbol_table.py`](../../src/oqd_core
 
 ```py
 from oqd_core.frontend.analog import parse_analog
-from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
-from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
+from oqd_core.analysis.analog import AnalogCFGBuilder, AnalogTypeChecker, AnalogSymbolTableBuilder
 
 source = """
 q = qreg(2)
@@ -36,24 +35,9 @@ measure(q)
 circuit = parse_analog(source)
 cfg = AnalogCFGBuilder().run(circuit)
 type_checker = AnalogTypeChecker(cfg)
+symbol_table = AnalogSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
 ```
 
-For a complete example:
-```py
-from oqd_core.frontend.analog import parse_analog
-from oqd_core.analysis.analog import Analyze
-source = """
-q = qreg(2)
-h = %X %@ %I
-evolve(h, 1.0, q)
-measure(q)
-"""
-circuit = parse_analog(source)
-analysis = Analyze(circuit)
-result = analysis.result
-
-```
 ///
 
-The output of the type checker is stored in `type_checker.result`. The type checker dataflow result is available at `result.dataflow_result`, and the symbol table is available at `result.symbol_table`.
-
+The type checker dataflow result is available at `type_checker.dataflow_result`.

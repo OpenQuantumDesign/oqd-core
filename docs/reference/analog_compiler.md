@@ -1,10 +1,10 @@
 # Analog Compiler
 
-The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry point is [`compile_analog_circuit`][oqd_core.compiler.analog.passes.compile.compile_analog_circuit], which takes an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit] and an [`AnalogAnalysisResult`][oqd_core.analysis.analog.analyze.AnalogAnalysisResult].
+The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry point is [`compile_analog_circuit`][oqd_core.compiler.analog.passes.compile.compile_analog_circuit], which takes an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit], a `ControlFlowGraph`, and an `AnalogSymbolTable`.
 
 The compile pipeline:
-- Canonicalize operators over the CFG via [`canonicalize_operators_cfg`][oqd_core.compiler.analog.cfg.operator_env.canonicalize_operators_cfg]
-- Canonicalize math expressions over the CFG via [`canonicalize_math_cfg`][oqd_core.compiler.analog.cfg.walk.canonicalize_math_cfg]
+- Canonicalize operators over the CFG via [`canonicalize_operators_cfg`][oqd_core.compiler.analog.cfg_passes.operator_env.canonicalize_operators_cfg]
+- Canonicalize math expressions over the CFG via [`canonicalize_math_cfg`][oqd_core.compiler.analog.cfg_passes.walk.canonicalize_math_cfg]
 - Verify register access and Hamiltonian target dimensions
 - Infer circuit Hilbert space dimensions from canonicalized `Evolve` statements
 
@@ -28,14 +28,14 @@ The compile pipeline:
 ## CFG Passes
 
 <!-- prettier-ignore -->
-::: oqd_core.compiler.analog.cfg.operator_env
+::: oqd_core.compiler.analog.cfg_passes.operator_env
     options:
         heading_level: 3
         members: [
             "canonicalize_operators_cfg",
         ]
 <!-- prettier-ignore -->
-::: oqd_core.compiler.analog.cfg.walk
+::: oqd_core.compiler.analog.cfg_passes.walk
     options:
         heading_level: 3
         members: [
@@ -116,7 +116,7 @@ The compile pipeline:
     type: example
 ```py
 from oqd_core.frontend.analog import parse_analog
-from oqd_core.analysis.analog import Analyze
+from oqd_core.analysis.analog import AnalogCFGBuilder, AnalogTypeChecker, AnalogSymbolTableBuilder
 from oqd_core.compiler.analog.passes.compile import compile_analog_circuit
 source = """
 q = qreg(2)
@@ -125,6 +125,8 @@ evolve(h, 1.0, q)
 measure(q)
 """
 circuit = parse_analog(source)
-analysis = Analyze(circuit)
-circuit, (n_qreg, n_qmode) = compile_analog_circuit(circuit, analysis.result)
+cfg = AnalogCFGBuilder().run(circuit)
+type_checker = AnalogTypeChecker(cfg)
+symbol_table = AnalogSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
+circuit, (n_qreg, n_qmode) = compile_analog_circuit(circuit, cfg, symbol_table)
 ```

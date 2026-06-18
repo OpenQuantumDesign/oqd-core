@@ -45,7 +45,6 @@ nav:
           - Atomic: reference/atomic_interface.md
 
       - Compiler:
-          - Math: reference/math_compiler.md
           - Analog:
               - Compiler: reference/analog_compiler.md
               - Canonicalization: reference/analog_canonicalization.md
