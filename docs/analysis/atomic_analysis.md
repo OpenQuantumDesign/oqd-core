@@ -1,6 +1,14 @@
-# Type Checker
+# Analysis
 
-The atomic type checker is implemented by the `AtomicTypeChecker` class in [`type_checker.py`](../../src/oqd_core/analysis/atomic/type_checker.py). The `AtomicTypeLattice` class defines a concrete lattice for atomic types with `leq`, `join`, and `meet` methods. The type checker builds a Control Flow Graph (CFG) from the typed AST, and runs the forward dataflow analysis on the CFG. The atomic Control Flow Graph (CFG) is implemented by the `AtomicCFGBuilder` class in [`cfg.py`](../../src/oqd_core/analysis/atomic/cfg.py). This CFGBuilder uses `ControlFlowGraph` and `Block` defined in the [analysis module](../../src/oqd_core/analysis/utils/control_flow.py).
+The atomic analysis pipeline is implemented in `src/oqd_core/analysis/atomic`.
+
+## Control Flow Graph
+
+The atomic Control Flow Graph (CFG) is implemented by the `AtomicCFGBuilder` class in [`cfg.py`](../../src/oqd_core/analysis/atomic/cfg.py). This CFGBuilder uses `ControlFlowGraph` and `Block` defined in the [analysis module](../../src/oqd_core/analysis/utils/control_flow.py).
+
+## Type Checker
+
+The atomic type checker is implemented by the `AtomicTypeChecker` class in [`type_checker.py`](../../src/oqd_core/analysis/atomic/type_checker.py). The `AtomicTypeLattice` class defines a concrete lattice for atomic types with `leq`, `join`, and `meet` methods. Type inference rules are implemented by the `AtomicSemantics` class in [`semantics.py`](../../src/oqd_core/analysis/atomic/semantics.py). The type checker runs forward dataflow analysis over the CFG.
 
 
 ## Usage of the type checker
@@ -11,8 +19,7 @@ The atomic type checker is implemented by the `AtomicTypeChecker` class in [`typ
 
 ```py
 from oqd_core.frontend.atomic import parse_atomic
-from oqd_core.analysis.atomic.cfg import AtomicCFGBuilder
-from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker
+from oqd_core.analysis.atomic import AtomicCFGBuilder, AtomicTypeChecker
 
 source = """
 ions = ionreg(1)
@@ -27,4 +34,4 @@ type_checker = AtomicTypeChecker(cfg)
 
 ///
 
-The output of the type checker is stored in `type_checker.result`.
+The output of the type checker is stored in `type_checker.dataflow_result`.
