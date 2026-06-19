@@ -15,179 +15,149 @@
 import numpy as np
 import pytest
 
-from oqd_core.interface.atomic import Beam
-from oqd_core.interface.atomic.species import Yb171IIBuilder
-from oqd_core.interface.math import MathStr
+from oqd_core.interface.atomic import (
+    Beam,
+    MathVar,
+    AtomicList,
+    MathFunc,
+    MathMul,
+    MathImag,
+    MathNum,
+)
 
 ########################################################################################
 
-
-@pytest.fixture
-def ion():
-    return Yb171IIBuilder().build()
-
+T = MathVar(name="#t")
+A = MathVar(name="#A")
+DEFAULT_WV = AtomicList(values=[1, 0, 0])
+DEFAULT_POL = AtomicList(values=[0, 0, 1])
 
 class TestBeam:
-    def test_zero_beam(self, ion):
+    def test_zero_beam(self):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=0,
             phase=0,
-            polarization=[0, 0, 1],
-            wavevector=[1, 0, 0],
-            target=0,
+            polarization=DEFAULT_POL,
+            wavevector=DEFAULT_WV,
         )
 
-    def test_constant_beam(self, ion):
+    def test_constant_beam(self):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=1,
             phase=np.pi,
-            polarization=[0, 0, 1],
-            wavevector=[1, 0, 0],
-            target=0,
+            polarization=DEFAULT_POL,
+            wavevector=DEFAULT_WV,
         )
 
     @pytest.mark.parametrize(
         "rabi",
         [
-            MathStr(string="t"),
-            MathStr(string="sin(t)"),
-            MathStr(string="A*sin(t)"),
+            T,
+            MathFunc(func="sin", expr=T),
+            MathMul(expr1=A, expr2=MathFunc(func="sin", expr=T)),
         ],
     )
-    def test_time_dependent_rabi(self, ion, rabi):
+    def test_time_dependent_rabi(self, rabi):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=rabi,
             phase=0,
-            polarization=[0, 0, 1],
-            wavevector=[1, 0, 0],
-            target=0,
-        )
-
-    @pytest.mark.parametrize(
-        "detuning",
-        [
-            MathStr(string="t"),
-            MathStr(string="sin(t)"),
-            MathStr(string="A*sin(t)"),
-        ],
-    )
-    def test_time_dependent_detuning(self, ion, detuning):
-        Beam(
-            transition=ion.transitions[0],
-            detuning=detuning,
-            rabi=1,
-            phase=0,
-            polarization=[0, 0, 1],
-            wavevector=[1, 0, 0],
-            target=0,
+            polarization=DEFAULT_POL,
+            wavevector=DEFAULT_WV,
         )
 
     @pytest.mark.parametrize(
         "phase",
         [
-            MathStr(string="t"),
-            MathStr(string="sin(t)"),
-            MathStr(string="A*sin(t)"),
+            T,
+            MathFunc(func="sin", expr=T),
+            MathMul(expr1=A, expr2=MathFunc(func="sin", expr=T)),
         ],
     )
-    def test_time_dependent_phase(self, ion, phase):
+    def test_time_dependent_phase(self, phase):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=1,
             phase=phase,
-            polarization=[0, 0, 1],
-            wavevector=[1, 0, 0],
-            target=0,
+            polarization=DEFAULT_POL,
+            wavevector=DEFAULT_WV,
         )
 
     @pytest.mark.parametrize(
         "polarization",
         [
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1],
-            [1, 1, 0],
-            [1, 1j, 0],
-            [1, -1j, 0],
-            [1, -1j, 0],
-            [0, 0, MathStr(string="exp(1j*3.1415926535)")],
+            AtomicList(values=[1, 0, 0]),
+            AtomicList(values=[0, 1, 0]),
+            AtomicList(values=[0, 0, 1]),
+            AtomicList(values=[1, 1, 0]),
+            AtomicList(values=[1, 1j, 0]),
+            AtomicList(values=[1, -1j, 0]),
+            AtomicList(values=[1, -1j, 0]),
+            AtomicList(values=[0, 0, MathFunc(func="exp", expr=MathMul(expr1=MathImag(), expr2=MathNum(value=3.1415926535)),),]),
         ],
     )
-    def test_polarization(self, ion, polarization):
+    def test_polarization(self, polarization):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=1,
             phase=0,
             polarization=polarization,
-            wavevector=[1, 0, 0],
-            target=0,
+            wavevector=DEFAULT_WV,
         )
 
     @pytest.mark.xfail
     @pytest.mark.parametrize(
         "polarization",
         [
-            [0, 0, MathStr(string="t")],
-            [0, 0, MathStr(string="sin(t)")],
-            [0, 0, MathStr(string="A*sin(t)")],
+            AtomicList(values=[0, 0, T]),
+            AtomicList(values=[0, 0, MathFunc(func="sin", expr=T)]),
+            AtomicList(values=[0, 0, MathMul(expr1=A, expr2=MathFunc(func="sin", expr=T))]),
         ],
     )
-    def test_non_constant_polarization(self, ion, polarization):
+    def test_non_constant_polarization(self, polarization):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=1,
             phase=0,
             polarization=polarization,
-            wavevector=[1, 0, 0],
-            target=0,
+            wavevector=DEFAULT_WV,
         )
 
     @pytest.mark.parametrize(
         "wavevector",
         [
-            [1, 0, 0],
-            [0, 1, 0],
-            [0, 0, 1],
-            [1, 1, 0],
-            [0, 0, MathStr(string="exp(1j*3.1415926535)")],
+            AtomicList(values=[1, 0, 0]),
+            AtomicList(values=[0, 1, 0]),
+            AtomicList(values=[0, 0, 1]),
+            AtomicList(values=[1, 1, 0]),
+            AtomicList(values=[0, 0, MathFunc(func="exp", expr=MathMul(expr1=MathImag(), expr2=MathNum(value=3.1415926535)),),]),
         ],
     )
-    def test_wavevector(self, ion, wavevector):
+    def test_wavevector(self, wavevector):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=1,
             phase=0,
-            polarization=[0, 0, 1],
+            polarization=DEFAULT_POL,
             wavevector=wavevector,
-            target=0,
         )
 
     @pytest.mark.xfail
     @pytest.mark.parametrize(
         "wavevector",
         [
-            [0, 0, MathStr(string="t")],
-            [0, 0, MathStr(string="sin(t)")],
-            [0, 0, MathStr(string="A*sin(t)")],
+            AtomicList(values=[0, 0, T]),
+            AtomicList(values=[0, 0, MathFunc(func="sin", expr=T)]),
+            AtomicList(values=[0, 0, MathMul(expr1=A, expr2=MathFunc(func="sin", expr=T))]),
         ],
     )
-    def test_non_constant_wavevector(self, ion, wavevector):
+    def test_non_constant_wavevector(self, wavevector):
         Beam(
-            transition=ion.transitions[0],
-            detuning=0,
+            frequency=0,
             rabi=1,
             phase=0,
-            polarization=[0, 0, 1],
+            polarization=DEFAULT_POL,
             wavevector=wavevector,
-            target=0,
         )

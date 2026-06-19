@@ -19,7 +19,7 @@ from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule
 from pydantic import TypeAdapter, ValidationError
 
 from oqd_core.interface.atomic import (
-    ConstantMathExpr,
+    # CastMathExpr,
     MathAdd,
     MathBinaryOp,
     MathDiv,
@@ -508,7 +508,7 @@ class SimplifyMathExpr(RewriteRule):
 
     def map_MathExpr(self, model):
         try:
-            TypeAdapter(ConstantMathExpr).validate_python(model)
+            # TypeAdapter(CastMathExpr).validate_python(model)
 
             value = Post(EvaluateMathExpr())(model)
 

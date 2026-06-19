@@ -11,6 +11,7 @@ phi = #phi
 t_gate = 10e-6
 flag = true
 n = 3
+r = ionreg(2)
 
 // beam(frequency, rabi, phase, polarization, wavevector)
 beam_mw = beam(2.0 * pi * 1e6, omega, phi, [1.0, 0.0, 0.0], [0.0, 0.0, 1.0])
