@@ -15,9 +15,10 @@
 from functools import partial, reduce
 
 from oqd_compiler_infrastructure import Chain, Post, RewriteRule
-from oqd_core.interface.atomic.expr import MathNum, MathSub, Pulse
+from oqd_core.interface.atomic.expr import MathNum, MathSub, MathVar, Pulse
 from oqd_core.interface.atomic import Declaration, IfElse, While
 from oqd_core.compiler.atomic.math.passes import simplify_math_expr
+from oqd_core.compiler.atomic.math.rules import SubstituteMathVar
 from oqd_core.compiler.atomic.error import AtomicCompilerError
 from oqd_core.interface.atomic.statement import SerialProtocol, ParallelProtocol
 
@@ -177,66 +178,65 @@ class ResolveNestedProtocol(RewriteRule):
         pass
 
 
-# class ResolveRelativeTime(RewriteRule):
-#     """
-#     Handles conversion of relative time to absolute time.
+class ResolveRelativeTime(RewriteRule):
+    """
+    Handles conversion of relative time to absolute time.
 
-#     Args:
-#         model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
+    Args:
+        model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
 
-#     Returns:
-#         model (AtomicCircuit):
+    Returns:
+        model (AtomicCircuit):
 
-#     Assumptions:
-#         None
-#     """
+    Assumptions:
+        None
+    """
 
-#     def __init__(self):
-#         super().__init__()
+    def __init__(self):
+        super().__init__()
 
-#     def map_AtomicCircuit(self, model):
-#         protocol = Post(
-#             SubstituteMathVar(
-#                 variable=MathVar(name="#s"), substitution=MathVar(name="#t")
-#             )
-#         )(model.statements)
+    def _get_segment_duration(self, model):
+        if isinstance(model, SerialProtocol):
+            if not model.pulses:
+                raise AtomicCompilerError("Serial block is empty.")
+            return sum(self._get_segment_duration(p) for p in model.pulses)
+        
+        if isinstance(model, ParallelProtocol):
+            if not model.pulses:
+                raise AtomicCompilerError("Parallel block is empty.")
+            return max(self._get_segment_duration(p) for p in model.pulses)
+        
+        if isinstance(model, Pulse):
+            return _as_numeric_duration(model.duration)
+        
+        return 0
+    
+    def _substitute_at(self, offset):
+        return SubstituteMathVar(
+            variable=MathVar(name="#s"),
+            substitution=MathSub(
+                expr1=MathVar(name="#t"),
+                expr2=MathNum(value=offset),
+            ),
+        )
 
-#         return model.__class__(statements=protocol)
+    def map_SerialProtocol(self, model):
+        current_time = 0
 
-#     @classmethod
-#     def _get_duration(cls, model):
-#         if isinstance(model, SerialProtocol):
-#             return reduce(
-#                 lambda x, y: x + y,
-#                 [cls._get_duration(p) for p in model.pulses],
-#             )
-#         if isinstance(model, ParallelProtocol):
-#             if len(model.pulses) == 1:
-#                 return cls._get_duration(model.pulses[0])
+        new_pulses = []
+        for p in model.pulses:
+            new_pulses.append(Post(self._substitute_at(current_time))(p))
+            current_time += self._get_segment_duration(p)
 
-#             return max(
-#                 *[cls._get_duration(p) for p in model.pulses],
-#             )
-#         return model.duration
-
-#     def map_SerialProtocol(self, model):
-#         current_time = 0
-
-#         new_statements = []
-#         for p in model.pulses:
-#             duration = self._get_duration(p)
-
-#             new_p = Post(
-#                 SubstituteMathVar(
-#                     variable=MathVar(name="#s"),
-#                     substitution=MathVar(name="#s") - current_time,
-#                 )
-#             )(p)
-#             new_statements.append(new_p)
-
-#             current_time += duration
-
-#         return model.__class__(pulses=new_statements)
+        return SerialProtocol(pulses=new_pulses)
+    
+    def map_ParallelProtocol(self, model):
+        return ParallelProtocol(
+            pulses=[Post(self._substitute_at(0))(p) for p in model.pulses]
+        )
+    
+    def map_Pulse(self, model):
+        return Post(self._substitute_at(0))(model)
 
 
 ########################################################################################
@@ -248,6 +248,6 @@ def canonicalize_atomic_circuit_factory():
     Factory for creating a pass for canonicalizing an atomic circuit.
     """
     return Chain(
-        # Post(ResolveRelativeTime()),
         Post(ResolveNestedProtocol()),
+        Post(ResolveRelativeTime()),
     )
