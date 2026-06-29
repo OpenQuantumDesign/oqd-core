@@ -59,7 +59,7 @@ class ResolveNestedProtocol(RewriteRule):
             if len(model.pulses) == 1:
                 return self._get_continuous_duration(model.pulses[0])
 
-            return min(map(lambda x: self._get_continuous_duration, model.pulses))
+            return min(map(self._get_continuous_duration, model.pulses))
 
         if isinstance(model, SerialProtocol):
             if not model.pulses:

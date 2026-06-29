@@ -388,7 +388,7 @@ class SubstituteMathVar(RewriteRule):
         if not isinstance(variable, MathVar):
             raise TypeError("Variable must be a MathVar")
 
-        if not isinstance(variable, MathExpr):
+        if not isinstance(substitution, MathExpr):
             raise TypeError("Substituted value must be a MathExpr")
 
         self.variable = variable
