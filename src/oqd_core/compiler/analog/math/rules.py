@@ -250,8 +250,8 @@ class PartitionMathExpr(RewriteRule):
         model (MathExpr):
 
     Assumptions:
-        [`DistributeMathExpr`][oqd_core.compiler.math.rules.DistributeMathExpr],
-        [`ProperOrderMathExpr`][oqd_core.compiler.math.rules.ProperOrderMathExpr]
+        [`DistributeMathExpr`][oqd_core.compiler.analog.math.rules.DistributeMathExpr],
+        [`ProperOrderMathExpr`][oqd_core.compiler.analog.math.rules.ProperOrderMathExpr]
 
     Example:
         - MathStr(string = '1 + 1j + 2') => MathStr(string = '1 + 2 + 1j')
@@ -320,7 +320,7 @@ class ProperOrderMathExpr(RewriteRule):
         model (MathExpr):
 
     Assumptions:
-        [`DistributeMathExpr`][oqd_core.compiler.math.rules.DistributeMathExpr]
+        [`DistributeMathExpr`][oqd_core.compiler.analog.math.rules.DistributeMathExpr]
 
     Example:
         - MathStr(string = '2 * (3 * 5)') => MathStr(string = '(2 * 3) * 5')

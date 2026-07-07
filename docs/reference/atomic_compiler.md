@@ -25,8 +25,8 @@ The compile pipeline:
     options:
         heading_level: 3
         members: [
-            "canonicalize_math_cfg",
-            "canonicalize_math_block",
+            "canonicalize_expr",
+            "canonicalize_beam",
             "iter_stmt_blocks",
         ]
 <!-- prettier-ignore -->
@@ -86,3 +86,24 @@ The compile pipeline:
 
 ## Usage
 
+
+<!-- prettier-ignore -->
+/// admonition | Example
+    type: example
+```py
+from oqd_core.frontend.atomic import parse_atomic
+from oqd_core.analysis.atomic import AtomicCFGBuilder, AtomicTypeChecker, AtomicSymbolTableBuilder
+from oqd_core.compiler.atomic.passes.compile import compile_atomic_circuit
+
+source = """
+ions = ionreg(1)
+mw = beam(2.0, 1.0, 0.0, [1.0, 0.0, 0.0], [0.0, 0.0, 1.0])
+pulse(mw, 1e-5, ions[0], true)
+"""
+
+circuit = parse_atomic(source)
+cfg = AtomicCFGBuilder().run(circuit)
+type_checker = AtomicTypeChecker(cfg)
+symbol_table = AtomicSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
+circuit = compile_atomic_circuit(circuit, cfg, symbol_table)
+```

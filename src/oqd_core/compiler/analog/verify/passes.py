@@ -38,7 +38,7 @@ def verify_analog_args_dim(model, n_qreg, n_qmode):
         model (TaskArgsAnalog):
 
     Assumptions:
-        All  [`Operator`][oqd_core.interface.analog.operator.Operator] inside TaskArgsAnalog must be canonicalized
+        All  [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] inside TaskArgsAnalog must be canonicalized
     """
     expected = (n_qreg, n_qmode)
     for metric in model.metrics.values():

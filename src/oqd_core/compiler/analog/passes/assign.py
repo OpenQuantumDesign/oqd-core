@@ -33,13 +33,13 @@ def infer_analog_circuit_dim_cfg(cfg: ControlFlowGraph):
     This pass assigns n_qreg and n_qmode in the analog circuit and then verifies the assignment
 
     Args:
-        model (AnalogCircuit): n_qreg and n_qmode fields of [`AnalogCircuit`][oqd_core.interface.analog.operations.AnalogCircuit] are not assigned
+        model (AnalogCircuit): n_qreg and n_qmode fields of [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit] are not assigned
 
     Returns:
-        model (AnalogCircuit): n_qreg and n_qmode fields of [`AnalogCircuit`][oqd_core.interface.analog.operations.AnalogCircuit] are assigned
+        model (AnalogCircuit): n_qreg and n_qmode fields of [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit] are assigned
 
     Assumptions:
-        All [`Operator`][oqd_core.interface.analog.operator.Operator] inside [`AnalogCircuit`][oqd_core.interface.analog.operations.AnalogCircuit] must be canonicalized
+        All [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] inside [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit] must be canonicalized
     """
     dim = None
     for _, block in iter_stmt_blocks(cfg):
