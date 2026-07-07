@@ -50,6 +50,20 @@ __all__ = [
 
 ########################################################################################
 
+def _is_constant_math(model) -> bool:
+    if isinstance(model, (MathNum, MathImag)):
+        return True
+    if isinstance(model, (MathVar, Access)):
+        return False
+    if isinstance(model, MathFunc):
+        arg = model.expr
+        if isinstance(arg, list):
+            return all(_is_constant_math(a) for a in arg)
+        return _is_constant_math(arg)
+    if isinstance(model, (MathAdd, MathSub, MathMul, MathDiv, MathPow)):
+        return _is_constant_math(model.expr1) and _is_constant_math(model.expr2)
+    return False
+
 
 class PrintMathExpr(ConversionRule):
     """
@@ -507,6 +521,9 @@ class SimplifyMathExpr(RewriteRule):
         pass
 
     def map_MathExpr(self, model):
+        if not _is_constant_math(model):
+            return model
+        
         try:
             # TypeAdapter(CastMathExpr).validate_python(model)
 

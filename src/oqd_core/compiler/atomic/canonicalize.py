@@ -25,8 +25,6 @@ from oqd_core.interface.atomic.statement import SerialProtocol, ParallelProtocol
 
 ########################################################################################
 
-PROTOCOL_STMT_TYPES = (Pulse, ParallelProtocol, SerialProtocol)
-
 def _as_numeric_duration(duration):
     simplified = simplify_math_expr(duration)
     if isinstance(simplified, MathNum):
@@ -53,19 +51,19 @@ class ResolveNestedProtocol(RewriteRule):
         self.durations = []
 
     @classmethod
-    def _get_continuous_duration(self, model):
+    def _get_continuous_duration(cls, model):
         if isinstance(model, ParallelProtocol):
             if not model.pulses:
                 raise AtomicCompilerError(f"Parallel block is empty.")
             if len(model.pulses) == 1:
-                return self._get_continuous_duration(model.pulses[0])
+                return cls._get_continuous_duration(model.pulses[0])
 
-            return min(map(self._get_continuous_duration, model.pulses))
+            return min(map(cls._get_continuous_duration, model.pulses))
 
         if isinstance(model, SerialProtocol):
             if not model.pulses:
                 raise AtomicCompilerError(f"Serial block is empty.")
-            return self._get_continuous_duration(model.pulses[0])
+            return cls._get_continuous_duration(model.pulses[0])
 
         return _as_numeric_duration(model.duration)
 
@@ -247,16 +245,3 @@ class ResolveRelativeTime(RewriteRule):
     def map_While(self, model: While):
         pass
 
-
-########################################################################################
-
-
-
-def canonicalize_atomic_circuit_factory():
-    """
-    Factory for creating a pass for canonicalizing an atomic circuit.
-    """
-    return Chain(
-        Post(ResolveNestedProtocol()),
-        Post(ResolveRelativeTime()),
-    )

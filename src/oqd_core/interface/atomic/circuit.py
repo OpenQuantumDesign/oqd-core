@@ -43,9 +43,9 @@ class AtomicCircuit(TypeReflectBaseModel):
             Beam(frequency = frequency, rabi = rabi, phase = phase, polarization = polarization, wavevector = wavevector)
         )
         
-    def pulse(self, duration, target, beam, measured):
+    def pulse(self, beam, duration, target, measured):
         self.statements.append(
-            Pulse(duration=duration, target=target, beam=beam, measured=measured)
+            Pulse(beam=beam, duration=duration, target=target, measured=measured)
         )
     
     def parallel(self, pulses):

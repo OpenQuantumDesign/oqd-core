@@ -60,6 +60,7 @@ __all__ = [
     "AtomicList",
     "Extract",
     "Beam",
+    "Pulse",
 ]
 
 ########################################################################################
@@ -212,7 +213,7 @@ class Bool(BoolExpr):
 
 ########################################################################################
 
-class IonRegister(AtomicExpr):
+class IonRegister(RegisterExpr):
     size: NonNegativeInt
 
 
@@ -472,11 +473,11 @@ class BoolGreaterThanEq(ComparisonOp):
 ########################################################################################
 
 
-class AtomicList(AtomicExpr):
+class AtomicList(CollectionExpr):
     values: List[CastAtomicExpr]
 
 
-class Extract(AtomicExpr):
+class Extract(IndexingExpr):
     access: Access
     index: NonNegativeInt
 
@@ -502,7 +503,7 @@ class Beam(AtomicExpr):
     wavevector: CastAtomicExpr
 
 
-class Pulse(TypeReflectBaseModel):
+class Pulse(AtomicExpr):
     """
     Class representing the application of the beam for some duration.
 

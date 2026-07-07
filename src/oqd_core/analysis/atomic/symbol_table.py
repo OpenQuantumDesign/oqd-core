@@ -55,7 +55,7 @@ class AtomicSymbolError(TypeError):
 
 class SymbolBinding(BaseModel):
     lattice_type: TLatticeValue
-    target_dim: tuple[int, int]
+    target_dim: int
     list_elem: SymbolBinding | None = None
     model_config = ConfigDict(frozen=True)
 
@@ -123,27 +123,30 @@ def bind_target_value(expr, t: TLatticeValue, env: RegisterEnv) -> SymbolBinding
         return env[expr.name]
     
     if t is TIonReg:
-        return SymbolBinding(lattice_type=TIonReg, target_dim=(expr.size, 0))
+        return SymbolBinding(lattice_type=TIonReg, target_dim=expr.size)
     
     if isinstance(expr, Extract):
         if expr.access.name not in env:
             raise AtomicSymbolError(f"Undefined variable: {expr.access.name}")
         base = env[expr.access.name]
-        n_qreg, _ = base.target_dim
-        if n_qreg <= 0 or expr.index >= n_qreg:
+        n_ion = base.target_dim
+        if n_ion <= 0 or expr.index >= n_ion:
             raise AtomicSymbolError("Extract index out of range")
-        return SymbolBinding(lattice_type=TIonRef, target_dim=(1, 0))
+        return SymbolBinding(lattice_type=TIonRef, target_dim=1)
     
     if isinstance(expr, AtomicList):
         if not isinstance(t, TList) or not is_target_lattice_type(t):
             raise AtomicSymbolError("target list expected")
+        target_dim = 0
         elem_bindings = [bind_target_value(v, t.elem, env) for v in expr.values]
-        target_dim = (0, 0)
-        for binding in elem_bindings:
-            target_dim = (
-                target_dim[0] + binding.target_dim[0],
-                target_dim[1] + binding.target_dim[1],
+        if not elem_bindings:
+            return SymbolBinding(
+                lattice_type=t,
+                target_dim=target_dim,
+                list_elem=None,
             )
+        for binding in elem_bindings:
+            target_dim += binding.target_dim
         return SymbolBinding(
             lattice_type=t,
             target_dim=target_dim,
@@ -162,26 +165,21 @@ def target_dim(expr, env: RegisterEnv):
         if expr.access.name not in env:
             raise AtomicSymbolError(f"Undefined Variable: {expr.access.name}")
         base = env[expr.access.name]
-        n_qreg, n_qmode = base.target_dim
-        if n_qreg > 0:
-            if expr.index >= n_qreg:
-                raise AtomicSymbolError("Extract index out of range")
-            return (1, 0)
-        if n_qmode > 0:
-            if expr.index >= n_qmode:
-                raise AtomicSymbolError("Extract index out of range")
-            return (0,1)
-        raise AtomicSymbolError("Extract index out of range")
+        n_ion = base.target_dim
+        if n_ion <= 0 or expr.index >= n_ion:
+            raise AtomicSymbolError("Extract index out of range")
+        return 1
+        
     
     if isinstance(expr, AtomicList):
-        dim = (0, 0)
+        dim = 0
         for value in expr.values:
             new = target_dim(value, env)
-            dim = (dim[0] + new[0], dim[1] + new[1])
+            dim += new
         return dim
     
     if isinstance(expr, IonRegister):
-        return (expr.size, 0)
+        return expr.size
     
     raise AtomicSymbolError(f"Invalid target: {type(expr).__name__} ")
 

@@ -16,15 +16,12 @@
 from __future__ import annotations
 
 
-from oqd_core.analysis.utils.control_flow import Block, ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.compiler.atomic.math.passes import canonicalize_math_expr
 from oqd_core.interface.atomic import (
     AtomicList,
     Beam,
-    Declaration,
-    ParallelProtocol,
     Pulse,
-    SerialProtocol,
 )
 from oqd_core.interface.atomic.expr import AtomicExpr
 
@@ -35,6 +32,8 @@ def iter_stmt_blocks(cfg: ControlFlowGraph):
         yield node_id, block
 
 def canonicalize_expr(expr):
+    if isinstance(expr, (Beam, Pulse)):
+        return expr
     if isinstance(expr, AtomicExpr):
         return canonicalize_math_expr(expr)
     return expr
@@ -50,40 +49,4 @@ def canonicalize_beam(beam: Beam) -> Beam:
 def canonicalize_atomic_list(values: AtomicList) -> AtomicList:
     values.values = [canonicalize_expr(v) for v in values.values]
     return values
-
-def canonicalize_math_block(block: Block):
-    stmt = block.stmt
-    
-    if block.kind == "branch":
-        block.stmt = canonicalize_expr(stmt)
-        return
-    
-    if isinstance(stmt, Pulse):
-        stmt.duration = canonicalize_expr(stmt.duration)
-        stmt.target = canonicalize_expr(stmt.target)
-        stmt.measured = canonicalize_expr(stmt.measured)
-        if isinstance(stmt.beam, Beam):
-            stmt.beam = canonicalize_beam(stmt.beam)
-        else:
-            stmt.beam = canonicalize_expr(stmt.beam)
-        return
-    
-    if isinstance(stmt, Declaration):
-        if isinstance(stmt.value, Beam):
-            stmt.value = canonicalize_beam(stmt.value)
-        elif isinstance(stmt.value, AtomicList):
-            stmt.value = canonicalize_atomic_list(stmt.value)
-        else:
-            stmt.value = canonicalize_expr(stmt.value)
-        return
-    
-    if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
-        return
-
-
-def canonicalize_math_cfg(cfg: ControlFlowGraph):
-    for _, block in iter_stmt_blocks(cfg):
-        canonicalize_math_block(block)
-    return cfg
-
 

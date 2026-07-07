@@ -109,7 +109,7 @@ class AtomicTypeLattice(LatticeBase[TLatticeValue]):
         if self.leq(t2, t1):
             return t1
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.lattice.join(t1.elem, t2.elem))
+            return TList(elem=self.join(t1.elem, t2.elem))
         if isinstance(t1, TList) or isinstance(t2, TList):
             return TAtomic
         return super().join(t1, t2)
@@ -120,7 +120,7 @@ class AtomicTypeLattice(LatticeBase[TLatticeValue]):
         if self.leq(t2, t1):
             return t2
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.lattice.meet(t1.elem, t2.elem))
+            return TList(elem=self.meet(t1.elem, t2.elem))
         return super().meet(t1, t2)
 
 

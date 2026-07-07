@@ -19,8 +19,8 @@ from typing import Iterable, Union
 from oqd_compiler_infrastructure.dataflow import DataflowResult, ForwardDataflowAnalysis
 from oqd_compiler_infrastructure.lattice import Lattice, LatticeBottom, LatticeTop, maplattice
 
-from oqd_core.compiler.atomic.cfg_passes.walk import canonicalize_beam
-from oqd_core.analysis.atomic.types import TBeam, TBool, TScalar, TLatticeValue, TypeEnv
+from oqd_core.compiler.atomic.cfg_passes.walk import canonicalize_beam, canonicalize_expr
+from oqd_core.analysis.atomic.types import TBeam, TBool, TScalar, TLatticeValue, TypeEnv, TPulse
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.compiler.atomic.error import AtomicCompilerError
 from oqd_core.compiler.atomic.math.passes import canonicalize_math_expr
@@ -48,7 +48,9 @@ from oqd_core.interface.atomic import (
     MathVar,
     Pulse,
     Beam,
-    AtomicList
+    AtomicList,
+    ParallelProtocol,
+    SerialProtocol,
 )
 
 ScalarEnv = dict[str, object]
@@ -155,6 +157,46 @@ def resolve_beam_ref(expr, env: ScalarEnv):
     raise AtomicCompilerError(f"Cannot resolve beam expression: {type(expr).__name__}")
 
 
+def resolve_pulse_expr(pulse: Pulse, env: ScalarEnv) -> Pulse:
+    return Pulse(
+        beam=canonicalize_beam(resolve_beam_ref(pulse.beam, env)),
+        duration=canonicalize_scalar_expr(resolve_scalar_expr(pulse.duration, env)),
+        target=canonicalize_expr(pulse.target),
+        measured=resolve_scalar_expr(pulse.measured, env),
+    )
+
+
+def resolve_pulse_ref(expr, env: ScalarEnv):
+    if isinstance(expr, Access):
+        if expr.name not in env:
+            raise AtomicCompilerError(f"Undefined variable: {expr.name}")
+        bound = env[expr.name]
+        if isinstance(bound, Access):
+            return resolve_pulse_ref(bound, env)
+        if not isinstance(bound, Pulse):
+            raise AtomicCompilerError(f"Access {expr.name} is not a pulse")
+        return bound.model_copy(deep=True)
+    
+    if isinstance(expr, Pulse):
+        return resolve_pulse_expr(expr, env)
+    raise AtomicCompilerError(f"Cannot resolve pulse expression: {type(expr).__name__}")
+
+
+def resolve_protocol_pulses(pulses, env: ScalarEnv):
+    resolved = []
+    for child in pulses:
+        if isinstance(child, Access):
+            child = resolve_pulse_ref(child, env)
+        elif isinstance(child, Pulse):
+            child = resolve_pulse_expr(child, env)
+        elif isinstance(child, (ParallelProtocol, SerialProtocol)):
+            child = child.__class__(
+                pulses=resolve_protocol_pulses(child.pulses, env)
+            )
+        resolved.append(child)
+    return resolved
+
+
 def canonicalize_scalar_expr(expr):
     if isinstance(expr, Bool):
         return expr
@@ -194,6 +236,11 @@ class ScalarEnvBuilder(ForwardDataflowAnalysis[int, ScalarEnv]):
     def transfer(self, node_id: int, state_in: ScalarEnv) -> ScalarEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         stmt = self.blocks[node_id].stmt
+        block = self.blocks[node_id]
+
+        if block.kind == "branch":
+            block.stmt = resolve_scalar_expr(stmt, env)
+            return env
         
         if isinstance(stmt, Declaration):
             t: TLatticeValue | None = self.type_out_states[node_id].get(stmt.name)
@@ -217,15 +264,32 @@ class ScalarEnvBuilder(ForwardDataflowAnalysis[int, ScalarEnv]):
                 out = dict(env)
                 out[stmt.name] = beam
                 return out
+            if t is TPulse:
+                pulse = resolve_pulse_expr(stmt.value, env)
+                stmt.value = pulse
+                out = dict(env)
+                out[stmt.name] = pulse
+                return out
+            return env
+            
+        if isinstance(stmt, Pulse):
+            resolved = resolve_pulse_expr(stmt, env)
+            stmt.beam = resolved.beam
+            stmt.duration = resolved.duration
+            stmt.target = resolved.target
+            stmt.measured = resolved.measured
             return env
         
-        if isinstance(stmt, Pulse):
-            stmt.duration = canonicalize_scalar_expr(resolve_scalar_expr(stmt.duration, env))
-            stmt.beam = canonicalize_beam(resolve_beam_ref(stmt.beam, env))
+        if isinstance(stmt, Access):
+            block.stmt = resolve_pulse_ref(stmt, env)
+            return env
+        
+        if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
+            stmt.pulses = resolve_protocol_pulses(stmt.pulses, env)
             return env
         
         return env
-    
+
 
 def canonicalize_scalars_cfg(
     cfg: ControlFlowGraph,
