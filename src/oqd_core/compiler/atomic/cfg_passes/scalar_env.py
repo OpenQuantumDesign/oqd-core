@@ -245,18 +245,16 @@ class ScalarEnvBuilder(ForwardDataflowAnalysis[int, ScalarEnv]):
         if isinstance(stmt, Declaration):
             t: TLatticeValue | None = self.type_out_states[node_id].get(stmt.name)
             if t is TScalar:
-                value = canonicalize_scalar_expr(
+                bound = canonicalize_scalar_expr(
                     resolve_scalar_expr(stmt.value, env)
                 )
-                stmt.value = value
                 out = dict(env)
-                out[stmt.name] = value
+                out[stmt.name] = bound
                 return out
             if t is TBool:
-                value = resolve_scalar_expr(stmt.value, env)
-                stmt.value = value
+                bound = resolve_scalar_expr(stmt.value, env)
                 out = dict(env)
-                out[stmt.name] = value
+                out[stmt.name] = bound
                 return out
             if t is TBeam:
                 beam = canonicalize_beam(resolve_beam_expr(stmt.value, env))
