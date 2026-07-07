@@ -107,7 +107,6 @@ class TestBeam:
             wavevector=DEFAULT_WV,
         )
 
-    @pytest.mark.xfail
     @pytest.mark.parametrize(
         "polarization",
         [
@@ -144,7 +143,6 @@ class TestBeam:
             wavevector=wavevector,
         )
 
-    @pytest.mark.xfail
     @pytest.mark.parametrize(
         "wavevector",
         [

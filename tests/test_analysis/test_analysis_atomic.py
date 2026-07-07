@@ -45,7 +45,7 @@ class TestAtomicSymbolTable:
         )
         pulse = next(s for s in circuit.statements if isinstance(s, Pulse))
         node_id = symbol_table.stmt_index[id(pulse)]
-        assert symbol_table.in_env[node_id]["r"].target_dim == (3, 0)
+        assert symbol_table.in_env[node_id]["r"].target_dim == 3
         
     def test_extract_out_of_range(self):
         symbol_table, cfg, _ = build_symbol_table(
@@ -96,6 +96,8 @@ class TestAtomicTypeChecker:
             p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
             "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             pulse(b, 1e-5, r[0], false)",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n x\n }\n}",
             "c = 1 < 2",
             "c = 3 >= 2",
             "if (1 < 2) {x = 0}",
@@ -127,7 +129,7 @@ class TestAtomicTypeChecker:
             "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             parallel {\n serial {\n pulse(beam_mw, 5e-6, r[0])\n }\n r[1]\n}",
             "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
-            parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n }\n}",
+            parallel {\n serial {\n x = 5\n }\n}",
             "r = true \n if (r) { \n r = 5} \n r = r + 2",
             "c = 1 == true",
             "c = true != 5",
