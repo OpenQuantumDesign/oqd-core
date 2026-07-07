@@ -21,6 +21,11 @@ from oqd_core.compiler.atomic.canonicalize import _as_numeric_duration
 from oqd_core.compiler.atomic.error import AtomicCompilerError
 from oqd_core.interface.atomic import Declaration, ParallelProtocol, Pulse, SerialProtocol
 
+__all__ = [
+    "verify_constant_pulse_durations",
+    "verify_pulse_target_dim",
+]
+
 
 def iter_pulses(stmt):
     if isinstance(stmt, Pulse):

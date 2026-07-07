@@ -25,7 +25,6 @@ nav:
   - Interfaces:
       - Analog: interfaces/analog_interface.md
       - Atomic: interfaces/atomic_interface.md
-      - Canonicalization: interfaces/canonicalization.md
   
   - Grammar:
       - Analog: grammar/analog_grammar.md
@@ -49,6 +48,7 @@ nav:
               - Compiler: reference/analog_compiler.md
               - Canonicalization: reference/analog_canonicalization.md
           - Atomic:
+              - Compiler: reference/atomic_compiler.md
               - Canonicalization: reference/atomic_canonicalization.md
 
 theme:

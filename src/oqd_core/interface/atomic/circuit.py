@@ -30,7 +30,7 @@ __all__ = [
 
 class AtomicCircuit(TypeReflectBaseModel):
     """
-    Class representing a trapped-ion experiment in terms of light-matter interactons.
+    Class representing a trapped-ion experiment in terms of light-matter interactions.
 
     Attributes:
         statements: The trapped-ion system.

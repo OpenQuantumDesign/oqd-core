@@ -49,7 +49,7 @@ class SerialProtocol(TypeReflectBaseModel):
 
 class IfElse(TypeReflectBaseModel):
     """
-    Class representing a conditional branch in the analog circuit
+    Class representing a conditional branch in the atomic circuit
     """
     condition: AtomicExprSubtypes
     then_branch: List[Statement] = []
@@ -58,7 +58,7 @@ class IfElse(TypeReflectBaseModel):
     
 class While(TypeReflectBaseModel):
     """
-    Class representing a while loop in the analog circuit
+    Class representing a while loop in the atomic circuit
     """
     condition: AtomicExprSubtypes
     body: List[Statement] = []

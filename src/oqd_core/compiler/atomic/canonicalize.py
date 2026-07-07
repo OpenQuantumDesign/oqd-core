@@ -36,10 +36,10 @@ class ResolveNestedProtocol(RewriteRule):
     Unfolds nested protocols into a standard form with only 2 hierarchy levels, a sequential protocol of parallel protocols.
 
     Args:
-        model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
+        model: A protocol node (`Pulse`, `ParallelProtocol`, or `SerialProtocol`).
 
     Returns:
-        model (AtomicCircuit):
+        model: The canonicalized protocol node.
 
     Assumptions:
         None
@@ -181,10 +181,10 @@ class ResolveRelativeTime(RewriteRule):
     Handles conversion of relative time to absolute time.
 
     Args:
-        model (AtomicCircuit): The rule only acts on [`AtomicCircuit`][oqd_core.interface.atomic.AtomicCircuit] objects.
+        model: A protocol node (`Pulse`, `ParallelProtocol`, or `SerialProtocol`).
 
     Returns:
-        model (AtomicCircuit):
+        model: The canonicalized protocol node.
 
     Assumptions:
         None

@@ -225,7 +225,7 @@ class MathTerminal(MathExpr): ...
 
 class MathVar(MathTerminal):
     """
-    Class representing a variable in a [`MathExpr`][oqd_core.interface.math.MathExpr]
+    Class representing a variable in a [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
 
     Examples:
         >>> MathVar("t")
@@ -237,7 +237,7 @@ class MathVar(MathTerminal):
 
 class MathNum(MathTerminal):
     """
-    Class representing a number in a [`MathExpr`][oqd_core.interface.math.MathExpr]
+    Class representing a number in a [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
     """
 
     value: Union[int, float]
@@ -245,7 +245,7 @@ class MathNum(MathTerminal):
 
 class MathImag(MathTerminal):
     """
-    Class representing the imaginary unit in a [`MathExpr`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
+    Class representing the imaginary unit in a [`MathExpr`][oqd_core.interface.analog.expr.MathExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -423,7 +423,7 @@ List of supported functions
 
 class MathFunc(AnalogExpr):
     """
-    Class representing a named function applied to a [`MathExpr`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
+    Class representing a named function applied to a [`MathExpr`][oqd_core.interface.analog.expr.MathExpr] abstract syntax tree (AST)
 
     Attributes:
         func (SupportedFuncNames): Named function to apply
@@ -484,7 +484,7 @@ class MathFunc(AnalogExpr):
 
 class MathBinaryOp(MathExpr):
     """
-    Class representing binary operations on [`MathExprs`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`MathExprs`][oqd_core.interface.analog.expr.MathExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -492,11 +492,11 @@ class MathBinaryOp(MathExpr):
 
 class MathAdd(MathBinaryOp):
     """
-    Class representing the addition of [`MathExprs`][oqd_core.interface.analog.operator.Operator]
+    Class representing the addition of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.operator.Operator]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.operator.Operator]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
     """
 
     expr1: CastAnalogExpr
@@ -505,11 +505,11 @@ class MathAdd(MathBinaryOp):
 
 class MathSub(MathBinaryOp):
     """
-    Class representing the subtraction of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the subtraction of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
     """
 
     expr1: CastAnalogExpr
@@ -518,11 +518,11 @@ class MathSub(MathBinaryOp):
 
 class MathMul(MathBinaryOp):
     """
-    Class representing the multiplication of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the multiplication of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
     """
 
     expr1: CastAnalogExpr
@@ -531,11 +531,11 @@ class MathMul(MathBinaryOp):
 
 class MathDiv(MathBinaryOp):
     """
-    Class representing the division of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the division of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
     """
 
     expr1: CastAnalogExpr
@@ -544,11 +544,11 @@ class MathDiv(MathBinaryOp):
 
 class MathPow(MathBinaryOp):
     """
-    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
     """
 
     expr1: CastAnalogExpr
@@ -560,7 +560,7 @@ class MathPow(MathBinaryOp):
 
 class BoolUnaryOp(BoolExpr):
     """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.bool.BoolExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`BoolExprs`][oqd_core.interface.analog.expr.BoolExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -568,7 +568,7 @@ class BoolUnaryOp(BoolExpr):
 
 class BoolBinaryOp(BoolExpr):
     """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.bool.BoolExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`BoolExprs`][oqd_core.interface.analog.expr.BoolExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -576,7 +576,7 @@ class BoolBinaryOp(BoolExpr):
 
 class ComparisonOp(BoolExpr):
     """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.bool.BoolExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`BoolExprs`][oqd_core.interface.analog.expr.BoolExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -631,7 +631,7 @@ class BoolGreaterThanEq(ComparisonOp):
 
 class OperatorBinaryOp(OperatorExpr):
     """
-    Class representing binary operations on [`Operators`][oqd_core.interface.analog.operator.Operator]
+    Class representing binary operations on [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     pass
@@ -639,11 +639,11 @@ class OperatorBinaryOp(OperatorExpr):
 
 class OperatorAdd(OperatorBinaryOp):
     """
-    Class representing the addition of [`Operators`][oqd_core.interface.analog.operator.Operator]
+    Class representing the addition of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr
@@ -652,11 +652,11 @@ class OperatorAdd(OperatorBinaryOp):
 
 class OperatorSub(OperatorBinaryOp):
     """
-    Class representing the subtraction of [`Operators`][oqd_core.interface.analog.operator.Operator]
+    Class representing the subtraction of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr
@@ -665,11 +665,11 @@ class OperatorSub(OperatorBinaryOp):
 
 class OperatorMul(OperatorBinaryOp):
     """
-    Class representing the multiplication of [`Operators`][oqd_core.interface.analog.operator.Operator]
+    Class representing the multiplication of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr
@@ -678,11 +678,11 @@ class OperatorMul(OperatorBinaryOp):
 
 class OperatorKron(OperatorBinaryOp):
     """
-    Class representing the tensor product of [`Operators`][oqd_core.interface.analog.operator.Operator]
+    Class representing the tensor product of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr

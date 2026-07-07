@@ -84,7 +84,7 @@ The [`AtomicCircuit`][oqd_core.interface.atomic.circuit.AtomicCircuit] is the to
     type: example
 
 ```py
-from oqd_core.interface.atomic import AtomicCircuit, Beam
+from oqd_core.interface.atomic import AtomicCircuit, Beam, Access
 
 circuit = AtomicCircuit()
 
@@ -96,7 +96,8 @@ mw = Beam(
     wavevector=[0.0, 0.0, 1.0],
 )
 
-circuit.pulse(duration=10e-6, target=0, beam=mw, measured=False)
+ions = Access(name="ions")
+circuit.pulse(beam=mw, duration=10e-6, target=ions, measured=False)
 ```
 
 ///

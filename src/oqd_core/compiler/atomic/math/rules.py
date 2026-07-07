@@ -67,13 +67,13 @@ def _is_constant_math(model) -> bool:
 
 class PrintMathExpr(ConversionRule):
     """
-    This prints [`MathExpr`][oqd_core.interface.math.MathExpr] objects. Verbosity level can be given as an attribute.
+    This prints [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects. Verbosity level can be given as an attribute.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
-        string (str):
+        string (str)
 
     Assumptions:
         None
@@ -194,13 +194,13 @@ class PrintMathExpr(ConversionRule):
 
 class DistributeMathExpr(RewriteRule):
     """
-    This distributes [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+    This distributes [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
-        model (MathExpr):
+        model (MathExpr)
 
     Assumptions:
         None
@@ -237,17 +237,17 @@ class DistributeMathExpr(RewriteRule):
 
 class PartitionMathExpr(RewriteRule):
     """
-    This separates real and complex portions of [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+    This separates real and complex portions of [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
-        model (MathExpr):
+        model (MathExpr)
 
     Assumptions:
-        [`DistributeMathExpr`][oqd_core.compiler.math.rules.DistributeMathExpr],
-        [`ProperOrderMathExpr`][oqd_core.compiler.math.rules.ProperOrderMathExpr]
+        [`DistributeMathExpr`][oqd_core.compiler.atomic.math.rules.DistributeMathExpr],
+        [`ProperOrderMathExpr`][oqd_core.compiler.atomic.math.rules.ProperOrderMathExpr]
 
     Example:
         - MathStr(string = '1 + 1j + 2') => MathStr(string = '1 + 2 + 1j')
@@ -307,16 +307,16 @@ class PartitionMathExpr(RewriteRule):
 
 class ProperOrderMathExpr(RewriteRule):
     """
-    This rearranges bracketing of [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+    This rearranges bracketing of [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
-        model (MathExpr):
+        model (MathExpr)
 
     Assumptions:
-        [`DistributeMathExpr`][oqd_core.compiler.math.rules.DistributeMathExpr]
+        [`DistributeMathExpr`][oqd_core.compiler.atomic.math.rules.DistributeMathExpr]
 
     Example:
         - MathStr(string = '2 * (3 * 5)') => MathStr(string = '(2 * 3) * 5')
@@ -342,7 +342,7 @@ class PruneMathExpr(RewriteRule):
     This is constant fold operation where scalar addition, multiplication and power are simplified
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -386,7 +386,7 @@ class SubstituteMathVar(RewriteRule):
     This rule substitutes a MathVar with another MathExpr
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -421,7 +421,7 @@ class EvaluateMathExpr(ConversionRule):
     This evaluates MathExpr objects and raises a type error if a MathVar exist in the AST.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
         model (MathExpr):
@@ -499,13 +499,13 @@ class EvaluateMathExpr(ConversionRule):
 
 class SimplifyMathExpr(RewriteRule):
     """
-    This simplifies MathExpr objects by evaluating all constants in the AST.
+    This simplifies MathExpr objects by evaluating constant subexpressions in the AST.
 
     Args:
-        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.math.MathExpr] objects.
+        model (MathExpr): The rule only acts on [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] objects.
 
     Returns:
-        model (MathExpr):
+        model (MathExpr)
 
     Assumptions:
         None
