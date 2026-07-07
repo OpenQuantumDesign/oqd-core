@@ -237,6 +237,15 @@ class ResolveRelativeTime(RewriteRule):
     
     def map_Pulse(self, model):
         return Post(self._substitute_at(0))(model)
+    
+    def map_Declaration(self, model: Declaration):
+        pass
+    
+    def map_IfElse(self, model: IfElse):
+        pass
+    
+    def map_While(self, model: While):
+        pass
 
 
 ########################################################################################
