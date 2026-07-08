@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ########################################################################################
-from oqd_core.interface.analog import Evolve
+from oqd_core.interface.analog import Evolve, Access
 from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.operator.dim import operator_dim
 from oqd_core.compiler.analog.cfg_passes.walk import iter_stmt_blocks
@@ -44,6 +44,8 @@ def infer_analog_circuit_dim_cfg(cfg: ControlFlowGraph):
     dim = None
     for _, block in iter_stmt_blocks(cfg):
         if not isinstance(block.stmt, Evolve):
+            continue
+        if isinstance(block.stmt.hamiltonian, Access):
             continue
         d = operator_dim(block.stmt.hamiltonian)
         if dim is None:
