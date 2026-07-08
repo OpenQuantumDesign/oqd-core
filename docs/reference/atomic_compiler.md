@@ -3,8 +3,7 @@
 The atomic compiler is implemented in `src/oqd_core/compiler/atomic`. The entry point is [`compile_atomic_circuit`][oqd_core.compiler.atomic.passes.compile.compile_atomic_circuit].
 
 The compile pipeline:
-- Canonicalize scalars, beams, and pulse references over the CFG via [`canonicalize_scalars_cfg`][oqd_core.compiler.atomic.cfg_passes.scalar_env.canonicalize_scalars_cfg]
-- Verify pulse durations are constant before protocol canonicalization via [`verify_constant_pulse_durations`][oqd_core.compiler.atomic.verify.passes.verify_constant_pulse_durations]
+- Canonicalize scalars and beams over the CFG via [`canonicalize_declarations_cfg`][oqd_core.compiler.atomic.cfg_passes.walk.canonicalize_declarations_cfg]
 - Canonicalize nested protocols and relative time via [`canonicalize_protocol_cfg`][oqd_core.compiler.atomic.cfg_passes.protocol.canonicalize_protocol_cfg]
 - Verify pulse target dimensions via [`verify_pulse_target_dim`][oqd_core.compiler.atomic.verify.passes.verify_pulse_target_dim]
 
@@ -28,12 +27,6 @@ The compile pipeline:
             "canonicalize_expr",
             "canonicalize_beam",
             "iter_stmt_blocks",
-        ]
-<!-- prettier-ignore -->
-::: oqd_core.compiler.atomic.cfg_passes.scalar_env
-    options:
-        heading_level: 3
-        members: [
             "canonicalize_scalars_cfg",
         ]
 <!-- prettier-ignore -->
@@ -43,6 +36,18 @@ The compile pipeline:
         members: [
             "canonicalize_protocol_cfg",
         ]
+<!-- prettier-ignore -->
+::: oqd_core.compiler.atomic.cfg_passes.resolve
+    options:
+        heading_level: 3
+        members: [
+            "resolve_scalar_expr",
+            "resolve_beam_expr",
+            "resolve_beam_ref",
+            "resolve_pulse_expr",
+            "resolve_pulse_ref",
+            "resolve_protocol_pulses",
+        ]
 
 ## Verification Passes
 
@@ -51,7 +56,6 @@ The compile pipeline:
     options:
         heading_level: 3
         members: [
-            "verify_constant_pulse_durations",
             "verify_pulse_target_dim",
         ]
 
@@ -105,5 +109,5 @@ circuit = parse_atomic(source)
 cfg = AtomicCFGBuilder().run(circuit)
 type_checker = AtomicTypeChecker(cfg)
 symbol_table = AtomicSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
-circuit = compile_atomic_circuit(circuit, cfg, symbol_table)
+circuit = compile_atomic_circuit(circuit, cfg, type_checker.dataflow_result, symbol_table)
 ```

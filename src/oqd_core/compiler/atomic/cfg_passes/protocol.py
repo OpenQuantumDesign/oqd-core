@@ -17,6 +17,8 @@ from oqd_compiler_infrastructure import Post
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.compiler.atomic.canonicalize import ResolveNestedProtocol, ResolveRelativeTime
 from oqd_core.compiler.atomic.cfg_passes.walk import iter_stmt_blocks
+from oqd_core.compiler.atomic.math.rules import _is_constant_math
+from oqd_core.compiler.atomic.verify.passes import iter_pulses
 from oqd_core.interface.atomic import (
     AtomicCircuit,
     Declaration,
@@ -31,8 +33,11 @@ PROTOCOL_TYPES = (Pulse, ParallelProtocol, SerialProtocol)
 
 
 def apply_protocol_passes(stmt):
+    if not all(_is_constant_math(pulse.duration) for pulse in iter_pulses(stmt)):
+        return stmt
     stmt = Post(ResolveNestedProtocol())(stmt)
-    return Post(ResolveRelativeTime())(stmt)
+    stmt = Post(ResolveRelativeTime())(stmt)
+    return stmt
 
 
 def canonicalize_protocol_tree(stmt):

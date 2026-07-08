@@ -17,12 +17,9 @@ from collections.abc import Iterator
 from oqd_core.analysis.atomic.symbol_table import AtomicSymbolTable, target_dim
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.compiler.atomic.cfg_passes.walk import iter_stmt_blocks
-from oqd_core.compiler.atomic.canonicalize import _as_numeric_duration
-from oqd_core.compiler.atomic.error import AtomicCompilerError
 from oqd_core.interface.atomic import Declaration, ParallelProtocol, Pulse, SerialProtocol
 
 __all__ = [
-    "verify_constant_pulse_durations",
     "verify_pulse_target_dim",
 ]
 
@@ -40,18 +37,6 @@ def iter_pulses(stmt):
 def iter_pulse_targets(stmt) -> Iterator:
     for pulse in iter_pulses(stmt):
         yield pulse.target
-
-
-def verify_constant_pulse_durations(cfg: ControlFlowGraph):
-    for _, block in iter_stmt_blocks(cfg):
-        for pulse in iter_pulses(block.stmt):
-            try:
-                _as_numeric_duration(pulse.duration)
-            except AtomicCompilerError as exc:
-                raise AtomicCompilerError(
-                    f"Non-constant pulse duration before protocol canonicalization: {pulse.duration}"
-                ) from exc
-    return cfg
 
 
 def verify_pulse_target_dim(cfg: ControlFlowGraph, symbol_table: AtomicSymbolTable):

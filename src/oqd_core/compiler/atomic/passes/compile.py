@@ -16,9 +16,9 @@ from oqd_compiler_infrastructure.dataflow import DataflowResult
 from oqd_core.analysis.atomic.symbol_table import AtomicSymbolTable
 from oqd_core.analysis.atomic.types import TypeEnv
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
-from oqd_core.compiler.atomic.cfg_passes.scalar_env import canonicalize_scalars_cfg
+from oqd_core.compiler.atomic.cfg_passes.walk import canonicalize_declarations_cfg
 from oqd_core.compiler.atomic.cfg_passes.protocol import canonicalize_protocol_cfg
-from oqd_core.compiler.atomic.verify.passes import verify_pulse_target_dim, verify_constant_pulse_durations
+from oqd_core.compiler.atomic.verify.passes import verify_pulse_target_dim
 from oqd_core.interface.atomic import AtomicCircuit
 
 __all__ = ["compile_atomic_circuit"]
@@ -30,8 +30,7 @@ def compile_atomic_circuit(
     type_result: DataflowResult[int, TypeEnv],
     symbol_table: AtomicSymbolTable,
 ):
-    canonicalize_scalars_cfg(cfg, type_result)
-    verify_constant_pulse_durations(cfg)
+    canonicalize_declarations_cfg(cfg, type_result)
     canonicalize_protocol_cfg(cfg, model)
     verify_pulse_target_dim(cfg, symbol_table)
     

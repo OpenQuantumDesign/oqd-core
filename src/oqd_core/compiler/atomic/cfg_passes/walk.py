@@ -22,8 +22,12 @@ from oqd_core.interface.atomic import (
     AtomicList,
     Beam,
     Pulse,
+    Bool,
 )
 from oqd_core.interface.atomic.expr import AtomicExpr
+from oqd_core.analysis.atomic.types import TBeam, TScalar, TypeEnv, TPulse
+from oqd_core.interface.atomic import Declaration
+from oqd_compiler_infrastructure.dataflow import DataflowResult
 
 def iter_stmt_blocks(cfg: ControlFlowGraph):
     for node_id, block in cfg.blocks.items():
@@ -49,4 +53,32 @@ def canonicalize_beam(beam: Beam) -> Beam:
 def canonicalize_atomic_list(values: AtomicList) -> AtomicList:
     values.values = [canonicalize_expr(v) for v in values.values]
     return values
+
+
+def canonicalize_scalar_expr(expr):
+    if isinstance(expr, Bool):
+        return expr
+    return canonicalize_math_expr(expr)
+
+def canonicalize_declarations_cfg(
+    cfg: ControlFlowGraph,
+    type_result: DataflowResult[int, TypeEnv],
+) -> ControlFlowGraph:
+
+    for node_id, block in iter_stmt_blocks(cfg):
+        stmt = block.stmt
+        if not isinstance(stmt, Declaration):
+            continue
+        t = type_result.out_states[node_id].get(stmt.name)
+        if t is TScalar:
+            stmt.value = canonicalize_scalar_expr(stmt.value)
+        elif t is TBeam:
+            stmt.value = canonicalize_beam(stmt.value)
+        elif t is TPulse:
+            pulse = stmt.value
+            pulse.duration = canonicalize_scalar_expr(pulse.duration)
+            if isinstance(pulse.beam, Beam):
+                pulse.beam = canonicalize_beam(pulse.beam)
+
+    return cfg
 
