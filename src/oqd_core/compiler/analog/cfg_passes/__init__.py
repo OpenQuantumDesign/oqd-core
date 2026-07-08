@@ -12,8 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .walk import canonicalize_math_block, canonicalize_math_cfg
-from .operator_env import canonicalize_operators_cfg
+from .walk import canonicalize_math_block, canonicalize_math_cfg, canonicalize_operators_cfg
 
 
 __all__ = [

@@ -17,7 +17,8 @@ from __future__ import annotations
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph, Block
 from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
 from oqd_core.interface.analog import Declaration, Evolve
-from oqd_core.interface.analog.expr import MathExpr
+from oqd_core.interface.analog.expr import MathExpr, OperatorExpr
+from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator_expr
 
 
 def iter_stmt_blocks(cfg: ControlFlowGraph):
@@ -47,4 +48,11 @@ def canonicalize_math_cfg(cfg: ControlFlowGraph):
         canonicalize_math_block(block)
     return cfg
             
+def canonicalize_operators_cfg(cfg: ControlFlowGraph) -> ControlFlowGraph:
+    """Canonicalize inline operator declarations."""
+    for _, block in iter_stmt_blocks(cfg):
+        stmt = block.stmt
+        if isinstance(stmt, Declaration) and isinstance(stmt.value, OperatorExpr):
+            stmt.value = canonicalize_operator_expr(stmt.value)
+    return cfg
 

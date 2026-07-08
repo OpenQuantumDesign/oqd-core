@@ -15,7 +15,7 @@
 from oqd_core.compiler.analog.operator.dim import operator_dim
 from oqd_core.analysis.analog.symbol_table import AnalogSymbolTable, target_dim
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
-from oqd_core.interface.analog import Evolve, Initialize, Measure
+from oqd_core.interface.analog import Evolve, Initialize, Measure, Access
 from oqd_core.backend.metric import Expectation
 from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.cfg_passes.walk import iter_stmt_blocks
@@ -69,6 +69,8 @@ def verify_hamiltonian_target_dim(cfg: ControlFlowGraph, symbol_table: AnalogSym
     for node_id, block in iter_stmt_blocks(cfg):
         stmt = block.stmt
         if not isinstance(stmt, Evolve):
+            continue
+        if isinstance(stmt.hamiltonian, Access):
             continue
         env = symbol_table.in_env[node_id]
         h_dim = operator_dim(stmt.hamiltonian)
