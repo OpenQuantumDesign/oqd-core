@@ -3,7 +3,7 @@
 The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry point is [`compile_analog_circuit`][oqd_core.compiler.analog.passes.compile.compile_analog_circuit], which takes an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit], a `ControlFlowGraph`, and an `AnalogSymbolTable`.
 
 The compile pipeline:
-- Canonicalize operators over the CFG via [`canonicalize_operators_cfg`][oqd_core.compiler.analog.cfg_passes.operator_env.canonicalize_operators_cfg]
+- Canonicalize operators over the CFG via [`canonicalize_operators_cfg`][oqd_core.compiler.analog.cfg_passes.walk.canonicalize_operators_cfg]
 - Canonicalize math expressions over the CFG via [`canonicalize_math_cfg`][oqd_core.compiler.analog.cfg_passes.walk.canonicalize_math_cfg]
 - Verify register access and Hamiltonian target dimensions
 - Infer circuit Hilbert space dimensions from canonicalized `Evolve` statements
@@ -28,19 +28,13 @@ The compile pipeline:
 ## CFG Passes
 
 <!-- prettier-ignore -->
-::: oqd_core.compiler.analog.cfg_passes.operator_env
-    options:
-        heading_level: 3
-        members: [
-            "canonicalize_operators_cfg",
-        ]
-<!-- prettier-ignore -->
 ::: oqd_core.compiler.analog.cfg_passes.walk
     options:
         heading_level: 3
         members: [
             "canonicalize_math_cfg",
             "canonicalize_math_block",
+            "canonicalize_operators_cfg",
             "iter_stmt_blocks",
         ]
 

@@ -13,8 +13,7 @@
 # limitations under the License.
 
 from oqd_core.backend.metric import Expectation
-from oqd_core.compiler.analog.cfg_passes.walk import canonicalize_math_cfg
-from oqd_core.compiler.analog.cfg_passes.operator_env import canonicalize_operators_cfg
+from oqd_core.compiler.analog.cfg_passes.walk import canonicalize_math_cfg, canonicalize_operators_cfg
 from oqd_core.compiler.analog.passes.assign import infer_analog_circuit_dim_cfg
 from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator_expr
 from oqd_core.compiler.analog.verify.passes import verify_analog_args_dim, verify_hamiltonian_target_dim, verify_register_access_dim
