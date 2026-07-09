@@ -1,12 +1,12 @@
 # Analog Compiler
 
-The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry point is [`compile_analog_circuit`][oqd_core.compiler.analog.passes.compile.compile_analog_circuit], which takes an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit], a `ControlFlowGraph`, and an `AnalogSymbolTable`.
+The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry point is [`compile_analog_cfg`][oqd_core.compiler.analog.passes.compile.compile_analog_cfg], which takes a [`ControlFlowGraph`][oqd_core.analysis.utils.control_flow.ControlFlowGraph], and an `AnalogSymbolTable`[oqd_core.analysis.analog.symbol_table.AnalogSymbolTable].
 
 The compile pipeline:
 - Canonicalize operators over the CFG via [`canonicalize_operators_cfg`][oqd_core.compiler.analog.cfg_passes.walk.canonicalize_operators_cfg]
 - Canonicalize math expressions over the CFG via [`canonicalize_math_cfg`][oqd_core.compiler.analog.cfg_passes.walk.canonicalize_math_cfg]
 - Verify register access and Hamiltonian target dimensions
-- Infer circuit Hilbert space dimensions from canonicalized `Evolve` statements
+- Infer Hilbert space dimensions from canonicalized `Evolve` statements
 
 ## Compile Passes
 
@@ -15,7 +15,7 @@ The compile pipeline:
     options:
         heading_level: 3
         members: [
-            "compile_analog_circuit",
+            "compile_analog_cfg",
         ]
 <!-- prettier-ignore -->
 ::: oqd_core.compiler.analog.passes.assign
@@ -111,7 +111,7 @@ The compile pipeline:
 ```py
 from oqd_core.frontend.analog import parse_analog
 from oqd_core.analysis.analog import AnalogCFGBuilder, AnalogTypeChecker, AnalogSymbolTableBuilder
-from oqd_core.compiler.analog.passes.compile import compile_analog_circuit
+from oqd_core.compiler.analog.passes.compile import compile_analog_cfg
 source = """
 q = qreg(2)
 h = %X %@ %I
@@ -122,5 +122,5 @@ circuit = parse_analog(source)
 cfg = AnalogCFGBuilder().run(circuit)
 type_checker = AnalogTypeChecker(cfg)
 symbol_table = AnalogSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
-circuit, (n_qreg, n_qmode) = compile_analog_circuit(circuit, cfg, symbol_table)
+cfg = compile_analog_cfg(cfg, symbol_table)
 ```

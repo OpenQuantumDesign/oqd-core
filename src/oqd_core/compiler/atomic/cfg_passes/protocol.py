@@ -20,13 +20,10 @@ from oqd_core.compiler.atomic.cfg_passes.walk import iter_stmt_blocks
 from oqd_core.compiler.atomic.math.rules import _is_constant_math
 from oqd_core.compiler.atomic.verify.passes import iter_pulses
 from oqd_core.interface.atomic import (
-    AtomicCircuit,
     Declaration,
     ParallelProtocol,
     Pulse,
     SerialProtocol,
-    IfElse,
-    While,
 )
 
 PROTOCOL_TYPES = (Pulse, ParallelProtocol, SerialProtocol)
@@ -40,30 +37,12 @@ def apply_protocol_passes(stmt):
     return stmt
 
 
-def canonicalize_protocol_tree(stmt):
-    if isinstance(stmt, IfElse):
-        stmt.then_branch = [canonicalize_protocol_tree(s) for s in stmt.then_branch]
-        stmt.else_branch = [canonicalize_protocol_tree(s) for s in stmt.else_branch]
-        return stmt
-    if isinstance(stmt, While):
-        stmt.body = [canonicalize_protocol_tree(s) for s in stmt.body]
-        return stmt
-    if isinstance(stmt, Declaration) and isinstance(stmt.value, PROTOCOL_TYPES):
-        stmt.value = apply_protocol_passes(stmt.value)
-        return stmt
-    if isinstance(stmt, PROTOCOL_TYPES):
-        return apply_protocol_passes(stmt)
-    return stmt
-
-
-def canonicalize_protocol_cfg(cfg: ControlFlowGraph, model: AtomicCircuit) -> ControlFlowGraph:
-    old_top = list(model.statements)
-    model.statements = [canonicalize_protocol_tree(s) for s in model.statements]
-    
-    for old, new in zip(old_top, model.statements):
-        if old is not new:
-            for _, block in iter_stmt_blocks(cfg):
-                if block.stmt is old:
-                    block.stmt = new
+def canonicalize_protocol_cfg(cfg: ControlFlowGraph) -> ControlFlowGraph:
+    for _, block in iter_stmt_blocks(cfg):
+        stmt = block.stmt
+        if isinstance(stmt, Declaration) and isinstance(stmt.value, PROTOCOL_TYPES):
+            stmt.value = apply_protocol_passes(stmt.value)
+        elif isinstance(stmt, PROTOCOL_TYPES):
+            block.stmt = apply_protocol_passes(stmt)
     return cfg
 

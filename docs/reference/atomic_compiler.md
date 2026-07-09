@@ -1,9 +1,9 @@
 # Atomic Compiler
 
-The atomic compiler is implemented in `src/oqd_core/compiler/atomic`. The entry point is [`compile_atomic_circuit`][oqd_core.compiler.atomic.passes.compile.compile_atomic_circuit].
+The atomic compiler is implemented in `src/oqd_core/compiler/atomic`. The entry point is [`compile_atomic_circuit`][oqd_core.compiler.atomic.passes.compile.compile_atomic_circuit], which takes a [`ControlFlowGraph`][oqd_core.analysis.utils.control_flow.ControlFlowGraph] and an [`AtomicSymbolTable`][oqd_core.analysis.atomic.symbol_table.AtomicSymbolTable].
 
 The compile pipeline:
-- Canonicalize scalars and beams over the CFG via [`canonicalize_declarations_cfg`][oqd_core.compiler.atomic.cfg_passes.walk.canonicalize_declarations_cfg]
+- Canonicalize declaration values over the CFG via [`canonicalize_declarations_cfg`][oqd_core.compiler.atomic.cfg_passes.walk.canonicalize_declarations_cfg]
 - Canonicalize nested protocols and relative time via [`canonicalize_protocol_cfg`][oqd_core.compiler.atomic.cfg_passes.protocol.canonicalize_protocol_cfg]
 - Verify pulse target dimensions via [`verify_pulse_target_dim`][oqd_core.compiler.atomic.verify.passes.verify_pulse_target_dim]
 
@@ -24,10 +24,12 @@ The compile pipeline:
     options:
         heading_level: 3
         members: [
-            "canonicalize_expr",
-            "canonicalize_beam",
             "iter_stmt_blocks",
-            "canonicalize_scalars_cfg",
+            "canonicalize_declarations_cfg",
+            "canonicalize_declarations",
+            "canonicalize_beam",
+            "canonicalize_pulse",
+            "canonicalize_scalar_expr",
         ]
 <!-- prettier-ignore -->
 ::: oqd_core.compiler.atomic.cfg_passes.protocol
@@ -109,5 +111,5 @@ circuit = parse_atomic(source)
 cfg = AtomicCFGBuilder().run(circuit)
 type_checker = AtomicTypeChecker(cfg)
 symbol_table = AtomicSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
-circuit = compile_atomic_circuit(circuit, cfg, type_checker.dataflow_result, symbol_table)
+cfg = compile_atomic_circuit(cfg, symbol_table)
 ```

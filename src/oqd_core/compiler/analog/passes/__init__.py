@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .compile import compile_analog_circuit
+from .compile import compile_analog_cfg
 from .assign import infer_analog_circuit_dim_cfg
 
 __all__ = [
-    "compile_analog_circuit",
+    "compile_analog_cfg",
     "infer_analog_circuit_dim_cfg",
 ]

@@ -36,8 +36,6 @@ class AtomicCFGBuilder(RewriteRule):
         self.cache = {}
         self.loop_stack = []
         self.preds = []
-        self.founder = None
-        self.last_node = None
         self.edge_labels = None
         self.fallthrough_labels = {}
         
@@ -85,9 +83,9 @@ class AtomicCFGBuilder(RewriteRule):
         self.loop_stack = []
         self.edge_labels = None
         self.fallthrough_labels = {}
-        self.founder = self.new_node([], "start", kind="start")
-        exits = self.walk_stmt(circuit, [self.founder])
-        self.last_node = self.new_node(exits, "stop", kind="stop")
+        founder = self.new_node([], "start", kind="start")
+        exits = self.walk_stmt(circuit, [founder])
+        self.new_node(exits, "stop", kind="stop")
         return ControlFlowGraph(self.cache)
     
     def map_AtomicCircuit(self, model: AtomicCircuit):

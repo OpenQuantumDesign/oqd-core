@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
+from oqd_compiler_infrastructure.dataflow import DataflowResult, ForwardDataflowAnalysis
 from oqd_compiler_infrastructure.lattice import LatticeBottom, maplattice
 
 from oqd_core.analysis.analog.semantics import AnalogSemantics
@@ -25,7 +25,7 @@ from oqd_core.analysis.analog.types import (
     TBool,
     TypeEnv,
 )
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import Block, ControlFlowGraph
 from oqd_core.interface.analog import Break, Continue, Declaration
 
 
@@ -35,9 +35,9 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
         self.value_lattice = AnalogTypeLattice()
         self.semantics = AnalogSemantics(self.value_lattice)
         self.lattice = maplattice(AnalogTypeLattice)()
-        self.blocks = graph.blocks
+        self.blocks: dict[int, Block] = graph.blocks
         
-        self.dataflow_result = self.analyze(graph, self.merge_union)
+        self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_union)
 
     def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)

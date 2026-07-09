@@ -52,13 +52,12 @@ class ControlFlowGraph(GraphProtocol[int]):
 class Block:
     """Represents one control flow node with incoming / outgoing edges and metadata."""
     def __init__(self, register_id: int, stmt: object,  preds: Iterable[Block] | None = None, \
-        kind: str = "stmt", scope: int = 0) -> None:
+        kind: str = "stmt") -> None:
         self.register_id = register_id
         self.stmt = stmt
         self.preds = list(preds) if preds is not None else []
         self.succs = []
         self.kind = kind
-        self.scope = scope
         self.exit_nodes = []
         self.edge_labels = {}
     
@@ -76,25 +75,4 @@ class Block:
     def add_preds(self, preds: Iterable[Block], label: str | None = None) -> None:
         for pred in preds:
             self.add_pred(pred, label=label)
-    
-    def to_dict(self) -> dict[str, object]:
-        if isinstance(self.stmt, str):
-            stmt_repr = self.stmt
-        elif hasattr(self.stmt, "class_"):
-            stmt_repr = self.stmt.class_
-        else:
-            stmt_repr = type(self.stmt).__name__
-        return {
-            "id": self.register_id,
-            "kind": self.kind,
-            "scope": self.scope,
-            "stmt": stmt_repr,
-            "preds": [p.register_id for p in self.preds],
-            "succs": [c.register_id for c in self.succs],
-            "edges": [
-                {"to": c.register_id, "label": self.edge_labels.get(c.register_id)}
-                for c in self.succs
-            ],
-            "exit_nodes": [n.register_id for n in self.exit_nodes],
-        }
 

@@ -48,8 +48,6 @@ class ResolveNestedProtocol(RewriteRule):
     def __init__(self):
         super().__init__()
 
-        self.durations = []
-
     @classmethod
     def _get_continuous_duration(cls, model):
         if isinstance(model, ParallelProtocol):
