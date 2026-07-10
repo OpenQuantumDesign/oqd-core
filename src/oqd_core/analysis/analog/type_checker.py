@@ -25,7 +25,12 @@ from oqd_core.analysis.analog.types import (
     TBool,
     TypeEnv,
 )
-from oqd_core.analysis.utils.control_flow import Block, ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import (
+    Block,
+    CFGStart,
+    CFGStop,
+    ControlFlowGraph,
+)
 from oqd_core.interface.analog import Break, Continue, Declaration
 
 
@@ -48,7 +53,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
             return state_out
 
-        if isinstance(stmt, (str, Break, Continue)):
+        if isinstance(stmt, (CFGStart, CFGStop, Break, Continue)):
             return env
 
         t = self.semantics.infer_type(stmt, env)

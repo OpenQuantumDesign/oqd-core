@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph, CFGStart, CFGStop
 from oqd_core.compiler.atomic.math.passes import canonicalize_math_expr
 from oqd_core.interface.atomic import (
     Beam,
@@ -28,7 +28,7 @@ from oqd_core.interface.atomic.expr import MathExpr
 
 def iter_stmt_blocks(cfg: ControlFlowGraph):
     for node_id, block in cfg.blocks.items():
-        if isinstance(block.stmt, str):
+        if isinstance(block.stmt, (CFGStart, CFGStop)):
             continue
         yield node_id, block
 

@@ -27,7 +27,7 @@ from oqd_core.analysis.atomic.types import (
     TypeEnv,
     type_name,
 )
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import CFGStart, CFGStop, ControlFlowGraph
 from oqd_core.interface.atomic import (
     Break,
     Continue,
@@ -37,8 +37,6 @@ from oqd_core.interface.atomic import (
 )
 
 ########################################################################################
-
-
 
 
 class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
@@ -95,7 +93,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
             return state_out
         
-        if isinstance(stmt, (str, Break, Continue)):
+        if isinstance(stmt, (CFGStart, CFGStop, Break, Continue)):
             return env
         
         if isinstance(stmt, (ParallelProtocol, SerialProtocol)):

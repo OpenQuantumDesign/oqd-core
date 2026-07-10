@@ -15,7 +15,6 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
 from typing import Union
 
 from oqd_compiler_infrastructure.lattice import (
@@ -23,6 +22,7 @@ from oqd_compiler_infrastructure.lattice import (
     LatticeBottom,
     LatticeTop,
 )
+from pydantic import BaseModel, ConfigDict
 
 from oqd_core.interface.atomic import (
     BoolAnd,
@@ -45,9 +45,9 @@ class AtomicTypeError(TypeError):
     """Type Error class for Atomic."""
     pass
 
-@dataclass
-class TList(LatticeTop):
+class TList(LatticeTop, BaseModel):
     """Lattice value representing a list."""
+    model_config = ConfigDict(frozen=True)
     elem: TLatticeValue
 
 TLatticeValue = Union[TList, type[LatticeTop]]
