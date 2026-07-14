@@ -15,12 +15,12 @@
 
 from __future__ import annotations
 
-
+from oqd_compiler_infrastructure.dataflow import DataflowResult
+from oqd_core.analysis.atomic.types import TBeam, TPulse, TScalar, TypeEnv
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph, CFGStart, CFGStop
 from oqd_core.compiler.atomic.math.passes import canonicalize_math_expr
 from oqd_core.interface.atomic import (
     Beam,
-    Pulse,
     Bool,
     Declaration,
 )
@@ -45,33 +45,29 @@ def canonicalize_beam(beam: Beam) -> Beam:
     beam.wavevector = canonicalize_scalar_expr(beam.wavevector)
     return beam
 
-def canonicalize_pulse(pulse: Pulse) -> Pulse:
-    pulse.duration = canonicalize_scalar_expr(pulse.duration)
-    if isinstance(pulse.beam, Beam):
-        pulse.beam = canonicalize_beam(pulse.beam)
-    return pulse
+def canonicalize_declarations_cfg(cfg: ControlFlowGraph, type_result: DataflowResult[int, TypeEnv],) -> ControlFlowGraph:
 
-def canonicalize_declarations(expr):
-    if isinstance(expr, Beam):
-        return canonicalize_beam(expr)
-    if isinstance(expr, Pulse):
-        return canonicalize_pulse(expr)
-    if isinstance(expr, MathExpr):
-        return canonicalize_math_expr(expr)
-    return expr
-    
-
-def canonicalize_declarations_cfg(cfg: ControlFlowGraph) -> ControlFlowGraph:
-
-    for _, block in iter_stmt_blocks(cfg):
+    for node_id, block in iter_stmt_blocks(cfg):
         stmt = block.stmt
+        
         if block.kind == "branch":
             if isinstance(stmt, MathExpr):
                 block.stmt = canonicalize_math_expr(stmt)
-            return
+            continue
         
-        if isinstance(stmt, Declaration):
-            stmt.value = canonicalize_declarations(stmt.value)
+        if not isinstance(stmt, Declaration):
+            continue
+        
+        t = type_result.out_states[node_id].get(stmt.name)
+        if t is TScalar:
+            stmt.value = canonicalize_scalar_expr(stmt.value)
+        elif t is TBeam:
+            stmt.value = canonicalize_beam(stmt.value)
+        elif t is TPulse:
+            pulse = stmt.value
+            pulse.duration = canonicalize_scalar_expr(pulse.duration)
+            if isinstance(pulse.beam, Beam):
+                pulse.beam = canonicalize_beam(pulse.beam)
 
     return cfg
 
