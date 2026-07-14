@@ -42,4 +42,4 @@ symbol_table = AtomicSymbolTableBuilder(cfg, type_checker.dataflow_result).symbo
 
 ///
 
-The type checker dataflow result is available at `type_checker.dataflow_result`.
+The type checker dataflow result is available at `type_checker.dataflow_result`. This result is used to build the Symbol Table. Note that the Symbol Table will run the Type Checker to get the dataflow result if the result is not provided.
