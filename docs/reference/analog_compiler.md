@@ -1,6 +1,6 @@
 # Analog Compiler
 
-The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry point is [`compile_analog_cfg`][oqd_core.compiler.analog.passes.compile.compile_analog_cfg], which takes a [`ControlFlowGraph`][oqd_core.analysis.utils.control_flow.ControlFlowGraph], and an `AnalogSymbolTable`[oqd_core.analysis.analog.symbol_table.AnalogSymbolTable].
+The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry point is [`compile_analog_circuit`][oqd_core.compiler.analog.passes.compile.compile_analog_circuit], which takes an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit], a [`ControlFlowGraph`][oqd_core.analysis.utils.control_flow.ControlFlowGraph], and an `AnalogSymbolTable`[oqd_core.analysis.analog.symbol_table.AnalogSymbolTable].
 
 The compile pipeline:
 - Canonicalize operators over the CFG via [`canonicalize_operators_cfg`][oqd_core.compiler.analog.cfg_passes.walk.canonicalize_operators_cfg]
@@ -15,7 +15,7 @@ The compile pipeline:
     options:
         heading_level: 3
         members: [
-            "compile_analog_cfg",
+            "compile_analog_circuit",
         ]
 <!-- prettier-ignore -->
 ::: oqd_core.compiler.analog.passes.assign
@@ -111,7 +111,7 @@ The compile pipeline:
 ```py
 from oqd_core.frontend.analog import parse_analog
 from oqd_core.analysis.analog import AnalogCFGBuilder, AnalogTypeChecker, AnalogSymbolTableBuilder
-from oqd_core.compiler.analog.passes.compile import compile_analog_cfg
+from oqd_core.compiler.analog.passes.compile import compile_analog_circuit
 source = """
 q = qreg(2)
 h = %X %@ %I
@@ -122,5 +122,5 @@ circuit = parse_analog(source)
 cfg = AnalogCFGBuilder().run(circuit)
 type_checker = AnalogTypeChecker(cfg)
 symbol_table = AnalogSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
-cfg = compile_analog_cfg(cfg, symbol_table)
+cfg = compile_analog_circuit(circuit, cfg, symbol_table)
 ```
