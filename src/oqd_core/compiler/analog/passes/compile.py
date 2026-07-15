@@ -34,7 +34,8 @@ def canonicalize_args_metrics(args):
             metric.operator = canonicalize_operator_expr(metric.operator)
 
 
-def compile_analog_circuit(circuit: AnalogCircuit, cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable, args=None) -> tuple[AnalogCircuit, ControlFlowGraph]:
+def compile_analog_circuit(circuit: AnalogCircuit, cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable, args=None) \
+    -> tuple[AnalogCircuit, ControlFlowGraph, int, int]:
     
     canonicalize_operators_cfg(cfg)
     canonicalize_math_cfg(cfg)
@@ -47,5 +48,5 @@ def compile_analog_circuit(circuit: AnalogCircuit, cfg: ControlFlowGraph, symbol
         canonicalize_args_metrics(args)
         verify_analog_args_dim(args, n_qreg, n_qmode)
     
-    return circuit, cfg
+    return circuit, cfg, n_qreg, n_qmode
 

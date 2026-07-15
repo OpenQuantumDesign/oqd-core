@@ -113,5 +113,5 @@ circuit = parse_atomic(source)
 cfg = AtomicCFGBuilder().run(circuit)
 type_checker = AtomicTypeChecker(cfg)
 symbol_table = AtomicSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
-cfg = compile_atomic_circuit(circuit, cfg, symbol_table, type_checker.dataflow_result)
+circuit, cfg = compile_atomic_circuit(circuit, cfg, symbol_table, type_checker.dataflow_result)
 ```
