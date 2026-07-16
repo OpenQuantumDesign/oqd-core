@@ -20,10 +20,7 @@ from oqd_compiler_infrastructure import TypeReflectBaseModel
 from pydantic import BaseModel, BeforeValidator
 
 from oqd_core.backend.metric import Metric
-
-########################################################################################
-from oqd_core.interface.analog import AnalogCircuit
-from oqd_core.interface.atomic.circuit import AtomicCircuit
+from oqd_core.backend.program import AnalogProgram, AtomicProgram
 from oqd_core.interface.digital.circuit import DigitalCircuit
 
 ########################################################################################
@@ -171,11 +168,11 @@ class Task(TypeReflectBaseModel):
     Class representing a task to run a quantum experiment with some arguments
 
     Attributes:
-        program (Union[AnalogCircuit, DigitalCircuit, AtomicCircuit]): Quantum experiment to run
+        program (Union[AnalogProgram, DigitalCircuit, AtomicProgram]): Quantum experiment to run
         args (Union[analog_sim.base.TaskArgsAnalogSimulator, TaskArgsDigital, TaskArgsAtomic]): Arguments for the quantum experiment
     """
 
-    program: Union[AnalogCircuit, DigitalCircuit, AtomicCircuit]
+    program: Union[AnalogProgram, DigitalCircuit, AtomicProgram]
     args: Union[TaskArgsAnalog, TaskArgsDigital, TaskArgsAtomic]
 
 
