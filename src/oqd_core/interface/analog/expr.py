@@ -631,7 +631,7 @@ class BoolGreaterThanEq(ComparisonOp):
 
 class OperatorBinaryOp(OperatorExpr):
     """
-    Class representing binary operations on [`Operators`][oqd_core.interface.analog.expr.OperatorExprExpr]
+    Class representing binary operations on [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     pass
@@ -639,11 +639,11 @@ class OperatorBinaryOp(OperatorExpr):
 
 class OperatorAdd(OperatorBinaryOp):
     """
-    Class representing the addition of [`Operators`][oqd_core.interface.analog.expr.OperatorExprExpr]
+    Class representing the addition of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr
@@ -652,11 +652,11 @@ class OperatorAdd(OperatorBinaryOp):
 
 class OperatorSub(OperatorBinaryOp):
     """
-    Class representing the subtraction of [`Operators`][oqd_core.interface.analog.expr.OperatorExprExpr]
+    Class representing the subtraction of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr
@@ -665,11 +665,11 @@ class OperatorSub(OperatorBinaryOp):
 
 class OperatorMul(OperatorBinaryOp):
     """
-    Class representing the multiplication of [`Operators`][oqd_core.interface.analog.expr.OperatorExprExpr]
+    Class representing the multiplication of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr
@@ -678,11 +678,11 @@ class OperatorMul(OperatorBinaryOp):
 
 class OperatorKron(OperatorBinaryOp):
     """
-    Class representing the tensor product of [`Operators`][oqd_core.interface.analog.expr.OperatorExprExpr]
+    Class representing the tensor product of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
 
     Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExprExpr]
+        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
+        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
     """
 
     op1: CastAnalogExpr
