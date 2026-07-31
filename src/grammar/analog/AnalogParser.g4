@@ -19,13 +19,12 @@ block: (statement EOL | EOL)* (statement)?;
 
 /** ================================================================================= */
 
-terminal: mode_register | quantum_register | operator_terminal | math_terminal | bool_literal;
+terminal: mode_register | quantum_register | analog_list_extract | operator_terminal | math_terminal | bool_literal;
 expr
     : aexpr (comparators aexpr)+
     | expr (bool_and_op|bool_or_op) expr
     | bool_not_op expr
     | LBRACKET expr RBRACKET
-    | analog_list_extract
     | analog_list
     | terminal
     | aexpr

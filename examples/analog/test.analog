@@ -35,7 +35,7 @@ if (x > 0){
     initialize(r)
 }
 if (x == 1) {
-    evolve(H_single, 1.0, q0)
+    evolve(H_single, 1.0, r[0])
 }
 else { evolve(H_pair, 0.5, r) }
 n = 3

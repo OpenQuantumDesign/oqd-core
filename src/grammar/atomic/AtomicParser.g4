@@ -21,13 +21,12 @@ block: (statement EOL | EOL)* (statement)?;
 
 /** ================================================================================= */
 
-terminal: ion_register | math_terminal | bool_literal;
+terminal: ion_register | atomic_list_extract | math_terminal | bool_literal;
 expr
     : aexpr (comparators aexpr)+
     | expr (bool_and_op|bool_or_op) expr
     | bool_not_op expr
     | LBRACKET expr RBRACKET
-    | atomic_list_extract 
     | atomic_list 
     | terminal
     | aexpr
