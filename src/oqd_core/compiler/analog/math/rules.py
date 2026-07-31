@@ -64,6 +64,7 @@ __all__ = [
     "PruneMathExpr",
     "SimplifyMathExpr",
     "EvaluateMathExpr",
+    "SubstituteMathVar",
 ]
 
 ########################################################################################
