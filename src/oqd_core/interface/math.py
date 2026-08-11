@@ -48,7 +48,7 @@ __all__ = [
     "MathMul",
     "MathDiv",
     "MathPow",
-    "MathExprSubtypes",
+    "MathExprSubTypes",
     "ConstantMathExpr",
     "CastMathExpr",
 ]
@@ -339,27 +339,25 @@ class MathPow(MathBinaryOp):
 
 ########################################################################################
 
-MathExprSubtypes = Annotated[
+MathExprSubTypes = Annotated[
     Union[
-        Annotated[MathNum, Tag("MathNum")],
-        Annotated[MathVar, Tag("MathVar")],
-        Annotated[MathImag, Tag("MathImag")],
-        Annotated[MathFunc, Tag("MathFunc")],
-        Annotated[MathAdd, Tag("MathAdd")],
-        Annotated[MathSub, Tag("MathSub")],
-        Annotated[MathMul, Tag("MathMul")],
-        Annotated[MathDiv, Tag("MathDiv")],
-        Annotated[MathPow, Tag("MathPow")],
+        MathNum,
+        MathVar,
+        MathImag,
+        MathFunc,
+        MathAdd,
+        MathSub,
+        MathMul,
+        MathDiv,
+        MathPow,
     ],
-    Discriminator(
-        lambda v: v["class_"] if isinstance(v, dict) else getattr(v, "class_")
-    ),
+    Discriminator(discriminator="class_"),
 ]
 """
 Alias for the union of concrete MathExpr subtypes
 """
 
-CastMathExpr = Annotated[MathExprSubtypes, BeforeValidator(MathExpr.cast)]
+CastMathExpr = Annotated[MathExprSubTypes, BeforeValidator(MathExpr.cast)]
 """
 Annotated type that cast typical numeric python types to MathExpr
 """

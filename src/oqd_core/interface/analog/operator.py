@@ -14,14 +14,15 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Annotated, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
+from pydantic import Discriminator
 
 ########################################################################################
 from oqd_core.interface.math import (
     MathExpr,
-    MathExprSubtypes,
+    MathExprSubTypes,
     MathImag,
     MathMul,
     MathNum,
@@ -49,7 +50,7 @@ __all__ = [
     "OperatorMul",
     "OperatorScalarMul",
     "OperatorKron",
-    "OperatorSubtypes",
+    "OperatorSubTypes",
 ]
 
 
@@ -223,8 +224,8 @@ class OperatorScalarMul(Operator):
         expr (MathExpr): [`MathExpr`][oqd_core.interface.math.MathExpr] to multiply by
     """
 
-    op: OperatorSubtypes
-    expr: MathExprSubtypes
+    op: OperatorSubTypes
+    expr: MathExprSubTypes
 
 
 class OperatorBinaryOp(Operator):
@@ -244,8 +245,8 @@ class OperatorAdd(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: OperatorSubTypes
+    op2: OperatorSubTypes
 
 
 class OperatorSub(OperatorBinaryOp):
@@ -257,8 +258,8 @@ class OperatorSub(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: OperatorSubTypes
+    op2: OperatorSubTypes
 
 
 class OperatorMul(OperatorBinaryOp):
@@ -270,8 +271,8 @@ class OperatorMul(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: OperatorSubTypes
+    op2: OperatorSubTypes
 
 
 class OperatorKron(OperatorBinaryOp):
@@ -283,25 +284,28 @@ class OperatorKron(OperatorBinaryOp):
         op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.operator.Operator]
     """
 
-    op1: OperatorSubtypes
-    op2: OperatorSubtypes
+    op1: OperatorSubTypes
+    op2: OperatorSubTypes
 
 
 ########################################################################################
 
-OperatorSubtypes = Union[
-    PauliI,
-    PauliX,
-    PauliY,
-    PauliZ,
-    Creation,
-    Annihilation,
-    Identity,
-    OperatorAdd,
-    OperatorSub,
-    OperatorMul,
-    OperatorScalarMul,
-    OperatorKron,
+OperatorSubTypes = Annotated[
+    Union[
+        PauliI,
+        PauliX,
+        PauliY,
+        PauliZ,
+        Creation,
+        Annihilation,
+        Identity,
+        OperatorAdd,
+        OperatorSub,
+        OperatorMul,
+        OperatorScalarMul,
+        OperatorKron,
+    ],
+    Discriminator(discriminator="class_"),
 ]
 """
 Alias for the union of concrete Operator subtypes

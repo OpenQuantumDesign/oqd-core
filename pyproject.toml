@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oqd-core"
-version = "0.1.0"
+version = "0.2.0dev1"
 requires-python = ">=3.10"
 readme = "README.md"
 license = { text = "Apache 2.0" }
@@ -64,10 +64,7 @@ fixable = ["ALL"]
 oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure" }
 
 [dependency-groups]
-dev = [
-    "jupyter>=1.1.1",
-    "pre-commit>=4.1.0",
-]
+dev = ["jupyter>=1.1.1", "pre-commit>=4.1.0", "ruff>=0.13.1"]
 
 
 [project.urls]
