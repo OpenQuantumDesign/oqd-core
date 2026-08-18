@@ -89,6 +89,21 @@ class AnalogExpr(TypeReflectBaseModel):
             return value
         if isinstance(value, AnalogExpr):
             return value
+        
+        try:
+            return OperatorExpr.cast(value)
+        except: pass
+        
+        try:
+            return MathExpr.cast(value)
+        except: pass
+
+        raise TypeError
+
+
+class MathExpr(AnalogExpr):
+    @classmethod
+    def cast(cls, value: Any):
         if isinstance(value, (int, float)):
             value = MathNum(value=value)
             return value
@@ -101,10 +116,10 @@ class AnalogExpr(TypeReflectBaseModel):
             return Access(name=value)
 
         raise TypeError
-
+    
     def __neg__(self):
         return MathMul(expr1=MathNum(value=-1), expr2=self)
-
+    
     def __pos__(self):
         return self
 
@@ -142,9 +157,6 @@ class AnalogExpr(TypeReflectBaseModel):
     def __rtruediv__(self, other):
         other = MathExpr.cast(other)
         return other / self
-
-
-class MathExpr(AnalogExpr): ...
 
 
 class BoolExpr(AnalogExpr): ...
