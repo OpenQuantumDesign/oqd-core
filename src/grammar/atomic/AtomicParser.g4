@@ -21,7 +21,7 @@ block: (statement EOL | EOL)* (statement)?;
 
 /** ================================================================================= */
 
-terminal: ion_register | atomic_list_extract | math_terminal | bool_literal;
+terminal: ion_register | atomic_list_extract | math_terminal | bool_literal | atomic_list;
 expr
     : aexpr (comparators aexpr)+
     | expr (bool_and_op|bool_or_op) expr
