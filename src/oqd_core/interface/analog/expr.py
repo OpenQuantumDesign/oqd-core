@@ -92,11 +92,13 @@ class AnalogExpr(TypeReflectBaseModel):
         
         try:
             return OperatorExpr.cast(value)
-        except: pass
+        except Exception:
+            pass
         
         try:
             return MathExpr.cast(value)
-        except: pass
+        except Exception: 
+            pass
 
         raise TypeError
 
