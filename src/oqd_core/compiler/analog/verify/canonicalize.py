@@ -32,6 +32,7 @@ from oqd_core.interface.analog.expr import (
     OperatorSub,
     OperatorTerminal,
     Pauli,
+    Access,
 )
 
 ########################################################################################
@@ -146,6 +147,7 @@ class CanVerOperatorDistribute(RewriteRule):
             Ladder,
             OperatorMul,
             OperatorKron,
+            Access,
         )
 
     def map_OperatorMul(self, model):

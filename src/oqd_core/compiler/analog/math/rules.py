@@ -38,11 +38,9 @@ from oqd_core.compiler.analog.error import AnalogCompilerError
 ########################################################################################
 
 def _is_constant_math(model) -> bool:
-    if isinstance(model, (MathNum, MathImag)):
+    if isinstance(model, (MathNum, MathImag, Access)):
         return True
     if isinstance(model, MathVar):
-        return False
-    if isinstance(model, Access):
         return False
     if isinstance(model, MathFunc):
         arg = model.expr
