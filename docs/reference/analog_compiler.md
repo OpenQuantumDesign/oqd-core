@@ -17,13 +17,6 @@ The compile pipeline:
         members: [
             "compile_analog_circuit",
         ]
-<!-- prettier-ignore -->
-::: oqd_core.compiler.analog.passes.assign
-    options:
-        heading_level: 3
-        members: [
-            "infer_analog_circuit_dim_cfg",
-        ]
 
 ## CFG Passes
 
