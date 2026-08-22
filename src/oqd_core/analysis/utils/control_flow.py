@@ -15,9 +15,10 @@
 from __future__ import annotations
 
 from types import UnionType
-from typing import Annotated, Iterable, Union, get_args, get_origin
+from typing import Annotated, Iterable, Literal, Union, get_args, get_origin
 
-from oqd_compiler_infrastructure.dataflow import GraphProtocol
+from oqd_compiler_infrastructure import VisitableBaseModel
+from pydantic import BaseModel, Field
 
 
 def alias_types(alias: object) -> tuple[type, ...]:
@@ -37,30 +38,23 @@ def alias_types(alias: object) -> tuple[type, ...]:
     return ()
 
 
-class ControlFlowGraph(GraphProtocol[int]):
-    """Defines a Control Flow Graph (CFG) with the GraphProtocol required by DataflowAnalysis."""
-    def __init__(self, blocks: dict[int, Block]):
-        self.blocks = blocks
-    def nodes(self) -> Iterable[int]:
-        return self.blocks.keys()
-    def predecessors(self, node: int) -> Iterable[int]:
-        return (pred.register_id for pred in self.blocks[node].preds)
-    def successors(self, node: int) -> Iterable[int]:
-        return (succ.register_id for succ in self.blocks[node].succs)
+class CFGStart(VisitableBaseModel):
+    pass
+
+class CFGStop(VisitableBaseModel):
+    pass
 
 
-class Block:
+class Block(BaseModel):
     """Represents one control flow node with incoming / outgoing edges and metadata."""
-    def __init__(self, register_id: int, stmt: object,  preds: Iterable[Block] | None = None, \
-        kind: str = "stmt", scope: int = 0) -> None:
-        self.register_id = register_id
-        self.stmt = stmt
-        self.preds = list(preds) if preds is not None else []
-        self.succs = []
-        self.kind = kind
-        self.scope = scope
-        self.exit_nodes = []
-        self.edge_labels = {}
+    
+    register_id: int
+    stmt: VisitableBaseModel
+    preds: list[Block] = Field(default_factory=list)
+    succs: list[Block] = Field(default_factory=list)
+    kind: Literal["start", "stop", "branch", "stmt"] = "stmt"
+    exit_nodes: list[Block] = Field(default_factory=list)
+    edge_labels: dict[int, str] = Field(default_factory=dict)
     
     def add_succ(self, succ: Block, label: str | None = None) -> None:
         if succ not in self.succs:
@@ -76,25 +70,32 @@ class Block:
     def add_preds(self, preds: Iterable[Block], label: str | None = None) -> None:
         for pred in preds:
             self.add_pred(pred, label=label)
+
+
+class ControlFlowGraph(BaseModel):
+    """Defines a Control Flow Graph (CFG) with the GraphProtocol required by DataflowAnalysis."""
+    blocks: dict[int, Block]
     
-    def to_dict(self) -> dict[str, object]:
-        if isinstance(self.stmt, str):
-            stmt_repr = self.stmt
-        elif hasattr(self.stmt, "class_"):
-            stmt_repr = self.stmt.class_
-        else:
-            stmt_repr = type(self.stmt).__name__
+    def nodes(self) -> Iterable[int]:
+        return self.blocks.keys()
+    
+    def predecessors(self, node: int) -> Iterable[int]:
+        return (pred.register_id for pred in self.blocks[node].preds)
+    
+    def successors(self, node: int) -> Iterable[int]:
+        return (succ.register_id for succ in self.blocks[node].succs)
+    
+    def to_dict(self) -> dict:
         return {
-            "id": self.register_id,
-            "kind": self.kind,
-            "scope": self.scope,
-            "stmt": stmt_repr,
-            "preds": [p.register_id for p in self.preds],
-            "succs": [c.register_id for c in self.succs],
-            "edges": [
-                {"to": c.register_id, "label": self.edge_labels.get(c.register_id)}
-                for c in self.succs
-            ],
-            "exit_nodes": [n.register_id for n in self.exit_nodes],
+            node_id: {
+                "register_id": block.register_id,
+                "kind": block.kind,
+                "stmt": block.stmt.model_dump(),
+                "preds": [p.register_id for p in block.preds],
+                "succs": [s.register_id for s in block.succs],
+                "exit_nodes": [e.register_id for e in block.exit_nodes],
+                "edge_labels": block.edge_labels,
+            }
+            for node_id, block in self.blocks.items()
         }
 

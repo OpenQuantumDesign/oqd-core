@@ -14,7 +14,7 @@
 
 from __future__ import annotations
 
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph, Block
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph, Block, CFGStart, CFGStop
 from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
 from oqd_core.interface.analog import Declaration, Evolve
 from oqd_core.interface.analog.expr import MathExpr, OperatorExpr
@@ -23,7 +23,7 @@ from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator
 
 def iter_stmt_blocks(cfg: ControlFlowGraph):
     for node_id, block in cfg.blocks.items():
-        if isinstance(block.stmt, str):
+        if isinstance(block.stmt, (CFGStart, CFGStop)):
             continue
         yield node_id, block
 

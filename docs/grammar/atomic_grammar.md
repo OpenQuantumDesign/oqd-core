@@ -70,9 +70,9 @@ The grammar supports the core atomic statements through `beam`, `pulse`, `parall
   - `target`: target expression (`aexpr`)
   - `measured`: boolean expression (`aexpr`), optional, defaults to `false`
 - `parallel { ... }`
-  - `...`: block (`block`) containing pulse statements to run in parallel
+  - `...`: block (`block`) containing pulse statements, pulse declarations, pulse references, and nested protocols that will be run in parallel.
 - `serial { ... }`
-  - `...`: block (`block`) containing pulse statements to run in serial
+  - `...`: block (`block`) containing pulse statements, pulse declarations, pulse references, and nested protocols that will be run in a serial sequence.
 
 ## Generate Parser Files for Frontend
 

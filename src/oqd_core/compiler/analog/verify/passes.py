@@ -15,43 +15,14 @@
 from oqd_core.compiler.analog.operator.dim import operator_dim
 from oqd_core.analysis.analog.symbol_table import AnalogSymbolTable, target_dim
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
-from oqd_core.interface.analog import Evolve, Initialize, Measure, Access
-from oqd_core.backend.metric import Expectation
+from oqd_core.interface.analog import Evolve, Initialize, Measure, Access, Declaration
 from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.cfg_passes.walk import iter_stmt_blocks
 
 __all__ = [
-    "verify_analog_args_dim",
     "verify_register_access_dim",
     "verify_hamiltonian_target_dim",
 ]
-
-def verify_analog_args_dim(model, n_qreg, n_qmode):
-    """
-    This pass checks whether the assigned n_qreg and n_qmode in AnalogCircuit match the n_qreg and n_qmode
-    in any Operators (like the Operator inside Expectation) in TaskArgsAnalog
-
-    Args:
-        model (TaskArgsAnalog):
-
-    Returns:
-        model (TaskArgsAnalog):
-
-    Assumptions:
-        All  [`Operator`][oqd_core.interface.analog.operator.Operator] inside TaskArgsAnalog must be canonicalized
-    """
-    expected = (n_qreg, n_qmode)
-    for metric in model.metrics.values():
-        if not isinstance(metric, Expectation):
-            continue
-        
-        dim = operator_dim(metric.operator)
-    
-        if dim is None or dim != expected:
-            raise AnalogCompilerError(f"Inconsistent Hilbert space dimension.")
-        
-    return model
-
 
 def verify_register_access_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable):
     
@@ -68,11 +39,16 @@ def verify_hamiltonian_target_dim(cfg: ControlFlowGraph, symbol_table: AnalogSym
     
     for node_id, block in iter_stmt_blocks(cfg):
         stmt = block.stmt
-        if not isinstance(stmt, Evolve):
+        if not isinstance(stmt, (Declaration, Evolve)):
             continue
+        if isinstance(stmt, Declaration):
+            if not isinstance(stmt.value, Evolve):
+                continue
+            stmt = stmt.value
+        env = symbol_table.in_env[node_id]
         if isinstance(stmt.hamiltonian, Access):
             continue
-        env = symbol_table.in_env[node_id]
+        
         h_dim = operator_dim(stmt.hamiltonian)
         t_dim = target_dim(stmt.targets, env)
         if h_dim != t_dim:

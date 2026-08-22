@@ -27,7 +27,7 @@ from oqd_core.analysis.atomic.types import (
     TypeEnv,
     type_name,
 )
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import CFGStart, CFGStop, ControlFlowGraph
 from oqd_core.interface.atomic import (
     Break,
     Continue,
@@ -49,6 +49,41 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
         
         self.dataflow_result = self.analyze(graph, self.merge_union)
     
+    def check_protocol(self, protocol, env: TypeEnv) -> TypeEnv:
+        if isinstance(protocol, SerialProtocol):
+            curr_env = env
+            for child in protocol.pulses:
+                curr_env = self.check_protocol_stmt(child, curr_env)
+            return curr_env
+
+        if isinstance(protocol, ParallelProtocol):
+            for child in protocol.pulses:
+                self.check_protocol_stmt(child, env)
+            return env
+
+        raise AtomicTypeError(f"Unsupported protocol node: {type(protocol).__name__}")
+
+    def check_protocol_stmt(self, stmt, env: TypeEnv) -> TypeEnv:
+        if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
+            return self.check_protocol(stmt, env)
+
+        if isinstance(stmt, Declaration):
+            t = self.semantics.infer_type(stmt.value, env)
+            if not self.value_lattice.leq(t, TPulse):
+                raise AtomicTypeError(
+                    f"Parallel/Serial blocks expect only Pulse statements, got {type_name(t)}"
+                )
+            out = dict(env)
+            out[stmt.name] = t
+            return out
+
+        t = self.semantics.infer_type(stmt, env)
+        if not self.value_lattice.leq(t, TPulse):
+            raise AtomicTypeError(
+                f"Parallel/Serial blocks expect only Pulse statements, got {type_name(t)}"
+            )
+        return env
+    
     def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         stmt = self.blocks[node_id].stmt
@@ -58,21 +93,11 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
             return state_out
         
-        if isinstance(stmt, (str, Break, Continue)):
+        if isinstance(stmt, (CFGStart, CFGStop, Break, Continue)):
             return env
         
         if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
-            stack = [stmt]
-            while stack:
-                curr = stack.pop()
-                if isinstance(curr, (ParallelProtocol, SerialProtocol)):
-                    stack.extend(reversed(curr.pulses))
-                    continue
-                t = self.semantics.infer_type(curr, env)
-                if not self.value_lattice.leq(t, TPulse):
-                    raise AtomicTypeError(
-                        f"Parallel/Serial blocks expect only Pulse statements, got {type_name(t)}"
-                    )
+            self.check_protocol(stmt, env)
             return env
         
         t = self.semantics.infer_type(stmt, env)

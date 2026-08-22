@@ -235,8 +235,6 @@ class AnalogASTBuilder(AnalogParserVisitor):
             return BoolNot(expr=self.visit(ctx.expr(0)))
         if ctx.LBRACKET():
             return self.visit(ctx.expr(0))
-        if ctx.analog_list_extract() is not None:
-            return self.visit(ctx.analog_list_extract())
         if ctx.analog_list() is not None:
             return self.visit(ctx.analog_list())
 

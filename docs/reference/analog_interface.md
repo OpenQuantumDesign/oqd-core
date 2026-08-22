@@ -16,6 +16,9 @@
     options:
         heading_level: 3
         members: [
+            "OperatorExpr",
+            "OperatorBinaryOp",
+            "OperatorTerminal",
             "AnalogExpr",
             "AnalogExprSubtypes",
             "CastAnalogExpr",

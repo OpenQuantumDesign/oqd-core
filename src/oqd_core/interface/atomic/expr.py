@@ -60,6 +60,7 @@ __all__ = [
     "AtomicList",
     "Extract",
     "Beam",
+    "Pulse",
 ]
 
 ########################################################################################
@@ -167,7 +168,7 @@ class MathTerminal(MathExpr): ...
 
 class MathVar(MathTerminal):
     """
-    Class representing a variable in a [`MathExpr`][oqd_core.interface.math.MathExpr]
+    Class representing a variable in a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
 
     Examples:
         >>> MathVar("t")
@@ -179,7 +180,7 @@ class MathVar(MathTerminal):
 
 class MathNum(MathTerminal):
     """
-    Class representing a number in a [`MathExpr`][oqd_core.interface.math.MathExpr]
+    Class representing a number in a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
     """
 
     value: Union[int, float]
@@ -187,7 +188,7 @@ class MathNum(MathTerminal):
 
 class MathImag(MathTerminal):
     """
-    Class representing the imaginary unit in a [`MathExpr`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
+    Class representing the imaginary unit in a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -212,7 +213,7 @@ class Bool(BoolExpr):
 
 ########################################################################################
 
-class IonRegister(AtomicExpr):
+class IonRegister(RegisterExpr):
     size: NonNegativeInt
 
 
@@ -266,7 +267,7 @@ List of supported functions
 
 class MathFunc(AtomicExpr):
     """
-    Class representing a named function applied to a [`MathExpr`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
+    Class representing a named function applied to a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
 
     Attributes:
         func (SupportedFuncNames): Named function to apply
@@ -327,7 +328,7 @@ class MathFunc(AtomicExpr):
 
 class MathBinaryOp(MathExpr):
     """
-    Class representing binary operations on [`MathExprs`][oqd_core.interface.math.MathExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -335,11 +336,11 @@ class MathBinaryOp(MathExpr):
 
 class MathAdd(MathBinaryOp):
     """
-    Class representing the addition of [`MathExprs`][oqd_core.interface.Atomic.operator.Operator]
+    Class representing the addition of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.Atomic.operator.Operator]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.Atomic.operator.Operator]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
     """
 
     expr1: CastAtomicExpr
@@ -348,11 +349,11 @@ class MathAdd(MathBinaryOp):
 
 class MathSub(MathBinaryOp):
     """
-    Class representing the subtraction of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the subtraction of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
     """
 
     expr1: CastAtomicExpr
@@ -361,11 +362,11 @@ class MathSub(MathBinaryOp):
 
 class MathMul(MathBinaryOp):
     """
-    Class representing the multiplication of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the multiplication of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
     """
 
     expr1: CastAtomicExpr
@@ -374,11 +375,11 @@ class MathMul(MathBinaryOp):
 
 class MathDiv(MathBinaryOp):
     """
-    Class representing the division of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the division of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
     """
 
     expr1: CastAtomicExpr
@@ -387,11 +388,11 @@ class MathDiv(MathBinaryOp):
 
 class MathPow(MathBinaryOp):
     """
-    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.math.MathExpr]
+    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
 
     Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.math.MathExpr]
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
     """
 
     expr1: CastAtomicExpr
@@ -403,7 +404,7 @@ class MathPow(MathBinaryOp):
 
 class BoolUnaryOp(BoolExpr):
     """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.bool.BoolExpr] abstract syntax tree (AST)
+    Class representing unary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -411,7 +412,7 @@ class BoolUnaryOp(BoolExpr):
 
 class BoolBinaryOp(BoolExpr):
     """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.bool.BoolExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -419,7 +420,7 @@ class BoolBinaryOp(BoolExpr):
 
 class ComparisonOp(BoolExpr):
     """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.bool.BoolExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
     """
 
     pass
@@ -472,11 +473,11 @@ class BoolGreaterThanEq(ComparisonOp):
 ########################################################################################
 
 
-class AtomicList(AtomicExpr):
+class AtomicList(CollectionExpr):
     values: List[CastAtomicExpr]
 
 
-class Extract(AtomicExpr):
+class Extract(IndexingExpr):
     access: Access
     index: NonNegativeInt
 
@@ -502,7 +503,7 @@ class Beam(AtomicExpr):
     wavevector: CastAtomicExpr
 
 
-class Pulse(TypeReflectBaseModel):
+class Pulse(AtomicExpr):
     """
     Class representing the application of the beam for some duration.
 
@@ -512,9 +513,9 @@ class Pulse(TypeReflectBaseModel):
         target: Target ion of the beam.
         measured: Boolean that tracks if the pulse has been measured.
     """
+    beam: AtomicExprSubtypes
     duration: AtomicExprSubtypes
     target: AtomicExprSubtypes
-    beam: AtomicExprSubtypes
     measured: AtomicExprSubtypes
 
 

@@ -13,9 +13,7 @@
 # limitations under the License.
 
 from .compile import compile_analog_circuit
-from .assign import infer_analog_circuit_dim_cfg
 
 __all__ = [
     "compile_analog_circuit",
-    "infer_analog_circuit_dim_cfg",
 ]

@@ -41,13 +41,13 @@ The basis of operators for the bosonic degree of freedom are the ladder operator
 
 The basis operators can be combined with the operations:
 
-- Addition <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorAdd] </div>
+- Addition <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprAdd] </div>
 
-- Subtraction <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorSub] </div>
+- Subtraction <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprSub] </div>
 
-- Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorMul] </div>
+- Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprMul] </div>
 
-- Tensor Product <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorKron] </div>
+- Tensor Product <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprKron] </div>
 
 ## Math Expressions
 

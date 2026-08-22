@@ -32,6 +32,7 @@ from oqd_core.interface.analog.expr import (
     OperatorSub,
     OperatorTerminal,
     Pauli,
+    Access,
 )
 
 ########################################################################################
@@ -56,7 +57,7 @@ class CanVerPauliAlgebra(RewriteRule):
     Checks whether there is any incomplete Pauli Algebra computation
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -89,7 +90,7 @@ class CanVerGatherMathExpr(RewriteRule):
     there is any scalar multiplication within a term)
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -126,7 +127,7 @@ class CanVerOperatorDistribute(RewriteRule):
     Checks for incomplete distribution of Operators
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -146,6 +147,7 @@ class CanVerOperatorDistribute(RewriteRule):
             Ladder,
             OperatorMul,
             OperatorKron,
+            Access,
         )
 
     def map_OperatorMul(self, model):
@@ -191,7 +193,7 @@ class CanVerProperOrder(RewriteRule):
     Please see example for clarification
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -233,7 +235,7 @@ class CanVerPruneIdentity(RewriteRule):
     Checks if there is any ladder Identity present in ladder multiplication
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -260,7 +262,7 @@ class CanVerGatherPauli(RewriteRule):
     Checks whether pauli and ladder have been separated.
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -292,7 +294,7 @@ class CanVerNormalOrder(RewriteRule):
     Checks whether the ladder operations are in normal order
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -329,7 +331,7 @@ class CanVerSortedOrder(RewriteRule):
     Please see example for further clarification
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged
@@ -365,7 +367,7 @@ class CanVerScaleTerm(RewriteRule):
     Checks whether all terms have a scalar multiplication.
 
     Args:
-        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.Operator] in Analog level
+        model (VisitableBaseModel): The rule only verifies [`Operator`][oqd_core.interface.analog.expr.OperatorExpr] in Analog level
 
     Returns:
         model (VisitableBaseMode): unchanged

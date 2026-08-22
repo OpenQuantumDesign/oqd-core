@@ -28,6 +28,7 @@ from oqd_compiler_infrastructure.lattice import (
 )
 from pydantic import BaseModel, ConfigDict
 
+from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
 from oqd_core.analysis.analog.types import (
     TLatticeValue,
     TList,
@@ -38,7 +39,7 @@ from oqd_core.analysis.analog.types import (
     TTargetRef,
     TypeEnv,
 )
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import CFGStart, CFGStop, ControlFlowGraph
 from oqd_core.interface.analog import (
     Access,
     AnalogList,
@@ -203,8 +204,11 @@ def target_dim(expr, env: RegisterEnv):
 
 class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
     """Forward dataflow symbol table for register / target dimension checking."""
-    def __init__(self, graph: ControlFlowGraph, type_result: DataflowResult[int, TypeEnv]) -> None:
+    def __init__(self, graph: ControlFlowGraph, type_result: DataflowResult[int, TypeEnv] | None = None,) -> None:
+        if type_result is None:
+            type_result = AnalogTypeChecker(graph).dataflow_result
         self.type_out_states = type_result.out_states
+        
         self.lattice = maplattice(SymbolBindingLattice)()
         self.blocks = graph.blocks
         
@@ -218,7 +222,7 @@ class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
             stmt_index={
                 id(block.stmt): node_id
                 for node_id, block in graph.blocks.items()
-                if not isinstance(block.stmt, str)
+                if not isinstance(block.stmt, (CFGStart, CFGStop))
             },
         )
     

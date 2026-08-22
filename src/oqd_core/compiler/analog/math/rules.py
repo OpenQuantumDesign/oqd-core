@@ -38,11 +38,9 @@ from oqd_core.compiler.analog.error import AnalogCompilerError
 ########################################################################################
 
 def _is_constant_math(model) -> bool:
-    if isinstance(model, (MathNum, MathImag)):
+    if isinstance(model, (MathNum, MathImag, Access)):
         return True
     if isinstance(model, MathVar):
-        return False
-    if isinstance(model, Access):
         return False
     if isinstance(model, MathFunc):
         arg = model.expr
@@ -64,6 +62,7 @@ __all__ = [
     "PruneMathExpr",
     "SimplifyMathExpr",
     "EvaluateMathExpr",
+    "SubstituteMathVar",
 ]
 
 ########################################################################################
@@ -250,8 +249,8 @@ class PartitionMathExpr(RewriteRule):
         model (MathExpr):
 
     Assumptions:
-        [`DistributeMathExpr`][oqd_core.compiler.math.rules.DistributeMathExpr],
-        [`ProperOrderMathExpr`][oqd_core.compiler.math.rules.ProperOrderMathExpr]
+        [`DistributeMathExpr`][oqd_core.compiler.analog.math.rules.DistributeMathExpr],
+        [`ProperOrderMathExpr`][oqd_core.compiler.analog.math.rules.ProperOrderMathExpr]
 
     Example:
         - MathStr(string = '1 + 1j + 2') => MathStr(string = '1 + 2 + 1j')
@@ -320,7 +319,7 @@ class ProperOrderMathExpr(RewriteRule):
         model (MathExpr):
 
     Assumptions:
-        [`DistributeMathExpr`][oqd_core.compiler.math.rules.DistributeMathExpr]
+        [`DistributeMathExpr`][oqd_core.compiler.analog.math.rules.DistributeMathExpr]
 
     Example:
         - MathStr(string = '2 * (3 * 5)') => MathStr(string = '(2 * 3) * 5')
