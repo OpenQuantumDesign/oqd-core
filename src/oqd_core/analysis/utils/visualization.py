@@ -26,10 +26,7 @@ def cfg_to_dot(cfg: ControlFlowGraph) -> graphviz.Digraph:
             stmt_label = f"{block.stmt.name} = ..."
         if stmt_label in ("ParallelProtocol", "SerialProtocol"):
             stmt_label = f"{stmt_label}({len(block.stmt.pulses)})"
-        label = (
-            f"{node_id}: {block.kind}\\n"
-            f"{stmt_label}"
-        )
+        label = f"{node_id}: {block.kind}\\n{stmt_label}"
         dot.node(str(node_id), label)
 
         for succ in block.succs:

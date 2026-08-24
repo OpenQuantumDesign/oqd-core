@@ -36,12 +36,13 @@ from oqd_core.interface.analog import Break, Continue, Declaration
 
 class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
+
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.value_lattice = AnalogTypeLattice()
         self.semantics = AnalogSemantics(self.value_lattice)
         self.lattice = maplattice(AnalogTypeLattice)()
         self.blocks: dict[int, Block] = graph.blocks
-        
+
         self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_union)
 
     def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
@@ -61,4 +62,3 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             raise AnalogTypeError("branch condition must be bool")
 
         return env
-

@@ -27,6 +27,7 @@ from oqd_core.interface.atomic import Pulse
 
 ## Symbol Table ##
 
+
 def build_symbol_table(program: str):
     circuit = parse_atomic(program)
     cfg = AtomicCFGBuilder().run(circuit)
@@ -46,7 +47,7 @@ class TestAtomicSymbolTable:
         pulse = next(s for s in circuit.statements if isinstance(s, Pulse))
         node_id = symbol_table.stmt_index[id(pulse)]
         assert symbol_table.in_env[node_id]["r"].target_dim == 3
-        
+
     def test_extract_out_of_range(self):
         symbol_table, cfg, _ = build_symbol_table(
             "r = ionreg(2)\n"
@@ -58,20 +59,23 @@ class TestAtomicSymbolTable:
 
 ## Control Flow Graph ##
 
+
 class TestAtomicCFG:
     def test_atomic_cfg(self):
         program = "r = ionreg(3) \n x = 1"
         circuit = parse_atomic(program)
         cfg = AtomicCFGBuilder().run(circuit)
         assert cfg is not None
-        
+
 
 ## Type Checker ##
+
 
 class TestAtomicTypeChecker:
     @pytest.mark.parametrize(
         "program",
-        [   "r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, r, true)",
+        [
+            "r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, r, true)",
             "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])",
             "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
@@ -106,17 +110,18 @@ class TestAtomicTypeChecker:
             "c = true != false",
             "c = not true",
             "x = 1 \n x = 2 \n y = x + 1",
-            "n = 3 \n while (n > 0) { n = n - 1 }"
+            "n = 3 \n while (n > 0) { n = n - 1 }",
         ],
     )
     def test_atomic_type_checker(self, program):
         circuit = parse_atomic(program)
         cfg = AtomicCFGBuilder().run(circuit)
         AtomicTypeChecker(cfg)
-        
+
     @pytest.mark.parametrize(
         "program",
-        [   "r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, r, true)",
+        [
+            "r = ionreg(2) \n pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), true, r, true)",
             "s = 5 * true",
             "s = 5 - true",
             "s = sin(true)",
@@ -144,4 +149,3 @@ class TestAtomicTypeChecker:
         with pytest.raises(AtomicTypeError):
             cfg = AtomicCFGBuilder().run(circuit)
             AtomicTypeChecker(cfg)
-        

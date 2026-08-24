@@ -51,6 +51,7 @@ from oqd_core.interface.atomic import (
 
 class AtomicSymbolError(TypeError):
     """Symbol table error class for Atomic."""
+
     pass
 
 
@@ -60,7 +61,9 @@ class SymbolBinding(BaseModel):
     list_elem: SymbolBinding | None = None
     model_config = ConfigDict(frozen=True)
 
+
 RegisterEnv = dict[str, SymbolBinding]
+
 
 class AtomicSymbolTable(BaseModel):
     in_env: dict[int, RegisterEnv]
@@ -70,10 +73,10 @@ class AtomicSymbolTable(BaseModel):
 class SymbolBindingLattice(Lattice[Union[SymbolBinding, type[LatticeTop]]]):
     def top(self) -> type[LatticeTop]:
         return LatticeTop
-    
+
     def bottom(self) -> type[LatticeTop]:
         return LatticeBottom
-    
+
     def leq(self, t1, t2) -> bool:
         if t1 is LatticeBottom:
             return True
@@ -84,7 +87,7 @@ class SymbolBindingLattice(Lattice[Union[SymbolBinding, type[LatticeTop]]]):
         if t2 is LatticeBottom:
             return False
         return t1 == t2
-    
+
     def join(self, t1, t2):
         if t1 is LatticeTop or t2 is LatticeTop:
             return LatticeTop
@@ -95,7 +98,7 @@ class SymbolBindingLattice(Lattice[Union[SymbolBinding, type[LatticeTop]]]):
         if t1 == t2:
             return t1
         return LatticeTop
-    
+
     def meet(self, t1, t2):
         if t1 is LatticeBottom or t2 is LatticeBottom:
             return LatticeBottom
@@ -117,15 +120,15 @@ def is_target_lattice_type(t: TLatticeValue) -> bool:
 
 
 def bind_target_value(expr, t: TLatticeValue, env: RegisterEnv) -> SymbolBinding:
-    
+
     if isinstance(expr, Access):
         if expr.name not in env:
             raise AtomicSymbolError(f"Undefined variable: {expr.name}")
         return env[expr.name]
-    
+
     if t is TIonReg:
         return SymbolBinding(lattice_type=TIonReg, target_dim=expr.size)
-    
+
     if isinstance(expr, Extract):
         if expr.access.name not in env:
             raise AtomicSymbolError(f"Undefined variable: {expr.access.name}")
@@ -134,7 +137,7 @@ def bind_target_value(expr, t: TLatticeValue, env: RegisterEnv) -> SymbolBinding
         if n_ion <= 0 or expr.index >= n_ion:
             raise AtomicSymbolError("Extract index out of range")
         return SymbolBinding(lattice_type=TIonRef, target_dim=1)
-    
+
     if isinstance(expr, AtomicList):
         if not isinstance(t, TList) or not is_target_lattice_type(t):
             raise AtomicSymbolError("target list expected")
@@ -161,7 +164,7 @@ def target_dim(expr, env: RegisterEnv):
         if expr.name not in env:
             raise AtomicSymbolError(f"Undefined Variable: {expr.name}")
         return env[expr.name].target_dim
-    
+
     if isinstance(expr, Extract):
         if expr.access.name not in env:
             raise AtomicSymbolError(f"Undefined Variable: {expr.access.name}")
@@ -170,31 +173,35 @@ def target_dim(expr, env: RegisterEnv):
         if n_ion <= 0 or expr.index >= n_ion:
             raise AtomicSymbolError("Extract index out of range")
         return 1
-        
-    
+
     if isinstance(expr, AtomicList):
         dim = 0
         for value in expr.values:
             new = target_dim(value, env)
             dim += new
         return dim
-    
+
     if isinstance(expr, IonRegister):
         return expr.size
-    
+
     raise AtomicSymbolError(f"Invalid target: {type(expr).__name__} ")
 
 
 class AtomicSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
     """Forward dataflow symbol table for register / target dimension checking."""
-    def __init__(self, graph: ControlFlowGraph, type_result: DataflowResult[int, TypeEnv] | None = None,) -> None:
+
+    def __init__(
+        self,
+        graph: ControlFlowGraph,
+        type_result: DataflowResult[int, TypeEnv] | None = None,
+    ) -> None:
         if type_result is None:
             type_result = AtomicTypeChecker(graph).dataflow_result
         self.type_out_states = type_result.out_states
-        
+
         self.lattice = maplattice(SymbolBindingLattice)()
         self.blocks = graph.blocks
-        
+
         self.dataflow_result = self.analyze(graph, self.merge_symbol_env)
 
         self.symbol_table = AtomicSymbolTable(
@@ -208,7 +215,7 @@ class AtomicSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
                 if not isinstance(block.stmt, (CFGStart, CFGStop))
             },
         )
-    
+
     def merge_symbol_env(self, states: Iterable[RegisterEnv]) -> RegisterEnv:
         states_list = list(states)
         if not states_list:
@@ -225,9 +232,11 @@ class AtomicSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
                 elif b2 is None:
                     continue
                 elif b1 != b2:
-                    raise AtomicSymbolError(f"Incompatible register bindings for {name}")
+                    raise AtomicSymbolError(
+                        f"Incompatible register bindings for {name}"
+                    )
         return merged
-    
+
     def transfer(self, node_id: int, state_in: RegisterEnv) -> RegisterEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         stmt = self.blocks[node_id].stmt

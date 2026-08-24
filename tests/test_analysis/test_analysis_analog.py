@@ -25,6 +25,7 @@ from oqd_core.interface.analog import Initialize
 
 ## Symbol Table ##
 
+
 def build_symbol_table(program: str):
     circuit = parse_analog(program)
     cfg = AnalogCFGBuilder().run(circuit)
@@ -56,20 +57,17 @@ class TestAnalogSymbolTable:
         init = next(s for s in circuit.statements if isinstance(s, Initialize))
         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
         assert env["q"].target_dim == (1, 0)
-        
+
     def test_target_list_binding(self):
-        program = (
-            "r = qreg(3) \n"
-            "target = [r[0], r[1], r[2]] \n"
-            "initialize(target)"
-        )
+        program = "r = qreg(3) \ntarget = [r[0], r[1], r[2]] \ninitialize(target)"
         symbol_table, circuit = build_symbol_table(program)
         init = next(s for s in circuit.statements if isinstance(s, Initialize))
         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
         assert env["target"].target_dim == (3, 0)
-        
+
 
 ## Control Flow Graph ##
+
 
 class TestAnalogCFG:
     def test_analog_cfg(self):
@@ -77,14 +75,16 @@ class TestAnalogCFG:
         circuit = parse_analog(program)
         cfg = AnalogCFGBuilder().run(circuit)
         assert cfg is not None
-        
+
 
 ## Type Checker ##
+
 
 class TestAnalogTypeChecker:
     @pytest.mark.parametrize(
         "program",
-        [   "r = qreg(2) \n initialize(r)",
+        [
+            "r = qreg(2) \n initialize(r)",
             "r = qreg(2) \n measure(r)",
             "r = qreg(2) \n evolve(%X, 1.0, r)",
             "s = 5 * 4",
@@ -118,17 +118,18 @@ class TestAnalogTypeChecker:
             "c = true != false",
             "c = not true",
             "x = 1 \n x = 2 \n y = x + 1",
-            "n = 3 \n while (n > 0) { n = n - 1 }"
+            "n = 3 \n while (n > 0) { n = n - 1 }",
         ],
     )
     def test_analog_type_checker(self, program):
         circuit = parse_analog(program)
         cfg = AnalogCFGBuilder().run(circuit)
         AnalogTypeChecker(cfg)
-        
+
     @pytest.mark.parametrize(
         "program",
-        [   "initialize(r)",
+        [
+            "initialize(r)",
             "measure(r)",
             "evolve(%X, 1.0, r)",
             "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)",
@@ -167,6 +168,3 @@ class TestAnalogTypeChecker:
         with pytest.raises(AnalogTypeError):
             cfg = AnalogCFGBuilder().run(circuit)
             AnalogTypeChecker(cfg)
-
-
-

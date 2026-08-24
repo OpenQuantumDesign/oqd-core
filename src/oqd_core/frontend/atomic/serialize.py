@@ -77,7 +77,7 @@ class SerializeAtomic(ConversionRule):
         pulses = operands["pulses"]
         body = "\n".join(pulses)
         return f"parallel {{\n{body}\n}}"
-    
+
     def map_SerialProtocol(self, model: SerialProtocol, operands):
         pulses = operands["pulses"]
         body = "\n".join(pulses)
@@ -144,8 +144,8 @@ class SerializeAtomic(ConversionRule):
             value = str(int(model.value))
         if isinstance(model.value, (int, float)):
             value = str(model.value)
-            if 'e' in value:
-                value = re.sub(r'e([+-]?)0+(\d)', r'e\1\2', value)
+            if "e" in value:
+                value = re.sub(r"e([+-]?)0+(\d)", r"e\1\2", value)
         return value
 
     def map_MathImag(self, model: MathImag, operands):

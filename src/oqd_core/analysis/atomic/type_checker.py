@@ -41,14 +41,15 @@ from oqd_core.interface.atomic import (
 
 class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
+
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.value_lattice = AtomicTypeLattice()
         self.semantics = AtomicSemantics(self.value_lattice)
         self.lattice = maplattice(AtomicTypeLattice)()
         self.blocks = graph.blocks
-        
+
         self.dataflow_result = self.analyze(graph, self.merge_union)
-    
+
     def check_protocol(self, protocol, env: TypeEnv) -> TypeEnv:
         if isinstance(protocol, SerialProtocol):
             curr_env = env
@@ -83,26 +84,25 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
                 f"Parallel/Serial blocks expect only Pulse statements, got {type_name(t)}"
             )
         return env
-    
+
     def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         stmt = self.blocks[node_id].stmt
-        
+
         if isinstance(stmt, Declaration):
             state_out = dict(env)
             state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
             return state_out
-        
+
         if isinstance(stmt, (CFGStart, CFGStop, Break, Continue)):
             return env
-        
+
         if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
             self.check_protocol(stmt, env)
             return env
-        
+
         t = self.semantics.infer_type(stmt, env)
         if self.blocks[node_id].kind == "branch" and t is not TBool:
             raise AtomicTypeError("branch condition must be bool")
-        
-        return env
 
+        return env

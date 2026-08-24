@@ -26,13 +26,13 @@ def alias_types(alias: object) -> tuple[type, ...]:
     origin = get_origin(alias)
     if origin is Annotated:
         return alias_types(get_args(alias)[0])
-    
+
     if origin in (Union, UnionType):
         out: list[type] = []
         for arg in get_args(alias):
             out.extend(alias_types(arg))
         return tuple(dict.fromkeys(out))
-    
+
     if isinstance(alias, type):
         return (alias,)
     return ()
@@ -41,13 +41,14 @@ def alias_types(alias: object) -> tuple[type, ...]:
 class CFGStart(VisitableBaseModel):
     pass
 
+
 class CFGStop(VisitableBaseModel):
     pass
 
 
 class Block(BaseModel):
     """Represents one control flow node with incoming / outgoing edges and metadata."""
-    
+
     register_id: int
     stmt: VisitableBaseModel
     preds: list[Block] = Field(default_factory=list)
@@ -55,7 +56,7 @@ class Block(BaseModel):
     kind: Literal["start", "stop", "branch", "stmt"] = "stmt"
     exit_nodes: list[Block] = Field(default_factory=list)
     edge_labels: dict[int, str] = Field(default_factory=dict)
-    
+
     def add_succ(self, succ: Block, label: str | None = None) -> None:
         if succ not in self.succs:
             self.succs.append(succ)
@@ -74,17 +75,18 @@ class Block(BaseModel):
 
 class ControlFlowGraph(BaseModel):
     """Defines a Control Flow Graph (CFG) with the GraphProtocol required by DataflowAnalysis."""
+
     blocks: dict[int, Block]
-    
+
     def nodes(self) -> Iterable[int]:
         return self.blocks.keys()
-    
+
     def predecessors(self, node: int) -> Iterable[int]:
         return (pred.register_id for pred in self.blocks[node].preds)
-    
+
     def successors(self, node: int) -> Iterable[int]:
         return (succ.register_id for succ in self.blocks[node].succs)
-    
+
     def to_dict(self) -> dict:
         return {
             node_id: {
@@ -98,4 +100,3 @@ class ControlFlowGraph(BaseModel):
             }
             for node_id, block in self.blocks.items()
         }
-

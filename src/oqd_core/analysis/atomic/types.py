@@ -43,15 +43,20 @@ from oqd_core.interface.atomic import (
 
 class AtomicTypeError(TypeError):
     """Type Error class for Atomic."""
+
     pass
+
 
 class TList(LatticeTop, BaseModel):
     """Lattice value representing a list."""
+
     model_config = ConfigDict(frozen=True)
     elem: TLatticeValue
 
+
 TLatticeValue = Union[TList, type[LatticeTop]]
 TypeEnv = dict[str, TLatticeValue]
+
 
 def type_name(t: TLatticeValue) -> str:
     """Format a lattice value into a readable type name for error messages."""
@@ -65,23 +70,30 @@ def type_name(t: TLatticeValue) -> str:
 class TAtomic(LatticeTop):
     pass
 
+
 class TScalar(TAtomic):
     pass
+
 
 class TBool(TAtomic):
     pass
 
+
 class TBeam(TAtomic):
     pass
+
 
 class TPulse(TAtomic):
     pass
 
+
 class TTarget(TAtomic):
     pass
 
+
 class TTargetRef(TTarget):
     pass
+
 
 class TIonReg(TTarget):
     pass
@@ -93,7 +105,7 @@ class TIonRef(TTargetRef):
 
 class AtomicTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for atomic expressions."""
-    
+
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
         if t1 is LatticeBottom:
             return True
@@ -102,7 +114,7 @@ class AtomicTypeLattice(LatticeBase[TLatticeValue]):
         if isinstance(t1, TList) or isinstance(t2, TList):
             return False
         return super().leq(t1, t2)
-    
+
     def join(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
         if self.leq(t1, t2):
             return t2
@@ -113,7 +125,7 @@ class AtomicTypeLattice(LatticeBase[TLatticeValue]):
         if isinstance(t1, TList) or isinstance(t2, TList):
             return TAtomic
         return super().join(t1, t2)
-    
+
     def meet(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
         if self.leq(t1, t2):
             return t1
@@ -134,10 +146,8 @@ BIN_SIG_TABLE = {
     MathMul: ((TScalar, TScalar), TScalar),
     MathDiv: ((TScalar, TScalar), TScalar),
     MathPow: ((TScalar, TScalar), TScalar),
-
     BoolAnd: ((TBool, TBool), TBool),
     BoolOr: ((TBool, TBool), TBool),
-
     BoolLessThan: ((TScalar, TScalar), TBool),
     BoolLessThanEq: ((TScalar, TScalar), TBool),
     BoolGreaterThan: ((TScalar, TScalar), TBool),
