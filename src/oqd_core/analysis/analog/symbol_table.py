@@ -220,9 +220,9 @@ class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
                 for node_id, state in self.dataflow_result.in_states.items()
             },
             stmt_index={
-                id(block.stmt): node_id
+                id(block.stmts): node_id
                 for node_id, block in graph.blocks.items()
-                if not isinstance(block.stmt, (CFGStart, CFGStop))
+                if not isinstance(block.stmts, (CFGStart, CFGStop))
             },
         )
     
@@ -247,12 +247,14 @@ class AnalogSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
     
     def transfer(self, node_id: int, state_in: RegisterEnv) -> RegisterEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
-        stmt = self.blocks[node_id].stmt
-        if isinstance(stmt, Declaration):
-            t = self.type_out_states[node_id].get(stmt.name)
-            if t is not None and is_target_lattice_type(t):
-                state_out = dict(env)
-                state_out[stmt.name] = bind_target_value(stmt.value, t, env)
-                return state_out
+        stmts = self.blocks[node_id].stmts
+
+        for stmt in stmts:
+            if isinstance(stmt, Declaration):
+                t = self.type_out_states[node_id].get(stmt.name)
+                if t is not None and is_target_lattice_type(t):
+                    state_out = dict(env)
+                    state_out[stmt.name] = bind_target_value(stmt.value, t, env)
+                    return state_out
         return env
 

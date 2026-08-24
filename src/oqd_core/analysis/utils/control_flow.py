@@ -15,10 +15,10 @@
 from __future__ import annotations
 
 from types import UnionType
-from typing import Annotated, Iterable, Literal, Union, get_args, get_origin
+from typing import Annotated, Iterable, List, Literal, Union, get_args, get_origin
 
 from oqd_compiler_infrastructure import VisitableBaseModel
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 
 def alias_types(alias: object) -> tuple[type, ...]:
@@ -26,13 +26,13 @@ def alias_types(alias: object) -> tuple[type, ...]:
     origin = get_origin(alias)
     if origin is Annotated:
         return alias_types(get_args(alias)[0])
-    
+
     if origin in (Union, UnionType):
         out: list[type] = []
         for arg in get_args(alias):
             out.extend(alias_types(arg))
         return tuple(dict.fromkeys(out))
-    
+
     if isinstance(alias, type):
         return (alias,)
     return ()
@@ -41,21 +41,22 @@ def alias_types(alias: object) -> tuple[type, ...]:
 class CFGStart(VisitableBaseModel):
     pass
 
+
 class CFGStop(VisitableBaseModel):
     pass
 
 
-class Block(BaseModel):
+class Block(VisitableBaseModel):
     """Represents one control flow node with incoming / outgoing edges and metadata."""
-    
+
     register_id: int
-    stmt: VisitableBaseModel
-    preds: list[Block] = Field(default_factory=list)
-    succs: list[Block] = Field(default_factory=list)
-    kind: Literal["start", "stop", "branch", "stmt"] = "stmt"
-    exit_nodes: list[Block] = Field(default_factory=list)
+    stmts: List[VisitableBaseModel] = Field(default_factory=list)
+    preds: List[Block] = Field(default_factory=list)
+    succs: List[Block] = Field(default_factory=list)
+    kind: Literal["start", "stop", "branch", "stmts"] = "stmts"
+    exit_nodes: List[Block] = Field(default_factory=list)
     edge_labels: dict[int, str] = Field(default_factory=dict)
-    
+
     def add_succ(self, succ: Block, label: str | None = None) -> None:
         if succ not in self.succs:
             self.succs.append(succ)
@@ -72,25 +73,26 @@ class Block(BaseModel):
             self.add_pred(pred, label=label)
 
 
-class ControlFlowGraph(BaseModel):
+class ControlFlowGraph(VisitableBaseModel):
     """Defines a Control Flow Graph (CFG) with the GraphProtocol required by DataflowAnalysis."""
+
     blocks: dict[int, Block]
-    
+
     def nodes(self) -> Iterable[int]:
         return self.blocks.keys()
-    
+
     def predecessors(self, node: int) -> Iterable[int]:
         return (pred.register_id for pred in self.blocks[node].preds)
-    
+
     def successors(self, node: int) -> Iterable[int]:
         return (succ.register_id for succ in self.blocks[node].succs)
-    
+
     def to_dict(self) -> dict:
         return {
             node_id: {
                 "register_id": block.register_id,
                 "kind": block.kind,
-                "stmt": block.stmt.model_dump(),
+                "stmts": [stmt.model_dump() for stmt in block.stmts],
                 "preds": [p.register_id for p in block.preds],
                 "succs": [s.register_id for s in block.succs],
                 "exit_nodes": [e.register_id for e in block.exit_nodes],
@@ -98,4 +100,3 @@ class ControlFlowGraph(BaseModel):
             }
             for node_id, block in self.blocks.items()
         }
-

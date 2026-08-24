@@ -17,19 +17,17 @@ import graphviz
 from oqd_core.analysis.utils import ControlFlowGraph
 
 
-def cfg_to_dot(cfg: ControlFlowGraph) -> graphviz.Digraph:
+def cfg_to_dot(cfg: ControlFlowGraph, verbose=False) -> graphviz.Digraph:
     dot = graphviz.Digraph()
 
     for node_id, block in sorted(cfg.blocks.items()):
-        stmt_label = getattr(block.stmt, "class__", type(block.stmt).__name__)
+        print(node_id)
+        stmt_label = getattr(block.stmts, "class__", type(block.stmts).__name__)
         if stmt_label == "Declaration":
-            stmt_label = f"{block.stmt.name} = ..."
+            stmt_label = f"{block.stmts.name} = ..."
         if stmt_label in ("ParallelProtocol", "SerialProtocol"):
-            stmt_label = f"{stmt_label}({len(block.stmt.pulses)})"
-        label = (
-            f"{node_id}: {block.kind}\\n"
-            f"{stmt_label}"
-        )
+            stmt_label = f"{stmt_label}({len(block.stmts.pulses)})"
+        label = f"{node_id}: {block.kind}\\n{stmt_label}"
         dot.node(str(node_id), label)
 
         for succ in block.succs:
