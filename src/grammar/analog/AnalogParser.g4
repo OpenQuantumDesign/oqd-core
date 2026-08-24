@@ -54,7 +54,7 @@ ifelse_stmt
 
 // Quantum
 
-quantum_register: QUANTUMREGISTER LBRACKET INT RBRACKET;
+quantum_register: QUANTUMREGISTER LBRACKET INT (COMMA INT)? RBRACKET;
 mode_register: MODEREGISTER LBRACKET INT RBRACKET;
 
 targets: expr;
@@ -87,7 +87,7 @@ comparators
 
 // Quantum operator
 
-pauli_op: PAULI_I | PAULI_X | PAULI_Y | PAULI_Z;
+pauli_op: (PAULI_I | PAULI_X | PAULI_Y | PAULI_Z) (LBRACKET INT COMMA INT RBRACKET)?;
 ladder_op: CREATION | ANNIHILATION | IDENTITY_OP;
 operator_terminal: pauli_op | ladder_op;
 

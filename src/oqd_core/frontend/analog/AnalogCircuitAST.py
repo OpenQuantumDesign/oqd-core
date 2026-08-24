@@ -63,6 +63,7 @@ from oqd_core.interface.analog.expr import (
     OperatorKron,
     OperatorMul,
     OperatorSub,
+    Pauli,
     PauliI,
     PauliX,
     PauliY,
@@ -272,12 +273,17 @@ class AnalogASTBuilder(AnalogParserVisitor):
     ## Register and operator terminals ##
 
     def visitQuantum_register(self, ctx: AnalogParser.Quantum_registerContext):
-        return QuantumRegister(size=int(ctx.INT().getText()))
+        args = ctx.INT()
+        return QuantumRegister(
+            size=int(args[0].getText()),
+            dim=2 if len(args) == 1 else int(args[1].getText()),
+        )
 
     def visitMode_register(self, ctx: AnalogParser.Mode_registerContext):
         return ModeRegister(size=int(ctx.INT().getText()))
 
     def visitOperator_terminal(self, ctx: AnalogParser.Operator_terminalContext):
+
         child = ctx.getChild(0)
         text = _get_text(child)
         if text[0] != "%":
@@ -286,6 +292,10 @@ class AnalogASTBuilder(AnalogParserVisitor):
         op = _OP_TERMINAL_MAP.get(text[1])
         if op is None:
             raise ValueError(f"Unknown operator terminal: {text}")
+
+        if issubclass(op, Pauli) and (args := ctx.getChild(0).INT()):
+            return op(state1=int(args[0].getText()), state2=int(args[1].getText()))
+
         return op()
 
     ## Math Terminals ##
