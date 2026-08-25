@@ -293,10 +293,25 @@ class AnalogASTBuilder(AnalogParserVisitor):
         if op is None:
             raise ValueError(f"Unknown operator terminal: {text}")
 
-        if issubclass(op, Pauli) and (args := ctx.getChild(0).INT()):
-            return op(state1=int(args[0].getText()), state2=int(args[1].getText()))
+        if not issubclass(op, Pauli):
+            return op()
 
-        return op()
+        args = ctx.getChild(0).INT()
+        match args:
+            case []:
+                return op()
+            case list() if len(args) == 2:
+                return op(state1=int(args[0].getText()), state2=int(args[1].getText()))
+            case list() if len(args) == 3:
+                return op(
+                    state1=int(args[0].getText()),
+                    state2=int(args[1].getText()),
+                    dim=int(args[2].getText()),
+                )
+            case _:
+                raise ValueError(
+                    f"Unsupported arguments in Pauli Operator, should be 0, 2 or 3 integers (found {len(args)})"
+                )
 
     ## Math Terminals ##
 

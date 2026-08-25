@@ -304,6 +304,7 @@ class PauliI(Pauli):
 
     state1: NonNegativeInt = 0
     state2: NonNegativeInt = 1
+    dim: NonNegativeInt = 2
 
 
 class PauliX(Pauli):
@@ -313,6 +314,7 @@ class PauliX(Pauli):
 
     state1: NonNegativeInt = 0
     state2: NonNegativeInt = 1
+    dim: NonNegativeInt = 2
 
 
 class PauliY(Pauli):
@@ -322,6 +324,7 @@ class PauliY(Pauli):
 
     state1: NonNegativeInt = 0
     state2: NonNegativeInt = 1
+    dim: NonNegativeInt = 2
 
 
 class PauliZ(Pauli):
@@ -331,6 +334,7 @@ class PauliZ(Pauli):
 
     state1: NonNegativeInt = 0
     state2: NonNegativeInt = 1
+    dim: NonNegativeInt = 2
 
 
 ########################################################################################

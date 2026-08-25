@@ -87,7 +87,7 @@ comparators
 
 // Quantum operator
 
-pauli_op: (PAULI_I | PAULI_X | PAULI_Y | PAULI_Z) (LBRACKET INT COMMA INT RBRACKET)?;
+pauli_op: (PAULI_I | PAULI_X | PAULI_Y | PAULI_Z) (LBRACKET INT COMMA INT (COMMA INT)? RBRACKET)?;
 ladder_op: CREATION | ANNIHILATION | IDENTITY_OP;
 operator_terminal: pauli_op | ladder_op;
 
