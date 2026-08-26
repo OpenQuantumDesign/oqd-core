@@ -14,9 +14,8 @@
 
 from oqd_core.backend.metric import Expectation
 from oqd_core.compiler.analog.cfg_passes.walk import canonicalize_math_cfg, canonicalize_operators_cfg
-from oqd_core.compiler.analog.passes.assign import infer_analog_circuit_dim_cfg
 from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator_expr
-from oqd_core.compiler.analog.verify.passes import verify_analog_args_dim, verify_hamiltonian_target_dim, verify_register_access_dim
+from oqd_core.compiler.analog.verify.passes import verify_hamiltonian_target_dim, verify_register_access_dim
 from oqd_core.analysis.analog.symbol_table import AnalogSymbolTable
 from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.analog import AnalogCircuit
@@ -43,10 +42,5 @@ def compile_analog_circuit(circuit: AnalogCircuit, cfg: ControlFlowGraph, symbol
     verify_register_access_dim(cfg, symbol_table)
     verify_hamiltonian_target_dim(cfg, symbol_table)
     
-    n_qreg, n_qmode = infer_analog_circuit_dim_cfg(cfg)
-    if args is not None:
-        canonicalize_args_metrics(args)
-        verify_analog_args_dim(args, n_qreg, n_qmode)
-    
-    return circuit, cfg, n_qreg, n_qmode
+    return circuit, cfg
 

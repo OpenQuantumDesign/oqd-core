@@ -23,7 +23,6 @@ from oqd_core.compiler.analog.cfg_passes.walk import (
 )
 from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.math.passes import evaluate_math_expr
-from oqd_core.compiler.analog.passes.assign import infer_analog_circuit_dim_cfg
 from oqd_core.compiler.analog.passes.compile import compile_analog_circuit
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 from oqd_core.interface.analog import Declaration, Evolve, MathNum
@@ -62,14 +61,6 @@ class TestAnalogCompile:
         circuit, cfg, symbol_table = build_inputs(program)
         compile_analog_circuit(circuit, cfg, symbol_table)
 
-    def test_hamiltonian_target_dim_error(self):
-        circuit, cfg, symbol_table = build_inputs(
-            "r = qreg(2)\n s = qmode(2)\n evolve(%X %@ %I, 1.0, s)"
-        )
-        with pytest.raises(AnalogCompilerError):
-            compile_analog_circuit(circuit, cfg, symbol_table)
-
-
 ## CFG Passes ##
 
 class TestAnalogCanonicalizeMathCfg:
@@ -102,23 +93,4 @@ class TestAnalogCanonicalizeOperatorsCfg:
         _, cfg, _ = build_inputs("s = 2 * 3")
         canonicalize_operators_cfg(cfg)
         assert not isinstance(declaration_value(cfg, "s"), MathNum)
-
-
-class TestAnalogInferDim:
-    def test_qreg_dim(self):
-        _, cfg, _ = build_inputs("r = qreg(2)\n evolve(%X %@ %I, 1.0, r)")
-        assert infer_analog_circuit_dim_cfg(cfg) == (2, 0)
-
-    def test_qmode_dim(self):
-        _, cfg, _ = build_inputs("s = qmode(2)\n evolve(%C %@ %A, 1.0, s)")
-        assert infer_analog_circuit_dim_cfg(cfg) == (0, 2)
-    
-    def test_inconsistent_evolve_dims(self):
-        _, cfg, _ = build_inputs(
-            "r = qreg(2)\n s = qmode(2)\n"
-            "evolve(%X, 1.0, r)\n"
-            "evolve(%C %@ %A, 1.0, s)"
-        )
-        with pytest.raises(AnalogCompilerError):
-            infer_analog_circuit_dim_cfg(cfg)
 

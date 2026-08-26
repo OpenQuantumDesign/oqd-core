@@ -219,12 +219,12 @@ class TestHilbertSpaceDimVerification:
 
     def test_simple_addition_pass_single(self):
         """Addition pass single"""
-        op = 2 * X + 3 * Y + Z + Y  # + 2 * (Z @ Z)
-        assert operator_dim(op) == (1, 0)
+        op = 2 * X + 3 * Y + Z + Y
+        assert operator_dim(op) == 1
 
     def test_simple_addition_fail_single_with_ladder(self):
         """Addition fail single term with ladder"""
-        op = 2 * X + Y + A + Z + Y  # + 2 * (Z @ Z)
+        op = 2 * X + Y + A + Z + Y + 2 * (Z @ Z)
         with pytest.raises(AnalogCompilerError):
             operator_dim(op)
 
@@ -242,4 +242,4 @@ class TestHilbertSpaceDimVerification:
             + 2 * (Z @ Z @ (C * C * PI))
             + (Y @ PI @ (C * A * A * C * LI))
         )
-        assert operator_dim(op) == (2, 1)
+        assert operator_dim(op) == 3
