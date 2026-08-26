@@ -23,7 +23,7 @@ from oqd_core.compiler.analog.operator.dim import (
 )
 from oqd_core.interface.analog.expr import (
     Annihilation, Creation, Identity, Ladder,
-    MathAdd, MathImag, MathMul, MathNum,
+    MathAdd, MathImag, MathMul, MathNum, Access,
     OperatorAdd, OperatorKron, OperatorMul, OperatorSub,
     OperatorTerminal, Pauli, PauliI, PauliX, PauliY, PauliZ,
 )
@@ -453,6 +453,12 @@ class SortedOrder(RewriteRule):
                 return OperatorAdd(op1=model.op1, op2=model.op2)
 
         else:
+            if isinstance(model.op1, Access) and isinstance(model.op2, Access):
+                return model
+            if isinstance(model.op1, Access):
+                return OperatorAdd(op1=model.op1, op2=model.op2)
+            if isinstance(model.op2, Access):
+                return OperatorAdd(op1=model.op2, op2=model.op1)
             term1 = term_index(model.op1)
             term2 = term_index(model.op2)
 

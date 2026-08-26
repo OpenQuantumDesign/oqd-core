@@ -24,14 +24,11 @@ from oqd_core.compiler.analog.verify.canonicalize import (
     CanVerPruneIdentity, CanVerScaleTerm, CanVerSortedOrder,
 )
 from oqd_core.compiler.analog.operator.dim import operator_dim
-from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
-from oqd_core.interface.analog.expr import OperatorExpr, Access
 
 ########################################################################################
 
 __all__ = [
-    "resolve_operator_expr",
     "canonicalize_operator_expr",
 ]
 
@@ -76,17 +73,6 @@ verify_canonicalization = Chain(
 
 def verify_operator_dim(expr):
     operator_dim(expr)
-    return expr
-
-def resolve_operator_expr(expr, symbols: dict):
-    if isinstance(expr, Access):
-        if expr.name not in symbols:
-            raise AnalogCompilerError(f"Undefined access: {expr.name}")
-        expr = symbols[expr.name]
-        if isinstance(expr, Access):
-            return resolve_operator_expr(expr, symbols)
-        if not isinstance(expr, OperatorExpr):
-            raise AnalogCompilerError(f" Access {expr.name} is not an operator.")
     return expr
     
 def canonicalize_operator_expr(model):

@@ -180,4 +180,16 @@ tests/test.bat
 
 .pre-commit-config.yaml
 *.antlr/
+
+
 examples/*
+!examples/analog
+examples/analog/*
+!examples/analog/test.ipynb
+!examples/analog/test.analog
+
+
+!examples/atomic
+examples/atomic/*
+!examples/atomic/test.ipynb
+!examples/atomic/test.atomic

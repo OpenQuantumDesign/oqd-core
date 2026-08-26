@@ -218,8 +218,6 @@ class AtomicASTBuilder(AtomicParserVisitor):
             return BoolNot(expr=self.visit(ctx.expr(0)))
         if ctx.LBRACKET():
             return self.visit(ctx.expr(0))
-        if ctx.atomic_list_extract() is not None:
-            return self.visit(ctx.atomic_list_extract())
         if ctx.atomic_list() is not None:
             return self.visit(ctx.atomic_list())
 
