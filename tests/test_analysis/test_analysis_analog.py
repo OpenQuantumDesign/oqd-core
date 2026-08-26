@@ -40,14 +40,14 @@ class TestAnalogSymbolTable:
         symbol_table, circuit = build_symbol_table("r = qreg(3) \n initialize(r)")
         init = next(s for s in circuit.statements if isinstance(s, Initialize))
         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-        assert env["r"].target_dim == (3, 0)
+        assert env["r"].target_dim == 3
         assert env["r"].lattice_type is TQReg
 
     def test_qmode_binding(self):
         symbol_table, circuit = build_symbol_table("s = qmode(2) \n initialize(s)")
         init = next(s for s in circuit.statements if isinstance(s, Initialize))
         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-        assert env["s"].target_dim == (0, 2)
+        assert env["s"].target_dim == 2
         assert env["s"].lattice_type is TMReg
 
     def test_extract_binding(self):
@@ -55,7 +55,7 @@ class TestAnalogSymbolTable:
         symbol_table, circuit = build_symbol_table(program)
         init = next(s for s in circuit.statements if isinstance(s, Initialize))
         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-        assert env["q"].target_dim == (1, 0)
+        assert env["q"].target_dim == 1
         
     def test_target_list_binding(self):
         program = (
@@ -66,7 +66,7 @@ class TestAnalogSymbolTable:
         symbol_table, circuit = build_symbol_table(program)
         init = next(s for s in circuit.statements if isinstance(s, Initialize))
         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-        assert env["target"].target_dim == (3, 0)
+        assert env["target"].target_dim == 3
         
 
 ## Control Flow Graph ##

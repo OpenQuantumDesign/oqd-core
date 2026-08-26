@@ -90,14 +90,12 @@ def coeff_and_op(node):
 
 
 def factor_dim(node):
-    if isinstance(node, Pauli):
-        return (1, 0)
-    if isinstance(node, (Ladder, OperatorMul)):
-        return (0, 1)
+    if isinstance(node, (Pauli, OperatorMul, Ladder)):
+        return 1
     if isinstance(node, OperatorKron):
         d1 = factor_dim(node.op1)
         d2 = factor_dim(node.op2)
-        return (d1[0] + d2[0], d1[1] + d2[1])
+        return d1 + d2
 
 
 def term_dim(expr):

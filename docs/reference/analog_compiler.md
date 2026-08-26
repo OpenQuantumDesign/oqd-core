@@ -115,5 +115,5 @@ circuit = parse_analog(source)
 cfg = AnalogCFGBuilder().run(circuit)
 type_checker = AnalogTypeChecker(cfg)
 symbol_table = AnalogSymbolTableBuilder(cfg, type_checker.dataflow_result).symbol_table
-circuit, cfg, n_qreg, n_qmode = compile_analog_circuit(circuit, cfg, symbol_table)
+circuit, cfg= compile_analog_circuit(circuit, cfg, symbol_table)
 ```

@@ -59,7 +59,7 @@ class AnalogSymbolError(TypeError):
 
 class SymbolBinding(BaseModel):
     lattice_type: TLatticeValue
-    target_dim: tuple[int, int]
+    target_dim: int
     list_elem: SymbolBinding | None = None
     model_config = ConfigDict(frozen=True)
 
@@ -127,36 +127,29 @@ def bind_target_value(expr, t: TLatticeValue, env: RegisterEnv) -> SymbolBinding
         return env[expr.name]
     
     if t is TQReg:
-        return SymbolBinding(lattice_type=TQReg, target_dim=(expr.size, 0))
+        return SymbolBinding(lattice_type=TQReg, target_dim=expr.size)
     
     if t is TMReg:
-        return SymbolBinding(lattice_type=TMReg, target_dim=(0, expr.size))
+        return SymbolBinding(lattice_type=TMReg, target_dim=expr.size)
     
     if isinstance(expr, Extract):
         if expr.access.name not in env:
             raise AnalogSymbolError(f"Undefined variable: {expr.access.name}")
         base = env[expr.access.name]
-        n_qreg, n_qmode = base.target_dim
-        if n_qreg > 0:
-            if expr.index >= n_qreg:
+        n_dims = base.target_dim
+        if n_dims > 0:
+            if expr.index >= n_dims:
                 raise AnalogSymbolError("Extract index out of range")
-            return SymbolBinding(lattice_type=TQRef, target_dim=(1, 0))
-        if n_qmode > 0:
-            if expr.index >= n_qmode:
-                raise AnalogSymbolError("Extract index out of range")
-            return SymbolBinding(lattice_type=TMRef, target_dim=(0, 1))
+            return SymbolBinding(lattice_type=TTargetRef, target_dim=1)
         raise AnalogSymbolError("Extract index out of range")
     
     if isinstance(expr, AnalogList):
         if not isinstance(t, TList) or not is_target_lattice_type(t):
             raise AnalogSymbolError("target list expected")
         elem_bindings = [bind_target_value(v, t.elem, env) for v in expr.values]
-        target_dim = (0, 0)
+        target_dim = 0
         for binding in elem_bindings:
-            target_dim = (
-                target_dim[0] + binding.target_dim[0],
-                target_dim[1] + binding.target_dim[1],
-            )
+            target_dim += binding.target_dim
         return SymbolBinding(
             lattice_type=t,
             target_dim=target_dim,
@@ -175,29 +168,22 @@ def target_dim(expr, env: RegisterEnv):
         if expr.access.name not in env:
             raise AnalogSymbolError(f"Undefined Variable: {expr.access.name}")
         base = env[expr.access.name]
-        n_qreg, n_qmode = base.target_dim
-        if n_qreg > 0:
-            if expr.index >= n_qreg:
+        n_dims = base.target_dim
+        if n_dims > 0:
+            if expr.index >= n_dims:
                 raise AnalogSymbolError("Extract index out of range")
-            return (1, 0)
-        if n_qmode > 0:
-            if expr.index >= n_qmode:
-                raise AnalogSymbolError("Extract index out of range")
-            return (0,1)
+            return 1
         raise AnalogSymbolError("Extract index out of range")
     
     if isinstance(expr, AnalogList):
-        dim = (0, 0)
+        dim = 0
         for value in expr.values:
             new = target_dim(value, env)
-            dim = (dim[0] + new[0], dim[1] + new[1])
+            dim += new
         return dim
     
-    if isinstance(expr, QuantumRegister):
-        return (expr.size, 0)
-        
-    if isinstance(expr, ModeRegister):
-        return (0, expr.size)
+    if isinstance(expr, (QuantumRegister, ModeRegister)):
+        return expr.size
     
     raise AnalogSymbolError(f"Invalid target: {type(expr).__name__} ")
 
