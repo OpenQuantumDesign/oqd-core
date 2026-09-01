@@ -54,5 +54,8 @@ def canonicalize_operators_cfg(cfg: ControlFlowGraph) -> ControlFlowGraph:
         stmt = block.stmt
         if isinstance(stmt, Declaration) and isinstance(stmt.value, OperatorExpr):
             stmt.value = canonicalize_operator_expr(stmt.value)
+        if isinstance(stmt, Evolve):
+            stmt.hamiltonian = canonicalize_operator_expr(stmt.hamiltonian)
+
     return cfg
 
