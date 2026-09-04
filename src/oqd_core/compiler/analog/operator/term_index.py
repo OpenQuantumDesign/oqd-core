@@ -123,14 +123,13 @@ class TermIndex(RewriteRule):
             term1 = self._get_index(model.op1)
             term2 = self._get_index(model.op2)
             self.term_idx[-1].insert(
-                len(self.term_idx[-1]), (term1[0] + term2[0], term1[1] + term2[1])
+                len(self.term_idx[-1]), (term1 + term2)
             )
         else:
             idx = len(self.term_idx[-1]) - 1
             new = self._get_index(model.op2)
             self.term_idx[-1][idx] = (
-                self.term_idx[-1][idx][0] + new[0],
-                self.term_idx[-1][idx][1] + new[1],
+                self.term_idx[-1][idx] + new
             )
 
 
