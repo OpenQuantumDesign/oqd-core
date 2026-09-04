@@ -37,7 +37,7 @@ from oqd_core.analysis.atomic.types import (
     TTargetRef,
     TypeEnv,
 )
-from oqd_core.analysis.utils.control_flow import CFGStart, CFGStop, ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.atomic import (
     Access,
     AtomicList,
@@ -205,7 +205,6 @@ class AtomicSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
             stmt_index={
                 id(block.stmt): node_id
                 for node_id, block in graph.blocks.items()
-                if not isinstance(block.stmt, (CFGStart, CFGStop))
             },
         )
     

@@ -36,6 +36,7 @@ from oqd_core.interface.analog.expr import (
     PauliX,
     PauliY,
     PauliZ,
+    Access,
 )
 from oqd_core.compiler.analog.error import AnalogCompilerError
 

@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from oqd_compiler_infrastructure.dataflow import DataflowResult
 from oqd_core.analysis.atomic.types import TBeam, TPulse, TScalar, TypeEnv
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph, CFGStart, CFGStop
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.compiler.atomic.math.passes import canonicalize_math_expr
 from oqd_core.interface.atomic import (
     Beam,
@@ -28,8 +28,6 @@ from oqd_core.interface.atomic.expr import MathExpr
 
 def iter_stmt_blocks(cfg: ControlFlowGraph):
     for node_id, block in cfg.blocks.items():
-        if isinstance(block.stmt, (CFGStart, CFGStop)):
-            continue
         yield node_id, block
 
 def canonicalize_scalar_expr(expr):
@@ -50,7 +48,7 @@ def canonicalize_declarations_cfg(cfg: ControlFlowGraph, type_result: DataflowRe
     for node_id, block in iter_stmt_blocks(cfg):
         stmt = block.stmt
         
-        if block.kind == "branch":
+        if block.edge_labels:
             if isinstance(stmt, MathExpr):
                 block.stmt = canonicalize_math_expr(stmt)
             continue

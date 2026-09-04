@@ -19,8 +19,6 @@ from oqd_compiler_infrastructure import RewriteRule
 
 from oqd_core.analysis.utils.control_flow import (
     Block,
-    CFGStart,
-    CFGStop,
     ControlFlowGraph,
 )
 from oqd_core.interface.atomic import (
@@ -38,7 +36,7 @@ class AtomicCFGBuilder(RewriteRule):
     def __init__(self):
         super().__init__()
         self.registry = 0
-        self.cache = {}
+        self.blocks = {}
         self.loop_stack = []
         self.preds = []
         self.edge_labels = None
@@ -46,8 +44,8 @@ class AtomicCFGBuilder(RewriteRule):
         
     
     def new_node(self, preds, stmt, kind = "stmt"):
-        node = Block(register_id=self.registry, stmt=stmt,preds=preds, kind=kind)
-        self.cache[node.register_id] = node
+        node = Block(register_id=self.registry, stmt=stmt,preds=preds)
+        self.blocks[node.register_id] = node
         self.registry += 1
         
         explicit_labels = self.edge_labels or {}
@@ -72,32 +70,30 @@ class AtomicCFGBuilder(RewriteRule):
         return result
     
     def walk_block(self, statements, preds, entry_label=None):
-        pred = preds
-        first = True
+        edge_labels = {}
+    
+        if entry_label:
+            edge_labels = {preds[0].register_id: entry_label}
+    
         for stmt in statements:
+            preds = self.walk_stmt(stmt, preds, edge_labels=edge_labels)
             edge_labels = None
-            if first and entry_label is not None:
-                edge_labels = {p.register_id: entry_label for p in pred}
-            pred = self.walk_stmt(stmt, pred, edge_labels=edge_labels)
-            first = False
-        return pred
+        return preds
     
     def run(self, circuit: AtomicCircuit) -> ControlFlowGraph:
         self.registry = 0
-        self.cache = {}
+        self.blocks = {}
         self.loop_stack = []
         self.edge_labels = None
         self.fallthrough_labels = {}
-        founder = self.new_node([], CFGStart(), kind="start")
-        exits = self.walk_stmt(circuit, [founder])
-        self.new_node(exits, CFGStop(), kind="stop")
-        return ControlFlowGraph(blocks=self.cache)
+        self.walk_stmt(circuit, [])
+        return ControlFlowGraph(blocks=self.blocks)
     
     def map_AtomicCircuit(self, model: AtomicCircuit):
         return self.walk_block(model.statements, self.preds)
     
     def map_IfElse(self, model: IfElse):
-        node = self.new_node(self.preds, model.condition, kind="branch")
+        node = self.new_node(self.preds, model.condition)
         then_branch = self.walk_block(model.then_branch, [node], entry_label="true")
         if model.else_branch:
             else_branch = self.walk_block(model.else_branch, [node], entry_label="false")
@@ -108,7 +104,7 @@ class AtomicCFGBuilder(RewriteRule):
         return list(then_branch) + [node]
     
     def map_While(self, model: While):
-        node = self.new_node(self.preds, model.condition, kind="branch")
+        node = self.new_node(self.preds, model.condition)
         self.loop_stack.append(node)
         body = self.walk_block(model.body, [node], entry_label="true")
         self.loop_stack.pop()

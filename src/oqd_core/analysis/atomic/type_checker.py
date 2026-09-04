@@ -27,7 +27,7 @@ from oqd_core.analysis.atomic.types import (
     TypeEnv,
     type_name,
 )
-from oqd_core.analysis.utils.control_flow import CFGStart, CFGStop, ControlFlowGraph
+from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.atomic import (
     Break,
     Continue,
@@ -93,7 +93,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
             return state_out
         
-        if isinstance(stmt, (CFGStart, CFGStop, Break, Continue)):
+        if isinstance(stmt, (Break, Continue)):
             return env
         
         if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
@@ -101,7 +101,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             return env
         
         t = self.semantics.infer_type(stmt, env)
-        if self.blocks[node_id].kind == "branch" and t is not TBool:
+        if self.blocks[node_id].edge_labels and t is not TBool:
             raise AtomicTypeError("branch condition must be bool")
         
         return env

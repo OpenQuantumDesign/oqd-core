@@ -75,11 +75,11 @@ class TermIndex(RewriteRule):
         if isinstance(model, PauliZ):
             return 3
         if isinstance(model, Annihilation):
-            return (1, 0)
+            return 1
         if isinstance(model, Creation):
-            return (1, 1)
+            return 2
         if isinstance(model, Identity):
-            return (0, 0)
+            return 0
     
     def _visit_operator(self, model):
         if isinstance(model, OperatorKron):
