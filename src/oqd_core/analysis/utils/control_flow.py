@@ -95,6 +95,7 @@ class Accumulator(RewriteRule):
     
     def __init__(self):
         self.blocks = {}
+    
     def _accumulate(self, block1, block2):
         self.blocks[block1].stmts += self.blocks[block2].stmts
         self.blocks[block1].succs = self.blocks[block2].succs
@@ -111,20 +112,14 @@ class Accumulator(RewriteRule):
         for block in self.blocks.values():
             if block.register_id == 0 or not block.succs:
                 continue
-            if 0 in block.preds and not block.edge_labels:
+            if (0 in block.preds or any(self.blocks[pred].edge_labels for pred in block.preds)) and not block.edge_labels:
                 acc = self(block)
                 if len(acc) > 1:
                     accumulated_blocks.append(acc)
-            if any(self.blocks[pred].edge_labels for pred in block.preds) and not block.edge_labels:
-                acc = self(block)
-                if len(acc) > 1:
-                    accumulated_blocks.append(acc)
-                    
                     
         for acc in accumulated_blocks:
             reduce(self._accumulate, acc)
             
-        # print(accumulated_blocks)
         return ControlFlowGraph(blocks=self.blocks)
     
     
@@ -132,9 +127,7 @@ class Accumulator(RewriteRule):
         block = model
         blocks = []
         while True:
-            if len(block.succs) != 1:
-                break
-            if len(block.preds) > 1 and block != model:
+            if len(block.succs) != 1 or (len(block.preds) > 1 and block != model):
                 break 
             blocks.append(block.register_id)
             block = self.blocks[block.succs[0]]
