@@ -20,6 +20,7 @@ from oqd_core.analysis.atomic.symbol_table import (
 )
 from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker
 from oqd_core.analysis.atomic.types import AtomicTypeError
+from oqd_core.analysis.utils.control_flow import Accumulator
 from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
 
 ## Symbol Table ##
@@ -27,6 +28,7 @@ from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
 def build_symbol_table(program: str):
     circuit = parse_atomic(program)
     cfg = AtomicCFGBuilder().run(circuit)
+    cfg = Accumulator()(cfg)
     type_checker = AtomicTypeChecker(cfg)
     symbol_table = AtomicSymbolTableBuilder(
         cfg, type_checker.dataflow_result

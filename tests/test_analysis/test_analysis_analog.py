@@ -20,6 +20,7 @@ from oqd_core.analysis.analog.symbol_table import (
 )
 from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
 from oqd_core.analysis.analog.types import AnalogTypeError
+from oqd_core.analysis.utils.control_flow import Accumulator
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 
 ## Symbol Table ##
@@ -27,6 +28,7 @@ from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 def build_symbol_table(program: str):
     circuit = parse_analog(program)
     cfg = AnalogCFGBuilder().run(circuit)
+    cfg = Accumulator()(cfg)
     type_checker = AnalogTypeChecker(cfg)
     symbol_table = AnalogSymbolTableBuilder(
         cfg, type_checker.dataflow_result

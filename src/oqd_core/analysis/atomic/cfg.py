@@ -15,8 +15,6 @@
 
 from __future__ import annotations
 
-from functools import reduce
-
 from oqd_compiler_infrastructure import RewriteRule
 
 from oqd_core.analysis.utils.control_flow import (
@@ -34,56 +32,6 @@ from oqd_core.interface.atomic import (
 )
 
 
-class Accumulator(RewriteRule):
-    
-    def __init__(self):
-        self.blocks = {}
-    def _accumulate(self, block1, block2):
-        self.blocks[block1].stmts += self.blocks[block2].stmts
-        self.blocks[block1].succs = self.blocks[block2].succs
-        self.blocks[block1].edge_labels = self.blocks[block2].edge_labels
-        for succ in self.blocks[block2].succs:
-            self.blocks[succ].preds[self.blocks[succ].preds.index(block2)] = block1
-        self.blocks.pop(block2)
-        
-        return block1
-    
-    def map_ControlFlowGraph(self, model: ControlFlowGraph):
-        self.blocks = model.blocks
-        accumulated_blocks = []
-        for block in self.blocks.values():
-            if block.register_id == 0 or not block.succs:
-                continue
-            if 0 in block.preds and not block.edge_labels:
-                acc = self(block)
-                if len(acc) > 1:
-                    accumulated_blocks.append(acc)
-            if any(self.blocks[pred].edge_labels for pred in block.preds) and not block.edge_labels:
-                acc = self(block)
-                if len(acc) > 1:
-                    accumulated_blocks.append(acc)
-                    
-                    
-        for acc in accumulated_blocks:
-            reduce(self._accumulate, acc)
-            
-        # print(accumulated_blocks)
-        return ControlFlowGraph(blocks=self.blocks)
-    
-    
-    def map_Block(self, model: Block):
-        block = model
-        blocks = []
-        while True:
-            if len(block.succs) != 1:
-                break
-            if len(block.preds) > 1 and block != model:
-                break 
-            blocks.append(block.register_id)
-            block = self.blocks[block.succs[0]]
-        # print(blocks)
-        return blocks
-    
 class AtomicCFGBuilder(RewriteRule):
     def __init__(self):
         super().__init__()
