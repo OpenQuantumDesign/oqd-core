@@ -170,4 +170,55 @@ class TestAnalogTypeChecker:
             AnalogTypeChecker(cfg)
 
 
+## Accumulator ##
+
+class TestAnalogAccumulator:
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "1",
+            "x = 0 \n while (true) { \n x = x + 2 \n if (x > 3) { \n break \n } \n else { \n a = 1\n } \n}",
+            "if (5 == 2) { \n a = 1}",
+            "a = 1 \n b = 2 \n r = qreg(3) \n p = 4 \n d = sin(3.141592)",
+            "a = 5 \n b = 3 \n if (a > b) { \n if (b > 0) { \n initialize(targets) \n} \n else { \n measure(r) \n } \n }",
+            "a = 2 \n b = 3 \n if (a > 2) { \n a = 3 \n if (a==b) { \n b = 2 \n } \n else { \n b = 5 \n } \n if (b < a) { \n b = 5 \n }\n } \n c = a + b \n c"
+        ],
+    )
+    def test_analog_accumulator_simple(self, program):
+        circuit = parse_analog(program)
+        single_stmt_block_cfg = AnalogCFGBuilder().run(circuit)
+        multiple_stmts_block_cfg = Accumulator()(single_stmt_block_cfg)
+        assert(len(multiple_stmts_block_cfg.blocks) <= len(single_stmt_block_cfg.blocks))
+    
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "1",
+            "x = 0 \n while (true) { \n x = x + 2 \n if (x > 3) { \n break \n } \n else { \n a = 1\n } \n}",
+            "if (5 == 2) { \n a = 1}",
+            "a = 5 \n if (a > 2) { \n if (a > 0) { \n initialize(targets) \n} \n else { \n measure(r) \n } \n }",
+        ],
+    )
+    def test_analog_accumulator_does_nothing(self, program):
+        circuit = parse_analog(program)
+        single_stmt_block_cfg = AnalogCFGBuilder().run(circuit)
+        multiple_stmts_block_cfg = Accumulator()(single_stmt_block_cfg)
+        assert(len(multiple_stmts_block_cfg.blocks) == len(single_stmt_block_cfg.blocks))
+    
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "a = 0 \n x = 2",
+            "a = 1 \n b = 2 \n r = qreg(3) \n p = 4 \n d = sin(3.141592)",
+            "r = qreg(5) \n initialize(r) \n evolve(%X, 1, r[0])"
+        ],
+    )
+    def test_analog_accumulator_single_block(self, program):
+        circuit = parse_analog(program)
+        single_stmt_block_cfg = AnalogCFGBuilder().run(circuit)
+        assert(len(single_stmt_block_cfg.blocks) > 3)
+        multiple_stmts_block_cfg = Accumulator()(single_stmt_block_cfg)
+        assert(len(multiple_stmts_block_cfg.blocks) == 3)
+    
+
 
