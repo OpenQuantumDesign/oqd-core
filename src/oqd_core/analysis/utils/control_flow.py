@@ -15,7 +15,7 @@
 from __future__ import annotations
 
 from types import UnionType
-from typing import Annotated, Any, Iterable, List, Union, get_args, get_origin
+from typing import Annotated, Iterable, List, Union, get_args, get_origin
 
 from oqd_compiler_infrastructure import VisitableBaseModel
 from pydantic import BaseModel, Field
@@ -42,26 +42,25 @@ class Block(BaseModel):
     """Represents one control flow node with incoming / outgoing edges and metadata."""
     
     register_id: int
-    stmt: VisitableBaseModel
-    preds: List[Block] = Field(default_factory=list)
-    succs: List[Block] = Field(default_factory=list)
-    exit_nodes: List[Block] = Field(default_factory=list)
-    edge_labels: dict[Any, Any] = Field(default_factory=dict)
+    stmts: List[VisitableBaseModel] = Field(default_factory=list)
+    preds: List[int] = Field(default_factory=list)
+    succs: List[int] = Field(default_factory=list)
+    exit_nodes: List[int] = Field(default_factory=list)
+    edge_labels: dict[int, str] = Field(default_factory=dict)
     
-    def add_succ(self, succ: Block, label: str | None = None) -> None:
+    def add_succ(self, succ: int, label: str | None = None) -> None:
         if succ not in self.succs:
             self.succs.append(succ)
         if label is not None:
-            self.edge_labels[succ.register_id] = label
+            self.edge_labels[succ] = label
 
-    def add_pred(self, pred: Block, label: str | None = None) -> None:
+    def add_pred(self, pred: int) -> None:
         if pred not in self.preds:
             self.preds.append(pred)
-        pred.add_succ(self, label=label)
 
-    def add_preds(self, preds: Iterable[Block], label: str | None = None) -> None:
+    def add_preds(self, preds: Iterable[int]) -> None:
         for pred in preds:
-            self.add_pred(pred, label=label)
+            self.add_pred(pred)
 
 
 class ControlFlowGraph(BaseModel):
@@ -72,20 +71,19 @@ class ControlFlowGraph(BaseModel):
         return self.blocks.keys()
     
     def predecessors(self, node: int) -> Iterable[int]:
-        return (pred.register_id for pred in self.blocks[node].preds)
+        return self.blocks[node].preds
     
     def successors(self, node: int) -> Iterable[int]:
-        return (succ.register_id for succ in self.blocks[node].succs)
+        return self.blocks[node].succs
     
     def to_dict(self) -> dict:
         return {
             node_id: {
                 "register_id": block.register_id,
-                # "kind": block.kind,
-                "stmt": block.stmt.model_dump(),
-                "preds": [p.register_id for p in block.preds],
-                "succs": [s.register_id for s in block.succs],
-                "exit_nodes": [e.register_id for e in block.exit_nodes],
+                "stmts": [stmt.model_dump() for stmt in block.stmts],
+                "preds": block.preds,
+                "succs": block.succs,
+                "exit_nodes": block.exit_nodes,
                 "edge_labels": block.edge_labels,
             }
             for node_id, block in self.blocks.items()

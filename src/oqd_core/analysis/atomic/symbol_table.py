@@ -64,7 +64,6 @@ RegisterEnv = dict[str, SymbolBinding]
 
 class AtomicSymbolTable(BaseModel):
     in_env: dict[int, RegisterEnv]
-    stmt_index: dict[int, int]
 
 
 class SymbolBindingLattice(Lattice[Union[SymbolBinding, type[LatticeTop]]]):
@@ -202,10 +201,6 @@ class AtomicSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
                 node_id: {} if state is LatticeBottom else dict(state)
                 for node_id, state in self.dataflow_result.in_states.items()
             },
-            stmt_index={
-                id(block.stmt): node_id
-                for node_id, block in graph.blocks.items()
-            },
         )
     
     def merge_symbol_env(self, states: Iterable[RegisterEnv]) -> RegisterEnv:
@@ -229,11 +224,15 @@ class AtomicSymbolTableBuilder(ForwardDataflowAnalysis[int, RegisterEnv]):
     
     def transfer(self, node_id: int, state_in: RegisterEnv) -> RegisterEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
-        stmt = self.blocks[node_id].stmt
-        if isinstance(stmt, Declaration):
-            t = self.type_out_states[node_id].get(stmt.name)
-            if t is not None and is_target_lattice_type(t):
-                state_out = dict(env)
-                state_out[stmt.name] = bind_target_value(stmt.value, t, env)
-                return state_out
+        if self.blocks[node_id].preds == [] or self.blocks[node_id].succs == []:
+            return env
+        
+        stmts = self.blocks[node_id].stmts
+        for stmt in stmts:
+            if isinstance(stmt, Declaration):
+                t = self.type_out_states[node_id].get(stmt.name)
+                if t is not None and is_target_lattice_type(t):
+                    state_out = dict(env)
+                    state_out[stmt.name] = bind_target_value(stmt.value, t, env)
+                    env = state_out
         return env

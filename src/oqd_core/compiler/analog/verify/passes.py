@@ -27,32 +27,34 @@ __all__ = [
 def verify_register_access_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable):
     
     for node_id, block in iter_stmt_blocks(cfg):
-        stmt = block.stmt
-        if not isinstance(stmt, (Evolve, Initialize, Measure)):
-            continue
-        env = symbol_table.in_env[node_id]
-        target_dim(stmt.targets, env)
+        stmts = block.stmts
+        for stmt in stmts:
+            if not isinstance(stmt, (Evolve, Initialize, Measure)):
+                continue
+            env = symbol_table.in_env[node_id]
+            target_dim(stmt.targets, env)
         
     return cfg
 
 def verify_hamiltonian_target_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable):
     
     for node_id, block in iter_stmt_blocks(cfg):
-        stmt = block.stmt
-        if not isinstance(stmt, (Declaration, Evolve)):
-            continue
-        if isinstance(stmt, Declaration):
-            if not isinstance(stmt.value, Evolve):
+        stmts = block.stmts
+        for stmt in stmts:
+            if not isinstance(stmt, (Declaration, Evolve)):
                 continue
-            stmt = stmt.value
-        env = symbol_table.in_env[node_id]
-        if isinstance(stmt.hamiltonian, Access):
-            continue
-        
-        h_dim = operator_dim(stmt.hamiltonian)
-        t_dim = target_dim(stmt.targets, env)
-        if h_dim != t_dim:
-            raise AnalogCompilerError(f"Inconsistent Hilbert space dimension.")
+            if isinstance(stmt, Declaration):
+                if not isinstance(stmt.value, Evolve):
+                    continue
+                stmt = stmt.value
+            env = symbol_table.in_env[node_id]
+            if isinstance(stmt.hamiltonian, Access):
+                continue
+            
+            h_dim = operator_dim(stmt.hamiltonian)
+            t_dim = target_dim(stmt.targets, env)
+            if h_dim != t_dim:
+                raise AnalogCompilerError(f"Inconsistent Hilbert space dimension.")
         
     return cfg
 

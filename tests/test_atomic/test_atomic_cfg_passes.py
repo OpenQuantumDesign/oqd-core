@@ -49,9 +49,10 @@ def build_inputs(program: str):
 
 def declaration_value(cfg, name):
     for _, block in iter_stmt_blocks(cfg):
-        stmt = block.stmt
-        if isinstance(stmt, Declaration) and stmt.name == name:
-            return stmt.value
+        stmts = block.stmts
+        for stmt in stmts:
+            if isinstance(stmt, Declaration) and stmt.name == name:
+                return stmt.value
     raise KeyError(name)
 
 

@@ -21,17 +21,19 @@ def cfg_to_dot(cfg: ControlFlowGraph) -> graphviz.Digraph:
     dot = graphviz.Digraph()
 
     for node_id, block in sorted(cfg.blocks.items()):
-        stmt_label = getattr(block.stmt, "class__", type(block.stmt).__name__)
-        if stmt_label == "Declaration":
-            stmt_label = f"{block.stmt.name} = ..."
-        if stmt_label in ("ParallelProtocol", "SerialProtocol"):
-            stmt_label = f"{stmt_label}({len(block.stmt.pulses)})"
-        label = (
-            f"{node_id}: {stmt_label}\\n"
-        )
-        dot.node(str(node_id), label)
+        for stmt in block.stmts:
+            stmt_label = getattr(stmt, "class__", type(stmt).__name__)
+            
+            if stmt_label == "Declaration":
+                stmt_label = f"{stmt.name} = ..."
+            if stmt_label in ("ParallelProtocol", "SerialProtocol"):
+                stmt_label = f"{stmt_label}({len(stmt.pulses)})"
+            label = (
+                f"{node_id}: {stmt_label}\\n"
+            )
+            dot.node(str(node_id), label)
 
         for succ in block.succs:
-            dot.edge(str(node_id), str(succ.register_id))
+            dot.edge(str(node_id), str(succ))
 
     return dot

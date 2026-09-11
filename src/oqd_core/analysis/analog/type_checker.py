@@ -44,17 +44,23 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
 
     def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
-        stmt = self.blocks[node_id].stmt
-
-        if isinstance(stmt, Declaration):
-            state_out = dict(env)
-            state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
-            return state_out
-
-        if isinstance(stmt, (Break, Continue)):
+        if self.blocks[node_id].preds == [] or self.blocks[node_id].succs == []:
             return env
-
-        t = self.semantics.infer_type(stmt, env)
+        
+        stmts = self.blocks[node_id].stmts
+        t = LatticeBottom
+        
+        for stmt in stmts:
+            if isinstance(stmt, (Break, Continue)):
+                continue
+            
+            if isinstance(stmt, Declaration):
+                state_out = dict(env)
+                state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
+                env = state_out
+                continue
+            t = self.semantics.infer_type(stmt, env)
+        
         if self.blocks[node_id].edge_labels and t is not TBool:
             raise AnalogTypeError("branch condition must be bool")
 

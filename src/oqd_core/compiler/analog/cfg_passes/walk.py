@@ -27,18 +27,18 @@ def iter_stmt_blocks(cfg: ControlFlowGraph):
 
 
 def canonicalize_math_block(block: Block):
-    stmt = block.stmt
+    stmts = block.stmts
     
-    if block.edge_labels:
-        if isinstance(stmt, MathExpr):
-            block.stmt = canonicalize_math_expr(stmt)
-        return
-    
-    if isinstance(stmt, Evolve):
-        stmt.duration = canonicalize_math_expr(stmt.duration)
-    elif isinstance(stmt, Declaration):
-        if isinstance(stmt.value, MathExpr):
-            stmt.value = canonicalize_math_expr(stmt.value)
+    for stmt in stmts:
+        if block.edge_labels:
+            if isinstance(stmt, MathExpr):
+                block.stmt = canonicalize_math_expr(stmt)
+            continue
+        if isinstance(stmt, Evolve):
+            stmt.duration = canonicalize_math_expr(stmt.duration)
+        elif isinstance(stmt, Declaration):
+            if isinstance(stmt.value, MathExpr):
+                stmt.value = canonicalize_math_expr(stmt.value)
 
 
 def canonicalize_math_cfg(cfg: ControlFlowGraph):
@@ -49,10 +49,11 @@ def canonicalize_math_cfg(cfg: ControlFlowGraph):
 def canonicalize_operators_cfg(cfg: ControlFlowGraph) -> ControlFlowGraph:
     """Canonicalize inline operator declarations."""
     for _, block in iter_stmt_blocks(cfg):
-        stmt = block.stmt
-        if isinstance(stmt, Declaration) and isinstance(stmt.value, OperatorExpr):
-            stmt.value = canonicalize_operator_expr(stmt.value)
-        if isinstance(stmt, Evolve):
-            stmt.hamiltonian = canonicalize_operator_expr(stmt.hamiltonian)
+        stmts = block.stmts
+        for stmt in stmts:
+            if isinstance(stmt, Declaration) and isinstance(stmt.value, OperatorExpr):
+                stmt.value = canonicalize_operator_expr(stmt.value)
+            if isinstance(stmt, Evolve):
+                stmt.hamiltonian = canonicalize_operator_expr(stmt.hamiltonian)
     return cfg
 

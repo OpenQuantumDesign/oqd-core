@@ -44,9 +44,10 @@ def verify_pulse_target_dim(cfg: ControlFlowGraph, symbol_table: AtomicSymbolTab
     Check pulse targets are in range at each use.
     """
     for node_id, block in iter_stmt_blocks(cfg):
-        stmt = block.stmt
-        env = symbol_table.in_env[node_id]
-        for target in iter_pulse_targets(stmt):
-            target_dim(target, env)
+        stmts = block.stmts
+        for stmt in stmts:
+            env = symbol_table.in_env[node_id]
+            for target in iter_pulse_targets(stmt):
+                target_dim(target, env)
     return cfg
 
