@@ -53,7 +53,7 @@ def test_simple_single_term_pauli():
 def test_simple_single_term_ladder():
     """Simple test single term ladder"""
     op = A + C + LI
-    expected = [[(1, 0)], [(1, 1)], [(0, 0)]]
+    expected = [[1], [2], [0]]
     assert compute_term_index(operator=op) == expected
 
 
@@ -74,21 +74,21 @@ def test_kron_single():
 def test_kron_single_ladder():
     """Simple kron single term with ladder"""
     op = C @ (A * LI)
-    expected = [[(1, 1), (1, 0)]]
+    expected = [[2, 1]]
     assert compute_term_index(operator=op) == expected
 
 
 def test_kron_single_complicated():
     """Complicated kron single term"""
     op = X @ Y @ X @ X @ (A * C * A) @ PI @ C
-    expected = [[1, 2, 1, 1, (3, 1), 0, (1, 1)]]
+    expected = [[1, 2, 1, 1, 4, 0, 2]]
     assert compute_term_index(operator=op) == expected
 
 
 def test_kron_add_complicated():
     """Complicated kron add"""
     op = X @ Y @ (C * LI * A * C) + X @ X + (A * C * A) @ PI @ C + Y + Z
-    expected = [[1, 2, (3, 2)], [1, 1], [(3, 1), 0, (1, 1)], [2], [3]]
+    expected = [[1, 2, 5], [1, 1], [4, 0, 2], [2], [3]]
     assert compute_term_index(operator=op) == expected
 
 
@@ -96,12 +96,12 @@ def test_kron_add_complicated_with_scalar():
     """Complicated kron add with scalar mul"""
     op = C @ (C * LI * A * C) + 3 * (X @ X) + A * C * A + 3 * Y + 2 * Z + C + LI
     expected = [
-        [(1, 1), (3, 2)],
+        [2, 5],
         [1, 1, 1, 1],
-        [(3, 1)],
+        [4],
         [2],
         [3],
-        [(1, 1)],
-        [(0, 0)],
+        [2],
+        [0],
     ]
     assert compute_term_index(operator=op) == expected

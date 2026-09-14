@@ -15,14 +15,12 @@
 
 from __future__ import annotations
 
-from oqd_compiler_infrastructure import RewriteRule
-
-from oqd_core.analysis.utils.control_flow import (
-    Block,
-    CFGStart,
-    CFGStop,
-    ControlFlowGraph,
+from oqd_compiler_infrastructure import (
+    CFG,
+    CFGBlock,
+    RewriteRule,
 )
+
 from oqd_core.interface.atomic import (
     AtomicCircuit,
     Break,
@@ -35,32 +33,24 @@ from oqd_core.interface.atomic import (
 
 
 class AtomicCFGBuilder(RewriteRule):
-    def __init__(self):
-        super().__init__()
-        self.registry = 0
-        self.cache = {}
-        self.loop_stack = []
-        self.preds = []
-        self.edge_labels = None
-        self.fallthrough_labels = {}
-        
-    
-    def new_node(self, preds, stmt, kind = "stmt"):
-        node = Block(register_id=self.registry, stmt=stmt,preds=preds, kind=kind)
-        self.cache[node.register_id] = node
-        self.registry += 1
-        
+    def new_node(self, preds, stmt):
+        node = CFGBlock(
+            register_id=self.index, stmts=[stmt] if stmt else [], preds=preds
+        )
+        self.blocks[node.register_id] = node
+        self.index += 1
+
         explicit_labels = self.edge_labels or {}
         self.edge_labels = None
-        
+
         for pred in node.preds:
-            label = explicit_labels.get(pred.register_id)
+            label = explicit_labels.get(pred)
             if label is None:
-                label = self.fallthrough_labels.pop(pred.register_id, None)
-            pred.add_succ(node, label=label)
-        
-        return node
-    
+                label = self.fallthrough_labels.pop(pred, None)
+            self.blocks[pred].add_succ(node.register_id, label=label)
+
+        return node.register_id
+
     def walk_stmt(self, stmt, preds, edge_labels=None):
         old = self.preds
         old_labels = self.edge_labels
@@ -70,78 +60,78 @@ class AtomicCFGBuilder(RewriteRule):
         self.preds = old
         self.edge_labels = old_labels
         return result
-    
+
     def walk_block(self, statements, preds, entry_label=None):
-        pred = preds
-        first = True
+        edge_labels = {}
+
+        if entry_label:
+            edge_labels = {preds[0]: entry_label}
+
         for stmt in statements:
+            preds = self.walk_stmt(stmt, preds, edge_labels=edge_labels)
             edge_labels = None
-            if first and entry_label is not None:
-                edge_labels = {p.register_id: entry_label for p in pred}
-            pred = self.walk_stmt(stmt, pred, edge_labels=edge_labels)
-            first = False
-        return pred
-    
-    def run(self, circuit: AtomicCircuit) -> ControlFlowGraph:
-        self.registry = 0
-        self.cache = {}
+        return preds
+
+    def map_AtomicCircuit(self, model: AtomicCircuit) -> CFG:
+        self.index = 0
+        self.blocks = {}
         self.loop_stack = []
+        self.preds = []
         self.edge_labels = None
         self.fallthrough_labels = {}
-        founder = self.new_node([], CFGStart(), kind="start")
-        exits = self.walk_stmt(circuit, [founder])
-        self.new_node(exits, CFGStop(), kind="stop")
-        return ControlFlowGraph(blocks=self.cache)
-    
-    def map_AtomicCircuit(self, model: AtomicCircuit):
-        return self.walk_block(model.statements, self.preds)
-    
+        node = self.new_node([], {})
+        node = self.walk_block(model.statements, [node])
+        node = self.new_node(node, {})
+        return CFG(blocks=self.blocks)
+
     def map_IfElse(self, model: IfElse):
-        node = self.new_node(self.preds, model.condition, kind="branch")
+        node = self.new_node(self.preds, model.condition)
         then_branch = self.walk_block(model.then_branch, [node], entry_label="true")
         if model.else_branch:
-            else_branch = self.walk_block(model.else_branch, [node], entry_label="false")
-            return list(then_branch) + (list(else_branch))
-        
-        self.fallthrough_labels[node.register_id] = "false"
-        
-        return list(then_branch) + [node]
-    
+            else_branch = self.walk_block(
+                model.else_branch, [node], entry_label="false"
+            )
+            return then_branch + else_branch
+
+        self.fallthrough_labels[node] = "false"
+        return then_branch + [node]
+
     def map_While(self, model: While):
-        node = self.new_node(self.preds, model.condition, kind="branch")
+        node = self.new_node(self.preds, model.condition)
+        self.fallthrough_labels[node] = "false"
         self.loop_stack.append(node)
         body = self.walk_block(model.body, [node], entry_label="true")
         self.loop_stack.pop()
-        
-        node.add_preds(body)
-        self.fallthrough_labels[node.register_id] = "false"
-        
-        return node.exit_nodes + [node]
-    
+
+        self.blocks[node].add_preds(body)
+        for s in body:
+            label = self.fallthrough_labels.pop(s, None)
+            self.blocks[s].add_succ(node, label=label)
+
+        return self.blocks[node].exit_nodes + [node]
+
     def map_Break(self, model: Break):
         if not self.loop_stack:
             raise TypeError("break statement used outside loop")
         break_node = self.new_node(self.preds, model)
-        self.loop_stack[-1].exit_nodes.append(break_node)
-        self.fallthrough_labels[break_node.register_id] = "break"
+        self.blocks[self.loop_stack[-1]].exit_nodes.append(break_node)
         return []
-    
+
     def map_Continue(self, model: Continue):
         if not self.loop_stack:
             raise TypeError("continue statement used outside loop")
         continue_node = self.new_node(self.preds, model)
-        self.loop_stack[-1].add_pred(continue_node, label="continue")
+        self.blocks[self.loop_stack[-1]].add_pred(continue_node)
+        self.blocks[continue_node].add_succ(self.loop_stack[-1])
         return []
-    
+
     def map_ParallelProtocol(self, model: ParallelProtocol):
         node = self.new_node(self.preds, model)
         return self.walk_block(model.pulses, [node])
-    
+
     def map_SerialProtocol(self, model: SerialProtocol):
         node = self.new_node(self.preds, model)
         return self.walk_block(model.pulses, [node])
-    
+
     def generic_map(self, model):
         return [self.new_node(self.preds, model)]
-    
-

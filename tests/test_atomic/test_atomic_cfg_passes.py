@@ -39,7 +39,7 @@ BEAM = "b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n"
 
 def build_inputs(program: str):
     circuit = parse_atomic(program)
-    cfg = AtomicCFGBuilder().run(circuit)
+    cfg = AtomicCFGBuilder()(circuit)
     type_checker = AtomicTypeChecker(cfg)
     symbol_table = AtomicSymbolTableBuilder(
         cfg, type_checker.dataflow_result
@@ -49,9 +49,10 @@ def build_inputs(program: str):
 
 def declaration_value(cfg, name):
     for _, block in iter_stmt_blocks(cfg):
-        stmt = block.stmt
-        if isinstance(stmt, Declaration) and stmt.name == name:
-            return stmt.value
+        stmts = block.stmts
+        for stmt in stmts:
+            if isinstance(stmt, Declaration) and stmt.name == name:
+                return stmt.value
     raise KeyError(name)
 
 

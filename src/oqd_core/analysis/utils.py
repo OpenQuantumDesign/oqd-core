@@ -12,26 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_core.compiler.analog.cfg_passes.walk import canonicalize_math_cfg, canonicalize_operators_cfg
-from oqd_core.compiler.analog.verify.passes import verify_hamiltonian_target_dim, verify_register_access_dim
-from oqd_core.analysis.analog.symbol_table import AnalogSymbolTable
-from oqd_compiler_infrastructure import CFG
-from oqd_core.interface.analog import AnalogCircuit
+########################################################################################
+
+from __future__ import annotations
+
+from types import UnionType
+from typing import Annotated, Union, get_args, get_origin
 
 ########################################################################################
 
-__all__ = [ "compile_analog_circuit" ]
 
-########################################################################################
+def alias_types(alias: object) -> tuple[type, ...]:
+    """Flatten `Annotated`/`Union` aliases into a tuple of concrete Python types."""
+    origin = get_origin(alias)
+    if origin is Annotated:
+        return alias_types(get_args(alias)[0])
 
-def compile_analog_circuit(circuit: AnalogCircuit, cfg: CFG, symbol_table: AnalogSymbolTable) \
-    -> tuple[AnalogCircuit, CFG]:
-    
-    canonicalize_operators_cfg(cfg)
-    canonicalize_math_cfg(cfg)
-    
-    verify_register_access_dim(cfg, symbol_table)
-    verify_hamiltonian_target_dim(cfg, symbol_table)
-    
-    return circuit, cfg
+    if origin in (Union, UnionType):
+        out: list[type] = []
+        for arg in get_args(alias):
+            out.extend(alias_types(arg))
+        return tuple(dict.fromkeys(out))
 
+    if isinstance(alias, type):
+        return (alias,)
+    return ()

@@ -46,15 +46,20 @@ from oqd_core.interface.analog import (
 
 class AnalogTypeError(TypeError):
     """Type Error class for Analog."""
+
     pass
+
 
 class TList(LatticeTop, BaseModel):
     """Lattice value representing a list."""
+
     model_config = ConfigDict(frozen=True)
     elem: TLatticeValue
 
+
 TLatticeValue = Union[TList, type[LatticeTop]]
 TypeEnv = dict[str, TLatticeValue]
+
 
 def type_name(t: TLatticeValue) -> str:
     """Format a lattice value into a readable type name for error messages."""
@@ -68,29 +73,38 @@ def type_name(t: TLatticeValue) -> str:
 class TAnalog(LatticeTop):
     pass
 
+
 class TScalar(TAnalog):
     pass
+
 
 class TBool(TAnalog):
     pass
 
+
 class TOp(TAnalog):
     pass
+
 
 class TTarget(TAnalog):
     pass
 
+
 class TTargetRef(TTarget):
     pass
+
 
 class TQReg(TTarget):
     pass
 
+
 class TMReg(TTarget):
     pass
 
+
 class TQRef(TTargetRef):
     pass
+
 
 class TMRef(TTargetRef):
     pass
@@ -107,7 +121,7 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         if isinstance(t1, TList) or isinstance(t2, TList):
             return False
         return super().leq(t1, t2)
-    
+
     def join(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
         if self.leq(t1, t2):
             return t2
@@ -118,7 +132,7 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         if isinstance(t1, TList) or isinstance(t2, TList):
             return TAnalog
         return super().join(t1, t2)
-    
+
     def meet(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
         if self.leq(t1, t2):
             return t1
@@ -139,10 +153,8 @@ BIN_SIG_TABLE = {
     MathMul: ((TScalar, TScalar), TScalar),
     MathDiv: ((TScalar, TScalar), TScalar),
     MathPow: ((TScalar, TScalar), TScalar),
-
     BoolAnd: ((TBool, TBool), TBool),
     BoolOr: ((TBool, TBool), TBool),
-
     BoolLessThan: ((TScalar, TScalar), TBool),
     BoolLessThanEq: ((TScalar, TScalar), TBool),
     BoolGreaterThan: ((TScalar, TScalar), TBool),
@@ -164,4 +176,3 @@ OPMUL_ALLOWED = {
     (TOp, TScalar): TOp,
     (TScalar, TOp): TOp,
 }
-

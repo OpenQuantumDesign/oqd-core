@@ -65,6 +65,7 @@ __all__ = [
 
 ########################################################################################
 
+
 class AtomicExpr(TypeReflectBaseModel):
     @classmethod
     def cast(cls, value: Any):
@@ -159,9 +160,10 @@ Identifier = Annotated[str, AfterValidator(_is_varname)]
 
 class Access(AtomicExpr):
     name: Identifier
-    
+
 
 ########################################################################################
+
 
 class MathTerminal(MathExpr): ...
 
@@ -212,6 +214,7 @@ class Bool(BoolExpr):
 
 
 ########################################################################################
+
 
 class IonRegister(RegisterExpr):
     size: NonNegativeInt
@@ -308,17 +311,17 @@ class MathFunc(AtomicExpr):
             "imag",
         ]:
             if isinstance(data["expr"], list):
-                assert (
-                    len(data["expr"]) == 1
-                ), "Attempted to apply unary function on multiple arguments"
+                assert len(data["expr"]) == 1, (
+                    "Attempted to apply unary function on multiple arguments"
+                )
                 data["expr"] = data["expr"][0]
 
         if data["func"] in [
             "atan2",
         ]:
-            assert (
-                isinstance(data["expr"], list) and len(data["expr"]) == 2
-            ), "Attempted to apply binary function with incorrect number of arguments"
+            assert isinstance(data["expr"], list) and len(data["expr"]) == 2, (
+                "Attempted to apply binary function with incorrect number of arguments"
+            )
 
         return data
 
@@ -496,6 +499,7 @@ class Beam(AtomicExpr):
         polarization: Polarization of the beam.
         wavevector: Wavevector of the beam.
     """
+
     frequency: CastAtomicExpr
     rabi: CastAtomicExpr
     phase: CastAtomicExpr
@@ -513,6 +517,7 @@ class Pulse(AtomicExpr):
         target: Target ion of the beam.
         measured: Boolean that tracks if the pulse has been measured.
     """
+
     beam: AtomicExprSubtypes
     duration: AtomicExprSubtypes
     target: AtomicExprSubtypes
@@ -520,7 +525,6 @@ class Pulse(AtomicExpr):
 
 
 ########################################################################################
-
 
 
 def _AtomicExprSubtypes_discriminator(value):
@@ -588,5 +592,3 @@ AtomicExprSubtypes = Annotated[
 ]
 
 CastAtomicExpr = Annotated[AtomicExprSubtypes, BeforeValidator(AtomicExpr.cast)]
-
-

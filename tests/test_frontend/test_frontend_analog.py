@@ -67,6 +67,7 @@ from oqd_core.interface.analog.expr import (
 
 ########################################################################################
 
+
 def test_program():
     circuit = parse_analog("")
     assert isinstance(circuit, AnalogCircuit)
@@ -75,8 +76,8 @@ def test_program():
 
 ## Declarations ##
 
+
 class TestAnalogDeclarations:
-    
     def test_int(self):
         circuit = parse_analog("x = 1")
         assert len(circuit.statements) == 1
@@ -84,39 +85,43 @@ class TestAnalogDeclarations:
         assert isinstance(decl, Declaration)
         assert decl.name == "x"
         assert decl.value == MathNum(value=1)
-    
+
     def test_float(self):
         circuit = parse_analog("pi = 3.14")
         decl = circuit.statements[0]
         assert isinstance(decl, Declaration)
         assert decl.name == "pi"
         assert decl.value == MathNum(value=3.14)
-    
+
     def test_math_var(self):
         circuit = parse_analog("omega = #omega")
         decl = circuit.statements[0]
         assert decl.value == MathVar(name="#omega")
-    
+
     def test_imag(self):
         circuit = parse_analog("z = 1j")
         decl = circuit.statements[0]
         assert decl.value == MathImag()
-    
+
     def test_quantum_register(self):
         circuit = parse_analog("r = qreg(2)")
         decl = circuit.statements[0]
         assert decl.value == QuantumRegister(size=2)
-    
+
     def test_mode_register(self):
         circuit = parse_analog("s = qmode(3)")
         decl = circuit.statements[0]
         assert decl.value == ModeRegister(size=3)
-    
+
     def test_list(self):
         circuit = parse_analog("list = [1, 2, 3]")
         decl = circuit.statements[0]
         assert isinstance(decl.value, AnalogList)
-        assert decl.value.values == [MathNum(value=1), MathNum(value=2), MathNum(value=3)]
+        assert decl.value.values == [
+            MathNum(value=1),
+            MathNum(value=2),
+            MathNum(value=3),
+        ]
 
     def test_list_extract(self):
         circuit = parse_analog("r = qreg(2)\nq0 = r[0]")
@@ -124,11 +129,12 @@ class TestAnalogDeclarations:
         assert isinstance(decl.value, Extract)
         assert decl.value.access == Access(name="r")
         assert decl.value.index == 0
-    
+
+
 ## Math Expressions ##
 
+
 class TestAnalogMathExpressions:
-    
     def test_addition(self):
         circuit = parse_analog("x = 1 + 2")
         decl = circuit.statements[0]
@@ -158,7 +164,7 @@ class TestAnalogMathExpressions:
         circuit = parse_analog("x = -1")
         decl = circuit.statements[0]
         assert decl.value == MathMul(expr1=MathNum(value=-1), expr2=MathNum(value=1))
-    
+
     def test_nested_expression(self):
         circuit = parse_analog("x = 2 * 3 + 1")
         decl = circuit.statements[0]
@@ -167,7 +173,7 @@ class TestAnalogMathExpressions:
             expr2=MathNum(value=1),
         )
         assert decl.value == expected
-    
+
     def test_paranthesis_expression(self):
         circuit = parse_analog("x = 2 * (3 + 1)")
         decl = circuit.statements[0]
@@ -179,9 +185,27 @@ class TestAnalogMathExpressions:
 
     @pytest.mark.parametrize(
         "func_name",
-        ["sin", "cos", "tan", "exp", "log", "abs", "sinh", "cosh", "tanh",
-         "atan", "acos", "asin", "atanh", "asinh", "acosh", "conj",
-         "heaviside", "real", "imag"],
+        [
+            "sin",
+            "cos",
+            "tan",
+            "exp",
+            "log",
+            "abs",
+            "sinh",
+            "cosh",
+            "tanh",
+            "atan",
+            "acos",
+            "asin",
+            "atanh",
+            "asinh",
+            "acosh",
+            "conj",
+            "heaviside",
+            "real",
+            "imag",
+        ],
     )
     def test_unary_math_function(self, func_name):
         circuit = parse_analog(f"x = {func_name}(1)")
@@ -196,9 +220,10 @@ class TestAnalogMathExpressions:
         assert isinstance(decl.value, MathFunc)
         assert decl.value.func == "atan2"
         assert decl.value.expr == [MathNum(value=1), MathNum(value=2)]
-    
+
 
 ## Bool Expressions ##
+
 
 class TestAnalogBool:
     def test_true(self):
@@ -208,20 +233,35 @@ class TestAnalogBool:
     def test_false(self):
         circuit = parse_analog("x = false")
         assert circuit.statements[0].value == Bool(value=False)
-    
+
     @pytest.mark.parametrize(
         "op, cls",
-        [("==", BoolEq), ("!=", BoolNotEq), ("<=", BoolLessThanEq), ("<", BoolLessThan), 
-         ("and", BoolAnd), ("&&", BoolAnd), ("or", BoolOr), ("||", BoolOr),
-         (">=", BoolGreaterThanEq), (">", BoolGreaterThan)],
+        [
+            ("==", BoolEq),
+            ("!=", BoolNotEq),
+            ("<=", BoolLessThanEq),
+            ("<", BoolLessThan),
+            ("and", BoolAnd),
+            ("&&", BoolAnd),
+            ("or", BoolOr),
+            ("||", BoolOr),
+            (">=", BoolGreaterThanEq),
+            (">", BoolGreaterThan),
+        ],
     )
     def test_comparison(self, op, cls):
         circuit = parse_analog(f"x = 1 {op} 2")
         decl = circuit.statements[0]
         assert isinstance(decl, Declaration)
         assert isinstance(decl.value, cls)
-    
-    @pytest.mark.parametrize("op, cls", [("not", BoolNot), ("!", BoolNot),])
+
+    @pytest.mark.parametrize(
+        "op, cls",
+        [
+            ("not", BoolNot),
+            ("!", BoolNot),
+        ],
+    )
     def test_not(self, op, cls):
         circuit = parse_analog(f"a = true \n x = {op} a")
         decl = circuit.statements[1]
@@ -230,6 +270,7 @@ class TestAnalogBool:
 
 
 ## Analog Operators ##
+
 
 class TestAnalogOperators:
     def test_pauli_x(self):
@@ -279,23 +320,24 @@ class TestAnalogOperators:
 
 ## Statements ##
 
+
 class TestAnalogStatements:
     @pytest.fixture
     def register(self):
         return "r = qreg(2)\n"
-    
+
     def test_initialize(self, register):
         circuit = parse_analog(register + "initialize(r)")
         statement = circuit.statements[1]
         assert isinstance(statement, Initialize)
         assert statement.targets == Access(name="r")
-    
+
     def test_measure(self, register):
         circuit = parse_analog(register + "measure(r)")
         statement = circuit.statements[1]
         assert isinstance(statement, Measure)
         assert statement.targets == Access(name="r")
-    
+
     def test_evolve(self, register):
         circuit = parse_analog(register + "evolve(%X, 1.0, r)")
         statement = circuit.statements[1]
@@ -303,14 +345,16 @@ class TestAnalogStatements:
         assert statement.hamiltonian == PauliX()
         assert statement.duration == MathNum(value=1.0)
         assert statement.targets == Access(name="r")
-    
+
     def test_multiple_statements(self, register):
-        program = "\n".join([
-            register,
-            "initialize(r)",
-            "evolve(%X, 1.0, r)",
-            "measure(r)",
-        ])
+        program = "\n".join(
+            [
+                register,
+                "initialize(r)",
+                "evolve(%X, 1.0, r)",
+                "measure(r)",
+            ]
+        )
         circuit = parse_analog(program)
         assert len(circuit.statements) == 4
         assert isinstance(circuit.statements[0], Declaration)
@@ -321,8 +365,8 @@ class TestAnalogStatements:
 
 ## Control Flow Statements ##
 
+
 class TestAnalogControlFlow:
-    
     def test_if(self):
         program = "x = 1\n if (x > 0) {\n y = 2\n}"
         circuit = parse_analog(program)
@@ -331,7 +375,7 @@ class TestAnalogControlFlow:
         assert isinstance(ifelse.condition, BoolGreaterThan)
         assert len(ifelse.then_branch) == 1
         assert ifelse.else_branch == []
-    
+
     def test_if_else(self):
         program = "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}"
         circuit = parse_analog(program)
@@ -340,7 +384,7 @@ class TestAnalogControlFlow:
         assert isinstance(ifelse.condition, BoolGreaterThan)
         assert len(ifelse.then_branch) == 1
         assert len(ifelse.else_branch) == 1
-    
+
     def test_while_statement(self):
         program = "n = 3\nwhile (n > 0) {\n    n = n - 1\n}"
         circuit = parse_analog(program)
@@ -360,15 +404,15 @@ class TestAnalogControlFlow:
         circuit = parse_analog(program)
         while_statement = circuit.statements[0]
         assert isinstance(while_statement.body[0], Continue)
-    
+
     def test_break_outside_loop(self):
         with pytest.raises(SyntaxError, match="break outside of loop"):
             parse_analog("break")
-    
+
     def test_continue_outside_loop(self):
         with pytest.raises(SyntaxError, match="continue outside of loop"):
             parse_analog("continue")
-    
+
     def test_nested_control_flow(self):
         program = "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}"
         circuit = parse_analog(program)
@@ -383,16 +427,16 @@ class TestAnalogControlFlow:
         assert isinstance(ifelse, IfElse)
         assert isinstance(ifelse.condition, BoolEq)
         assert isinstance(ifelse.then_branch[0], Break)
-        
-    
-    
+
+
 ## Serialization ##
 
 
 class TestAnalogSerialize:
     @pytest.mark.parametrize(
         "program",
-        [   "r = qreg(2)",
+        [
+            "r = qreg(2)",
             "list = [1, 2, 3]",
             "initialize(r)",
             "evolve(%X, 1.0, r)",
@@ -408,5 +452,3 @@ class TestAnalogSerialize:
         serialized = serialize_analog(circuit)
         deserialized_circuit = parse_analog(serialized)
         assert circuit == deserialized_circuit
-
-    
