@@ -173,7 +173,7 @@ class AtomicASTBuilder(AtomicParserVisitor):
     def visitParallel_stmt(self, ctx: AtomicParser.Parallel_stmtContext):
         body = self.visit(ctx.block())
         return ParallelProtocol(pulses=body)
-    
+
     def visitSerial_stmt(self, ctx: AtomicParser.Serial_stmtContext):
         body = self.visit(ctx.block())
         return SerialProtocol(pulses=body)

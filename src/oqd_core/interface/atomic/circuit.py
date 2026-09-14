@@ -37,24 +37,25 @@ class AtomicCircuit(TypeReflectBaseModel):
     """
 
     statements: List[Statement] = []
-    
+
     def beam(self, frequency, rabi, phase, polarization, wavevector):
         self.statements.append(
-            Beam(frequency = frequency, rabi = rabi, phase = phase, polarization = polarization, wavevector = wavevector)
+            Beam(
+                frequency=frequency,
+                rabi=rabi,
+                phase=phase,
+                polarization=polarization,
+                wavevector=wavevector,
+            )
         )
-        
+
     def pulse(self, beam, duration, target, measured):
         self.statements.append(
             Pulse(beam=beam, duration=duration, target=target, measured=measured)
         )
-    
+
     def parallel(self, pulses):
-        self.statements.append(
-            ParallelProtocol(pulses=pulses)
-        )
-    
+        self.statements.append(ParallelProtocol(pulses=pulses))
+
     def series(self, pulses):
-        self.statements.append(
-            SerialProtocol(pulses=pulses)
-        )
-        
+        self.statements.append(SerialProtocol(pulses=pulses))

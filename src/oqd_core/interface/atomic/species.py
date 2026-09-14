@@ -32,6 +32,7 @@ from scipy.constants import physical_constants
 
 ########################################################################################
 
+
 def is_halfint(v: float) -> bool:
     """
     Function that verifies a number is an integer or half-integer.
@@ -42,6 +43,7 @@ def is_halfint(v: float) -> bool:
     if not (v * 2).is_integer():
         raise ValueError()
     return v
+
 
 AngularMomentumNumber = Annotated[float, AfterValidator(is_halfint)]
 """
@@ -81,7 +83,7 @@ class Level(TypeReflectBaseModel):
     spin_orbital_nuclear: NonNegativeAngularMomentumNumber
     spin_orbital_nuclear_magnetization: AngularMomentumNumber
     energy: float
-    
+
     # @model_validator(mode="after")
     # def orbital_validate(self):
     #     if self.orbital >= self.principal:
@@ -115,7 +117,7 @@ class Level(TypeReflectBaseModel):
     #     ).is_integer():
     #         raise ValueError("Invalid spin orbital nuclear magnetization (m_F)")
     #     return self
-    
+
 
 class Transition(TypeReflectBaseModel):
     """
@@ -128,12 +130,13 @@ class Transition(TypeReflectBaseModel):
         einsteinA: Einstein A coefficient that characterizes the strength of coupling between energy level 1 and 2.
 
     """
+
     label: str
     level1: Union[str, Level]
     level2: Union[str, Level]
     einsteinA: float
     multipole: Literal["E1", "E2", "M1"]
-    
+
 
 class Ion(TypeReflectBaseModel):
     """
@@ -243,9 +246,11 @@ class IonBuilder(ABC):
         _level_labels = list(map(lambda x: x.label, _levels))
         _transitions = list(
             filter(
-                lambda x: x.label not in excluded_transitions
-                and x.level1 in _level_labels
-                and x.level2 in _level_labels,
+                lambda x: (
+                    x.label not in excluded_transitions
+                    and x.level1 in _level_labels
+                    and x.level2 in _level_labels
+                ),
                 self._transitions,
             )
         )
