@@ -57,7 +57,8 @@ class CFGtoDot(RewriteRule):
 
         self.dot.node(
             str(model.register_id),
-            f"Block #{model.register_id}\n{'-' * 16}\n" + "\n".join(label),
+            f"{'Branch' if model.edge_labels else ''} Block #{model.register_id}\n{'-' * 24}\n"
+            + "\n".join(label),
         )
 
         for succ in model.succs:
