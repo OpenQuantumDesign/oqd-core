@@ -31,18 +31,7 @@ from oqd_core.interface.analog import (
 
 
 class AnalogCFGBuilder(RewriteRule):
-    def __init__(self):
-        super().__init__()
-        self.index = 0
-        self.blocks = {}
-        self.loop_stack = []
-        self.preds = []
-        self.edge_labels = None
-        self.fallthrough_labels = {}
-
     def new_node(self, preds, stmt):
-        # print("edge_labels: ", self.edge_labels)
-        # print("fallthrough: ", self.index, self.fallthrough_labels)
         node = Block(register_id=self.index, stmts=[stmt] if stmt else [], preds=preds)
         self.blocks[node.register_id] = node
         self.index += 1
@@ -54,7 +43,6 @@ class AnalogCFGBuilder(RewriteRule):
             label = explicit_labels.get(pred)
             if label is None:
                 label = self.fallthrough_labels.pop(pred, None)
-                # print(pred, label)
             self.blocks[pred].add_succ(node.register_id, label=label)
 
         return node.register_id
@@ -80,19 +68,17 @@ class AnalogCFGBuilder(RewriteRule):
             edge_labels = None
         return preds
 
-    def run(self, circuit: AnalogCircuit) -> ControlFlowGraph:
+    def map_AnalogCircuit(self, model: AnalogCircuit) -> ControlFlowGraph:
         self.index = 0
         self.blocks = {}
         self.loop_stack = []
+        self.preds = []
         self.edge_labels = None
         self.fallthrough_labels = {}
         node = self.new_node([], {})
-        node = self.walk_stmt(circuit, [node])
+        node = self.walk_block(model.statements, [node])
         node = self.new_node(node, {})
         return ControlFlowGraph(blocks=self.blocks)
-
-    def map_AnalogCircuit(self, model: AnalogCircuit):
-        return self.walk_block(model.statements, self.preds)
 
     def map_IfElse(self, model: IfElse):
         node = self.new_node(self.preds, model.condition)
