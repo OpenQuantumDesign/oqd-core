@@ -15,8 +15,13 @@
 
 from __future__ import annotations
 
-from oqd_compiler_infrastructure.dataflow import ForwardDataflowAnalysis
-from oqd_compiler_infrastructure.lattice import LatticeBottom, maplattice
+from oqd_compiler_infrastructure import (
+    CFG,
+    CFGBlock,
+    ForwardDataflowAnalysis,
+    LatticeBottom,
+    maplattice,
+)
 
 from oqd_core.analysis.atomic.semantics import AtomicSemantics
 from oqd_core.analysis.atomic.types import (
@@ -27,7 +32,6 @@ from oqd_core.analysis.atomic.types import (
     TypeEnv,
     type_name,
 )
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.atomic import (
     Break,
     Continue,
@@ -39,16 +43,17 @@ from oqd_core.interface.atomic import (
 ########################################################################################
 
 
-class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
+class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
-    def __init__(self, graph: ControlFlowGraph) -> None:
+
+    def __init__(self, graph: CFG) -> None:
         self.value_lattice = AtomicTypeLattice()
         self.semantics = AtomicSemantics(self.value_lattice)
         self.lattice = maplattice(AtomicTypeLattice)()
         self.blocks = graph.blocks
-        
+
         self.dataflow_result = self.analyze(graph, self.merge_union)
-    
+
     def check_protocol(self, protocol, env: TypeEnv) -> TypeEnv:
         if isinstance(protocol, SerialProtocol):
             curr_env = env
@@ -83,33 +88,32 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
                 f"Parallel/Serial blocks expect only Pulse statements, got {type_name(t)}"
             )
         return env
-    
+
     def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         if self.blocks[node_id].preds == [] or self.blocks[node_id].succs == []:
             return env
-        
+
         stmts = self.blocks[node_id].stmts
         t = LatticeBottom
-        
+
         for stmt in stmts:
             if isinstance(stmt, (Break, Continue)):
                 continue
-            
+
             if isinstance(stmt, Declaration):
                 state_out = dict(env)
                 state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
                 env = state_out
                 continue
-            
+
             if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
                 self.check_protocol(stmt, env)
                 continue
-            
+
             t = self.semantics.infer_type(stmt, env)
-            
+
         if self.blocks[node_id].edge_labels and t is not TBool:
             raise AtomicTypeError("branch condition must be bool")
-        
-        return env
 
+        return env

@@ -15,8 +15,16 @@
 
 from __future__ import annotations
 
-from oqd_compiler_infrastructure.dataflow import DataflowResult, ForwardDataflowAnalysis
-from oqd_compiler_infrastructure.lattice import LatticeBottom, maplattice
+from typing import Dict
+
+from oqd_compiler_infrastructure import (
+    CFG,
+    CFGBlock,
+    DataflowResult,
+    ForwardDataflowAnalysis,
+    LatticeBottom,
+    maplattice,
+)
 
 from oqd_core.analysis.analog.semantics import AnalogSemantics
 from oqd_core.analysis.analog.types import (
@@ -25,44 +33,40 @@ from oqd_core.analysis.analog.types import (
     TBool,
     TypeEnv,
 )
-from oqd_core.analysis.utils.control_flow import (
-    Block,
-    ControlFlowGraph,
-)
 from oqd_core.interface.analog import Break, Continue, Declaration
 
 
-class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
+class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
-    def __init__(self, graph: ControlFlowGraph) -> None:
+
+    def __init__(self, graph: CFG) -> None:
         self.value_lattice = AnalogTypeLattice()
         self.semantics = AnalogSemantics(self.value_lattice)
         self.lattice = maplattice(AnalogTypeLattice)()
-        self.blocks: dict[int, Block] = graph.blocks
-        
+        self.blocks: Dict[int, CFGBlock] = graph.blocks
+
         self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_union)
 
     def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         if self.blocks[node_id].preds == [] or self.blocks[node_id].succs == []:
             return env
-        
+
         stmts = self.blocks[node_id].stmts
         t = LatticeBottom
-        
+
         for stmt in stmts:
             if isinstance(stmt, (Break, Continue)):
                 continue
-            
+
             if isinstance(stmt, Declaration):
                 state_out = dict(env)
                 state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
                 env = state_out
                 continue
             t = self.semantics.infer_type(stmt, env)
-        
+
         if self.blocks[node_id].edge_labels and t is not TBool:
             raise AnalogTypeError("branch condition must be bool")
 
         return env
-

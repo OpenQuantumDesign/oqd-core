@@ -15,12 +15,12 @@
 
 from __future__ import annotations
 
-from oqd_compiler_infrastructure import RewriteRule
-
-from oqd_core.analysis.utils.control_flow import (
-    Block,
-    ControlFlowGraph,
+from oqd_compiler_infrastructure import (
+    CFG,
+    CFGBlock,
+    RewriteRule,
 )
+
 from oqd_core.interface.atomic import (
     AtomicCircuit,
     Break,
@@ -34,7 +34,9 @@ from oqd_core.interface.atomic import (
 
 class AtomicCFGBuilder(RewriteRule):
     def new_node(self, preds, stmt):
-        node = Block(register_id=self.index, stmts=[stmt] if stmt else [], preds=preds)
+        node = CFGBlock(
+            register_id=self.index, stmts=[stmt] if stmt else [], preds=preds
+        )
         self.blocks[node.register_id] = node
         self.index += 1
 
@@ -70,7 +72,7 @@ class AtomicCFGBuilder(RewriteRule):
             edge_labels = None
         return preds
 
-    def map_AtomicCircuit(self, model: AtomicCircuit) -> ControlFlowGraph:
+    def map_AtomicCircuit(self, model: AtomicCircuit) -> CFG:
         self.index = 0
         self.blocks = {}
         self.loop_stack = []
@@ -80,7 +82,7 @@ class AtomicCFGBuilder(RewriteRule):
         node = self.new_node([], {})
         node = self.walk_block(model.statements, [node])
         node = self.new_node(node, {})
-        return ControlFlowGraph(blocks=self.blocks)
+        return CFG(blocks=self.blocks)
 
     def map_IfElse(self, model: IfElse):
         node = self.new_node(self.preds, model.condition)

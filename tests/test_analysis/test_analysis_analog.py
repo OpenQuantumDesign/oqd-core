@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import pytest
+from oqd_compiler_infrastructure import CFGBlockAccumulator
 
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
 from oqd_core.analysis.analog.symbol_table import (
@@ -20,7 +21,6 @@ from oqd_core.analysis.analog.symbol_table import (
 )
 from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
 from oqd_core.analysis.analog.types import AnalogTypeError
-from oqd_core.analysis.utils.control_flow import Accumulator
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 
 ## Symbol Table ##
@@ -29,7 +29,7 @@ from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 def build_symbol_table(program: str):
     circuit = parse_analog(program)
     cfg = AnalogCFGBuilder()(circuit)
-    cfg = Accumulator()(cfg)
+    cfg = CFGBlockAccumulator()(cfg)
     type_checker = AnalogTypeChecker(cfg)
     symbol_table = AnalogSymbolTableBuilder(
         cfg, type_checker.dataflow_result
@@ -175,7 +175,7 @@ class TestAnalogTypeChecker:
             AnalogTypeChecker(cfg)
 
 
-## Accumulator ##
+## CFGBlockAccumulator ##
 
 
 class TestAnalogAccumulator:
@@ -193,7 +193,7 @@ class TestAnalogAccumulator:
     def test_analog_accumulator_simple(self, program):
         circuit = parse_analog(program)
         single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
-        multiple_stmts_block_cfg = Accumulator()(single_stmt_block_cfg)
+        multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
         assert len(multiple_stmts_block_cfg.blocks) <= len(single_stmt_block_cfg.blocks)
 
     @pytest.mark.parametrize(
@@ -208,7 +208,7 @@ class TestAnalogAccumulator:
     def test_analog_accumulator_does_nothing(self, program):
         circuit = parse_analog(program)
         single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
-        multiple_stmts_block_cfg = Accumulator()(single_stmt_block_cfg)
+        multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
         assert len(multiple_stmts_block_cfg.blocks) == len(single_stmt_block_cfg.blocks)
 
     @pytest.mark.parametrize(
@@ -223,5 +223,5 @@ class TestAnalogAccumulator:
         circuit = parse_analog(program)
         single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
         assert len(single_stmt_block_cfg.blocks) > 3
-        multiple_stmts_block_cfg = Accumulator()(single_stmt_block_cfg)
+        multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
         assert len(multiple_stmts_block_cfg.blocks) == 3
