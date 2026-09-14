@@ -15,7 +15,7 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Dict, Union
 
 from oqd_compiler_infrastructure.lattice import (
     LatticeBase,
@@ -54,7 +54,7 @@ class TList(LatticeTop, BaseModel):
     elem: TLatticeValue
 
 TLatticeValue = Union[TList, type[LatticeTop]]
-TypeEnv = dict[str, TLatticeValue]
+TypeEnv = Dict[str, TLatticeValue]
 
 def type_name(t: TLatticeValue) -> str:
     """Format a lattice value into a readable type name for error messages."""
