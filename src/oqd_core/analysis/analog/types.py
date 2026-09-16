@@ -103,6 +103,12 @@ def get_type_name(value: TLatticeValue):
     return value.__name__
 
 
+def isTList(value: TLatticeValue):
+    if issubclass(type(value), _GenericAlias) and value.__origin__ is TList:
+        return True
+    return False
+
+
 class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for analog expressions."""
 
@@ -115,9 +121,9 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
         if t1 is TLatticeBottom:
             return True
-        if isinstance(t1, TList) and isinstance(t2, TList):
+        if isTList(t1) and isTList(t2):
             return self.leq(t1.__args__[0], t2.__args__[0])
-        if isinstance(t1, TList) or isinstance(t2, TList):
+        if isTList(t1) or isTList(t2):
             return False
         return super().leq(t1, t2)
 
@@ -126,9 +132,9 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
             return t2
         if self.leq(t2, t1):
             return t1
-        if isinstance(t1, TList) and isinstance(t2, TList):
+        if isTList(t1) and isTList(t2):
             return TList[self.join(t1.__args__[0], t2.__args__[0])]
-        if isinstance(t1, TList) or isinstance(t2, TList):
+        if isTList(t1) or isTList(t2):
             return TAnalog
         return super().join(t1, t2)
 
@@ -137,7 +143,7 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
             return t1
         if self.leq(t2, t1):
             return t2
-        if isinstance(t1, TList) and isinstance(t2, TList):
+        if isTList(t1) and isTList(t2):
             return TList[self.meet(t1.__args__[0], t2.__args__[0])]
         return super().meet(t1, t2)
 
