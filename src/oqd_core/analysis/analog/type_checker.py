@@ -15,7 +15,8 @@
 
 from __future__ import annotations
 
-from typing import Dict
+from collections import deque
+from typing import Dict, List
 
 from oqd_compiler_infrastructure import (
     CFG,
@@ -23,50 +24,255 @@ from oqd_compiler_infrastructure import (
     DataflowResult,
     ForwardDataflowAnalysis,
     LatticeBottom,
+    LatticeTop,
     maplattice,
 )
 
-from oqd_core.analysis.analog.semantics import AnalogSemantics
 from oqd_core.analysis.analog.types import (
+    SUPPORTED_FUNC_SIGNATURES,
     AnalogTypeError,
     AnalogTypeLattice,
+    TAnalog,
     TBool,
+    TComplex,
+    TFloat,
+    TInt,
+    TList,
+    TMRef,
+    TMReg,
+    TOp,
+    TQRef,
+    TQReg,
     TypeEnv,
 )
-from oqd_core.interface.analog import Break, Continue, Declaration
+from oqd_core.interface.analog import (
+    Access,
+    AnalogList,
+    Annihilation,
+    Bool,
+    BoolEq,
+    BoolGreaterThan,
+    BoolGreaterThanEq,
+    BoolLessThan,
+    BoolLessThanEq,
+    BoolNot,
+    BoolNotEq,
+    Break,
+    Continue,
+    Creation,
+    Declaration,
+    Evolve,
+    Extract,
+    Identity,
+    Initialize,
+    MathAdd,
+    MathDiv,
+    MathFunc,
+    MathImag,
+    MathMul,
+    MathNum,
+    MathPow,
+    MathSub,
+    MathVar,
+    Measure,
+    ModeRegister,
+    OperatorAdd,
+    OperatorKron,
+    OperatorMul,
+    PauliI,
+    PauliX,
+    PauliY,
+    PauliZ,
+    QuantumRegister,
+)
+
+########################################################################################
 
 
 class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
 
-    def __init__(self, graph: CFG) -> None:
-        self.value_lattice = AnalogTypeLattice()
-        self.semantics = AnalogSemantics(self.value_lattice)
-        self.lattice = maplattice(AnalogTypeLattice)()
-        self.blocks: Dict[int, CFGBlock] = graph.blocks
+    lattice = maplattice(AnalogTypeLattice)()
 
-        self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_union)
+    def __init__(self, runtime_var_types={}):
+        self.runtime_var_types = runtime_var_types
 
-    def transfer(self, node_id: int, state_in: TypeEnv) -> TypeEnv:
-        env = {} if state_in is LatticeBottom else dict(state_in)
-        if self.blocks[node_id].preds == [] or self.blocks[node_id].succs == []:
-            return env
+    def _match_single_function_signature(self, signature, func, *args, env: TypeEnv):
+        sig_args_types, sig_return_type = signature
 
-        stmts = self.blocks[node_id].stmts
-        t = LatticeBottom
+        if len(args) != len(sig_args_types):
+            return False, None
 
-        for stmt in stmts:
+        if any([arg_type is LatticeBottom for arg_type in args]):
+            return False, None
+
+        if all(
+            [
+                self.lattice._element_lattice().leq(arg_type, sig_arg_type)
+                for arg_type, sig_arg_type in zip(args, sig_args_types)
+            ]
+        ):
+            return True, sig_return_type
+
+        return False, None
+
+    def _match_function_signature(self, func, *args, env: TypeEnv):
+        signatures = SUPPORTED_FUNC_SIGNATURES[func]
+
+        for sig in signatures:
+            _match, return_type = self._match_single_function_signature(
+                sig, func, *args, env=env
+            )
+
+            if _match:
+                return return_type
+
+        raise AnalogTypeError(
+            f"{func} signature must be one of:\n  "
+            + "\n  ".join(
+                [
+                    f"({', '.join([f'TList(elem={x.elem.__name__})' if isinstance(x, TList) else x.__name__ for x in sig[0]])}) -> {sig[1].__name__}"
+                    for sig in signatures
+                ]
+            )
+        )
+
+    def _infer_function_signature(self, expr, *, env: TypeEnv):
+        match expr:
+            case (
+                MathAdd()
+                | MathSub()
+                | MathMul()
+                | MathDiv()
+                | MathPow()
+                | BoolEq()
+                | BoolNotEq()
+                | BoolGreaterThan()
+                | BoolGreaterThanEq()
+                | BoolLessThan()
+                | BoolLessThanEq()
+            ):
+                name = expr.__class__.__name__
+                args = [expr.expr1, expr.expr2]
+
+            case BoolNot():
+                name = expr.__class__.__name__
+                args = [expr.expr]
+
+            case MathFunc():
+                name = expr.func
+                args = expr.exprs if isinstance(expr.exprs, list) else [expr]
+
+            case OperatorAdd() | OperatorKron() | OperatorMul():
+                name = expr.__class__.__name__
+                args = [expr.op1, expr.op2]
+
+            case Evolve():
+                name = expr.__class__.__name__
+                args = [expr.hamiltonian, expr.duration, expr.targets]
+
+            case Initialize() | Measure():
+                name = expr.__class__.__name__
+                args = [expr.targets]
+
+            case _:
+                raise AnalogTypeError(f"Unable to infer type information from {expr}")
+
+        return self._match_function_signature(
+            name, *[self._infer_type(a, env=env) for a in args], env=env
+        )
+
+    def _infer_type(self, expr, *, env: TypeEnv):
+        match expr:
+            case Access():
+                return TAnalog if env is LatticeTop else env[expr.name]
+            case MathVar():
+                return getattr(self.runtime_var_types, expr.name, TFloat)
+            case MathImag():
+                return TComplex
+            case MathNum():
+                return TInt if isinstance(expr.value, int) else TFloat
+            case Bool():
+                return TBool
+            case AnalogList():
+                return TList(elem=self._infer_type(expr.values[0]))
+            case QuantumRegister():
+                return TQReg
+            case ModeRegister():
+                return TMReg
+            case Extract() if env[expr.access.name] == TQReg:
+                return TQRef
+            case Extract() if env[expr.access.name] == TMReg:
+                return TMRef
+            case Extract() if env[expr.access.name] == TList:
+                return env[expr.access.name].elem
+            case (
+                PauliI()
+                | PauliX()
+                | PauliY()
+                | PauliZ()
+                | Annihilation()
+                | Creation()
+                | Identity()
+            ):
+                return TOp
+            case _:
+                return self._infer_function_signature(expr, env=env)
+
+    def init_state(self, nodes: List[int]) -> Dict[int, TypeEnv]:
+        return {node: LatticeTop for node in nodes}
+
+    def analyze(self, graph: CFG) -> DataflowResult[int, TypeEnv]:
+        nodes = list(graph.nodes())
+        boundary = self.init_state(nodes)
+        result = self.init_state(nodes)
+
+        worklist = deque(nodes)
+        iterations = 0
+
+        while worklist:
+            node = worklist.popleft()
+            iterations += 1
+
+            srcs = list(self.sources(graph, node))
+            if srcs:
+                merged_input = self.merge_intersection(result[n] for n in srcs)
+            else:
+                merged_input = result[node]
+
+            if not self.lattice.equal(boundary[node], merged_input):
+                boundary[node] = merged_input
+
+            next_result = self.transfer(graph, node, merged_input)
+            if self.lattice.equal(result[node], next_result):
+                continue
+
+            result[node] = next_result
+            for target in self.targets(graph, node):
+                if target not in worklist:
+                    worklist.append(target)
+
+        return self.result(boundary, result, iterations)
+
+    def transfer(self, graph: CFG, node_id: int, state_in: TypeEnv) -> TypeEnv:
+        block = graph[node_id]
+
+        state_out = {} if state_in == LatticeTop else state_in.copy()
+
+        for stmt in block.stmts:
+            if block.edge_labels:
+                if self._infer_type(stmt, env=state_out) is not TBool:
+                    raise AnalogTypeError("branch condition must be bool")
+                continue
+
             if isinstance(stmt, (Break, Continue)):
                 continue
 
             if isinstance(stmt, Declaration):
-                state_out = dict(env)
-                state_out[stmt.name] = self.semantics.infer_type(stmt.value, env)
-                env = state_out
+                state_out[stmt.name] = self._infer_type(stmt.value, env=state_out)
+
                 continue
-            t = self.semantics.infer_type(stmt, env)
 
-        if self.blocks[node_id].edge_labels and t is not TBool:
-            raise AnalogTypeError("branch condition must be bool")
+            self._infer_type(stmt, env=state_out)
 
-        return env
+        return state_out

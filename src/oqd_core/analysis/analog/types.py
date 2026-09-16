@@ -24,23 +24,6 @@ from oqd_compiler_infrastructure.lattice import (
 )
 from pydantic import BaseModel, ConfigDict
 
-from oqd_core.interface.analog import (
-    BoolAnd,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolOr,
-    MathAdd,
-    MathDiv,
-    MathMul,
-    MathPow,
-    MathSub,
-    OperatorAdd,
-    OperatorKron,
-    OperatorSub,
-)
-
 ########################################################################################
 
 
@@ -70,44 +53,46 @@ def type_name(t: TLatticeValue) -> str:
     return str(t)
 
 
-class TAnalog(LatticeTop):
-    pass
+class TAnalog(LatticeTop): ...
 
 
-class TScalar(TAnalog):
-    pass
+class TScalar(TAnalog): ...
 
 
-class TBool(TAnalog):
-    pass
+class TComplex(TScalar): ...
 
 
-class TOp(TAnalog):
-    pass
+class TFloat(TComplex): ...
 
 
-class TTarget(TAnalog):
-    pass
+class TInt(TFloat): ...
 
 
-class TTargetRef(TTarget):
-    pass
+class TBool(TAnalog): ...
 
 
-class TQReg(TTarget):
-    pass
+class TOp(TAnalog): ...
 
 
-class TMReg(TTarget):
-    pass
+class TTarget(TAnalog): ...
 
 
-class TQRef(TTargetRef):
-    pass
+class TTargetRef(TTarget): ...
 
 
-class TMRef(TTargetRef):
-    pass
+class TQReg(TTarget): ...
+
+
+class TMReg(TTarget): ...
+
+
+class TQRef(TTargetRef): ...
+
+
+class TMRef(TTargetRef): ...
+
+
+class TNull(TAnalog): ...
 
 
 class AnalogTypeLattice(LatticeBase[TLatticeValue]):
@@ -146,33 +131,74 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
 ########################################################################################
 
 
-# Binary expression signature table: node -> ((left_type, right_type), output_type)
-BIN_SIG_TABLE = {
-    MathAdd: ((TScalar, TScalar), TScalar),
-    MathSub: ((TScalar, TScalar), TScalar),
-    MathMul: ((TScalar, TScalar), TScalar),
-    MathDiv: ((TScalar, TScalar), TScalar),
-    MathPow: ((TScalar, TScalar), TScalar),
-    BoolAnd: ((TBool, TBool), TBool),
-    BoolOr: ((TBool, TBool), TBool),
-    BoolLessThan: ((TScalar, TScalar), TBool),
-    BoolLessThanEq: ((TScalar, TScalar), TBool),
-    BoolGreaterThan: ((TScalar, TScalar), TBool),
-    BoolGreaterThanEq: ((TScalar, TScalar), TBool),
-}
-
-
-# Operator expression signatures
-OP_TABLE = {
-    OperatorAdd: ((TOp, TOp), TOp),
-    OperatorSub: ((TOp, TOp), TOp),
-    OperatorKron: ((TOp, TOp), TOp),
-}
-
-
-# Allowed type pairs for OperatorMul
-OPMUL_ALLOWED = {
-    (TOp, TOp): TOp,
-    (TOp, TScalar): TOp,
-    (TScalar, TOp): TOp,
+SUPPORTED_FUNC_SIGNATURES = {
+    "BoolNot": [((TBool,), TBool)],
+    "BoolEq": [((TScalar, TScalar), TBool)],
+    "BoolNotEq": [((TScalar, TScalar), TBool)],
+    "BoolLessThan": [((TScalar, TScalar), TBool)],
+    "BoolLessThanEq": [((TScalar, TScalar), TBool)],
+    "BoolGreaterThan": [((TScalar, TScalar), TBool)],
+    "BoolGreaterThanEq": [((TScalar, TScalar), TBool)],
+    "MathAdd": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "MathSub": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "MathMul": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+        ((TScalar, TOp), TOp),
+        ((TOp, TScalar), TOp),
+    ],
+    "MathDiv": [
+        ((TInt, TInt), TFloat),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "MathPow": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "Evolve": [
+        ((TOp, TFloat, TTargetRef), TNull),
+        ((TOp, TFloat, TTarget), TNull),
+        ((TOp, TFloat, TList(elem=TTargetRef)), TNull),
+    ],
+    "Initialize": [
+        ((TTargetRef,), TNull),
+        ((TTarget,), TNull),
+        ((TList(elem=TTargetRef),), TNull),
+    ],
+    "Measure": [
+        ((TTargetRef,), TList(elem=TInt)),
+        ((TTarget,), TList(elem=TInt)),
+        ((TList(elem=TTargetRef),), TList(elem=TInt)),
+    ],
+    "abs": [((TInt,), TInt), ((TFloat,), TFloat), ((TComplex,), TFloat)],
+    "sin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "cos": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "tan": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "exp": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "log": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "sinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "cosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "tanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "atan": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "acos": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "asin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "atanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "asinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "acosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "heaviside": [((TFloat,), TInt), ((TInt), TInt)],
+    "conj": [((TComplex,), TComplex)],
+    "real": [((TComplex,), TFloat)],
+    "imag": [((TComplex,), TFloat)],
+    "atan2": [((TFloat, TFloat), TFloat), ((TComplex, TComplex), TComplex)],
 }
