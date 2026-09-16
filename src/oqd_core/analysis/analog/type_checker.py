@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from collections import deque
-from typing import Dict, List
+from typing import Dict, List, _GenericAlias
 
 from oqd_compiler_infrastructure import (
     CFG,
@@ -44,6 +44,7 @@ from oqd_core.analysis.analog.types import (
     TQRef,
     TQReg,
     TypeEnv,
+    get_type_name,
 )
 from oqd_core.interface.analog import (
     Access,
@@ -131,7 +132,9 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             f"{func} signature must be one of:\n  "
             + "\n  ".join(
                 [
-                    f"({', '.join([f'TList(elem={x.elem.__name__})' if isinstance(x, TList) else x.__name__ for x in sig[0]])}) -> {sig[1].__name__}"
+                    f"({', '.join([get_type_name(x) for x in sig[0]])})"
+                    " -> "
+                    f"{get_type_name(sig[1])}"
                     for sig in signatures
                 ]
             )
@@ -183,6 +186,11 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         )
 
     def _infer_type(self, expr, *, env: TypeEnv):
+        try:
+            print(env[expr.access.name])
+        except:
+            pass
+
         match expr:
             case Access():
                 return TAnalog if env is LatticeTop else env[expr.name]
@@ -195,7 +203,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case Bool():
                 return TBool
             case AnalogList():
-                return TList(elem=self._infer_type(expr.values[0]))
+                return TList[self._infer_type(expr.values[0], env=env)]
             case QuantumRegister():
                 return TQReg
             case ModeRegister():
@@ -204,8 +212,8 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 return TQRef
             case Extract() if env[expr.access.name] == TMReg:
                 return TMRef
-            case Extract() if env[expr.access.name] == TList:
-                return env[expr.access.name].elem
+            case Extract() if env[expr.access.name].__origin__ == TList:
+                return env[expr.access.name].__args__[0]
             case (
                 PauliI()
                 | PauliX()

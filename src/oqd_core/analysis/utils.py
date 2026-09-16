@@ -17,7 +17,7 @@
 from __future__ import annotations
 
 from types import UnionType
-from typing import Annotated, Union, get_args, get_origin
+from typing import Annotated, Tuple, Union, get_args, get_origin
 
 ########################################################################################
 
@@ -37,3 +37,9 @@ def alias_types(alias: object) -> tuple[type, ...]:
     if isinstance(alias, type):
         return (alias,)
     return ()
+
+
+def all_subclasses(cls) -> Tuple[type, ...]:
+    return set(cls.__subclasses__()).union(
+        [s for c in cls.__subclasses__() for s in all_subclasses(c)]
+    )

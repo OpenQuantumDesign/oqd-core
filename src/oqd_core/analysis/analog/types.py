@@ -15,14 +15,14 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Generic, TypeVar, Union, _GenericAlias
 
 from oqd_compiler_infrastructure.lattice import (
     LatticeBase,
-    LatticeBottom,
     LatticeTop,
 )
-from pydantic import BaseModel, ConfigDict
+
+from oqd_core.analysis.utils import all_subclasses
 
 ########################################################################################
 
@@ -33,27 +33,22 @@ class AnalogTypeError(TypeError):
     pass
 
 
-class TList(LatticeTop, BaseModel):
-    """Lattice value representing a list."""
-
-    model_config = ConfigDict(frozen=True)
-    elem: TLatticeValue
+########################################################################################
 
 
-TLatticeValue = Union[TList, type[LatticeTop]]
-TypeEnv = dict[str, TLatticeValue]
+class TLatticeTop(LatticeTop): ...
 
 
-def type_name(t: TLatticeValue) -> str:
-    """Format a lattice value into a readable type name for error messages."""
-    if isinstance(t, TList):
-        return f"TList[{type_name(t.elem)}]"
-    if isinstance(t, type) and issubclass(t, LatticeTop):
-        return t.__name__
-    return str(t)
+class TLatticeBottom(TLatticeTop): ...
 
 
 class TAnalog(LatticeTop): ...
+
+
+LatticeValueTypeVar = TypeVar("LatticeValueTypeVar", bound=TLatticeTop)
+
+
+class TList(TAnalog, Generic[LatticeValueTypeVar]): ...
 
 
 class TScalar(TAnalog): ...
@@ -95,14 +90,33 @@ class TMRef(TTargetRef): ...
 class TNull(TAnalog): ...
 
 
+TLatticeValue = Union[all_subclasses(TLatticeTop)]
+TypeEnv = dict[str, TLatticeValue]
+
+
+def get_type_name(value: TLatticeValue):
+    if issubclass(type(value), _GenericAlias):
+        return (
+            f"{value.__name__}[{','.join(map(lambda x: x.__name__, value.__args__))}]"
+        )
+
+    return value.__name__
+
+
 class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for analog expressions."""
 
+    def top(self):
+        return TLatticeTop
+
+    def bottom(self):
+        return TLatticeBottom
+
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
-        if t1 is LatticeBottom:
+        if t1 is TLatticeBottom:
             return True
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return self.leq(t1.elem, t2.elem)
+            return self.leq(t1.__args__[0], t2.__args__[0])
         if isinstance(t1, TList) or isinstance(t2, TList):
             return False
         return super().leq(t1, t2)
@@ -113,7 +127,7 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         if self.leq(t2, t1):
             return t1
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.join(t1.elem, t2.elem))
+            return TList[self.join(t1.__args__[0], t2.__args__[0])]
         if isinstance(t1, TList) or isinstance(t2, TList):
             return TAnalog
         return super().join(t1, t2)
@@ -124,7 +138,7 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         if self.leq(t2, t1):
             return t2
         if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.meet(t1.elem, t2.elem))
+            return TList[self.meet(t1.__args__[0], t2.__args__[0])]
         return super().meet(t1, t2)
 
 
@@ -169,17 +183,17 @@ SUPPORTED_FUNC_SIGNATURES = {
     "Evolve": [
         ((TOp, TFloat, TTargetRef), TNull),
         ((TOp, TFloat, TTarget), TNull),
-        ((TOp, TFloat, TList(elem=TTargetRef)), TNull),
+        ((TOp, TFloat, TList[TTargetRef]), TNull),
     ],
     "Initialize": [
         ((TTargetRef,), TNull),
         ((TTarget,), TNull),
-        ((TList(elem=TTargetRef),), TNull),
+        ((TList[TTargetRef],), TNull),
     ],
     "Measure": [
-        ((TTargetRef,), TList(elem=TInt)),
-        ((TTarget,), TList(elem=TInt)),
-        ((TList(elem=TTargetRef),), TList(elem=TInt)),
+        ((TTargetRef,), TList[TInt]),
+        ((TTarget,), TList[TInt]),
+        ((TList[TTargetRef],), TList[TInt]),
     ],
     "abs": [((TInt,), TInt), ((TFloat,), TFloat), ((TComplex,), TFloat)],
     "sin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
