@@ -15,6 +15,8 @@
 
 from __future__ import annotations
 
+from typing import Dict
+
 from oqd_compiler_infrastructure.dataflow import DataflowResult, ForwardDataflowAnalysis
 from oqd_compiler_infrastructure.lattice import LatticeBottom, maplattice
 
@@ -88,7 +90,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
     def __init__(self, graph: ControlFlowGraph) -> None:
         self.lattice = maplattice(AnalogTypeLattice)()
         self.value_lattice = self.lattice._element_lattice()
-        self.blocks: dict[int, Block] = graph.blocks
+        self.blocks: Dict[int, Block] = graph.blocks
         
         self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_union)
     
@@ -108,8 +110,6 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             if isinstance(expr, ModeRegister):
                 return TMReg
             if isinstance(expr, Access):
-                if expr.name not in env:
-                    raise AnalogTypeError(f"Undefined variable: {expr.name}")
                 return env[expr.name]
     
         if isinstance(expr, AnalogList):
@@ -122,8 +122,6 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, TypeEnv]):
             return TList(elem=t)
         
         if isinstance(expr, Extract):
-            if expr.access.name not in env:
-                raise AnalogTypeError(f"Undefined variable: {expr.access.name}")
             base = env[expr.access.name]
             if base is TQReg:
                 return TQRef

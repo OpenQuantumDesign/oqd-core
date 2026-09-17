@@ -24,7 +24,7 @@ from oqd_compiler_infrastructure.lattice import (
     maplattice,
 )
 
-from oqd_core.analysis.analog.types import AnalogTypeError
+from oqd_core.analysis.analog.types import BIN_SIG_TABLE, OP_TABLE, AnalogTypeError
 from oqd_core.analysis.utils.control_flow import (
     Block,
     ControlFlowGraph,
@@ -32,10 +32,18 @@ from oqd_core.analysis.utils.control_flow import (
 from oqd_core.interface.analog import (
     Access,
     AnalogList,
+    BoolEq,
+    BoolNot,
+    BoolNotEq,
     Break,
     Continue,
     Declaration,
+    Evolve,
     Extract,
+    Initialize,
+    MathFunc,
+    Measure,
+    OperatorMul,
 )
 
 
@@ -84,6 +92,35 @@ class AnalogDefiniteAssignmentChecker(ForwardDataflowAnalysis[int, DefEnv]):
         if isinstance(expr, Access):
             if expr.name not in env:
                 raise AnalogUndefinedVarError(f"Encountered undefined variable: {expr.name}")
+        
+        sig = BIN_SIG_TABLE.get(type(expr))
+        if sig is not None or isinstance(expr, (BoolEq, BoolNotEq)):
+            self.infer_def(expr.expr1, env)
+            self.infer_def(expr.expr2, env)
+        
+        sig = OP_TABLE.get(type(expr))
+        if sig is not None or isinstance(expr, OperatorMul):
+            self.infer_def(expr.op1, env)
+            self.infer_def(expr.op2, env)
+        
+        if isinstance(expr, BoolNot):
+            self.infer_def(expr.expr, env)
+        
+        if isinstance(expr, MathFunc):
+            arg = expr.expr
+            if isinstance(arg, list):
+                for v in arg:
+                    self.infer_def(v, env)
+            else:
+                self.infer_def(arg, env)
+            
+        if isinstance(expr, (Initialize, Measure)):
+            self.infer_def(expr.targets, env)
+        
+        if isinstance(expr, Evolve):
+            self.infer_def(expr.targets, env)
+            self.infer_def(expr.duration, env)
+            self.infer_def(expr.hamiltonian, env)
     
     
     def transfer(self, node_id: int, state_in: DefEnv) -> DefEnv:

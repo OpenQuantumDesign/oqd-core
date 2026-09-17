@@ -15,6 +15,10 @@
 import pytest
 
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
+from oqd_core.analysis.analog.definite_assignment import (
+    AnalogDefiniteAssignmentChecker,
+    AnalogUndefinedVarError,
+)
 from oqd_core.analysis.analog.symbol_table import (
     AnalogSymbolTableBuilder,
 )
@@ -80,6 +84,69 @@ class TestAnalogCFG:
         assert cfg is not None
         
 
+## Definite Assignment ##
+
+class TestAnalogAssignmentAnalysis:
+    @pytest.mark.parametrize(
+        "program",
+        [   "r = qreg(2) \n initialize(r)",
+            "r = qreg(2) \n initialize(r) \n measure(r)",
+            "r = qreg(2) \n evolve(%X, 1.0, r[1])",
+            "s = 5 * 4 \n t = s * 4",
+            "s = 5 + 2 \n t = s + 4",
+            "s = 5 - 2 \n t = s - 4",
+            "s = 6 / 2 \n t = s / 3",
+            "s = 2 ^ 3 \n t = s ^ 2",
+            "pi = 3.14159 \n s = sin(pi)",
+            "pi = 3.14159 \n s = atan2(1, pi)",
+            "s = qmode(3) \n initialize(s[1])",
+            "r = qreg(2) \n H = %X %* %I \n evolve(H, 1, r[0])",
+            "r = qreg(2) \n H = %X %@ %Y \n evolve(H, 1, r)",
+            "cond = true and false \n if (cond) {\n a = 0 \n }",
+            "cond = true or false \n while (cond) {t = 0.2}",
+            "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
+            "s = qmode(2) \n evolve(%C %@ %A, 1.0, s)",
+            "c = 1 < 2 \n if (c) { \n a = 2 \n }",
+            "c = 3 >= 2 \n if (c) { \n c = true \n }",
+            "a = true \n c = not a \n if (c) { \n c = a \n }",
+            "x = 1 \n x = 2 \n y = x + 1",
+            "n = 3 \n while (n > 0) { n = n - 1 }",
+            "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b]"
+        ]
+    )
+    def test_analog_definite_assignment_checker(self, program):
+        circuit = parse_analog(program)
+        cfg = AnalogCFGBuilder().run(circuit)
+        AnalogDefiniteAssignmentChecker(cfg)
+    
+    @pytest.mark.parametrize(
+        "program",
+        [   "initialize(r)",
+            "measure(r)",
+            "evolve(%X, 1.0, r)",
+            "a = 0 \n b = a \n if (not a) { \n b = c \n}",
+            "a = 0 \n b = a \n if (not c) { \n a = 1 \n}",
+            "a = 0 \n b = a \n while (b) { \n b = c + 1 \n}",
+            "a = 0 \n b = a \n while (d) { \n b = b + 1 \n}",
+            "a = 0 \n b = a \n while (d) { \n b = d + 1 \n}",
+            "a = [1, 2, a]",
+            "a = 0 \n b = 2 \n c = [a, b, c]",
+            "a = not b",
+            "a = a == b",
+            "a = %X \n b = %Y %* c",
+            "a = 1 \n b = a + c",
+            "a = a > 0",
+            "a = 1 \n b = a < b",
+            "pi = 3.14159 \n b = sin(pi * a)"
+        ]
+    )
+    def test_analog_definite_assignment_checker_error(self, program):
+        circuit = parse_analog(program)
+        with pytest.raises(AnalogUndefinedVarError):
+            cfg = AnalogCFGBuilder().run(circuit)
+            AnalogDefiniteAssignmentChecker(cfg)
+
+
 ## Type Checker ##
 
 class TestAnalogTypeChecker:
@@ -129,10 +196,7 @@ class TestAnalogTypeChecker:
         
     @pytest.mark.parametrize(
         "program",
-        [   "initialize(r)",
-            "measure(r)",
-            "evolve(%X, 1.0, r)",
-            "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)",
+        [   "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)",
             "r = qreg(2) \n evolve(5, 1.0, r)",
             "r = qreg(2) \n evolve(%X, true, r)",
             "s = 5 \n initialize(s)",
