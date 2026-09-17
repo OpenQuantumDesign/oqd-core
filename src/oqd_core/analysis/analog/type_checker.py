@@ -208,6 +208,8 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 return TInt if isinstance(expr.value, int) else TFloat
             case Bool():
                 return TBool
+            case AnalogList() if len(expr.values) == 0:
+                return TList[TAnalog]
             case AnalogList():
                 elem_types = [self._infer_type(e, env=env) for e in expr.values]
 
