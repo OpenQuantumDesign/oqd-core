@@ -16,8 +16,6 @@
 
 from __future__ import annotations
 
-from collections import deque
-
 from oqd_compiler_infrastructure import (
     CFGBlock,
     ForwardDataflowAnalysis,
@@ -32,40 +30,11 @@ from oqd_compiler_infrastructure.lattice import PowersetValue
 class DominatorTreeAnalysis(ForwardDataflowAnalysis[int, CFGBlock, PowersetValue]):
     lattice = PowersetLattice()
 
-    def init_state(self, nodes):
+    def initial_state(self, nodes):
         return {node: {0} if n == 0 else LatticeTop for n, node in enumerate(nodes)}
 
-    def analyze(self, graph):
-        nodes = list(graph.nodes())
-        boundary = self.init_state(nodes)
-        result = self.init_state(nodes)
-
-        worklist = deque(nodes)
-        iterations = 0
-
-        while worklist:
-            node = worklist.popleft()
-            iterations += 1
-
-            srcs = list(self.sources(graph, node))
-            if srcs:
-                merged_input = self.merge_intersection(result[n] for n in srcs)
-            else:
-                merged_input = result[node]
-
-            if not self.lattice.equal(boundary[node], merged_input):
-                boundary[node] = merged_input
-
-            next_result = self.transfer(graph, node, merged_input)
-            if self.lattice.equal(result[node], next_result):
-                continue
-
-            result[node] = next_result
-            for target in self.targets(graph, node):
-                if target not in worklist:
-                    worklist.append(target)
-
-        return self.result(boundary, result, iterations)
+    def merge(self, states):
+        return self.merge_intersection(states)
 
     def transfer(self, graph, node_id: int, state_in: PowersetValue) -> PowersetValue:
         return self.lattice.join(state_in, {node_id})

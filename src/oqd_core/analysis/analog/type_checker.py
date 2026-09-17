@@ -17,14 +17,12 @@
 
 from __future__ import annotations
 
-from collections import deque
 from functools import reduce
 from typing import Dict, List
 
 from oqd_compiler_infrastructure import (
     CFG,
     CFGBlock,
-    DataflowResult,
     ForwardDataflowAnalysis,
     LatticeTop,
     maplattice,
@@ -95,7 +93,8 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
     lattice = maplattice(AnalogTypeLattice)()
 
-    def __init__(self, runtime_var_types={}):
+    def __init__(self, runtime_var_types={}, **kwargs):
+        super().__init__(**kwargs)
         self.runtime_var_types = runtime_var_types
 
     def _match_single_function_signature(self, signature, func, *args, env: TypeEnv):
@@ -245,50 +244,21 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case _:
                 return self._infer_function_signature(expr, env=env)
 
-    def init_state(self, nodes: List[int]) -> Dict[int, TypeEnv]:
-        return {node: LatticeTop for node in nodes}
-
-    def analyze(self, graph: CFG) -> DataflowResult[int, TypeEnv]:
-        nodes = list(graph.nodes())
-        boundary = self.init_state(nodes)
-        result = self.init_state(nodes)
-
-        worklist = deque(nodes)
-        iterations = 0
-
-        while worklist:
-            node = worklist.popleft()
-            iterations += 1
-
-            srcs = list(self.sources(graph, node))
-            if srcs:
-                merged_input = self.merge_intersection(result[n] for n in srcs)
-            else:
-                merged_input = result[node]
-
-            if not self.lattice.equal(boundary[node], merged_input):
-                boundary[node] = merged_input
-
-            next_result = self.transfer(graph, node, merged_input)
-            if self.lattice.equal(result[node], next_result):
-                continue
-
-            result[node] = next_result
-            for target in self.targets(graph, node):
-                if target not in worklist:
-                    worklist.append(target)
-
-        return self.result(boundary, result, iterations)
+    def merge(self, states):
+        return self.merge_intersection(states)
 
     def transfer(self, graph: CFG, node_id: int, state_in: TypeEnv) -> TypeEnv:
         block = graph[node_id]
 
-        state_out = {} if state_in == LatticeTop else state_in.copy()
+        state_out = {} if state_in == self.lattice.top() else state_in.copy()
 
         for stmt in block.stmts:
             if block.edge_labels:
-                if self._infer_type(stmt, env=state_out) is not TBool:
-                    raise AnalogTypeError("branch condition must be bool")
+                cond_type = self._infer_type(stmt, env=state_out)
+                if cond_type is not TBool:
+                    raise AnalogTypeError(
+                        f"branch condition must be TBool got ({get_type_name(cond_type)})"
+                    )
                 continue
 
             if isinstance(stmt, (Break, Continue)):

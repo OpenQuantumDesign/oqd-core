@@ -36,16 +36,13 @@ class AnalogTypeError(TypeError):
 ########################################################################################
 
 
-class TLatticeTop(LatticeTop): ...
+class TAnalog(LatticeTop): ...
 
 
-class TLatticeBottom(TLatticeTop): ...
+class TInvalid(TAnalog): ...
 
 
-class TAnalog(TLatticeTop): ...
-
-
-LatticeValueTypeVar = TypeVar("LatticeValueTypeVar", bound=TLatticeTop)
+LatticeValueTypeVar = TypeVar("LatticeValueTypeVar", bound=TAnalog)
 
 
 class TList(TAnalog, Generic[LatticeValueTypeVar]): ...
@@ -75,7 +72,7 @@ class TQReg(TAnalog): ...
 class TNull(TAnalog): ...
 
 
-TLatticeValue = Union[all_subclasses(TLatticeTop)]
+TLatticeValue = Union[all_subclasses(TAnalog)]
 TypeEnv = dict[str, TLatticeValue]
 
 
@@ -96,13 +93,13 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for analog expressions."""
 
     def top(self):
-        return TLatticeTop
+        return TAnalog
 
     def bottom(self):
-        return TLatticeBottom
+        return TInvalid
 
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
-        if t1 is TLatticeBottom:
+        if t1 is self.bottom():
             return True
         if isTList(t1) and isTList(t2):
             return self.leq(t1.__args__[0], t2.__args__[0])
@@ -180,7 +177,7 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     ],
     "Measure": [
         ((TQReg,), TList[TInt]),
-        ((TQRegElem,), TNull),
+        ((TQRegElem,), TList[TInt]),
         ((TList[TQRegElem],), TList[TInt]),
     ],
     "abs": [((TInt,), TInt), ((TFloat,), TFloat), ((TComplex,), TFloat)],
