@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 from __future__ import annotations
 
-from typing import Dict, Iterable
+from typing import Dict, Iterable, Union
 
 from oqd_compiler_infrastructure.dataflow import DataflowResult, ForwardDataflowAnalysis
 from oqd_compiler_infrastructure.lattice import (
@@ -30,7 +31,6 @@ from oqd_core.analysis.utils.control_flow import (
     ControlFlowGraph,
 )
 from oqd_core.interface.analog import (
-    Access,
     AnalogList,
     BoolEq,
     BoolNot,
@@ -43,26 +43,29 @@ from oqd_core.interface.analog import (
     Initialize,
     MathFunc,
     Measure,
+    ModeRegister,
     OperatorMul,
+    QuantumRegister,
 )
 
 
-class AnalogUndefinedVarError(AnalogTypeError):
+class AnalogOutOfBoundsError(AnalogTypeError):
     pass
 
-class AnalogAssignmentLattice(LatticeBase):
-    """Lattice for analog Definitions."""
+class AnalogBoundsLattice(LatticeBase):
+    """Lattice for bounds of AnalogList, QuantumRegister and ModeRegister."""
     pass
 
-DefEnv = Dict[str, LatticeTop]
+TLatticeValue = Union[int, LatticeTop]
+BoundsEnv = Dict[str, TLatticeValue]
 
-class AnalogDefiniteAssignmentChecker(ForwardDataflowAnalysis[int, DefEnv]):
+class AnalogBoundsChecker(ForwardDataflowAnalysis[int, BoundsEnv]):
     def __init__(self, graph: ControlFlowGraph) -> None:
-        self.lattice = maplattice(AnalogAssignmentLattice)()
+        self.lattice = maplattice(AnalogBoundsLattice)()
         self.blocks: Dict[int, Block] = graph.blocks
-        self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_def)
+        self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_bounds)
     
-    def merge_def(self, states: Iterable[DefEnv]) -> DefEnv:
+    def merge_bounds(self, states: Iterable[BoundsEnv]) -> BoundsEnv:
         states_list = list(states)
         if not states_list:
             return self.lattice.bottom()
@@ -77,69 +80,68 @@ class AnalogDefiniteAssignmentChecker(ForwardDataflowAnalysis[int, DefEnv]):
                     merged[name] = b2
                 elif b2 is None:
                     continue
+                    
         return merged
     
-    def infer_def(self, expr, env):
-        
+    def infer_bounds(self, expr, env):
         if isinstance(expr, AnalogList):
             for v in expr.values:
-                self.infer_def(v, env)
+                self.infer_bounds(v, env)
 
         if isinstance(expr, Extract):
             if expr.access.name not in env:
-                raise AnalogUndefinedVarError(f"Encountered undefined variable: {expr.access.name}")
-    
-        if isinstance(expr, Access):
-            if expr.name not in env:
-                raise AnalogUndefinedVarError(f"Encountered undefined variable: {expr.name}")
+                raise AnalogOutOfBoundsError(f"Cannot index into variable: {expr.access.name}")
+            if expr.index >= env[expr.access.name]:
+                raise AnalogOutOfBoundsError(f"Index {expr.index} out of bounds for variable: {expr.access.name}")
         
         sig = BIN_SIG_TABLE.get(type(expr))
         if sig is not None or isinstance(expr, (BoolEq, BoolNotEq)):
-            self.infer_def(expr.expr1, env)
-            self.infer_def(expr.expr2, env)
+            self.infer_bounds(expr.expr1, env)
+            self.infer_bounds(expr.expr2, env)
         
         sig = OP_TABLE.get(type(expr))
         if sig is not None or isinstance(expr, OperatorMul):
-            self.infer_def(expr.op1, env)
-            self.infer_def(expr.op2, env)
+            self.infer_bounds(expr.op1, env)
+            self.infer_bounds(expr.op2, env)
         
         if isinstance(expr, BoolNot):
-            self.infer_def(expr.expr, env)
+            self.infer_bounds(expr.expr, env)
         
         if isinstance(expr, MathFunc):
             arg = expr.expr
             if isinstance(arg, list):
                 for v in arg:
-                    self.infer_def(v, env)
+                    self.infer_bounds(v, env)
             else:
-                self.infer_def(arg, env)
+                self.infer_bounds(arg, env)
             
         if isinstance(expr, (Initialize, Measure)):
-            self.infer_def(expr.targets, env)
+            self.infer_bounds(expr.targets, env)
         
         if isinstance(expr, Evolve):
-            self.infer_def(expr.targets, env)
-            self.infer_def(expr.duration, env)
-            self.infer_def(expr.hamiltonian, env)
+            self.infer_bounds(expr.targets, env)
+            self.infer_bounds(expr.duration, env)
+            self.infer_bounds(expr.hamiltonian, env)
     
     
-    def transfer(self, node_id: int, state_in: DefEnv) -> DefEnv:
+    def transfer(self, node_id: int, state_in: BoundsEnv) -> BoundsEnv:
         env = {} if state_in is LatticeBottom else dict(state_in)
         
         if self.blocks[node_id].preds == [] or self.blocks[node_id].succs == []:
             return env
         
         stmts = self.blocks[node_id].stmts
-        
         for stmt in stmts:
             if isinstance(stmt, (Break, Continue)):
                 continue
-            
             if isinstance(stmt, Declaration):
-                self.infer_def(stmt.value, env)
-                env[stmt.name] = LatticeTop
+                self.infer_bounds(stmt.value, env)
+                if isinstance(stmt.value, AnalogList):
+                    env[stmt.name] = len(stmt.value.values)
+                if isinstance(stmt.value, (QuantumRegister, ModeRegister)):
+                    env[stmt.name] = stmt.value.size
                 continue
             
-            self.infer_def(stmt, env)
-            
+            self.infer_bounds(stmt, env)
+        
         return env
