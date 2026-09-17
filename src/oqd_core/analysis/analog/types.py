@@ -84,9 +84,9 @@ TypeEnv = dict[str, TLatticeValue]
 
 def get_type_name(value: TLatticeValue):
     if issubclass(type(value), _GenericAlias):
-        return f"{value.__name__[1:]}[{','.join(map(get_type_name, value.__args__))}]"
+        return f"{value.__name__}[{','.join(map(get_type_name, value.__args__))}]"
 
-    return value.__name__[1:]
+    return value.__name__
 
 
 def isTList(value: TLatticeValue):

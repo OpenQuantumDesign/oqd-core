@@ -104,11 +104,6 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         if len(args) != len(sig_args_types):
             return False, None
 
-        if any(
-            [arg_type is self.lattice._element_lattice().bottom() for arg_type in args]
-        ):
-            return False, None
-
         if all(
             [
                 self.lattice._element_lattice().leq(arg_type, sig_arg_type)
@@ -134,6 +129,14 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     def _match_function_signature(self, func, *args, env: TypeEnv):
         signature = (args, None)
         supported_signatures = ANALOG_SUPPORTED_FUNC_SIGNATURES[func]
+
+        if any(
+            [arg_type is self.lattice._element_lattice().bottom() for arg_type in args]
+        ):
+            raise AnalogTypeError(
+                f"Got signature {self._print_function_signature(signature)} containing TLatticeBottom for {func}, "
+                "these arguments type is inconsistent"
+            )
 
         for sig in supported_signatures:
             _match, return_type = self._match_single_function_signature(
