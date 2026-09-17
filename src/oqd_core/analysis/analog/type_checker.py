@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+########################################################################################
+
 
 from __future__ import annotations
 
 from collections import deque
-from typing import Dict, List, _GenericAlias
+from functools import reduce
+from typing import Dict, List
 
 from oqd_compiler_infrastructure import (
     CFG,
@@ -38,11 +41,9 @@ from oqd_core.analysis.analog.types import (
     TFloat,
     TInt,
     TList,
-    TMRef,
-    TMReg,
     TOp,
-    TQRef,
     TQReg,
+    TQRegElem,
     TypeEnv,
     get_type_name,
 )
@@ -117,10 +118,23 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         return False, None
 
-    def _match_function_signature(self, func, *args, env: TypeEnv):
-        signatures = SUPPORTED_FUNC_SIGNATURES[func]
+    def _print_function_signature(self, signature):
+        sig_args_types, sig_return_type = signature
 
-        for sig in signatures:
+        if sig_return_type:
+            return (
+                f"({', '.join([get_type_name(x) for x in sig_args_types])})"
+                " -> "
+                f"{get_type_name(sig_return_type)}"
+            )
+
+        return f"({', '.join([get_type_name(x) for x in sig_args_types])})"
+
+    def _match_function_signature(self, func, *args, env: TypeEnv):
+        signature = (args, None)
+        supported_signatures = SUPPORTED_FUNC_SIGNATURES[func]
+
+        for sig in supported_signatures:
             _match, return_type = self._match_single_function_signature(
                 sig, func, *args, env=env
             )
@@ -129,14 +143,10 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 return return_type
 
         raise AnalogTypeError(
-            f"{func} signature must be one of:\n  "
+            f"Got signature {self._print_function_signature(signature)} for {func}, "
+            "but signature must be one of:\n  "
             + "\n  ".join(
-                [
-                    f"({', '.join([get_type_name(x) for x in sig[0]])})"
-                    " -> "
-                    f"{get_type_name(sig[1])}"
-                    for sig in signatures
-                ]
+                [self._print_function_signature(sig) for sig in supported_signatures]
             )
         )
 
@@ -186,11 +196,6 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         )
 
     def _infer_type(self, expr, *, env: TypeEnv):
-        try:
-            print(env[expr.access.name])
-        except:
-            pass
-
         match expr:
             case Access():
                 return TAnalog if env is LatticeTop else env[expr.name]
@@ -203,15 +208,22 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case Bool():
                 return TBool
             case AnalogList():
-                return TList[self._infer_type(expr.values[0], env=env)]
-            case QuantumRegister():
+                elem_types = [self._infer_type(e, env=env) for e in expr.values]
+
+                combined_elem_type = reduce(
+                    self.lattice._element_lattice().join, elem_types
+                )
+
+                if self.lattice._element_lattice().leq(TAnalog, combined_elem_type):
+                    raise AnalogTypeError(
+                        f"List elements must all be compatible but got [{', '.join([get_type_name(e) for e in elem_types])}]"
+                    )
+
+                return TList[combined_elem_type]
+            case QuantumRegister() | ModeRegister():
                 return TQReg
-            case ModeRegister():
-                return TMReg
             case Extract() if env[expr.access.name] == TQReg:
-                return TQRef
-            case Extract() if env[expr.access.name] == TMReg:
-                return TMRef
+                return TQRegElem
             case Extract() if env[expr.access.name].__origin__ == TList:
                 return env[expr.access.name].__args__[0]
             case (

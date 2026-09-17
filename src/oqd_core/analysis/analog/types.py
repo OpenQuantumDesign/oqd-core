@@ -69,22 +69,10 @@ class TBool(TAnalog): ...
 class TOp(TAnalog): ...
 
 
-class TTarget(TAnalog): ...
+class TQReg(TAnalog): ...
 
 
-class TTargetRef(TTarget): ...
-
-
-class TQReg(TTarget): ...
-
-
-class TMReg(TTarget): ...
-
-
-class TQRef(TTargetRef): ...
-
-
-class TMRef(TTargetRef): ...
+class TQRegElem(TQReg): ...
 
 
 class TNull(TAnalog): ...
@@ -96,11 +84,9 @@ TypeEnv = dict[str, TLatticeValue]
 
 def get_type_name(value: TLatticeValue):
     if issubclass(type(value), _GenericAlias):
-        return (
-            f"{value.__name__}[{','.join(map(lambda x: x.__name__, value.__args__))}]"
-        )
+        return f"{value.__name__[1:]}[{','.join(map(get_type_name, value.__args__))}]"
 
-    return value.__name__
+    return value.__name__[1:]
 
 
 def isTList(value: TLatticeValue):
@@ -187,19 +173,16 @@ SUPPORTED_FUNC_SIGNATURES = {
         ((TComplex, TComplex), TComplex),
     ],
     "Evolve": [
-        ((TOp, TFloat, TTargetRef), TNull),
-        ((TOp, TFloat, TTarget), TNull),
-        ((TOp, TFloat, TList[TTargetRef]), TNull),
+        ((TOp, TFloat, TQReg), TNull),
+        ((TOp, TFloat, TList[TQRegElem]), TNull),
     ],
     "Initialize": [
-        ((TTargetRef,), TNull),
-        ((TTarget,), TNull),
-        ((TList[TTargetRef],), TNull),
+        ((TQReg,), TNull),
+        ((TList[TQRegElem],), TNull),
     ],
     "Measure": [
-        ((TTargetRef,), TList[TInt]),
-        ((TTarget,), TList[TInt]),
-        ((TList[TTargetRef],), TList[TInt]),
+        ((TQReg,), TList[TInt]),
+        ((TList[TQRegElem],), TList[TInt]),
     ],
     "abs": [((TInt,), TInt), ((TFloat,), TFloat), ((TComplex,), TFloat)],
     "sin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
