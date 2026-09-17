@@ -51,16 +51,13 @@ LatticeValueTypeVar = TypeVar("LatticeValueTypeVar", bound=TLatticeTop)
 class TList(TAnalog, Generic[LatticeValueTypeVar]): ...
 
 
-class TScalar(TAnalog): ...
+class TInt(TAnalog): ...
 
 
-class TComplex(TScalar): ...
+class TFloat(TInt): ...
 
 
-class TFloat(TComplex): ...
-
-
-class TInt(TFloat): ...
+class TComplex(TFloat): ...
 
 
 class TBool(TAnalog): ...
@@ -69,10 +66,10 @@ class TBool(TAnalog): ...
 class TOp(TAnalog): ...
 
 
+class TQRegElem(TAnalog): ...
+
+
 class TQReg(TAnalog): ...
-
-
-class TQRegElem(TQReg): ...
 
 
 class TNull(TAnalog): ...
@@ -139,12 +136,12 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
 
 ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "BoolNot": [((TBool,), TBool)],
-    "BoolEq": [((TScalar, TScalar), TBool)],
-    "BoolNotEq": [((TScalar, TScalar), TBool)],
-    "BoolLessThan": [((TScalar, TScalar), TBool)],
-    "BoolLessThanEq": [((TScalar, TScalar), TBool)],
-    "BoolGreaterThan": [((TScalar, TScalar), TBool)],
-    "BoolGreaterThanEq": [((TScalar, TScalar), TBool)],
+    "BoolEq": [((TComplex, TComplex), TBool)],
+    "BoolNotEq": [((TComplex, TComplex), TBool)],
+    "BoolLessThan": [((TFloat, TFloat), TBool)],
+    "BoolLessThanEq": [((TFloat, TFloat), TBool)],
+    "BoolGreaterThan": [((TFloat, TFloat), TBool)],
+    "BoolGreaterThanEq": [((TFloat, TFloat), TBool)],
     "MathAdd": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
@@ -159,8 +156,8 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
-        ((TScalar, TOp), TOp),
-        ((TOp, TScalar), TOp),
+        ((TComplex, TOp), TOp),
+        ((TOp, TComplex), TOp),
     ],
     "MathDiv": [
         ((TInt, TInt), TFloat),
@@ -178,10 +175,12 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     ],
     "Initialize": [
         ((TQReg,), TNull),
+        ((TQRegElem,), TNull),
         ((TList[TQRegElem],), TNull),
     ],
     "Measure": [
         ((TQReg,), TList[TInt]),
+        ((TQRegElem,), TNull),
         ((TList[TQRegElem],), TList[TInt]),
     ],
     "abs": [((TInt,), TInt), ((TFloat,), TFloat), ((TComplex,), TFloat)],

@@ -106,7 +106,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         if all(
             [
-                self.lattice._element_lattice().leq(arg_type, sig_arg_type)
+                self.lattice._element_lattice().leq(sig_arg_type, arg_type)
                 for arg_type, sig_arg_type in zip(args, sig_args_types)
             ]
         ):
@@ -178,7 +178,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
             case MathFunc():
                 name = expr.func
-                args = expr.exprs if isinstance(expr.exprs, list) else [expr]
+                args = expr.expr if isinstance(expr.expr, list) else [expr.expr]
 
             case OperatorAdd() | OperatorKron() | OperatorMul():
                 name = expr.__class__.__name__
