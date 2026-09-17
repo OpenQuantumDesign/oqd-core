@@ -227,7 +227,9 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 return TList[combined_elem_type]
             case QuantumRegister() | ModeRegister():
                 return TQReg
-            case Extract() if env[expr.access.name] == TQReg:
+            case Extract() if self.lattice._element_lattice().equal(
+                env[expr.access.name], TQReg
+            ):
                 return TQRegElem
             case Extract() if env[expr.access.name].__origin__ == TList:
                 return env[expr.access.name].__args__[0]
@@ -255,7 +257,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         for stmt in block.stmts:
             if block.edge_labels:
                 cond_type = self._infer_type(stmt, env=state_out)
-                if cond_type is not TBool:
+                if not self.lattice._element_lattice().equal(cond_type, TBool):
                     raise AnalogTypeError(
                         f"branch condition must be TBool got ({get_type_name(cond_type)})"
                     )
