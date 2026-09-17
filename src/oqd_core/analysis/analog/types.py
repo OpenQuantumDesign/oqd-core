@@ -42,7 +42,7 @@ class TLatticeTop(LatticeTop): ...
 class TLatticeBottom(TLatticeTop): ...
 
 
-class TAnalog(LatticeTop): ...
+class TAnalog(TLatticeTop): ...
 
 
 LatticeValueTypeVar = TypeVar("LatticeValueTypeVar", bound=TLatticeTop)
@@ -137,7 +137,7 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
 ########################################################################################
 
 
-SUPPORTED_FUNC_SIGNATURES = {
+ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "BoolNot": [((TBool,), TBool)],
     "BoolEq": [((TScalar, TScalar), TBool)],
     "BoolNotEq": [((TScalar, TScalar), TBool)],

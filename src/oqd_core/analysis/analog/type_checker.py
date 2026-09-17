@@ -26,13 +26,12 @@ from oqd_compiler_infrastructure import (
     CFGBlock,
     DataflowResult,
     ForwardDataflowAnalysis,
-    LatticeBottom,
     LatticeTop,
     maplattice,
 )
 
 from oqd_core.analysis.analog.types import (
-    SUPPORTED_FUNC_SIGNATURES,
+    ANALOG_SUPPORTED_FUNC_SIGNATURES,
     AnalogTypeError,
     AnalogTypeLattice,
     TAnalog,
@@ -105,7 +104,9 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         if len(args) != len(sig_args_types):
             return False, None
 
-        if any([arg_type is LatticeBottom for arg_type in args]):
+        if any(
+            [arg_type is self.lattice._element_lattice().bottom() for arg_type in args]
+        ):
             return False, None
 
         if all(
@@ -132,7 +133,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
     def _match_function_signature(self, func, *args, env: TypeEnv):
         signature = (args, None)
-        supported_signatures = SUPPORTED_FUNC_SIGNATURES[func]
+        supported_signatures = ANALOG_SUPPORTED_FUNC_SIGNATURES[func]
 
         for sig in supported_signatures:
             _match, return_type = self._match_single_function_signature(
