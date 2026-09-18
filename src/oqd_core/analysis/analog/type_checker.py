@@ -104,7 +104,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         if all(
             [
-                self.lattice._element_lattice().leq(sig_arg_type, arg_type)
+                self.lattice.element_lattice.leq(sig_arg_type, arg_type)
                 for arg_type, sig_arg_type in zip(args, sig_args_types)
             ]
         ):
@@ -129,7 +129,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         supported_signatures = ANALOG_SUPPORTED_FUNC_SIGNATURES[func]
 
         if any(
-            [arg_type is self.lattice._element_lattice().bottom() for arg_type in args]
+            [arg_type is self.lattice.element_lattice.bottom() for arg_type in args]
         ):
             raise AnalogTypeError(
                 f"Got signature {self._print_function_signature(signature)} containing TLatticeBottom for {func}, "
@@ -215,10 +215,10 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 elem_types = [self._infer_type(e, env=env) for e in expr.values]
 
                 combined_elem_type = reduce(
-                    self.lattice._element_lattice().join, elem_types
+                    self.lattice.element_lattice.join, elem_types
                 )
 
-                if self.lattice._element_lattice().leq(TAnalog, combined_elem_type):
+                if self.lattice.element_lattice.leq(TAnalog, combined_elem_type):
                     raise AnalogTypeError(
                         f"List elements must all be compatible but got [{', '.join([get_type_name(e) for e in elem_types])}]"
                     )
@@ -226,7 +226,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 return TList[combined_elem_type]
             case QuantumRegister() | ModeRegister():
                 return TQReg
-            case Extract() if self.lattice._element_lattice().equal(
+            case Extract() if self.lattice.element_lattice.equal(
                 env[expr.access.name], TQReg
             ):
                 return TQRegElem
@@ -256,7 +256,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         for stmt in block.stmts:
             if block.edge_labels:
                 cond_type = self._infer_type(stmt, env=state_out)
-                if not self.lattice._element_lattice().equal(cond_type, TBool):
+                if not self.lattice.element_lattice.equal(cond_type, TBool):
                     raise AnalogTypeError(
                         f"branch condition must be TBool got ({get_type_name(cond_type)})"
                     )
