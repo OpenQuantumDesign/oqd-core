@@ -166,8 +166,13 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
     ],
+    "OperatorAdd": [((TOp, TOp), TOp)],
+    "OperatorSub": [((TOp, TOp), TOp)],
+    "OperatorMul": [((TOp, TOp), TOp)],
+    "OperatorKron": [((TOp, TOp), TOp)],
     "Evolve": [
         ((TOp, TFloat, TQReg), TNull),
+        ((TOp, TFloat, TQRegElem), TNull),
         ((TOp, TFloat, TList[TQRegElem]), TNull),
     ],
     "Initialize": [

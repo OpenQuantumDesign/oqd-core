@@ -18,7 +18,6 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import Dict, List
 
 from oqd_compiler_infrastructure import (
     CFG,
