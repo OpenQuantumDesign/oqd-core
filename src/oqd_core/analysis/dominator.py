@@ -17,6 +17,7 @@
 from __future__ import annotations
 
 from oqd_compiler_infrastructure import (
+    BackwardDataflowAnalysis,
     CFGBlock,
     ForwardDataflowAnalysis,
     LatticeTop,
@@ -32,6 +33,25 @@ class DominatorTreeAnalysis(ForwardDataflowAnalysis[int, CFGBlock, PowersetValue
 
     def initial_state(self, nodes):
         return {node: {0} if n == 0 else LatticeTop for n, node in enumerate(nodes)}
+
+    def merge(self, states):
+        return self.merge_intersection(states)
+
+    def transfer(self, graph, node_id: int, state_in: PowersetValue) -> PowersetValue:
+        return self.lattice.join(state_in, {node_id})
+
+
+########################################################################################
+
+
+class PostDominatorTreeAnalysis(BackwardDataflowAnalysis[int, CFGBlock, PowersetValue]):
+    lattice = PowersetLattice()
+
+    def initial_state(self, nodes):
+        return {
+            node: {node} if n == len(nodes) - 1 else LatticeTop
+            for n, node in enumerate(nodes)
+        }
 
     def merge(self, states):
         return self.merge_intersection(states)
