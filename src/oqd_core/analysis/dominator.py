@@ -22,8 +22,8 @@ from oqd_compiler_infrastructure import (
     ForwardDataflowAnalysis,
     LatticeTop,
     PowersetLattice,
+    PowersetValue,
 )
-from oqd_compiler_infrastructure.lattice import PowersetValue
 
 ########################################################################################
 
