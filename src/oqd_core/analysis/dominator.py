@@ -22,14 +22,18 @@ from oqd_compiler_infrastructure import (
     ForwardDataflowAnalysis,
     LatticeTop,
     PowersetLattice,
-    PowersetValue,
+    PowersetLatticeValue,
 )
 
 ########################################################################################
 
+DominatorLatticeValue = PowersetLatticeValue[int]
 
-class DominatorTreeAnalysis(ForwardDataflowAnalysis[int, CFGBlock, PowersetValue]):
-    lattice = PowersetLattice()
+
+class DominatorTreeAnalysis(
+    ForwardDataflowAnalysis[int, CFGBlock, DominatorLatticeValue]
+):
+    lattice = PowersetLattice[DominatorLatticeValue]()
 
     def initial_state(self, nodes):
         return {node: {0} if n == 0 else LatticeTop for n, node in enumerate(nodes)}
@@ -37,15 +41,19 @@ class DominatorTreeAnalysis(ForwardDataflowAnalysis[int, CFGBlock, PowersetValue
     def merge(self, states):
         return self.merge_intersection(states)
 
-    def transfer(self, graph, node_id: int, state_in: PowersetValue) -> PowersetValue:
+    def transfer(
+        self, graph, node_id: int, state_in: DominatorLatticeValue
+    ) -> DominatorLatticeValue:
         return self.lattice.join(state_in, {node_id})
 
 
 ########################################################################################
 
 
-class PostDominatorTreeAnalysis(BackwardDataflowAnalysis[int, CFGBlock, PowersetValue]):
-    lattice = PowersetLattice()
+class PostDominatorTreeAnalysis(
+    BackwardDataflowAnalysis[int, CFGBlock, DominatorLatticeValue]
+):
+    lattice = PowersetLattice[DominatorLatticeValue]()
 
     def initial_state(self, nodes):
         return {
@@ -56,5 +64,7 @@ class PostDominatorTreeAnalysis(BackwardDataflowAnalysis[int, CFGBlock, Powerset
     def merge(self, states):
         return self.merge_intersection(states)
 
-    def transfer(self, graph, node_id: int, state_in: PowersetValue) -> PowersetValue:
+    def transfer(
+        self, graph, node_id: int, state_in: DominatorLatticeValue
+    ) -> DominatorLatticeValue:
         return self.lattice.join(state_in, {node_id})
