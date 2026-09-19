@@ -172,6 +172,62 @@ class AnalogCFGtoAST(RewriteRule):
     def lattice(self):
         return self._pdom_result.dataflow_analysis.lattice
 
+    def _consume_ifelse(self, current_block, blocks):
+        ifelse_until = reduce(
+            self.lattice.meet,
+            [self.pdom[succ] for succ in current_block.succs],
+        )
+
+        then_block, then_succ = self._consume(
+            blocks,
+            start=current_block.edge_labels["true"],
+            until=ifelse_until,
+        )
+
+        else_block, else_succ = self._consume(
+            blocks,
+            start=current_block.edge_labels["false"],
+            until=ifelse_until,
+        )
+
+        return IfElse(
+            condition=current_block.stmts[0],
+            then_branch=then_block,
+            else_branch=else_block,
+        ), else_succ
+
+    def _get_while_dead_blocks(self, blocks, end):
+        return [
+            b
+            for b in blocks.keys()
+            if (len(blocks[b].preds) == 0 and end in self.pdom[b])
+        ]
+
+    def _consume_while(self, current_block, blocks):
+        while_until = reduce(
+            self.lattice.meet,
+            [self.pdom[succ] for succ in current_block.succs],
+        )
+
+        loop_block, loop_succ = self._consume(
+            blocks,
+            start=current_block.edge_labels["true"],
+            until=while_until,
+        )
+
+        while_dead_blocks = self._get_while_dead_blocks(
+            blocks, current_block.register_id
+        )
+
+        for b in sorted(while_dead_blocks):
+            loop_block.extend(
+                self._consume(blocks, start=b, until={current_block.register_id})[0]
+            )
+
+        return While(
+            condition=current_block.stmts[0], body=loop_block
+        ), current_block.edge_labels["false"]
+
     def _consume(self, blocks, start=0, until=None):
         succ = start
         statements = []
@@ -181,59 +237,27 @@ class AnalogCFGtoAST(RewriteRule):
 
             current_block = blocks.pop(succ)
 
+            if len(current_block.succs) == 0:
+                statements.extend(current_block.stmts)
+                break
+
             match current_block.tags.get("__scf__", None):
                 case "IfElse":
-                    ifelse_until = reduce(
-                        self.lattice.meet,
-                        [self.pdom[succ] for succ in current_block.succs],
+                    ifelse_statement, ifelse_succ = self._consume_ifelse(
+                        current_block, blocks
                     )
-
-                    then_block, then_succ = self._consume(
-                        blocks,
-                        start=current_block.edge_labels["true"],
-                        until=ifelse_until,
-                    )
-
-                    else_block, else_succ = self._consume(
-                        blocks,
-                        start=current_block.edge_labels["false"],
-                        until=ifelse_until,
-                    )
-
-                    statements.append(
-                        IfElse(
-                            condition=current_block.stmts[0],
-                            then_branch=then_block,
-                            else_branch=else_block,
-                        )
-                    )
-
-                    succ = else_succ
+                    statements.append(ifelse_statement)
+                    succ = ifelse_succ
 
                 case "While":
-                    while_until = reduce(
-                        self.lattice.meet,
-                        [self.pdom[succ] for succ in current_block.succs],
+                    while_statement, while_succ = self._consume_while(
+                        current_block, blocks
                     )
-
-                    loop_block, loop_succ = self._consume(
-                        blocks,
-                        start=current_block.edge_labels["true"],
-                        until=while_until,
-                    )
-
-                    statements.append(
-                        While(condition=current_block.stmts[0], body=loop_block)
-                    )
-
-                    succ = current_block.edge_labels["false"]
+                    statements.append(while_statement)
+                    succ = while_succ
 
                 case _:
                     statements.extend(current_block.stmts)
-
-                    if not current_block.succs:
-                        break
-
                     succ = list(current_block.succs)[0]
 
         return statements, succ
