@@ -117,7 +117,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
     lattice = maplattice(DimensionLattice)()
 
     def merge(self, states):
-        return self.merge_intersection(states)
+        return self.lattice.merge_meet(states)
 
     def _infer_dim(self, expr, *, env):
         match expr:

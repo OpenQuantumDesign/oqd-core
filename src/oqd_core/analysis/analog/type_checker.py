@@ -246,7 +246,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 return self._infer_function_signature(expr, env=env)
 
     def merge(self, states):
-        return self.merge_intersection(states)
+        return self.lattice.merge_meet(states)
 
     def transfer(self, graph: CFG, node_id: int, state_in: TypeEnv) -> TypeEnv:
         block = graph[node_id]

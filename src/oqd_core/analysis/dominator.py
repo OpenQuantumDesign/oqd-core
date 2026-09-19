@@ -39,7 +39,7 @@ class DominatorTreeAnalysis(
         return {node: {0} if n == 0 else LatticeTop for n, node in enumerate(nodes)}
 
     def merge(self, states):
-        return self.merge_intersection(states)
+        return self.lattice.merge_meet(states)
 
     def transfer(
         self, graph, node_id: int, state_in: DominatorLatticeValue
@@ -62,7 +62,7 @@ class PostDominatorTreeAnalysis(
         }
 
     def merge(self, states):
-        return self.merge_intersection(states)
+        return self.lattice.merge_meet(states)
 
     def transfer(
         self, graph, node_id: int, state_in: DominatorLatticeValue
