@@ -1823,7 +1823,7 @@ wheels = [
 [[package]]
 name = "oqd-compiler-infrastructure"
 version = "0.1.0"
-source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure?branch=fix_maplattice#c8c51f4822e7632ae128322113377bcfd547e12a" }
+source = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure?branch=fix_maplattice#3eb7204c85ed41a0b8901821b78a98d3fbd2b10c" }
 dependencies = [
     { name = "ast-comments" },
     { name = "graphviz" },
