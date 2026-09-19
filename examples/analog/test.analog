@@ -91,3 +91,9 @@ a = true
 if (a) {
     b = 5
 }
+
+
+if (a) {}
+
+
+while (a) {}

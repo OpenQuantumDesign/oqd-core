@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from functools import reduce
 
 from oqd_compiler_infrastructure import CFG, CFGBlock, RewriteRule
@@ -46,6 +47,7 @@ class AnalogCFGBuilder(RewriteRule):
             label = explicit_labels.get(pred)
             if label is None:
                 label = self.fallthrough_labels.pop(pred, None)
+
             self.blocks[pred].add_succ(node.register_id, label=label)
 
         return node.register_id
@@ -78,9 +80,9 @@ class AnalogCFGBuilder(RewriteRule):
         self.preds = []
         self.edge_labels = None
         self.fallthrough_labels = {}
-        node = self.new_node([], {})
+        node = self.new_node([], [])
         node = self.walk_block(model.statements, [node])
-        node = self.new_node(node, {})
+        node = self.new_node(node, [])
         return CFG(blocks=self.blocks)
 
     def map_IfElse(self, model: IfElse):
@@ -89,15 +91,27 @@ class AnalogCFGBuilder(RewriteRule):
             model.condition,
             tags={"__scf__": model.__class__.__qualname__},
         )
-        then_branch = self.walk_block(model.then_branch, [node], entry_label="true")
-        if model.else_branch:
-            else_branch = self.walk_block(
-                model.else_branch, [node], entry_label="false"
-            )
-            return then_branch + else_branch
 
-        self.fallthrough_labels[node] = "false"
-        return then_branch + [node]
+        then_branch = (
+            self.walk_block(model.then_branch, [node], entry_label="true")
+            if model.then_branch
+            else [node]
+        )
+        else_branch = (
+            self.walk_block(model.else_branch, [node], entry_label="false")
+            if model.else_branch
+            else [node]
+        )
+
+        fallthrough_labels = []
+        if model.then_branch == []:
+            fallthrough_labels.append("true")
+        if model.else_branch == []:
+            fallthrough_labels.append("false")
+
+        self.fallthrough_labels[node] = fallthrough_labels
+
+        return then_branch + else_branch
 
     def map_While(self, model: While):
         node = self.new_node(
@@ -105,15 +119,20 @@ class AnalogCFGBuilder(RewriteRule):
             model.condition,
             tags={"__scf__": model.__class__.__qualname__},
         )
-        self.fallthrough_labels[node] = "false"
-        self.loop_stack.append(node)
-        body = self.walk_block(model.body, [node], entry_label="true")
-        self.loop_stack.pop()
 
-        self.blocks[node].add_preds(body)
-        for s in body:
-            label = self.fallthrough_labels.pop(s, None)
-            self.blocks[s].add_succ(node, label=label)
+        if model.body:
+            self.loop_stack.append(node)
+            body = self.walk_block(model.body, [node], entry_label="true")
+            self.loop_stack.pop()
+
+            self.blocks[node].add_preds(body)
+            for loop_back in body:
+                label = self.fallthrough_labels.pop(loop_back, None)
+                self.blocks[loop_back].add_succ(node, label=label)
+        else:
+            self.blocks[node].add_succ(node, label="true")
+
+        self.fallthrough_labels[node] = "false"
 
         return self.blocks[node].exit_nodes + [node]
 
@@ -169,16 +188,16 @@ class AnalogCFGtoAST(RewriteRule):
                         [self.pdom[succ] for succ in current_block.succs],
                     )
 
-                    reversed_edge_labels = {
-                        v: k for k, v in current_block.edge_labels.items()
-                    }
-
                     then_block, then_succ = self._consume(
-                        blocks, start=reversed_edge_labels["true"], until=ifelse_until
+                        blocks,
+                        start=current_block.edge_labels["true"],
+                        until=ifelse_until,
                     )
 
                     else_block, else_succ = self._consume(
-                        blocks, start=reversed_edge_labels["false"], until=ifelse_until
+                        blocks,
+                        start=current_block.edge_labels["false"],
+                        until=ifelse_until,
                     )
 
                     statements.append(
@@ -197,19 +216,17 @@ class AnalogCFGtoAST(RewriteRule):
                         [self.pdom[succ] for succ in current_block.succs],
                     )
 
-                    reversed_edge_labels = {
-                        v: k for k, v in current_block.edge_labels.items()
-                    }
-
                     loop_block, loop_succ = self._consume(
-                        blocks, start=reversed_edge_labels["true"], until=while_until
+                        blocks,
+                        start=current_block.edge_labels["true"],
+                        until=while_until,
                     )
 
                     statements.append(
                         While(condition=current_block.stmts[0], body=loop_block)
                     )
 
-                    succ = reversed_edge_labels["false"]
+                    succ = current_block.edge_labels["false"]
 
                 case _:
                     statements.extend(current_block.stmts)
@@ -217,7 +234,7 @@ class AnalogCFGtoAST(RewriteRule):
                     if not current_block.succs:
                         break
 
-                    succ = current_block.succs[0]
+                    succ = list(current_block.succs)[0]
 
         return statements, succ
 
