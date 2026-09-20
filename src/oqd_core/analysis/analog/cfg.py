@@ -216,7 +216,7 @@ class AnalogCFGtoAST(RewriteRule):
         )
 
         while_dead_blocks = self._get_while_dead_blocks(
-            blocks, current_block.register_id
+            blocks, current_block.edge_labels["false"]
         )
 
         for b in sorted(while_dead_blocks):
