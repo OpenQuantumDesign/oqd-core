@@ -265,7 +265,7 @@ class AnalogCFGtoAST(RewriteRule):
     def map_CFG(self, model):
         circuit = AnalogCircuit()
 
-        statements, _ = self._consume(model.blocks)
+        statements, _ = self._consume(model.blocks.copy())
         circuit.statements.extend(statements)
 
         return circuit
