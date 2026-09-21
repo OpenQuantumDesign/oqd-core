@@ -134,13 +134,13 @@ class AnalogCFGBuilder(RewriteRule):
 
         self.fallthrough_labels[node] = "false"
 
-        return self.blocks[node].exit_nodes + [node]
+        return list(self.blocks[node].exit_nodes) + [node]
 
     def map_Break(self, model: Break):
         if not self.loop_stack:
             raise TypeError("break statement used outside loop")
         break_node = self.new_node(self.preds, model)
-        self.blocks[self.loop_stack[-1]].exit_nodes.append(break_node)
+        self.blocks[self.loop_stack[-1]].exit_nodes.add(break_node)
         return []
 
     def map_Continue(self, model: Continue):
