@@ -139,16 +139,6 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#real_part.
-    def visitReal_part(self, ctx:AnalogParser.Real_partContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#imag_part.
-    def visitImag_part(self, ctx:AnalogParser.Imag_partContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AnalogParser#complex.
     def visitComplex(self, ctx:AnalogParser.ComplexContext):
         return self.visitChildren(ctx)

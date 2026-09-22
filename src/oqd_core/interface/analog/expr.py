@@ -72,7 +72,6 @@ __all__ = [
 class AnalogExpr(TypeReflectBaseModel):
     @classmethod
     def cast(cls, value: Any):
-        print(value)
         match value:
             case str() if value in DEFAULT_OP_MAPPING.keys():
                 return DEFAULT_OP_MAPPING[value]()

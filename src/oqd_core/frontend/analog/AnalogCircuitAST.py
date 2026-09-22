@@ -69,85 +69,6 @@ from oqd_core.interface.analog import (
 
 __all__ = ["AnalogASTBuilder", "parse_analog"]
 
-########################################################################################
-
-# _BOOL_OP_MAP = {
-#     AnalogLexer.AND: BoolAnd,
-#     AnalogLexer.AND2: BoolAnd,
-#     AnalogLexer.OR: BoolOr,
-#     AnalogLexer.OR2: BoolOr,
-#     AnalogLexer.EQ: BoolEq,
-#     AnalogLexer.NEQ: BoolNotEq,
-#     AnalogLexer.LT: BoolLessThan,
-#     AnalogLexer.LTE: BoolLessThanEq,
-#     AnalogLexer.GT: BoolGreaterThan,
-#     AnalogLexer.GTE: BoolGreaterThanEq,
-# }
-
-# _OP_TERMINAL_MAP = {
-#     "I": PauliI,
-#     "X": PauliX,
-#     "Y": PauliY,
-#     "Z": PauliZ,
-#     "C": Creation,
-#     "A": Annihilation,
-#     "J": Identity,
-# }
-
-# _FUNC_TOKEN_TO_NAME = {
-#     AnalogLexer.ABS: "abs",
-#     AnalogLexer.SIN: "sin",
-#     AnalogLexer.COS: "cos",
-#     AnalogLexer.TAN: "tan",
-#     AnalogLexer.EXP: "exp",
-#     AnalogLexer.LOG: "log",
-#     AnalogLexer.SINH: "sinh",
-#     AnalogLexer.COSH: "cosh",
-#     AnalogLexer.TANH: "tanh",
-#     AnalogLexer.ATAN: "atan",
-#     AnalogLexer.ACOS: "acos",
-#     AnalogLexer.ASIN: "asin",
-#     AnalogLexer.ATANH: "atanh",
-#     AnalogLexer.ASINH: "asinh",
-#     AnalogLexer.ACOSH: "acosh",
-#     AnalogLexer.HEAVISIDE: "heaviside",
-#     AnalogLexer.CONJ: "conj",
-#     AnalogLexer.REAL: "real",
-#     AnalogLexer.IMAG_FN: "imag",
-#     AnalogLexer.ATAN2: "atan2",
-# }
-
-
-# def _get_token_type(node) -> int:
-#     """Extract token type from a terminal or context"""
-#     if isinstance(node, TerminalNodeImpl):
-#         return node.symbol.type
-#     payload = getattr(node, "getPayload", lambda: None)()
-#     return getattr(payload, "type", -1) if payload else -1
-
-
-# def _get_text(node) -> str:
-#     """Get text from a parse tree node"""
-#     return node.getText() if hasattr(node, "getText") else str(node)
-
-
-# def _comparator_to_bool_class(cmp_ctx: AnalogParser.ComparatorsContext):
-#     op_ctx = (
-#         cmp_ctx.bool_eq_op()
-#         or cmp_ctx.bool_not_eq_op()
-#         or cmp_ctx.bool_lt_op()
-#         or cmp_ctx.bool_lte_op()
-#         or cmp_ctx.bool_gt_op()
-#         or cmp_ctx.bool_gte_op()
-#     )
-#     if op_ctx is None:
-#         raise ValueError("Empty comparators")
-#     tt = _get_token_type(op_ctx.getChild(0))
-#     cls = _BOOL_OP_MAP.get(tt)
-#     if cls is None:
-#         raise ValueError(f"Unknown comparator token type: {tt}")
-#     return cls
-
 
 ########################################################################################
 
@@ -166,18 +87,19 @@ class AnalogASTBuilder(AnalogParserVisitor):
         return AnalogCircuit(statements=statements)
 
     def visitBlock(self, ctx: AnalogParser.BlockContext):
-        statements = [self.visit(stmt) for stmt in ctx.statement() if stmt is not None]
+        statements = [self.visit(stmt) for stmt in ctx.statement() if stmt]
         return statements
 
     def visitStatement(self, ctx: AnalogParser.StatementContext):
-        return self.visitChildren(ctx)
+        return self.visit(ctx.getChild(0))
 
     ## Structural Control Flow
 
     def visitIfelse_stmt(self, ctx: AnalogParser.Ifelse_stmtContext):
         cond = self.visit(ctx.expr())
-        then_branch = self.visit(ctx.block(0))
-        else_branch = self.visit(ctx.block(1))
+
+        then_branch = self.visit(ctx.block(0)) if ctx.block(0) else []
+        else_branch = self.visit(ctx.block(1)) if ctx.block(1) else []
         return IfElse(condition=cond, then_branch=then_branch, else_branch=else_branch)
 
     def visitWhile_stmt(self, ctx: AnalogParser.While_stmtContext):
@@ -223,7 +145,8 @@ class AnalogASTBuilder(AnalogParserVisitor):
     def visitAnalog_list_extract(self, ctx: AnalogParser.Analog_list_extractContext):
         access = self.visit(ctx.access())
         index = self.visit(ctx.expr())
-        return Extract(acces=access, index=index)
+
+        return Extract(access=access, index=index)
 
     ## Quantum Op ##
 
@@ -231,13 +154,13 @@ class AnalogASTBuilder(AnalogParserVisitor):
         return self.visitChildren(ctx)
 
     def visitPauli_op(self, ctx: AnalogParser.Pauli_opContext):
-        args = self.visit(ctx.args())
+        args = self.visit(ctx.args()) if ctx.args() else []
 
         if len(args) not in [0, 2]:
             raise ValueError(f"Pauli operator takes 0 or 2 arguments, got {len(args)}")
 
-        level1 = self.visit(args[0])
-        level2 = self.visit(args[1])
+        level1 = self.visit(args[0]) if args else 0
+        level2 = self.visit(args[1]) if args else 1
 
         if ctx.PAULI_X():
             return (
@@ -307,6 +230,14 @@ class AnalogASTBuilder(AnalogParserVisitor):
                 if len(args) != 1:
                     raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
                 return Measure(targets=args[0])
+            case "qreg":
+                if len(args) != 1:
+                    raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
+                return QuantumRegister(size=args[0])
+            case "qmode":
+                if len(args) != 1:
+                    raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
+                return QuantumRegister(size=args[0])
 
         return BuiltinCall(func=func, args=args)
 
@@ -320,23 +251,17 @@ class AnalogASTBuilder(AnalogParserVisitor):
         if ctx.MATH_VAR() is not None:
             return RuntimeVar(name=ctx.MATH_VAR().getText())
         if ctx.access() is not None:
-            return Access(name=ctx.ID().getText())
+            return self.visit(ctx.access())
         if ctx.pexpr() is not None:
             return self.visit(ctx.pexpr())
         if ctx.complex_() is not None:
             return self.visit(ctx.complex_())
 
     def visitComplex(self, ctx: AnalogParser.ComplexContext):
-        real = self.visit(ctx.real_part()) if ctx.real_part() else 0
-        imag = self.visit(ctx.imag_part()) if ctx.imag_part() else 0
+        real = float(ctx.REAL_PART().getText()[:-1]) if ctx.REAL_PART() else 0
+        imag = float(ctx.IMAG_PART().getText()[:-1]) if ctx.IMAG_PART() else 0
 
         return Complex(real=real, imag=imag)
-
-    def visitReal_part(self, ctx: AnalogParser.Real_partContext):
-        return float(ctx.getChild(0).getText())
-
-    def visitImag_part(self, ctx: AnalogParser.Imag_partContext):
-        return float(ctx.getChild(0).getText())
 
     def visitPexpr(self, ctx: AnalogParser.PexprContext):
         return self.visit(ctx.expr())

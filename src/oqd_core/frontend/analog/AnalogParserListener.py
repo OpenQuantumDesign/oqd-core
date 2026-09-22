@@ -242,24 +242,6 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#real_part.
-    def enterReal_part(self, ctx:AnalogParser.Real_partContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#real_part.
-    def exitReal_part(self, ctx:AnalogParser.Real_partContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#imag_part.
-    def enterImag_part(self, ctx:AnalogParser.Imag_partContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#imag_part.
-    def exitImag_part(self, ctx:AnalogParser.Imag_partContext):
-        pass
-
-
     # Enter a parse tree produced by AnalogParser#complex.
     def enterComplex(self, ctx:AnalogParser.ComplexContext):
         pass
