@@ -92,6 +92,24 @@ ARITH_OP_MAPPING = {
 
 
 class SerializeAnalog(ConversionRule):
+    def __init__(self, indent=2):
+        super().__init__()
+        self.indent = indent
+
+    def generic_map(self, model, operands):
+        return str(model)
+
+    def _indent_block(self, body):
+        body_str = "\n".join(body)
+        body_str = "\n".join(
+            map(lambda x: " " * self.indent + x, body_str.splitlines())
+        )
+
+        if body_str:
+            body_str = "\n" + body_str + "\n"
+
+        return body_str
+
     def _parenthesize_precedence(self, expr, inner_type, outer_type):
         inner_precedence = ARITH_OP_MAPPING.get(inner_type, (0, ""))[0]
         outer_precedence = ARITH_OP_MAPPING.get(outer_type, (0, ""))[0]
@@ -101,27 +119,25 @@ class SerializeAnalog(ConversionRule):
 
         return expr
 
-    def generic_map(self, model, operands):
-        return str(model)
-
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
         statements = operands["statements"]
+
         return "\n".join(statements) + "\n"
 
     def map_Declaration(self, model: Declaration, operands):
         return f"{operands['name']} = {operands['value']}"
 
     def map_While(self, model: While, operands):
-        body = "\n".join(operands["body"]) + "\n"
-        return f"while ({operands['condition']}) {{\n{body}}}"
+        body_str = self._indent_block(operands["body"])
+        return f"while ({operands['condition']}) {{{body_str}}}"
 
     def map_IfElse(self, model: IfElse, operands):
-        then_branch = "\n".join(operands["then_branch"])
-        else_branch = operands["else_branch"]
-        if else_branch:
-            else_branch = "\n".join(else_branch)
-            return f"if ({operands['condition']}) {{\n{then_branch}\n}} else {{\n{else_branch}\n}}"
-        return f"if ({operands['condition']}) {{\n{then_branch}\n}}"
+        then_str = self._indent_block(operands["then_branch"])
+        else_str = self._indent_block(operands["else_branch"])
+
+        return f"if ({operands['condition']}) {{{then_str}}}\n" + (
+            f"else {{{else_str}}}" if else_str else ""
+        )
 
     def map_Break(self, model: Break, operands):
         return "break"
