@@ -19,7 +19,7 @@ from typing import List
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 
 from oqd_core.interface.analog.expr import Evolve, Initialize, Measure
-from oqd_core.interface.analog.statement import Declaration, Statement
+from oqd_core.interface.analog.statement import Declaration, StatementSubtypes
 
 ########################################################################################
 
@@ -37,7 +37,7 @@ class AnalogCircuit(TypeReflectBaseModel):
 
     """
 
-    statements: List[Statement] = []
+    statements: List[StatementSubtypes] = []
 
     def evolve(self, hamiltonian, duration, targets):
         self.statements.append(

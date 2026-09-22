@@ -58,8 +58,8 @@ class IfElse(Statement, SCF):
     """
 
     condition: CastAnalogExpr
-    then_branch: List[Statement] = []
-    else_branch: List[Statement] = []
+    then_branch: List[StatementSubtypes] = []
+    else_branch: List[StatementSubtypes] = []
 
 
 class While(Statement, SCF):
@@ -68,7 +68,7 @@ class While(Statement, SCF):
     """
 
     condition: CastAnalogExpr
-    body: List[Statement] = []
+    body: List[StatementSubtypes] = []
 
 
 class Break(Statement, SCF):
@@ -95,7 +95,7 @@ Union of classes
 """
 
 
-Statement = Annotated[
+StatementSubtypes = Annotated[
     Union[tuple(AnalogExpr.__subclasses__() + Statement.__subclasses__())],
     Discriminator(discriminator="class_"),
 ]
