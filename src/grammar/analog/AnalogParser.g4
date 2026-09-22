@@ -65,11 +65,6 @@ operator_terminal: pauli_op | ladder_op;
 
 bool_literal: TRUE | FALSE;
 
-not: NOT | NOT2;
-and: AND | AND2;
-or: OR | OR2;
-xor: XOR |XOR2;
-
 /** ================================================================================= */
 
 // Function
@@ -111,10 +106,10 @@ cexpr: aexpr | cexpr (LT | LEQ | GT | GEQ) aexpr;
 
 eqexpr: cexpr | eqexpr (EQ | NEQ) cexpr;
 
-andexpr: eqexpr | andexpr and eqexpr;
+andexpr: eqexpr | andexpr AND eqexpr;
 
-xorexpr: andexpr | xorexpr and andexpr;
+xorexpr: andexpr | xorexpr XOR andexpr;
 
-orexpr: xorexpr | orexpr and xorexpr;
+orexpr: xorexpr | orexpr OR xorexpr;
 
 expr: orexpr;

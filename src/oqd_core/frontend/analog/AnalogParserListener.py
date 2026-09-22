@@ -152,42 +152,6 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#not.
-    def enterNot(self, ctx:AnalogParser.NotContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#not.
-    def exitNot(self, ctx:AnalogParser.NotContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#and.
-    def enterAnd(self, ctx:AnalogParser.AndContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#and.
-    def exitAnd(self, ctx:AnalogParser.AndContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#or.
-    def enterOr(self, ctx:AnalogParser.OrContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#or.
-    def exitOr(self, ctx:AnalogParser.OrContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#xor.
-    def enterXor(self, ctx:AnalogParser.XorContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#xor.
-    def exitXor(self, ctx:AnalogParser.XorContext):
-        pass
-
-
     # Enter a parse tree produced by AnalogParser#math_func.
     def enterMath_func(self, ctx:AnalogParser.Math_funcContext):
         pass
