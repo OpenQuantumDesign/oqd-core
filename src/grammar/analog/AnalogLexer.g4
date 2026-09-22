@@ -24,14 +24,10 @@ CONTINUE: 'continue';
 /** ================================================================================= */
 
 // Boolean
-AND: 'and';
-AND2: '&&';
-OR: 'or';
-OR2: '||';
-XOR: 'xor';
-XOR2: '^^';
-NOT: 'not';
-NOT2: '!';
+AND: 'and' | '&&';
+OR: 'or' | '||';
+XOR: 'xor' | '^^';
+NOT: 'not' | '!';
 TRUE: 'true';
 FALSE: 'false';
 
@@ -110,7 +106,7 @@ ASIN: 'asin';
 ATANH: 'atanh';
 ASINH: 'asinh';
 ACOSH: 'acosh';
-HEAVISIDE: 'heavwwwiside';
+HEAVISIDE: 'heaviside';
 CONJ: 'conj';
 REAL: 'real';
 IMAG_FN: 'imag';

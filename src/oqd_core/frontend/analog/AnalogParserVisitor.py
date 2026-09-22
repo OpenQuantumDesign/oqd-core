@@ -89,26 +89,6 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#not.
-    def visitNot(self, ctx:AnalogParser.NotContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#and.
-    def visitAnd(self, ctx:AnalogParser.AndContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#or.
-    def visitOr(self, ctx:AnalogParser.OrContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#xor.
-    def visitXor(self, ctx:AnalogParser.XorContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AnalogParser#math_func.
     def visitMath_func(self, ctx:AnalogParser.Math_funcContext):
         return self.visitChildren(ctx)
