@@ -28,6 +28,8 @@ AND: 'and';
 AND2: '&&';
 OR: 'or';
 OR2: '||';
+XOR: 'xor';
+XOR2: '^^';
 NOT: 'not';
 NOT2: '!';
 TRUE: 'true';
@@ -65,16 +67,13 @@ ASSIGN: '=';
 EQ: '==';
 NEQ: '!=';
 LT: '<';
-LTE: '<=';
+LEQ: '<=';
 GT: '>';
-GTE: '>=';
+GEQ: '>=';
+AT: '@';
 
 // Analog Operators
 
-AT: '%@';
-OP_ADD: '%+';
-OP_MUL: '%*';
-OP_MINUS: '%-';
 
 /** ================================================================================= */
 
@@ -92,7 +91,8 @@ FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? INT)?
      | INT (('e' | 'E') (PLUS | MINUS)? INT);
 
 MATH_VAR: '#' ID;
-IMAG: '1j';
+REAL_UNIT: 'r';
+IMAG_UNIT: 'j';
 
 // Math functions
 ABS: 'abs';
@@ -110,12 +110,20 @@ ASIN: 'asin';
 ATANH: 'atanh';
 ASINH: 'asinh';
 ACOSH: 'acosh';
-HEAVISIDE: 'heaviside';
+HEAVISIDE: 'heavwwwiside';
 CONJ: 'conj';
 REAL: 'real';
 IMAG_FN: 'imag';
 ATAN2: 'atan2';
+ROUND: 'round';
 
+/** ================================================================================= */
+
+// Builtin functions
+RANGE: 'range';
+PRINT: 'print';
+LENGTH: 'len';
+FLATTEN: 'flatten';
 
 /** ================================================================================= */
 
