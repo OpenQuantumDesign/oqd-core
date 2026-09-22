@@ -143,26 +143,30 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "Lt": [((TFloat, TFloat), TBool)],
     "Leq": [((TFloat, TFloat), TBool)],
     "Gt": [((TFloat, TFloat), TBool)],
-    "Gte": [((TFloat, TFloat), TBool)],
+    "Geq": [((TFloat, TFloat), TBool)],
     "Neg": [
         ((TInt,), TInt),
         ((TFloat,), TFloat),
         ((TComplex,), TComplex),
+        ((TOp,), TOp),
     ],
     "Pos": [
         ((TInt,), TInt),
         ((TFloat,), TFloat),
         ((TComplex,), TComplex),
+        ((TOp,), TOp),
     ],
     "Add": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
+        ((TOp, TOp), TOp),
     ],
     "Sub": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
+        ((TOp, TOp), TOp),
     ],
     "Mul": [
         ((TInt, TInt), TInt),
@@ -170,6 +174,7 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
         ((TComplex, TComplex), TComplex),
         ((TComplex, TOp), TOp),
         ((TOp, TComplex), TOp),
+        ((TOp, TOp), TOp),
     ],
     "Div": [
         ((TInt, TInt), TFloat),

@@ -98,8 +98,8 @@ class AnalogASTBuilder(AnalogParserVisitor):
     def visitIfelse_stmt(self, ctx: AnalogParser.Ifelse_stmtContext):
         cond = self.visit(ctx.expr())
 
-        then_branch = self.visit(ctx.block(0)) if ctx.block(0) else []
-        else_branch = self.visit(ctx.block(1)) if ctx.block(1) else []
+        then_branch = self.visit(ctx.block(0))
+        else_branch = self.visit(ctx.block(1)) if len(ctx.block()) > 1 else []
         return IfElse(condition=cond, then_branch=then_branch, else_branch=else_branch)
 
     def visitWhile_stmt(self, ctx: AnalogParser.While_stmtContext):
@@ -156,28 +156,21 @@ class AnalogASTBuilder(AnalogParserVisitor):
     def visitPauli_op(self, ctx: AnalogParser.Pauli_opContext):
         args = self.visit(ctx.args()) if ctx.args() else []
 
-        if len(args) not in [0, 2]:
+        if len(args) not in [0, 2, 3]:
             raise ValueError(f"Pauli operator takes 0 or 2 arguments, got {len(args)}")
 
-        level1 = self.visit(args[0]) if args else 0
-        level2 = self.visit(args[1]) if args else 1
+        level1 = args[0] if args else 0
+        level2 = args[1] if args else 1
+        dim = args[2] if args and len(args) > 2 else 2
 
         if ctx.PAULI_X():
-            return (
-                PauliX(level1=level1, level2=level2) if level1 and level2 else PauliX()
-            )
+            return PauliX(level1=level1, level2=level2, dim=dim)
         if ctx.PAULI_Y():
-            return (
-                PauliY(level1=level1, level2=level2) if level1 and level2 else PauliY()
-            )
+            return PauliY(level1=level1, level2=level2, dim=dim)
         if ctx.PAULI_Z():
-            return (
-                PauliZ(level1=level1, level2=level2) if level1 and level2 else PauliZ()
-            )
+            return PauliZ(level1=level1, level2=level2, dim=dim)
         if ctx.PAULI_I():
-            return (
-                PauliI(level1=level1, level2=level2) if level1 and level2 else PauliI()
-            )
+            return PauliI(level1=level1, level2=level2, dim=dim)
 
     def visitLadder_op(self, ctx: AnalogParser.Ladder_opContext):
         if ctx.ANNIHILATION():
@@ -215,7 +208,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
 
     def visitFunc(self, ctx: AnalogParser.FuncContext):
         func = self.visit(ctx.func_names())
-        args = self.visit(ctx.args())
+        args = self.visit(ctx.args()) if ctx.args() else []
 
         match func:
             case "initialize":
@@ -231,9 +224,12 @@ class AnalogASTBuilder(AnalogParserVisitor):
                     raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
                 return Measure(targets=args[0])
             case "qreg":
-                if len(args) != 1:
+                if len(args) not in [1, 2]:
                     raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
-                return QuantumRegister(size=args[0])
+
+                size = args[0]
+                dim = args[1] if len(args) > 1 else 2
+                return QuantumRegister(size=size, dim=dim)
             case "qmode":
                 if len(args) != 1:
                     raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
@@ -263,14 +259,21 @@ class AnalogASTBuilder(AnalogParserVisitor):
 
         return Complex(real=real, imag=imag)
 
+    def _get_binop_args(self, expr):
+        args = [self.visit(expr.getChild(0))]
+
+        if expr.getChild(2):
+            args.append(self.visit(expr.getChild(2)))
+
+        return args
+
     def visitPexpr(self, ctx: AnalogParser.PexprContext):
         return self.visit(ctx.expr())
 
     def visitEexpr(self, ctx: AnalogParser.EexprContext):
-        left = self.visit(ctx.eexpr()) if ctx.eexpr() else None
-        right = self.visit(ctx.terminal())
+        args = self._get_binop_args(ctx)
 
-        return Pow(expr1=left, expr2=right) if left else right
+        return Pow(exprs=args) if len(args) > 1 else args[0]
 
     def visitUexpr(self, ctx: AnalogParser.UexprContext):
         expr = self.visit(ctx.eexpr())
@@ -285,76 +288,78 @@ class AnalogASTBuilder(AnalogParserVisitor):
         return expr
 
     def visitMexpr(self, ctx: AnalogParser.MexprContext):
-        left = self.visit(ctx.mexpr()) if ctx.mexpr() else None
-        right = self.visit(ctx.uexpr())
+        args = self._get_binop_args(ctx)
 
-        if not left:
-            return right
+        if len(args) == 1:
+            return args[0]
 
         if ctx.MULT():
-            return Mul(expr1=left, expr2=right)
+            return Mul(exprs=args)
         if ctx.DIV():
-            return Div(expr1=left, expr2=right)
+            return Div(exprs=args)
         if ctx.AT():
-            return Kron(expr1=left, expr2=right)
+            return Kron(exprs=args)
 
     def visitAexpr(self, ctx: AnalogParser.AexprContext):
-        left = self.visit(ctx.aexpr()) if ctx.aexpr() else None
-        right = self.visit(ctx.mexpr())
+        args = self._get_binop_args(ctx)
 
-        if not left:
-            return right
+        if len(args) == 1:
+            return args[0]
 
         if ctx.PLUS():
-            return Add(expr1=left, expr2=right)
+            return Add(exprs=args)
         if ctx.MINUS():
-            return Sub(expr1=left, expr2=right)
+            return Sub(exprs=args)
 
     def visitCexpr(self, ctx: AnalogParser.CexprContext):
-        left = self.visit(ctx.cexpr()) if ctx.cexpr() else None
-        right = self.visit(ctx.aexpr())
+        args = self._get_binop_args(ctx)
 
-        if not left:
-            return right
+        if len(args) == 1:
+            return args[0]
 
         if ctx.LT():
-            return Lt(expr1=left, expr2=right)
+            return Lt(exprs=args)
         if ctx.LEQ():
-            return Leq(expr1=left, expr2=right)
+            return Leq(exprs=args)
         if ctx.GT():
-            return Gt(expr1=left, expr2=right)
+            return Gt(exprs=args)
         if ctx.GEQ():
-            return Geq(expr1=left, expr2=right)
+            return Geq(exprs=args)
 
     def visitEqexpr(self, ctx: AnalogParser.EqexprContext):
-        left = self.visit(ctx.eqexpr()) if ctx.eqexpr() else None
-        right = self.visit(ctx.cexpr())
+        args = self._get_binop_args(ctx)
 
-        if not left:
-            return right
+        if len(args) == 1:
+            return args[0]
 
         if ctx.EQ():
-            return Eq(expr1=left, expr2=right)
+            return Eq(exprs=args)
         if ctx.NEQ():
-            return Neq(expr1=left, expr2=right)
+            return Neq(exprs=args)
 
     def visitAndexpr(self, ctx: AnalogParser.AndContext):
-        left = self.visit(ctx.andexpr()) if ctx.andexpr() else None
-        right = self.visit(ctx.eqexpr())
+        args = self._get_binop_args(ctx)
 
-        return And(expr1=left, expr2=right) if left else right
+        if len(args) == 1:
+            return args[0]
+
+        return And(exprs=args) if len(args) > 1 else args[0]
 
     def visitXorexpr(self, ctx: AnalogParser.XorContext):
-        left = self.visit(ctx.xorexpr()) if ctx.xorexpr() else None
-        right = self.visit(ctx.andexpr())
+        args = self._get_binop_args(ctx)
 
-        return Xor(expr1=left, expr2=right) if left else right
+        if len(args) == 1:
+            return args[0]
+
+        return Xor(exprs=args) if len(args) > 1 else args[0]
 
     def visitOrexpr(self, ctx: AnalogParser.OrContext):
-        left = self.visit(ctx.orexpr()) if ctx.orexpr() else None
-        right = self.visit(ctx.xorexpr())
+        args = self._get_binop_args(ctx)
 
-        return Or(expr1=left, expr2=right) if left else right
+        if len(args) == 1:
+            return args[0]
+
+        return Or(exprs=args) if len(args) > 1 else args[0]
 
     def visitExpr(self, ctx: AnalogParser.ExprContext):
         return self.visit(ctx.orexpr())
