@@ -130,46 +130,58 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
 
 ########################################################################################
 
+VariableType = TypeVar("VariableType", bound=TAnalog)
+
 
 ANALOG_SUPPORTED_FUNC_SIGNATURES = {
-    "BoolNot": [((TBool,), TBool)],
-    "BoolEq": [((TComplex, TComplex), TBool)],
-    "BoolNotEq": [((TComplex, TComplex), TBool)],
-    "BoolLessThan": [((TFloat, TFloat), TBool)],
-    "BoolLessThanEq": [((TFloat, TFloat), TBool)],
-    "BoolGreaterThan": [((TFloat, TFloat), TBool)],
-    "BoolGreaterThanEq": [((TFloat, TFloat), TBool)],
-    "MathAdd": [
+    "Not": [((TBool,), TBool)],
+    "And": [((TBool, TBool), TBool)],
+    "Xor": [((TBool, TBool), TBool)],
+    "Or": [((TBool, TBool), TBool)],
+    "Eq": [((TComplex, TComplex), TBool)],
+    "Neq": [((TComplex, TComplex), TBool)],
+    "Lt": [((TFloat, TFloat), TBool)],
+    "Leq": [((TFloat, TFloat), TBool)],
+    "Gt": [((TFloat, TFloat), TBool)],
+    "Gte": [((TFloat, TFloat), TBool)],
+    "Neg": [
+        ((TInt,), TInt),
+        ((TFloat,), TFloat),
+        ((TComplex,), TComplex),
+    ],
+    "Pos": [
+        ((TInt,), TInt),
+        ((TFloat,), TFloat),
+        ((TComplex,), TComplex),
+    ],
+    "Add": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
     ],
-    "MathSub": [
+    "Sub": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
     ],
-    "MathMul": [
+    "Mul": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
         ((TComplex, TOp), TOp),
         ((TOp, TComplex), TOp),
     ],
-    "MathDiv": [
+    "Div": [
         ((TInt, TInt), TFloat),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
     ],
-    "MathPow": [
+    "Pow": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
     ],
-    "OperatorAdd": [((TOp, TOp), TOp)],
-    "OperatorSub": [((TOp, TOp), TOp)],
-    "OperatorMul": [((TOp, TOp), TOp)],
-    "OperatorKron": [((TOp, TOp), TOp)],
+    "Kron": [((TOp, TOp), TOp)],
     "Evolve": [
         ((TOp, TFloat, TQReg), TNull),
         ((TOp, TFloat, TQRegElem), TNull),
@@ -205,4 +217,17 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "real": [((TComplex,), TFloat)],
     "imag": [((TComplex,), TFloat)],
     "atan2": [((TFloat, TFloat), TFloat), ((TComplex, TComplex), TComplex)],
+    "round": [((TInt,), TInt), ((TFloat,), TInt)],
+    "len": [((TList[VariableType],), TInt)],
+    "range": [
+        ((TFloat, TFloat, TFloat), TList[TFloat]),
+        ((TInt, TInt, TInt), TList[TInt]),
+    ],
+    "QuantumRegister": [((TInt,), TQReg)],
+    "ModeRegister": [((TInt,), TQReg)],
+    "Extract": [
+        ((TQReg, TInt), TQRegElem),
+        ((TList[VariableType], TInt), VariableType),
+    ],
+    "flatten": [((TList[TList[VariableType]],), TList[VariableType])],
 }

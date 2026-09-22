@@ -29,26 +29,26 @@ from oqd_compiler_infrastructure import (
 
 from oqd_core.interface.analog import (
     Access,
+    Add,
     AnalogList,
     Annihilation,
     Break,
+    Constant,
     Continue,
     Creation,
     Declaration,
     Evolve,
     Extract,
     Identity,
-    MathMul,
+    Kron,
     ModeRegister,
-    OperatorAdd,
-    OperatorKron,
-    OperatorMul,
-    OperatorSub,
+    Mul,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
     QuantumRegister,
+    Sub,
 )
 
 ########################################################################################
@@ -130,21 +130,37 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case Annihilation() | Creation() | Identity():
                 return [-1]
 
+            case QuantumRegister() if (
+                isinstance(expr.size, Constant) and type(expr.size.value) is int
+            ):
+                return [[2]] * expr.size.value
+
+            case ModeRegister() if (
+                isinstance(expr.size, Constant) and type(expr.size.value) is int
+            ):
+                return [[-1]] * expr.size.value
+
             case QuantumRegister():
-                return [[2]] * expr.size
+                raise DimensionError(
+                    "Dimension checker only works for constant args for QuantumRegister"
+                )
 
             case ModeRegister():
-                return [[-1]] * expr.size
+                raise DimensionError(
+                    "Dimension checker only works for constant args for QuantumRegister"
+                )
 
             case AnalogList():
                 return [self._infer_dim(element, env=env) for element in expr.values]
 
-            case Extract():
+            case Extract() if (
+                isinstance(expr.index, Constant) and type(expr.index.value) is int
+            ):
                 value = self._infer_dim(expr.access, env=env)
 
-                return value if value == DInvalid else value[expr.index]
+                return value if value == DInvalid else value[expr.index.value]
 
-            case OperatorAdd() | OperatorSub():
+            case Add() | Sub():
                 args = (
                     self._infer_dim(expr.op1, env=env),
                     self._infer_dim(expr.op2, env=env),
@@ -155,7 +171,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
 
                 return args[0]
 
-            case OperatorKron():
+            case Kron():
                 args = (
                     self._infer_dim(expr.op1, env=env),
                     self._infer_dim(expr.op2, env=env),
@@ -163,24 +179,20 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
 
                 return args[0] + args[1]
 
-            case OperatorMul():
+            case Mul():
                 args = (
                     self._infer_dim(expr.op1, env=env),
                     self._infer_dim(expr.op2, env=env),
                 )
 
-                if not self.lattice.element_lattice.equal(args[0], args[1]):
+                if (
+                    args[0] is not DInvalid
+                    and args[1] is not DInvalid
+                    and not self.lattice.element_lattice.equal(args[0], args[1])
+                ):
                     raise DimensionError()
 
                 return args[0]
-
-            case MathMul():
-                args = (
-                    self._infer_dim(expr.expr1, env=env),
-                    self._infer_dim(expr.expr2, env=env),
-                )
-
-                return self.lattice.element_lattice.join(args)
 
             case Evolve():
                 args = (
