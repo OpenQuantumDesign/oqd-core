@@ -17,11 +17,8 @@ from __future__ import annotations
 from typing import Annotated, Any, List, Literal, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
-from pydantic import (
-    AfterValidator,
-    BeforeValidator,
-    Discriminator,
-)
+from pydantic import AfterValidator, BaseModel, BeforeValidator, Discriminator
+from typing_extensions import TypeAliasType
 
 ########################################################################################
 
@@ -99,49 +96,49 @@ class AnalogExpr(TypeReflectBaseModel):
         return Pos(expr=self)
 
     def __add__(self, other):
-        return Add(expr1=self, expr2=other)
+        return Add(exprs=[self, other])
 
     def __sub__(self, other):
-        return Sub(expr1=self, expr2=other)
+        return Sub(exprs=[self, other])
 
     def __mul__(self, other):
-        return Mul(expr1=self, expr2=other)
+        return Mul(exprs=[self, other])
 
     def __truediv__(self, other):
-        return Div(expr1=self, expr2=other)
+        return Div(exprs=[self, other])
 
     def __pow__(self, other):
-        return Pow(expr1=self, expr2=other)
+        return Pow(exprs=[self, other])
 
     def __matmul__(self, other):
-        return Kron(expr1=self, expr2=other)
+        return Kron(exprs=[self, other])
 
     def __not__(self, other):
-        return Not(expr1=self, expr2=other)
+        return Not(exprs=[self, other])
 
     def __or__(self, other):
-        return Or(expr1=self, expr2=other)
+        return Or(exprs=[self, other])
 
     def __and__(self, other):
-        return And(expr1=self, expr2=other)
+        return And(exprs=[self, other])
 
     def __eq__(self, other):
-        return Eq(expr1=self, expr2=other)
+        return Eq(exprs=[self, other])
 
     def __neq__(self, other):
-        return Neq(expr1=self, expr2=other)
+        return Neq(exprs=[self, other])
 
     def __lt__(self, other):
-        return Lt(expr1=self, expr2=other)
+        return Lt(exprs=[self, other])
 
     def __leq__(self, other):
-        return Leq(expr1=self, expr2=other)
+        return Leq(exprs=[self, other])
 
     def __gt__(self, other):
-        return Gt(expr1=self, expr2=other)
+        return Gt(exprs=[self, other])
 
     def __geq__(self, other):
-        return Geq(expr1=self, expr2=other)
+        return Geq(exprs=[self, other])
 
     def __radd__(self, other):
         return AnalogExpr.cast(self).__add__(other)
@@ -260,13 +257,15 @@ class UnaryOp(AbstractAnalogExpr):
     expr: CastAnalogExpr
 
 
-class BinaryOp(AbstractAnalogExpr):
+ListCastAnalogExpr = TypeAliasType("ListCastAnalogExpr", "List[CastAnalogExpr]")
+
+
+class BinaryOp(BaseModel, AbstractAnalogExpr):
     """
     Class representing binary operations on [`MathExprs`][oqd_core.interface.analog.expr.MathExpr] abstract syntax tree (AST)
     """
 
-    expr1: CastAnalogExpr
-    expr2: CastAnalogExpr
+    exprs: ListCastAnalogExpr
 
 
 class ArithOp(AbstractAnalogExpr): ...
@@ -444,6 +443,7 @@ class Pauli(Operator, AbstractAnalogExpr):
 
     level1: CastAnalogExpr = Constant(value=0)
     level2: CastAnalogExpr = Constant(value=1)
+    dim: CastAnalogExpr = Constant(value=2)
 
 
 class PauliI(Pauli, AnalogExpr):
@@ -512,6 +512,7 @@ class RegisterExpr(AbstractAnalogExpr): ...
 
 class QuantumRegister(CollectionExpr, RegisterExpr, AnalogExpr):
     size: CastAnalogExpr
+    dim: CastAnalogExpr = Constant(value=2)
 
 
 class ModeRegister(CollectionExpr, RegisterExpr, AnalogExpr):
@@ -550,6 +551,7 @@ class Initialize(QuantumExpr, AnalogExpr):
 
 
 ########################################################################################
+
 
 AnalogExprSubtypes = Annotated[
     Union[tuple(AnalogExpr.__subclasses__())],

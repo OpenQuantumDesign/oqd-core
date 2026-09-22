@@ -14,21 +14,17 @@
 
 from __future__ import annotations
 
-import re
-
 from oqd_compiler_infrastructure import ConversionRule, Post
 
 from oqd_core.interface.analog import (
     Access,
     Add,
     AnalogCircuit,
-    AnalogExpr,
     AnalogList,
     And,
     Annihilation,
     Break,
     BuiltinCall,
-    CastAnalogExpr,
     Complex,
     Constant,
     Continue,
@@ -65,7 +61,7 @@ from oqd_core.interface.analog import (
     While,
     Xor,
 )
-from oqd_core.interface.analog.expr import BinaryOp, UnaryOp
+from oqd_core.interface.analog.expr import BinaryOp, Pauli, UnaryOp
 
 ########################################################################################
 
@@ -195,14 +191,12 @@ class SerializeAnalog(ConversionRule):
         return f"{func}({', '.join(operands['args'])})"
 
     def map_BinaryOp(self, model: BinaryOp, operands):
-        expr1 = self._parenthesize_precedence(
-            operands["expr1"], model.expr1.__class__, model.__class__
-        )
-        expr2 = self._parenthesize_precedence(
-            operands["expr2"], model.expr2.__class__, model.__class__
-        )
+        exprs = [
+            self._parenthesize_precedence(s, expr.__class__, model.__class__)
+            for s, expr in zip(operands["exprs"], model.exprs)
+        ]
 
-        return f"{expr1} {ARITH_OP_MAPPING[model.__class__][1]} {expr2}"
+        return f" {ARITH_OP_MAPPING[model.__class__][1]} ".join(exprs)
 
     def map_UnaryOp(self, model: UnaryOp, operands):
         expr = self._parenthesize_precedence(
@@ -211,17 +205,21 @@ class SerializeAnalog(ConversionRule):
 
         return f"{ARITH_OP_MAPPING[model.__class__][1]}{expr}"
 
-    def map_PauliI(self, model: PauliI, operands):
-        return "%I"
+    def map_Pauli(self, model: Pauli, operands):
+        args = (model.level1, model.level2, model.dim)
+        args_string = (operands["level1"], operands["level2"], operands["dim"])
 
-    def map_PauliX(self, model: PauliX, operands):
-        return "%X"
+        pauli = {PauliX: "%X", PauliY: "%Y", PauliZ: "%Z", PauliI: "%I"}[
+            model.__class__
+        ]
 
-    def map_PauliY(self, model: PauliY, operands):
-        return "%Y"
+        if args[2] != 2:
+            return f"{pauli}({', '.join(args_string)})"
 
-    def map_PauliZ(self, model: PauliZ, operands):
-        return "%Z"
+        if args[:2] != [0, 1]:
+            return f"{pauli}({', '.join(args_string[:2])})"
+
+        return pauli
 
     def map_Creation(self, model: Creation, operands):
         return "%C"
