@@ -20,67 +20,93 @@ from oqd_compiler_infrastructure import ConversionRule, Post
 
 from oqd_core.interface.analog import (
     Access,
+    Add,
     AnalogCircuit,
+    AnalogExpr,
     AnalogList,
-    Bool,
-    BoolAnd,
-    BoolEq,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolNot,
-    BoolNotEq,
-    BoolOr,
+    And,
+    Annihilation,
     Break,
+    BuiltinCall,
+    CastAnalogExpr,
+    Complex,
+    Constant,
     Continue,
+    Creation,
     Declaration,
+    Div,
+    Eq,
     Evolve,
     Extract,
+    Geq,
+    Gt,
+    Identity,
     IfElse,
     Initialize,
-    MathAdd,
-    MathDiv,
-    MathFunc,
-    MathImag,
-    MathMul,
-    MathNum,
-    MathPow,
-    MathSub,
-    MathVar,
+    Kron,
+    Leq,
+    Lt,
     Measure,
     ModeRegister,
-    QuantumRegister,
-    While,
-)
-from oqd_core.interface.analog.expr import (
-    Annihilation,
-    Creation,
-    Identity,
-    OperatorAdd,
-    OperatorKron,
-    OperatorMul,
-    OperatorSub,
+    Mul,
+    Neg,
+    Neq,
+    Not,
+    Or,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
+    Pos,
+    Pow,
+    QuantumRegister,
+    RuntimeVar,
+    Sub,
+    While,
+    Xor,
 )
+from oqd_core.interface.analog.expr import BinaryOp, UnaryOp
 
 ########################################################################################
 
+ARITH_OP_MAPPING = {
+    Pow: (1, "^"),
+    Pos: (2, "+"),
+    Neg: (2, "-"),
+    Not: (2, "!"),
+    Mul: (3, "*"),
+    Div: (3, "/"),
+    Kron: (3, "@"),
+    Add: (4, "+"),
+    Sub: (4, "-"),
+    Lt: (5, "<"),
+    Leq: (5, "<="),
+    Gt: (5, ">"),
+    Geq: (5, ">="),
+    Eq: (6, "=="),
+    Neq: (6, "!="),
+    And: (7, "&&"),
+    Xor: (8, "^^"),
+    Or: (9, "||"),
+}
+
 
 class SerializeAnalog(ConversionRule):
+    def _parenthesize_precedence(self, expr, inner_type, outer_type):
+        inner_precedence = ARITH_OP_MAPPING.get(inner_type, (0, ""))[0]
+        outer_precedence = ARITH_OP_MAPPING.get(outer_type, (0, ""))[0]
+
+        if inner_precedence > outer_precedence:
+            return f"({expr})"
+
+        return expr
+
     def generic_map(self, model, operands):
-        if model is None or isinstance(model, (str, int, float, bool)):
-            return model
-        raise TypeError(f"Unsupported node: {model}")
+        return str(model)
 
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
         statements = operands["statements"]
         return "\n".join(statements) + "\n"
-
-    ## Statements ##
 
     def map_Declaration(self, model: Declaration, operands):
         return f"{operands['name']} = {operands['value']}"
@@ -102,8 +128,6 @@ class SerializeAnalog(ConversionRule):
 
     def map_Continue(self, model: Continue, operands):
         return "continue"
-
-    ## Expressions ##
 
     def map_Evolve(self, model: Evolve, operands):
         return f"evolve({operands['hamiltonian']}, {operands['duration']}, {operands['targets']})"
@@ -129,127 +153,47 @@ class SerializeAnalog(ConversionRule):
     def map_ModeRegister(self, model: ModeRegister, operands):
         return f"qmode({operands['size']})"
 
-    ## Math ##
-
-    def map_MathVar(self, model: MathVar, operands):
+    def map_RuntimeVar(self, model: RuntimeVar, operands):
         return operands["name"]
 
-    def map_MathNum(self, model: MathNum, operands):
-        value = ""
-        if isinstance(model.value, bool):
-            value = str(int(model.value))
-        if isinstance(model.value, (int, float)):
-            value = str(model.value)
-            if "e" in value:
-                value = re.sub(r"e([+-]?)0+(\d)", r"e\1\2", value)
-        return value
+    def map_Constant(self, model: Constant, operands):
+        return operands["value"]
 
-    def map_MathImag(self, model: MathImag, operands):
-        return "1j"
+    def map_bool(self, model: bool, operands):
+        return str(model).lower()
 
-    def map_MathFunc(self, model: MathFunc, operands):
+    def map_Complex(self, model: Complex, operands):
+        real = operands["real"]
+        imag = operands["imag"]
+
+        if model.imag == 0:
+            return f"{real}r"
+
+        if model.real == 0:
+            return f"{imag}j"
+
+        return f"({real}r{imag}j)"
+
+    def map_BuiltinCall(self, model: BuiltinCall, operands):
         func = model.func
-        expr = operands["expr"]
-        if func == "atan2":
-            return f"atan2({expr[0]}, {expr[1]})"
-        return f"{func}({expr})"
+        return f"{func}({', '.join(operands['args'])})"
 
-    def map_MathAdd(self, model: MathAdd, operands):
-        return f"{operands['expr1']} + {operands['expr2']}"
+    def map_BinaryOp(self, model: BinaryOp, operands):
+        expr1 = self._parenthesize_precedence(
+            operands["expr1"], model.expr1.__class__, model.__class__
+        )
+        expr2 = self._parenthesize_precedence(
+            operands["expr2"], model.expr2.__class__, model.__class__
+        )
 
-    def map_MathSub(self, model: MathSub, operands):
-        expr = operands["expr2"]
-        if isinstance(model.expr2, (MathAdd, MathSub)):
-            expr = f"({expr})"
-        return f"{operands['expr1']} - {expr}"
+        return f"{expr1} {ARITH_OP_MAPPING[model.__class__][1]} {expr2}"
 
-    def map_MathMul(self, model: MathMul, operands):
-        if isinstance(model.expr1, MathNum) and model.expr1.value == -1:
-            inner = operands["expr2"]
-            if isinstance(model.expr2, (MathAdd, MathSub)):
-                inner = f"({inner})"
-            return f"-{inner}"
-        left = operands["expr1"]
-        right = operands["expr2"]
-        if isinstance(model.expr1, (MathAdd, MathSub)):
-            left = f"({left})"
-        if isinstance(model.expr2, (MathAdd, MathSub)):
-            right = f"({right})"
-        return f"{left} * {right}"
+    def map_UnaryOp(self, model: UnaryOp, operands):
+        expr = self._parenthesize_precedence(
+            operands["expr"], model.expr.__class__, model.__class__
+        )
 
-    def map_MathDiv(self, model: MathDiv, operands):
-        left = operands["expr1"]
-        right = operands["expr2"]
-        if isinstance(model.expr1, (MathAdd, MathSub)):
-            left = f"({left})"
-        if isinstance(model.expr2, (MathAdd, MathSub)):
-            right = f"({right})"
-        return f"{left} / {right}"
-
-    def map_MathPow(self, model: MathPow, operands):
-        left = operands["expr1"]
-        right = operands["expr2"]
-        if isinstance(model.expr1, (MathAdd, MathSub, MathMul, MathDiv)):
-            left = f"({left})"
-        if isinstance(model.expr2, (MathAdd, MathSub, MathMul, MathDiv)):
-            right = f"({right})"
-        return f"{left} ^ {right}"
-
-    ## Bool ##
-
-    def map_Bool(self, model: Bool, operands):
-        return "true" if model.value else "false"
-
-    def map_BoolNot(self, model: BoolNot, operands):
-        inner = operands["expr"]
-        if isinstance(
-            model.expr,
-            (
-                BoolAnd,
-                BoolOr,
-                BoolNot,
-                BoolEq,
-                BoolNotEq,
-                BoolLessThan,
-                BoolLessThanEq,
-                BoolGreaterThan,
-                BoolGreaterThanEq,
-            ),
-        ):
-            inner = f"({inner})"
-        return f"not {inner}"
-
-    def map_BoolAnd(self, model: BoolAnd, operands):
-        left = operands["expr1"]
-        right = operands["expr2"]
-        if isinstance(model.expr1, BoolOr):
-            left = f"({left})"
-        if isinstance(model.expr2, BoolOr):
-            right = f"({right})"
-        return f"{left} and {right}"
-
-    def map_BoolOr(self, model: BoolOr, operands):
-        return f"{operands['expr1']} or {operands['expr2']}"
-
-    def map_BoolEq(self, model: BoolEq, operands):
-        return f"{operands['expr1']} == {operands['expr2']}"
-
-    def map_BoolNotEq(self, model: BoolNotEq, operands):
-        return f"{operands['expr1']} != {operands['expr2']}"
-
-    def map_BoolLessThan(self, model: BoolLessThan, operands):
-        return f"{operands['expr1']} < {operands['expr2']}"
-
-    def map_BoolLessThanEq(self, model: BoolLessThanEq, operands):
-        return f"{operands['expr1']} <= {operands['expr2']}"
-
-    def map_BoolGreaterThan(self, model: BoolGreaterThan, operands):
-        return f"{operands['expr1']} > {operands['expr2']}"
-
-    def map_BoolGreaterThanEq(self, model: BoolGreaterThanEq, operands):
-        return f"{operands['expr1']} >= {operands['expr2']}"
-
-    ## Analog Operators ##
+        return f"{ARITH_OP_MAPPING[model.__class__][1]}{expr}"
 
     def map_PauliI(self, model: PauliI, operands):
         return "%I"
@@ -271,33 +215,6 @@ class SerializeAnalog(ConversionRule):
 
     def map_Identity(self, model: Identity, operands):
         return "%J"
-
-    def map_OperatorAdd(self, model: OperatorAdd, operands):
-        return f"{operands['op1']} %+ {operands['op2']}"
-
-    def map_OperatorSub(self, model: OperatorSub, operands):
-        right = operands["op2"]
-        if isinstance(model.op2, (OperatorAdd, OperatorSub)):
-            right = f"({right})"
-        return f"{operands['op1']} %- {right}"
-
-    def map_OperatorMul(self, model: OperatorMul, operands):
-        left = operands["op1"]
-        right = operands["op2"]
-        if isinstance(model.op1, (OperatorAdd, OperatorSub, OperatorKron)):
-            left = f"({left})"
-        if isinstance(model.op2, (OperatorAdd, OperatorSub, OperatorKron)):
-            right = f"({right})"
-        return f"{left} %* {right}"
-
-    def map_OperatorKron(self, model: OperatorKron, operands):
-        left = operands["op1"]
-        right = operands["op2"]
-        if isinstance(model.op1, (OperatorAdd, OperatorSub, OperatorMul)):
-            left = f"({left})"
-        if isinstance(model.op2, (OperatorAdd, OperatorSub, OperatorMul)):
-            right = f"({right})"
-        return f"{left} %@ {right}"
 
 
 ########################################################################################

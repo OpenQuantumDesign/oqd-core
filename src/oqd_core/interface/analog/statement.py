@@ -17,13 +17,15 @@ from __future__ import annotations
 from typing import Annotated, List, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from pydantic import Discriminator, Tag
+from pydantic import Discriminator
 
-from oqd_core.interface.analog.expr import AnalogExprSubtypes, Identifier
+from oqd_core.interface.analog.expr import AnalogExpr, CastAnalogExpr, Identifier
 
 ########################################################################################
+
 __all__ = [
     "Declaration",
+    "SCF",
     "IfElse",
     "While",
     "Break",
@@ -33,31 +35,43 @@ __all__ = [
 ########################################################################################
 
 
-class Declaration(TypeReflectBaseModel):
+class Statement(TypeReflectBaseModel): ...
+
+
+class AbstractStatement: ...
+
+
+class SCF(AbstractStatement): ...
+
+
+########################################################################################
+
+
+class Declaration(Statement):
     name: Identifier
-    value: AnalogExprSubtypes
+    value: CastAnalogExpr
 
 
-class IfElse(TypeReflectBaseModel):
+class IfElse(Statement, SCF):
     """
     Class representing a conditional branch in the analog circuit
     """
 
-    condition: AnalogExprSubtypes
+    condition: CastAnalogExpr
     then_branch: List[Statement] = []
     else_branch: List[Statement] = []
 
 
-class While(TypeReflectBaseModel):
+class While(Statement, SCF):
     """
     Class representing a while loop in the analog circuit
     """
 
-    condition: AnalogExprSubtypes
+    condition: CastAnalogExpr
     body: List[Statement] = []
 
 
-class Break(TypeReflectBaseModel):
+class Break(Statement, SCF):
     """
     Class representing a break statement to exit the innermost loop
     """
@@ -65,7 +79,7 @@ class Break(TypeReflectBaseModel):
     pass
 
 
-class Continue(TypeReflectBaseModel):
+class Continue(Statement, SCF):
     """
     Class representing a continue statement to jump to the next loop iteration
     """
@@ -81,26 +95,7 @@ Union of classes
 """
 
 
-def _Statement_discriminator(value):
-    if isinstance(value, dict):
-        class_ = value["class_"]
-    else:
-        class_ = getattr(value, "class_")
-
-    if class_ not in ["Declaration", "IfElse", "While", "Break", "Continue"]:
-        class_ = "AnalogExpr"
-
-    return class_
-
-
 Statement = Annotated[
-    Union[
-        Annotated[Declaration, Tag("Declaration")],
-        Annotated[IfElse, Tag("IfElse")],
-        Annotated[While, Tag("While")],
-        Annotated[Break, Tag("Break")],
-        Annotated[Continue, Tag("Continue")],
-        Annotated[AnalogExprSubtypes, Tag("AnalogExpr")],
-    ],
-    Discriminator(discriminator=_Statement_discriminator),
+    Union[tuple(AnalogExpr.__subclasses__() + Statement.__subclasses__())],
+    Discriminator(discriminator="class_"),
 ]

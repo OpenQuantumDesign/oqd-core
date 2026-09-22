@@ -25,20 +25,20 @@ from oqd_compiler_infrastructure.lattice import (
 from pydantic import BaseModel, ConfigDict
 
 from oqd_core.interface.analog import (
-    BoolAnd,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolOr,
-    MathAdd,
-    MathDiv,
-    MathMul,
-    MathPow,
-    MathSub,
-    OperatorAdd,
-    OperatorKron,
-    OperatorSub,
+    Add,
+    And,
+    Div,
+    Eq,
+    Geq,
+    Gt,
+    Leq,
+    Lt,
+    Mul,
+    Neq,
+    Or,
+    Pow,
+    Sub,
+    Xor,
 )
 
 ########################################################################################
@@ -148,17 +148,18 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
 
 # Binary expression signature table: node -> ((left_type, right_type), output_type)
 BIN_SIG_TABLE = {
-    MathAdd: ((TScalar, TScalar), TScalar),
-    MathSub: ((TScalar, TScalar), TScalar),
-    MathMul: ((TScalar, TScalar), TScalar),
-    MathDiv: ((TScalar, TScalar), TScalar),
-    MathPow: ((TScalar, TScalar), TScalar),
-    BoolAnd: ((TBool, TBool), TBool),
-    BoolOr: ((TBool, TBool), TBool),
-    BoolLessThan: ((TScalar, TScalar), TBool),
-    BoolLessThanEq: ((TScalar, TScalar), TBool),
-    BoolGreaterThan: ((TScalar, TScalar), TBool),
-    BoolGreaterThanEq: ((TScalar, TScalar), TBool),
+    Add: ((TScalar, TScalar), TScalar),
+    Sub: ((TScalar, TScalar), TScalar),
+    Mul: ((TScalar, TScalar), TScalar),
+    Div: ((TScalar, TScalar), TScalar),
+    Pow: ((TScalar, TScalar), TScalar),
+    And: ((TBool, TBool), TBool),
+    Xor: ((TBool, TBool), TBool),
+    Or: ((TBool, TBool), TBool),
+    Lt: ((TScalar, TScalar), TBool),
+    Leq: ((TScalar, TScalar), TBool),
+    Gt: ((TScalar, TScalar), TBool),
+    Geq: ((TScalar, TScalar), TBool),
 }
 
 
