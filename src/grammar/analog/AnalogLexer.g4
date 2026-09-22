@@ -91,8 +91,8 @@ FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? INT)?
      | INT (('e' | 'E') (PLUS | MINUS)? INT);
 
 MATH_VAR: '#' ID;
-REAL_UNIT: 'r';
-IMAG_UNIT: 'j';
+REAL_PART:  (INT | FLOAT) 'r';
+IMAG_PART:  (INT | FLOAT) 'j';
 
 // Math functions
 ABS: 'abs';

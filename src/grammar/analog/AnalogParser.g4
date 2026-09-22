@@ -93,11 +93,7 @@ func: func_names LBRACKET args? RBRACKET;
 
 // Arithmetic
 
-real_part: ((INT | FLOAT) REAL_UNIT);
-
-imag_part: ((INT | FLOAT) IMAG_UNIT);
-
-complex: real_part | real_part? imag_part;
+complex: REAL_PART | REAL_PART? IMAG_PART;
 
 math_terminal: INT | FLOAT | MATH_VAR | complex | access | pexpr;
 
