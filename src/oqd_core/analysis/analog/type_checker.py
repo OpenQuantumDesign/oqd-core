@@ -39,53 +39,30 @@ from oqd_core.analysis.analog.types import (
     TInt,
     TList,
     TOp,
-    TQReg,
-    TQRegElem,
     TypeEnv,
     get_type_name,
 )
 from oqd_core.interface.analog import (
     Access,
-    Add,
     AnalogList,
-    And,
-    Annihilation,
     Break,
     BuiltinCall,
     Complex,
     Constant,
     Continue,
-    Creation,
     Declaration,
-    Div,
-    Eq,
     Evolve,
     Extract,
-    Geq,
-    Gt,
-    Identity,
     Initialize,
-    Kron,
-    Leq,
-    Lt,
     Measure,
     ModeRegister,
-    Mul,
     Neg,
-    Neq,
     Not,
-    Or,
-    PauliI,
-    PauliX,
-    PauliY,
-    PauliZ,
     Pos,
-    Pow,
     QuantumRegister,
     RuntimeVar,
-    Sub,
-    Xor,
 )
+from oqd_core.interface.analog.expr import BinaryOp, Operator
 
 ########################################################################################
 
@@ -208,26 +185,6 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
     def _infer_function_signature(self, expr, *, env: TypeEnv):
         match expr:
-            case (
-                Add()
-                | Sub()
-                | Mul()
-                | Div()
-                | Pow()
-                | Eq()
-                | Neq()
-                | Gt()
-                | Geq()
-                | Lt()
-                | Leq()
-                | And()
-                | Xor()
-                | Or()
-                | Kron()
-            ):
-                name = expr.__class__.__name__
-                args = [expr.expr1, expr.expr2]
-
             case Not() | Neg() | Pos():
                 name = expr.__class__.__name__
                 args = [expr.expr]
@@ -250,12 +207,17 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case Extract():
                 name = expr.__class__.__name__
                 args = [expr.access, expr.index]
-
             case _:
                 raise AnalogTypeError(f"Unable to infer type information from {expr}")
 
         return self._match_function_signature(
             name, *[self._infer_type(a, env=env) for a in args]
+        )
+
+    def _infer_binop_signature(self, expr, *, env: TypeEnv):
+        return reduce(
+            lambda x, y: self._match_function_signature(expr.__class__.__name__, x, y),
+            [self._infer_type(a, env=env) for a in expr.exprs],
         )
 
     def _infer_type(self, expr, *, env: TypeEnv):
@@ -287,32 +249,10 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                     )
 
                 return TList[combined_elem_type]
-            # case Extract() if self.lattice.element_lattice.equal(
-            #     env[expr.access.name], TQReg
-            # ):
-            #     index_type = self._infer_type(expr.index, env=env)
-            #     if not self.lattice.element_lattice.leq(TInt, index_type):
-            #         raise AnalogTypeError(
-            #             f"Index of extract must be TInt but got {get_type_name(index_type)}"
-            #         )
-            #     return TQRegElem
-            # case Extract() if env[expr.access.name].__origin__ == TList:
-            #     index_type = self._infer_type(expr.index, env=env)
-            #     if not self.lattice.element_lattice.leq(TInt, index_type):
-            #         raise AnalogTypeError(
-            #             f"Index of extract must be TInt but got {get_type_name(index_type)}"
-            #         )
-            #     return env[expr.access.name].__args__[0]
-            case (
-                PauliI()
-                | PauliX()
-                | PauliY()
-                | PauliZ()
-                | Annihilation()
-                | Creation()
-                | Identity()
-            ):
+            case Operator():
                 return TOp
+            case BinaryOp():
+                return self._infer_binop_signature(expr, env=env)
             case _:
                 return self._infer_function_signature(expr, env=env)
 
