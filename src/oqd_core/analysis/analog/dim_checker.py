@@ -119,25 +119,28 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
     def merge(self, states):
         return self.lattice.merge_meet(states)
 
+    def _is_integer(self, expr):
+        return isinstance(expr, Constant) and type(expr.value) is int
+
     def _infer_dim(self, expr, *, env):
         match expr:
             case Access():
                 return env[expr.name]
 
-            case PauliX() | PauliY() | PauliZ() | PauliI():
-                return [2]
+            case PauliX() | PauliY() | PauliZ() | PauliI() if self._is_integer(
+                expr.dim
+            ):
+                return [expr.dim.value]
 
             case Annihilation() | Creation() | Identity():
                 return [-1]
 
-            case QuantumRegister() if (
-                isinstance(expr.size, Constant) and type(expr.size.value) is int
+            case QuantumRegister() if self._is_integer(expr.size) and self._is_integer(
+                expr.dim
             ):
-                return [[2]] * expr.size.value
+                return [[expr.dim.value]] * expr.size.value
 
-            case ModeRegister() if (
-                isinstance(expr.size, Constant) and type(expr.size.value) is int
-            ):
+            case ModeRegister() if self._is_integer(expr.size):
                 return [[-1]] * expr.size.value
 
             case QuantumRegister():
