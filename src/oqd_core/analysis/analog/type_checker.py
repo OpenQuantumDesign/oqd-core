@@ -18,6 +18,7 @@
 from __future__ import annotations
 
 from functools import reduce
+from typing import TypeVar
 
 from oqd_compiler_infrastructure import (
     CFG,
@@ -45,43 +46,45 @@ from oqd_core.analysis.analog.types import (
 )
 from oqd_core.interface.analog import (
     Access,
+    Add,
     AnalogList,
+    And,
     Annihilation,
-    Bool,
-    BoolEq,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolNot,
-    BoolNotEq,
     Break,
+    BuiltinCall,
+    Complex,
+    Constant,
     Continue,
     Creation,
     Declaration,
+    Div,
+    Eq,
     Evolve,
     Extract,
+    Geq,
+    Gt,
     Identity,
     Initialize,
-    MathAdd,
-    MathDiv,
-    MathFunc,
-    MathImag,
-    MathMul,
-    MathNum,
-    MathPow,
-    MathSub,
-    MathVar,
+    Kron,
+    Leq,
+    Lt,
     Measure,
     ModeRegister,
-    OperatorAdd,
-    OperatorKron,
-    OperatorMul,
+    Mul,
+    Neg,
+    Neq,
+    Not,
+    Or,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
+    Pos,
+    Pow,
     QuantumRegister,
+    RuntimeVar,
+    Sub,
+    Xor,
 )
 
 ########################################################################################
@@ -96,19 +99,72 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         super().__init__(**kwargs)
         self.runtime_var_types = runtime_var_types
 
-    def _match_single_function_signature(self, signature, func, *args, env: TypeEnv):
+    def _compare_variable_type(
+        self, signature, args, subsignature, subargs, variable_type_mapping={}
+    ):
+        for n, _ in enumerate(subsignature):
+            if getattr(subsignature[n], "__origin__", None) is TList:
+                self._compare_variable_type(
+                    signature,
+                    args,
+                    subsignature[n].__args__,
+                    subargs[n].__args__,
+                    variable_type_mapping=variable_type_mapping,
+                )
+                continue
+
+            if not isinstance(subsignature[n], TypeVar):
+                continue
+
+            if variable_type_mapping.get(subsignature[n], None) is None:
+                variable_type_mapping[subsignature[n]] = subargs[n]
+                continue
+
+            if variable_type_mapping[subsignature[n]] != subargs[n]:
+                raise AnalogTypeError(
+                    f"Got signature {self._print_function_signature(args)} inconsistent with {signature}"
+                )
+
+        return variable_type_mapping
+
+    def _replace_variable_type(self, variable_type_mapping, original_type):
+        if getattr(original_type, "__origin__", None) is TList:
+            return TList[
+                tuple(
+                    [
+                        self._replace_variable_type(variable_type_mapping, arg)
+                        for arg in original_type.__args__
+                    ]
+                )
+            ]
+
+        if variable_type_mapping.get(original_type, None):
+            return variable_type_mapping[original_type]
+
+        return original_type
+
+    def _match_single_function_signature(self, signature, *args):
         sig_args_types, sig_return_type = signature
 
         if len(args) != len(sig_args_types):
             return False, None
 
+        variable_type_mapping = self._compare_variable_type(
+            signature, args, sig_args_types, args, {}
+        )
+
         if all(
             [
-                self.lattice.element_lattice.leq(sig_arg_type, arg_type)
+                self.lattice.element_lattice.leq(
+                    self._replace_variable_type(variable_type_mapping, sig_arg_type),
+                    arg_type,
+                )
                 for arg_type, sig_arg_type in zip(args, sig_args_types)
             ]
         ):
-            return True, sig_return_type
+            return True, self._replace_variable_type(
+                variable_type_mapping, sig_return_type
+            )
 
         return False, None
 
@@ -124,7 +180,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         return f"({', '.join([get_type_name(x) for x in sig_args_types])})"
 
-    def _match_function_signature(self, func, *args, env: TypeEnv):
+    def _match_function_signature(self, func, *args):
         signature = (args, None)
         supported_signatures = ANALOG_SUPPORTED_FUNC_SIGNATURES[func]
 
@@ -137,9 +193,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             )
 
         for sig in supported_signatures:
-            _match, return_type = self._match_single_function_signature(
-                sig, func, *args, env=env
-            )
+            _match, return_type = self._match_single_function_signature(sig, *args)
 
             if _match:
                 return return_type
@@ -155,32 +209,32 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     def _infer_function_signature(self, expr, *, env: TypeEnv):
         match expr:
             case (
-                MathAdd()
-                | MathSub()
-                | MathMul()
-                | MathDiv()
-                | MathPow()
-                | BoolEq()
-                | BoolNotEq()
-                | BoolGreaterThan()
-                | BoolGreaterThanEq()
-                | BoolLessThan()
-                | BoolLessThanEq()
+                Add()
+                | Sub()
+                | Mul()
+                | Div()
+                | Pow()
+                | Eq()
+                | Neq()
+                | Gt()
+                | Geq()
+                | Lt()
+                | Leq()
+                | And()
+                | Xor()
+                | Or()
+                | Kron()
             ):
                 name = expr.__class__.__name__
                 args = [expr.expr1, expr.expr2]
 
-            case BoolNot():
+            case Not() | Neg() | Pos():
                 name = expr.__class__.__name__
                 args = [expr.expr]
 
-            case MathFunc():
+            case BuiltinCall():
                 name = expr.func
-                args = expr.expr if isinstance(expr.expr, list) else [expr.expr]
-
-            case OperatorAdd() | OperatorKron() | OperatorMul():
-                name = expr.__class__.__name__
-                args = [expr.op1, expr.op2]
+                args = expr.args
 
             case Evolve():
                 name = expr.__class__.__name__
@@ -190,25 +244,34 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 name = expr.__class__.__name__
                 args = [expr.targets]
 
+            case QuantumRegister() | ModeRegister():
+                name = expr.__class__.__name__
+                args = [expr.size]
+            case Extract():
+                name = expr.__class__.__name__
+                args = [expr.access, expr.index]
+
             case _:
                 raise AnalogTypeError(f"Unable to infer type information from {expr}")
 
         return self._match_function_signature(
-            name, *[self._infer_type(a, env=env) for a in args], env=env
+            name, *[self._infer_type(a, env=env) for a in args]
         )
 
     def _infer_type(self, expr, *, env: TypeEnv):
         match expr:
             case Access():
                 return TAnalog if env is LatticeTop else env[expr.name]
-            case MathVar():
+            case RuntimeVar():
                 return getattr(self.runtime_var_types, expr.name, TFloat)
-            case MathImag():
-                return TComplex
-            case MathNum():
-                return TInt if isinstance(expr.value, int) else TFloat
-            case Bool():
+            case Constant() if type(expr.value) is bool:
                 return TBool
+            case Constant() if type(expr.value) is int:
+                return TInt
+            case Constant() if isinstance(expr.value, float):
+                return TFloat
+            case Constant() if isinstance(expr.value, Complex):
+                return TComplex
             case AnalogList() if len(expr.values) == 0:
                 return TList[TAnalog]
             case AnalogList():
@@ -224,14 +287,22 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                     )
 
                 return TList[combined_elem_type]
-            case QuantumRegister() | ModeRegister():
-                return TQReg
-            case Extract() if self.lattice.element_lattice.equal(
-                env[expr.access.name], TQReg
-            ):
-                return TQRegElem
-            case Extract() if env[expr.access.name].__origin__ == TList:
-                return env[expr.access.name].__args__[0]
+            # case Extract() if self.lattice.element_lattice.equal(
+            #     env[expr.access.name], TQReg
+            # ):
+            #     index_type = self._infer_type(expr.index, env=env)
+            #     if not self.lattice.element_lattice.leq(TInt, index_type):
+            #         raise AnalogTypeError(
+            #             f"Index of extract must be TInt but got {get_type_name(index_type)}"
+            #         )
+            #     return TQRegElem
+            # case Extract() if env[expr.access.name].__origin__ == TList:
+            #     index_type = self._infer_type(expr.index, env=env)
+            #     if not self.lattice.element_lattice.leq(TInt, index_type):
+            #         raise AnalogTypeError(
+            #             f"Index of extract must be TInt but got {get_type_name(index_type)}"
+            #         )
+            #     return env[expr.access.name].__args__[0]
             case (
                 PauliI()
                 | PauliX()
