@@ -89,14 +89,17 @@ class AvailableVariableAnalysis(
 
     @gen_pass(rule_type="rewrite", walk=Post, method=True)
     def _check_variables_available(self, expr, stmt, *, env):
-        if isinstance(expr, Access) and expr.name not in env:
+        if isinstance(expr, Access) and isinstance(env, set) and expr.name not in env:
             raise AvailableVariableError(
                 f"Use of variable ({expr.name}) in statement ({serialize_analog(stmt)})"
                 " that may be undefined for some path through the program"
             )
 
     def initial_state(self, nodes):
-        return {node: self.lattice.bottom() for node in nodes}
+        return {
+            node: self.lattice.bottom() if node == 0 else self.lattice.top()
+            for node in nodes
+        }
 
     def merge(self, states):
         return self.lattice.merge_intersection(states)
