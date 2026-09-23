@@ -169,7 +169,9 @@ class DominatorAnalysis(ForwardDataflowAnalysis[int, CFGBlock, DominatorLatticeV
     lattice = PowersetLattice[DominatorLatticeValue]()
 
     def initial_state(self, nodes):
-        return {node: {0} if n == 0 else LatticeTop for n, node in enumerate(nodes)}
+        return {
+            node: {0} if n == 0 else self.lattice.top() for n, node in enumerate(nodes)
+        }
 
     def merge(self, states):
         return self.lattice.merge_meet(states)
