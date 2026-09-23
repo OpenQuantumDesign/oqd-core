@@ -39,7 +39,7 @@ BEAM = "b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n"
 
 def build_inputs(program: str):
     circuit = parse_atomic(program)
-    cfg = AtomicCFGBuilder().run(circuit)
+    cfg = AtomicCFGBuilder()(circuit)
     type_checker = AtomicTypeChecker(cfg)
     symbol_table = AtomicSymbolTableBuilder(
         cfg, type_checker.dataflow_result

@@ -14,19 +14,19 @@
 
 from __future__ import annotations
 
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph, Block
+from oqd_compiler_infrastructure import CFG, CFGBlock
 from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
 from oqd_core.interface.analog import Declaration, Evolve
 from oqd_core.interface.analog.expr import MathExpr, OperatorExpr
 from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator_expr
 
 
-def iter_stmt_blocks(cfg: ControlFlowGraph):
+def iter_stmt_blocks(cfg: CFG):
     for node_id, block in cfg.blocks.items():
         yield node_id, block
 
 
-def canonicalize_math_block(block: Block):
+def canonicalize_math_block(block: CFGBlock):
     stmts = block.stmts
     
     for stmt in stmts:
@@ -41,12 +41,12 @@ def canonicalize_math_block(block: Block):
                 stmt.value = canonicalize_math_expr(stmt.value)
 
 
-def canonicalize_math_cfg(cfg: ControlFlowGraph):
+def canonicalize_math_cfg(cfg: CFG):
     for _, block in iter_stmt_blocks(cfg):
         canonicalize_math_block(block)
     return cfg
             
-def canonicalize_operators_cfg(cfg: ControlFlowGraph) -> ControlFlowGraph:
+def canonicalize_operators_cfg(cfg: CFG) -> CFG:
     """Canonicalize inline operator declarations."""
     for _, block in iter_stmt_blocks(cfg):
         stmts = block.stmts

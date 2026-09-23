@@ -12,9 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+from oqd_compiler_infrastructure import CFG
 from oqd_core.compiler.analog.operator.dim import operator_dim
 from oqd_core.analysis.analog.symbol_table import AnalogSymbolTable, target_dim
-from oqd_core.analysis.utils.control_flow import ControlFlowGraph
 from oqd_core.interface.analog import Evolve, Initialize, Measure, Access, Declaration
 from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.compiler.analog.cfg_passes.walk import iter_stmt_blocks
@@ -24,7 +25,7 @@ __all__ = [
     "verify_hamiltonian_target_dim",
 ]
 
-def verify_register_access_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable):
+def verify_register_access_dim(cfg: CFG, symbol_table: AnalogSymbolTable):
     
     for node_id, block in iter_stmt_blocks(cfg):
         stmts = block.stmts
@@ -36,7 +37,7 @@ def verify_register_access_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbol
         
     return cfg
 
-def verify_hamiltonian_target_dim(cfg: ControlFlowGraph, symbol_table: AnalogSymbolTable):
+def verify_hamiltonian_target_dim(cfg: CFG, symbol_table: AnalogSymbolTable):
     
     for node_id, block in iter_stmt_blocks(cfg):
         stmts = block.stmts

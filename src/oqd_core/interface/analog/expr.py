@@ -89,15 +89,15 @@ class AnalogExpr(TypeReflectBaseModel):
             return value
         if isinstance(value, AnalogExpr):
             return value
-        
+
         try:
             return OperatorExpr.cast(value)
         except Exception:
             pass
-        
+
         try:
             return MathExpr.cast(value)
-        except Exception: 
+        except Exception:
             pass
 
         raise TypeError
@@ -118,10 +118,10 @@ class MathExpr(AnalogExpr):
             return Access(name=value)
 
         raise TypeError
-    
+
     def __neg__(self):
         return MathMul(expr1=MathNum(value=-1), expr2=self)
-    
+
     def __pos__(self):
         return self
 
@@ -174,7 +174,7 @@ class OperatorExpr(AnalogExpr):
         if isinstance(value, str):
             return AnalogExpr.cast(value)
         raise TypeError
-        
+
     def __neg__(self):
         return OperatorMul(op1=MathNum(value=-1), op2=self)
 
@@ -478,17 +478,17 @@ class MathFunc(AnalogExpr):
             "imag",
         ]:
             if isinstance(data["expr"], list):
-                assert (
-                    len(data["expr"]) == 1
-                ), "Attempted to apply unary function on multiple arguments"
+                assert len(data["expr"]) == 1, (
+                    "Attempted to apply unary function on multiple arguments"
+                )
                 data["expr"] = data["expr"][0]
 
         if data["func"] in [
             "atan2",
         ]:
-            assert (
-                isinstance(data["expr"], list) and len(data["expr"]) == 2
-            ), "Attempted to apply binary function with incorrect number of arguments"
+            assert isinstance(data["expr"], list) and len(data["expr"]) == 2, (
+                "Attempted to apply binary function with incorrect number of arguments"
+            )
 
         return data
 

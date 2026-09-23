@@ -29,12 +29,13 @@ __all__ = [
     "SerialProtocol",
     "IfElse",
     "While",
-    "Break", 
+    "Break",
     "Continue",
 ]
 
 
 ########################################################################################
+
 
 class Declaration(TypeReflectBaseModel):
     name: Identifier
@@ -44,22 +45,26 @@ class Declaration(TypeReflectBaseModel):
 class ParallelProtocol(TypeReflectBaseModel):
     pulses: List[Statement]
 
+
 class SerialProtocol(TypeReflectBaseModel):
     pulses: List[Statement]
+
 
 class IfElse(TypeReflectBaseModel):
     """
     Class representing a conditional branch in the atomic circuit
     """
+
     condition: AtomicExprSubtypes
     then_branch: List[Statement] = []
     else_branch: List[Statement] = []
-    
-    
+
+
 class While(TypeReflectBaseModel):
     """
     Class representing a while loop in the atomic circuit
     """
+
     condition: AtomicExprSubtypes
     body: List[Statement] = []
 
@@ -68,6 +73,7 @@ class Break(TypeReflectBaseModel):
     """
     Class representing a break statement to exit the innermost loop
     """
+
     pass
 
 
@@ -75,7 +81,9 @@ class Continue(TypeReflectBaseModel):
     """
     Class representing a continue statement to jump to the next loop iteration
     """
+
     pass
+
 
 ########################################################################################
 
@@ -91,7 +99,15 @@ def _Statement_discriminator(value):
     else:
         class_ = getattr(value, "class_")
 
-    if class_ not in ["Declaration", "IfElse", "While", "Break", "Continue", "ParallelProtocol", "SerialProtocol"]:
+    if class_ not in [
+        "Declaration",
+        "IfElse",
+        "While",
+        "Break",
+        "Continue",
+        "ParallelProtocol",
+        "SerialProtocol",
+    ]:
         class_ = "AtomicExpr"
 
     return class_
