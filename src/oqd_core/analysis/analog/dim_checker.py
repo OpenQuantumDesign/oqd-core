@@ -17,6 +17,7 @@
 
 from __future__ import annotations
 
+from functools import reduce
 from typing import List, Union
 
 from oqd_compiler_infrastructure import (
@@ -164,34 +165,30 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                 return value if value == DInvalid else value[expr.index.value]
 
             case Add() | Sub():
-                args = (
-                    self._infer_dim(expr.op1, env=env),
-                    self._infer_dim(expr.op2, env=env),
-                )
+                args = [self._infer_dim(e, env=env) for e in expr.exprs]
 
-                if not self.lattice.element_lattice.equal(*args):
+                if not all(
+                    [self.lattice.element_lattice.equal(args[0], e) for e in args[1:]]
+                ):
                     raise DimensionError()
 
                 return args[0]
 
             case Kron():
-                args = (
-                    self._infer_dim(expr.op1, env=env),
-                    self._infer_dim(expr.op2, env=env),
-                )
+                args = [self._infer_dim(e, env=env) for e in expr.exprs]
 
-                return args[0] + args[1]
+                return reduce(lambda x, y: x + y, args, [])
 
             case Mul():
-                args = (
-                    self._infer_dim(expr.op1, env=env),
-                    self._infer_dim(expr.op2, env=env),
-                )
+                args = [self._infer_dim(e, env=env) for e in expr.exprs]
 
-                if (
-                    args[0] is not DInvalid
-                    and args[1] is not DInvalid
-                    and not self.lattice.element_lattice.equal(args[0], args[1])
+                op_args = list(filter(lambda x: x is not DInvalid, args))
+
+                if not all(
+                    [
+                        self.lattice.element_lattice.equal(op_args[0], e)
+                        for e in op_args[1:]
+                    ]
                 ):
                     raise DimensionError()
 
