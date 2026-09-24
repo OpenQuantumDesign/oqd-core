@@ -150,7 +150,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                     self._infer_dim(expr.op2, env=env),
                 )
 
-                if not self.lattice.element_lattice.equal(args[0], args[1]):
+                if not self.lattice.element_lattice.equal(*args):
                     raise DimensionError()
 
                 return args[0]
@@ -169,7 +169,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                     self._infer_dim(expr.op2, env=env),
                 )
 
-                if not self.lattice.element_lattice.equal(args[0], args[1]):
+                if not self.lattice.element_lattice.equal(*args):
                     raise DimensionError()
 
                 return args[0]
@@ -180,7 +180,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                     self._infer_dim(expr.expr2, env=env),
                 )
 
-                return self.lattice.element_lattice.join(args)
+                return self.lattice.element_lattice.join(*args)
 
             case Evolve():
                 args = (
@@ -188,7 +188,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                     self._infer_dim(expr.targets, env=env),
                 )
 
-                if self.lattice.element_lattice.equal(args[0], args[1]):
+                if self.lattice.element_lattice.equal(*args):
                     return DInvalid
 
                 if all(
