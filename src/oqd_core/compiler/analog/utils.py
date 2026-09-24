@@ -70,11 +70,17 @@ __all__ = ["PyASTtoAnalog", "analog"]
 
 
 class PyASTtoAnalog(ConversionRule):
+    def generic_map(self, model, operands):
+        return tuple()
+
     def map_Module(self, model, operands):
         return AnalogCircuit(statements=operands["body"][0])
 
+    def _filter_block(self, statements):
+        return list(filter(lambda x: x != tuple(), statements))
+
     def map_FunctionDef(self, model, operands):
-        return operands["body"]
+        return self._filter_block(operands["body"])
 
     def map_Assign(self, model, operands):
         if len(model.targets) != 1:
@@ -144,7 +150,7 @@ class PyASTtoAnalog(ConversionRule):
                     targets=args[0]
                 )
 
-            case "mreg":
+            case "qmode":
                 if len(args) != 1:
                     raise ValueError()
                 return ModeRegister(size=args[0])
@@ -252,7 +258,9 @@ class PyASTtoAnalog(ConversionRule):
         return current
 
     def map_While(self, model, operands):
-        return While(condition=operands["test"], body=operands["body"])
+        return While(
+            condition=operands["test"], body=self._filter_block(operands["body"])
+        )
 
     def map_Name(self, model, operands):
         if isinstance(model.ctx, ast.Load):
@@ -266,14 +274,13 @@ class PyASTtoAnalog(ConversionRule):
         if model.orelse:
             return IfElse(
                 condition=operands["test"],
-                then_branch=operands["body"],
-                else_branch=operands["orelse"],
+                then_branch=self._filter_block(operands["body"]),
+                else_branch=self._filter_block(operands["orelse"]),
             )
 
-        return IfElse(condition=operands["test"], then_branch=operands["body"])
-
-    def generic_map(self, model, operands):
-        return ()
+        return IfElse(
+            condition=operands["test"], then_branch=self._filter_block(operands["body"])
+        )
 
     def map_Expr(self, model, operands):
         return operands["value"]
