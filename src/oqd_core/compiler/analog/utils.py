@@ -171,7 +171,7 @@ class PyASTtoAnalog(ConversionRule):
                     level1=args[0], level2=args[1], dim=args[2]
                 )
             case "A" | "C" | "J":
-                return dict(A=Annihilation, C=Creation, J=Identity)()
+                return dict(A=Annihilation, C=Creation, J=Identity)[name]()
 
             case _:
                 raise ValueError("Unsupported builtin function call")
