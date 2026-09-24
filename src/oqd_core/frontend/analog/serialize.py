@@ -71,13 +71,29 @@ from oqd_core.interface.analog.expr import (
 
 
 class SerializeAnalog(ConversionRule):
+    def __init__(self, indent=2):
+        super().__init__()
+        self.indent = indent
+
     def generic_map(self, model, operands):
         if model is None or isinstance(model, (str, int, float, bool)):
             return model
         raise TypeError(f"Unsupported node: {model}")
 
+    def _indent_block(self, body):
+        body_str = "\n".join(body)
+        body_str = "\n".join(
+            map(lambda x: " " * self.indent + x, body_str.splitlines())
+        )
+
+        if body_str:
+            body_str = "\n" + body_str + "\n"
+
+        return body_str
+
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
         statements = operands["statements"]
+
         return "\n".join(statements) + "\n"
 
     ## Statements ##
@@ -86,16 +102,16 @@ class SerializeAnalog(ConversionRule):
         return f"{operands['name']} = {operands['value']}"
 
     def map_While(self, model: While, operands):
-        body = "\n".join(operands["body"]) + "\n"
-        return f"while ({operands['condition']}) {{\n{body}}}"
+        body_str = self._indent_block(operands["body"])
+        return f"while ({operands['condition']}) {{{body_str}}}"
 
     def map_IfElse(self, model: IfElse, operands):
-        then_branch = "\n".join(operands["then_branch"])
-        else_branch = operands["else_branch"]
-        if else_branch:
-            else_branch = "\n".join(else_branch)
-            return f"if ({operands['condition']}) {{\n{then_branch}\n}} else {{\n{else_branch}\n}}"
-        return f"if ({operands['condition']}) {{\n{then_branch}\n}}"
+        then_str = self._indent_block(operands["then_branch"])
+        else_str = self._indent_block(operands["else_branch"])
+
+        return f"if ({operands['condition']}) {{{then_str}}}\n" + (
+            f"else {{{else_str}}}" if else_str else ""
+        )
 
     def map_Break(self, model: Break, operands):
         return "break"
@@ -239,6 +255,12 @@ class SerializeAnalog(ConversionRule):
 
     def map_BoolLessThan(self, model: BoolLessThan, operands):
         return f"{operands['expr1']} < {operands['expr2']}"
+
+        # then_branch = "\n".join(operands["then_branch"])
+        # else_branch = operands["else_branch"]
+        # if else_branch:
+        #     else_branch = "\n".join(else_branch)
+        #     return f"if ({operands['condition']}) {{\n{then_branch}\n}} else {{\n{else_branch}\n}}"
 
     def map_BoolLessThanEq(self, model: BoolLessThanEq, operands):
         return f"{operands['expr1']} <= {operands['expr2']}"
