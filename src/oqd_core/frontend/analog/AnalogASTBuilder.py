@@ -431,12 +431,12 @@ class AnalogASTBuilder(AnalogParserVisitor):
 ########################################################################################
 
 
-def parse_analog(source):
+def parse_analog(source: str) -> AnalogCircuit:
     stream = antlr4.InputStream(source)
     lexer = AnalogLexer(stream)
     tokens = antlr4.CommonTokenStream(lexer)
-    parse_result = AnalogParser(tokens)
-    tree = parse_result.program()
+    parser = AnalogParser(tokens)
+    tree = parser.program()
 
     builder = AnalogASTBuilder()
 
