@@ -87,14 +87,6 @@ class AvailableVariableAnalysis(
 ):
     lattice = PowersetLattice[AvailableVariableValue]()
 
-    @gen_pass(rule_type="rewrite", walk=Post, method=True)
-    def _check_variables_available(self, expr, stmt, *, env):
-        if isinstance(expr, Access) and isinstance(env, set) and expr.name not in env:
-            raise AvailableVariableError(
-                f"Use of variable ({expr.name}) in statement ({serialize_analog(stmt)})"
-                " that may be undefined for some path through the program"
-            )
-
     def initial_state(self, nodes):
         return {
             node: self.lattice.bottom() if node == 0 else self.lattice.top()
@@ -104,26 +96,24 @@ class AvailableVariableAnalysis(
     def merge(self, states):
         return self.lattice.merge_intersection(states)
 
+    @gen_pass(rule_type="rewrite", walk=Post, method=True)
+    def _check_variables_available(self, expr, stmt, *, env):
+        if isinstance(expr, Access) and isinstance(env, set) and expr.name not in env:
+            raise AvailableVariableError(
+                f"Use of variable ({expr.name}) in statement ({serialize_analog(stmt)})"
+                " that may be undefined for some path through the program"
+            )
+
     def transfer(self, graph, node_id, state_in):
         block = graph[node_id]
 
         block_def = set()
         for stmt in block.stmts:
-            match stmt:
-                case _ if block.edge_labels:
-                    self._check_variables_available(
-                        block.stmts[0], stmt, env=self.lattice.join(block_def, state_in)
-                    )
+            self._check_variables_available(
+                stmt, stmt, env=self.lattice.join(block_def, state_in)
+            )
 
-                case Declaration():
-                    block_def.add(stmt.name)
-                    self._check_variables_available(
-                        stmt.value, stmt, env=self.lattice.join(block_def, state_in)
-                    )
-
-                case _:
-                    self._check_variables_available(
-                        stmt, stmt, env=self.lattice.join(block_def, state_in)
-                    )
+            if isinstance(stmt, Declaration):
+                block_def.add(stmt.name)
 
         return self.lattice.join(block_def, state_in)
