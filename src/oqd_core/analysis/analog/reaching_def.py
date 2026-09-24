@@ -22,14 +22,15 @@ from typing import Tuple
 from oqd_compiler_infrastructure import (
     CFGBlock,
     ForwardDataflowAnalysis,
+    Post,
     PowersetLattice,
     PowersetLatticeValue,
+    gen_pass,
 )
 
 from oqd_core.frontend.analog import serialize_analog
 from oqd_core.interface.analog import (
     Access,
-    AnalogExpr,
     Declaration,
 )
 
@@ -85,19 +86,19 @@ class AvailableVariableAnalysis(
 ):
     lattice = PowersetLattice[AvailableVariableValue]()
 
+    @gen_pass(rule_type="rewrite", walk=Post, method=True)
     def _check_variables_available(self, expr, stmt, *, env):
-        match expr:
-            case Access():
-                if expr.name not in env:
-                    raise AvailableVariableError(
-                        f"Use of variable ({expr.name}) in statement ({serialize_analog(stmt)}) that may be undefined for some path through the program"
-                    )
-            case AnalogExpr():
-                for field in expr.__class__.model_fields.keys():
-                    self._check_variables_available(getattr(expr, field), stmt, env=env)
+        if isinstance(expr, Access) and isinstance(env, set) and expr.name not in env:
+            raise AvailableVariableError(
+                f"Use of variable ({expr.name}) in statement ({serialize_analog(stmt)})"
+                " that may be undefined for some path through the program"
+            )
 
     def initial_state(self, nodes):
-        return {node: self.lattice.bottom() for node in nodes}
+        return {
+            node: self.lattice.bottom() if node == 0 else self.lattice.top()
+            for node in nodes
+        }
 
     def merge(self, states):
         return self.lattice.merge_intersection(states)
