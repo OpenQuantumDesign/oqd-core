@@ -79,30 +79,33 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     def _compare_variable_type(
         self, signature, args, subsignature, subargs, variable_type_mapping={}
     ):
-        for n, _ in enumerate(subsignature):
-            if getattr(subsignature[n], "__origin__", None) is TList:
-                self._compare_variable_type(
-                    signature,
-                    args,
-                    subsignature[n].__args__,
-                    subargs[n].__args__,
-                    variable_type_mapping=variable_type_mapping,
-                )
-                continue
+        try:
+            for n, _ in enumerate(subsignature):
+                if getattr(subsignature[n], "__origin__", None) is TList:
+                    self._compare_variable_type(
+                        signature,
+                        args,
+                        subsignature[n].__args__,
+                        subargs[n].__args__,
+                        variable_type_mapping=variable_type_mapping,
+                    )
+                    continue
 
-            if not isinstance(subsignature[n], TypeVar):
-                continue
+                if not isinstance(subsignature[n], TypeVar):
+                    continue
 
-            if variable_type_mapping.get(subsignature[n], None) is None:
-                variable_type_mapping[subsignature[n]] = subargs[n]
-                continue
+                if variable_type_mapping.get(subsignature[n], None) is None:
+                    variable_type_mapping[subsignature[n]] = subargs[n]
+                    continue
 
-            if variable_type_mapping[subsignature[n]] != subargs[n]:
-                raise AnalogTypeError(
-                    f"Got signature {self._print_function_signature(args)} inconsistent with {signature}"
-                )
+                if variable_type_mapping[subsignature[n]] != subargs[n]:
+                    raise AnalogTypeError(
+                        f"Got signature {self._print_function_signature(args)} inconsistent with {signature}"
+                    )
 
-        return variable_type_mapping
+            return True, variable_type_mapping
+        except Exception:
+            return False, _
 
     def _replace_variable_type(self, variable_type_mapping, original_type):
         if getattr(original_type, "__origin__", None) is TList:
@@ -126,11 +129,11 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         if len(args) != len(sig_args_types):
             return False, None
 
-        variable_type_mapping = self._compare_variable_type(
+        success, variable_type_mapping = self._compare_variable_type(
             signature, args, sig_args_types, args, {}
         )
 
-        if all(
+        if success and all(
             [
                 self.lattice.element_lattice.leq(
                     self._replace_variable_type(variable_type_mapping, sig_arg_type),
