@@ -19,6 +19,7 @@ from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule
 from pydantic import TypeAdapter, ValidationError
 
 from oqd_core.interface.atomic import (
+    Access,
     # CastMathExpr,
     MathAdd,
     MathBinaryOp,
@@ -32,7 +33,6 @@ from oqd_core.interface.atomic import (
     MathSub,
     MathTerminal,
     MathVar,
-    Access,
 )
 
 ########################################################################################
@@ -49,6 +49,7 @@ __all__ = [
 ]
 
 ########################################################################################
+
 
 def _is_constant_math(model) -> bool:
     if isinstance(model, (MathNum, MathImag)):
@@ -260,7 +261,8 @@ class PartitionMathExpr(RewriteRule):
         )
 
         if isinstance(
-            model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow, MathMul)
+            model.expr2,
+            (MathImag, MathNum, MathVar, Access, MathFunc, MathPow, MathMul),
         ):
             if isinstance(model.expr1, MathAdd):
                 if (
@@ -282,9 +284,13 @@ class PartitionMathExpr(RewriteRule):
                     )
 
     def map_MathMul(self, model: MathMul):
-        priority = dict(MathImag=5, MathNum=4, MathVar=3, Access=2, MathFunc=1, MathPow=0)
+        priority = dict(
+            MathImag=5, MathNum=4, MathVar=3, Access=2, MathFunc=1, MathPow=0
+        )
 
-        if isinstance(model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow)):
+        if isinstance(
+            model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow)
+        ):
             if isinstance(model.expr1, MathMul):
                 if (
                     priority[model.expr2.__class__.__name__]
@@ -434,11 +440,9 @@ class EvaluateMathExpr(ConversionRule):
         raise TypeError(
             "Evaluation requires the substitution of all MathVar to constants"
         )
-    
+
     def map_Access(self, model: Access, operands):
-        raise TypeError(
-            "Evaluation requires Access to be resolved"
-        )
+        raise TypeError("Evaluation requires Access to be resolved")
 
     def map_MathNum(self, model: MathNum, operands):
         return model.value
@@ -523,7 +527,7 @@ class SimplifyMathExpr(RewriteRule):
     def map_MathExpr(self, model):
         if not _is_constant_math(model):
             return model
-        
+
         try:
             # TypeAdapter(CastMathExpr).validate_python(model)
 

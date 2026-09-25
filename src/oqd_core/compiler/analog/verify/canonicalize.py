@@ -17,11 +17,12 @@ from typing import Union
 from oqd_compiler_infrastructure import RewriteRule
 
 from oqd_core.compiler.analog.error import AnalogCompilerError
-from oqd_core.compiler.analog.operator.dim import is_scalar_mul, coeff_and_op
+from oqd_core.compiler.analog.operator.dim import coeff_and_op, is_scalar_mul
 from oqd_core.compiler.analog.operator.term_index import term_index
 
 ########################################################################################
 from oqd_core.interface.analog.expr import (
+    Access,
     Annihilation,
     Creation,
     Identity,
@@ -32,7 +33,6 @@ from oqd_core.interface.analog.expr import (
     OperatorSub,
     OperatorTerminal,
     Pauli,
-    Access,
 )
 
 ########################################################################################

@@ -18,6 +18,7 @@ import numpy as np
 from oqd_compiler_infrastructure import ConversionRule, Post, RewriteRule
 from pydantic import ValidationError
 
+from oqd_core.compiler.analog.error import AnalogCompilerError
 from oqd_core.interface.analog.expr import (
     Access,
     MathAdd,
@@ -33,9 +34,9 @@ from oqd_core.interface.analog.expr import (
     MathTerminal,
     MathVar,
 )
-from oqd_core.compiler.analog.error import AnalogCompilerError
 
 ########################################################################################
+
 
 def _is_constant_math(model) -> bool:
     if isinstance(model, (MathNum, MathImag, Access)):
@@ -50,6 +51,7 @@ def _is_constant_math(model) -> bool:
     if isinstance(model, (MathAdd, MathSub, MathMul, MathDiv, MathPow)):
         return _is_constant_math(model.expr1) and _is_constant_math(model.expr2)
     return False
+
 
 ########################################################################################
 
@@ -263,7 +265,8 @@ class PartitionMathExpr(RewriteRule):
         )
 
         if isinstance(
-            model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow, MathMul)
+            model.expr2,
+            (MathImag, MathNum, MathVar, Access, MathFunc, MathPow, MathMul),
         ):
             if isinstance(model.expr1, MathAdd):
                 if (
@@ -285,9 +288,13 @@ class PartitionMathExpr(RewriteRule):
                     )
 
     def map_MathMul(self, model: MathMul):
-        priority = dict(MathImag=5, MathNum=4, MathVar=3, Access=2, MathFunc=1, MathPow=0)
+        priority = dict(
+            MathImag=5, MathNum=4, MathVar=3, Access=2, MathFunc=1, MathPow=0
+        )
 
-        if isinstance(model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow)):
+        if isinstance(
+            model.expr2, (MathImag, MathNum, MathVar, Access, MathFunc, MathPow)
+        ):
             if isinstance(model.expr1, MathMul):
                 if (
                     priority[model.expr2.__class__.__name__]
@@ -437,11 +444,9 @@ class EvaluateMathExpr(ConversionRule):
         raise TypeError(
             "Evaluation requires the substitution of all MathVar to constants"
         )
-    
+
     def map_Access(self, model: Access, operands):
-        raise TypeError(
-            "Evaluation requires Access to be resolved"
-        )
+        raise TypeError("Evaluation requires Access to be resolved")
 
     def map_MathNum(self, model: MathNum, operands):
         return model.value

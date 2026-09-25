@@ -15,17 +15,33 @@
 from typing import Union
 
 from oqd_compiler_infrastructure import RewriteRule
-from oqd_core.compiler.analog.operator.term_index import term_index
+
 from oqd_core.compiler.analog.operator.dim import (
     coeff_and_op,
     is_scalar_mul,
     scalar_mul,
 )
+from oqd_core.compiler.analog.operator.term_index import term_index
 from oqd_core.interface.analog.expr import (
-    Annihilation, Creation, Identity, Ladder,
-    MathAdd, MathImag, MathMul, MathNum, Access,
-    OperatorAdd, OperatorKron, OperatorMul, OperatorSub,
-    OperatorTerminal, Pauli, PauliI, PauliX, PauliY, PauliZ,
+    Access,
+    Annihilation,
+    Creation,
+    Identity,
+    Ladder,
+    MathAdd,
+    MathImag,
+    MathMul,
+    MathNum,
+    OperatorAdd,
+    OperatorKron,
+    OperatorMul,
+    OperatorSub,
+    OperatorTerminal,
+    Pauli,
+    PauliI,
+    PauliX,
+    PauliY,
+    PauliZ,
 )
 
 ########################################################################################
@@ -66,7 +82,7 @@ class OperatorDistribute(RewriteRule):
     def map_OperatorMul(self, model: OperatorMul):
         if is_scalar_mul(model):
             return None
-        
+
         if isinstance(model.op1, (OperatorAdd, OperatorSub)):
             return model.op1.__class__(
                 op1=OperatorMul(op1=model.op1.op1, op2=model.op2),
@@ -378,20 +394,28 @@ class ScaleTerms(RewriteRule):
 
     def map_OperatorAdd(self, model: OperatorAdd):
         self.op_add_root = True
-        op1 = model.op1 if (is_scalar_mul(model.op1) or isinstance(model.op1, OperatorAdd)) else scalar_mul(MathNum(value=1), model.op1)
-        op2 = model.op2 if (is_scalar_mul(model.op2) or isinstance(model.op2, OperatorAdd)) else scalar_mul(MathNum(value=1), model.op2)
+        op1 = (
+            model.op1
+            if (is_scalar_mul(model.op1) or isinstance(model.op1, OperatorAdd))
+            else scalar_mul(MathNum(value=1), model.op1)
+        )
+        op2 = (
+            model.op2
+            if (is_scalar_mul(model.op2) or isinstance(model.op2, OperatorAdd))
+            else scalar_mul(MathNum(value=1), model.op2)
+        )
         return OperatorAdd(op1=op1, op2=op2)
-    
+
     def map_OperatorTerminal(self, model):
         if not self.op_add_root:
             self.op_add_root = True
             return scalar_mul(MathNum(value=1), model)
-        
+
     def map_OperatorKron(self, model):
         if not self.op_add_root:
             self.op_add_root = True
             return scalar_mul(MathNum(value=1), model)
-        
+
     def map_OperatorMul(self, model):
         if is_scalar_mul(model):
             return None
