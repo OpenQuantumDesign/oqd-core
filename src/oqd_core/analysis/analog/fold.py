@@ -31,9 +31,11 @@ from oqd_compiler_infrastructure import (
 
 from oqd_core.interface.analog import (
     Access,
+    AnalogExpr,
+    Constant,
     Declaration,
-    MathNum,
 )
+from oqd_core.interface.analog.expr import Operator
 
 ########################################################################################
 
@@ -50,7 +52,7 @@ class CLatticeTop(LatticeTop): ...
 class CInvalid(CLatticeTop): ...
 
 
-ConstantFoldingValue = Union[CLatticeTop, MathNum]
+ConstantFoldingValue = Union[CLatticeTop, Constant, Operator]
 
 
 class ConstantLattice(Lattice[ConstantFoldingValue]):
@@ -97,7 +99,10 @@ class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, ConstantFoldingValu
     lattice = maplattice(ConstantLattice)()
 
     def initial_state(self, nodes):
-        return {node: self.lattice.top() for node in nodes}
+        return {
+            node: self.lattice.bottom() if node == 0 else self.lattice.top()
+            for node in nodes
+        }
 
     def merge(self, states):
         return self.lattice.merge_intersection(states)
@@ -105,29 +110,17 @@ class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, ConstantFoldingValu
     @gen_pass(rule_type="conversion", walk=Post, method=True)
     def _fold(self, model, operands, *, env):
         match model:
-            case MathNum():
+            case Constant() | Operator():
                 return model
 
             case Access():
                 return env.get(model.name, self.lattice.element_lattice.bottom())
 
-            case Declaration():
-                if not isinstance(operands["value"], MathNum):
-                    env[model.name] = self.lattice.element_lattice.bottom()
-                    return model
-
+            case Declaration(value=Constant() | Operator() | Access()):
                 env[model.name] = operands["value"]
-                return model
 
-            case dict():
-                for k, v in operands.items():
-                    if isinstance(v, MathNum):
-                        model[k] = v
-
-            case list():
-                for n, v in enumerate(operands):
-                    if isinstance(v, MathNum):
-                        model[n] = v
+            case Declaration():
+                env[model.name] = self.lattice.element_lattice.bottom()
 
             case _:
                 return self.lattice.element_lattice.bottom()
@@ -135,7 +128,7 @@ class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, ConstantFoldingValu
     def transfer(self, graph, node_id, state_in):
         block = graph[node_id]
 
-        state_out = {} if state_in == self.lattice.top() else state_in.copy()
+        state_out = state_in.copy() if isinstance(state_in, dict) else {}
 
         self._fold(block, env=state_out)
         return state_out
