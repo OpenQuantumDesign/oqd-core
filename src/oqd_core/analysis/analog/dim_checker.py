@@ -192,7 +192,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                 ):
                     raise DimensionError()
 
-                return args[0]
+                return op_args[0] if op_args else DInvalid
 
             case Evolve():
                 args = (
