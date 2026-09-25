@@ -41,6 +41,8 @@ from oqd_core.interface.analog import (
     Evolve,
     Extract,
     Identity,
+    Neg,
+    Pos,
     Kron,
     ModeRegister,
     Mul,
@@ -163,6 +165,10 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                 value = self._infer_dim(expr.access, env=env)
 
                 return value if value == DInvalid else value[expr.index.value]
+
+            case Neg() | Pos():
+                arg = self._infer_dim(expr.expr, env=env)
+                return arg
 
             case Add() | Sub():
                 args = [self._infer_dim(e, env=env) for e in expr.exprs]
