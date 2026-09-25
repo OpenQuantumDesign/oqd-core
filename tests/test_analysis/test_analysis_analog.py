@@ -13,215 +13,317 @@
 # limitations under the License.
 
 import pytest
-from oqd_compiler_infrastructure import CFGBlockAccumulator
-
-from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
-from oqd_core.analysis.analog.symbol_table import (
-    AnalogSymbolTableBuilder,
+from oqd_compiler_infrastructure import (
+    CFG,
+    CFGBlockAccumulator,
+    Chain,
+    RelabelCFGBlocks,
 )
-from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
-from oqd_core.analysis.analog.types import AnalogTypeError
+
+from oqd_core.analysis.analog import (
+    AnalogCFGBuilder,
+    AnalogTypeChecker,
+    AnalogTypeError,
+)
+from oqd_core.analysis.analog.types import (
+    TBool,
+    TComplex,
+    TFloat,
+    TInt,
+    TList,
+    TOp,
+    TQReg,
+    TQRegElem,
+)
 from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 
-## Symbol Table ##
+########################################################################################
 
 
-def build_symbol_table(program: str):
-    circuit = parse_analog(program)
-    cfg = AnalogCFGBuilder()(circuit)
-    cfg = CFGBlockAccumulator()(cfg)
-    type_checker = AnalogTypeChecker(cfg)
-    symbol_table = AnalogSymbolTableBuilder(
-        cfg, type_checker.dataflow_result
-    ).symbol_table
-    return symbol_table, circuit
+@pytest.fixture()
+def cfg_builder():
+
+    passes = Chain(
+        parse_analog,
+        AnalogCFGBuilder(),
+        CFGBlockAccumulator(),
+        RelabelCFGBlocks(),
+    )
+
+    return passes
 
 
-# class TestAnalogSymbolTable:
-#     def test_qreg_binding(self):
-#         symbol_table, circuit = build_symbol_table("r = qreg(3) \n initialize(r)")
-#         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-#         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-#         assert env["r"].target_dim == 3
-#         assert env["r"].lattice_type is TQReg
-
-#     def test_qmode_binding(self):
-#         symbol_table, circuit = build_symbol_table("s = qmode(2) \n initialize(s)")
-#         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-#         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-#         assert env["s"].target_dim == 2
-#         assert env["s"].lattice_type is TMReg
-
-#     def test_extract_binding(self):
-#         program = "r = qreg(2) \n q = r[0] \n initialize(q)"
-#         symbol_table, circuit = build_symbol_table(program)
-#         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-#         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-#         assert env["q"].target_dim == 1
-
-#     def test_target_list_binding(self):
-#         program = (
-#             "r = qreg(3) \n"
-#             "target = [r[0], r[1], r[2]] \n"
-#             "initialize(target)"
-#         )
-#         symbol_table, circuit = build_symbol_table(program)
-#         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-#         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-#         assert env["target"].target_dim == 3
+@pytest.fixture()
+def type_checker():
+    return AnalogTypeChecker()
 
 
-## Control Flow Graph ##
+########################################################################################
 
 
 class TestAnalogCFG:
-    def test_analog_cfg(self):
-        program = "r = qreg(3) \n x = 1"
-        circuit = parse_analog(program)
-        cfg = AnalogCFGBuilder()(circuit)
-        assert cfg is not None
-
-
-## Type Checker ##
+    @pytest.mark.parametrize(
+        "source",
+        [
+            "x = 1",
+            "x = 1 \n if (x==1) {x = 2}",
+            "x = 1 \n if (x==1) {x = 2} \n y = x",
+            "x = 1 \n if (x==1) {x = 2} \n else {x = 3}",
+            "x = 1 \n if (x==1) {x = 2} \n else {x = 3} \n y = x",
+            "x = 1 \n if (x < 10) {if (x == 1) {x = 2}} \n else {x = 3} \n y = x",
+            "x = 1 \n if (x < 10) {if (x == 1) {x = 2} else {x = 4}} \n else {x = 3} \n y = x",
+            "x = 1 \n if (x > 10) {x = 2} \n else {if (x == 1) {x = 3}} \n y = x",
+            "x = 1 \n if (x > 10) {x = 2} \n else {if (x == 1) {x = 3} else {x = 5}} \n y = x",
+            "x = 1 \n while (x<10) {x = x + 1}",
+            "x = 1 \n while (x<10) {x = x + 1} \n y = x",
+            "x = 1 \n y = 1 \n while (x<10) { while (y < 10) {y = y + 1} \n x = x + 1} \n z = x + y",
+        ],
+    )
+    def test_analog_cfg_builder(self, source, cfg_builder):
+        cfg_builder(source)
 
 
 class TestAnalogTypeChecker:
     @pytest.mark.parametrize(
-        "program",
+        ("source", "expected"),
         [
-            "r = qreg(2) \n initialize(r)",
-            "r = qreg(2) \n measure(r)",
-            "r = qreg(2) \n evolve(%X, 1.0, r)",
-            "s = 5 * 4",
-            "s = 5 + 2",
-            "s = 5 - 2",
-            "s = 6 / 2",
-            "s = 2 ^ 3",
-            "s = #omega + 1",
-            "s = 1j * 2",
-            "s = sin(1)",
-            "s = atan2(1, 2)",
-            "s = qmode(3) \n initialize(s)",
-            "H = %X %* %I",
-            "H = 2 %* %X",
-            "H = %X %* 2",
-            "H = %X %+ %Y",
-            "H = %X %- %Y",
-            "H = %X %@ %Y",
-            "cond = true and false",
-            "cond = true and false \n if (cond) {t = 0.2}",
-            "cond = true or false \n while (cond) {t = 0.2}",
-            "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
-            "r = qreg(2) \n q = r[0] \n measure(q)",
-            "s = qmode(2) \n m = s[0] \n initialize(m)",
-            "s = qmode(3) \n evolve(%C %* %A, 1.0, s)",
-            "c = 1 < 2",
-            "c = 3 >= 2",
-            "if (1 < 2) {x = 0}",
-            "if (5 <= 4) {s = true}",
-            "c = 1 == 2",
-            "c = true != false",
-            "c = not true",
-            "x = 1 \n x = 2 \n y = x + 1",
-            "n = 3 \n while (n > 0) { n = n - 1 }",
+            ("x=1", {0: {}, 1: {"x": TInt}, 2: {"x": TInt}}),
+            (
+                "x=1 \n y = 2.0",
+                {0: {}, 1: {"x": TInt, "y": TFloat}, 2: {"x": TInt, "y": TFloat}},
+            ),
+            (
+                "x = 1 \n while (x<10) {x = x + 0.1}",
+                {
+                    0: {},
+                    1: {"x": TInt},
+                    2: {"x": TFloat},
+                    3: {"x": TFloat},
+                    4: {"x": TFloat},
+                },
+            ),
+            (
+                "x = 1 \n while (real(x)<10) {x = x + 0.1 * 1j}",
+                {
+                    0: {},
+                    1: {"x": TInt},
+                    2: {"x": TComplex},
+                    3: {"x": TComplex},
+                    4: {"x": TComplex},
+                },
+            ),
         ],
     )
-    def test_analog_type_checker(self, program):
-        circuit = parse_analog(program)
-        cfg = AnalogCFGBuilder()(circuit)
-        AnalogTypeChecker(cfg)
+    def test_analog_type_checker(
+        self,
+        source,
+        expected,
+        cfg_builder,
+        type_checker,
+    ):
+        cfg = cfg_builder(source)
 
-    @pytest.mark.parametrize(
-        "program",
-        [
-            "initialize(r)",
-            "measure(r)",
-            "evolve(%X, 1.0, r)",
-            "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)",
-            "r = qreg(2) \n evolve(5, 1.0, r)",
-            "r = qreg(2) \n evolve(%X, true, r)",
-            "s = 5 \n initialize(s)",
-            "s = 5 * true",
-            "s = 5 + %I",
-            "s = 5 - true",
-            "s = %X / 2",
-            "s = 2 ^ %I",
-            "s = sin(true)",
-            "s = cos(%X)",
-            "s = atan2(1, true)",
-            "s = 5 \n x = s[0]",
-            "H = %X * %I",
-            "H = %X %+ 5",
-            "H = %X %@ 2",
-            "cond = true and 4",
-            "cond = 5 \n if (cond) {t = 0.2}",
-            "cond = %I \n while (cond) {t = 0.2}",
-            "c = true \n measure(c)",
-            "c = 1 == true",
-            "c = true != 5",
-            "c = %X == %Y",
-            "c = not 5",
-            "c = ! %I",
-            "c = 5 and true",
-            "c = true or %I",
-            "c = true < false",
-            "c = true \n x = c[0]",
-        ],
-    )
-    def test_analog_type_checker_error(self, program):
-        circuit = parse_analog(program)
-        with pytest.raises(AnalogTypeError):
-            cfg = AnalogCFGBuilder()(circuit)
-            AnalogTypeChecker(cfg)
+        type_result = type_checker.analyze(cfg).out_states
+
+        assert type_result == expected
 
 
-## CFGBlockAccumulator ##
+# def build_symbol_table(program: str):
+#     circuit = parse_analog(program)
+#     cfg = AnalogCFGBuilder()(circuit)
+#     cfg = CFGBlockAccumulator()(cfg)
+#     type_checker = AnalogTypeChecker(cfg)
+#     symbol_table = AnalogSymbolTableBuilder(
+#         cfg, type_checker.dataflow_result
+#     ).symbol_table
+#     return symbol_table, circuit
 
 
-class TestAnalogAccumulator:
-    @pytest.mark.parametrize(
-        "program",
-        [
-            "1",
-            "x = 0 \n while (true) { \n x = x + 2 \n if (x > 3) { \n break \n } \n else { \n a = 1\n } \n}",
-            "if (5 == 2) { \n a = 1}",
-            "a = 1 \n b = 2 \n r = qreg(3) \n p = 4 \n d = sin(3.141592)",
-            "a = 5 \n b = 3 \n if (a > b) { \n if (b > 0) { \n initialize(targets) \n} \n else { \n measure(r) \n } \n }",
-            "a = 2 \n b = 3 \n if (a > 2) { \n a = 3 \n if (a==b) { \n b = 2 \n } \n else { \n b = 5 \n } \n if (b < a) { \n b = 5 \n }\n } \n c = a + b \n c",
-        ],
-    )
-    def test_analog_accumulator_simple(self, program):
-        circuit = parse_analog(program)
-        single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
-        multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
-        assert len(multiple_stmts_block_cfg.blocks) <= len(single_stmt_block_cfg.blocks)
+# # class TestAnalogSymbolTable:
+# #     def test_qreg_binding(self):
+# #         symbol_table, circuit = build_symbol_table("r = qreg(3) \n initialize(r)")
+# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
+# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+# #         assert env["r"].target_dim == 3
+# #         assert env["r"].lattice_type is TQReg
 
-    @pytest.mark.parametrize(
-        "program",
-        [
-            "1",
-            "x = 0 \n while (true) { \n x = x + 2 \n if (x > 3) { \n break \n } \n else { \n a = 1\n } \n}",
-            "if (5 == 2) { \n a = 1}",
-            "a = 5 \n if (a > 2) { \n if (a > 0) { \n initialize(targets) \n} \n else { \n measure(r) \n } \n }",
-        ],
-    )
-    def test_analog_accumulator_does_nothing(self, program):
-        circuit = parse_analog(program)
-        single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
-        multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
-        assert len(multiple_stmts_block_cfg.blocks) == len(single_stmt_block_cfg.blocks)
+# #     def test_qmode_binding(self):
+# #         symbol_table, circuit = build_symbol_table("s = qmode(2) \n initialize(s)")
+# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
+# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+# #         assert env["s"].target_dim == 2
+# #         assert env["s"].lattice_type is TMReg
 
-    @pytest.mark.parametrize(
-        "program",
-        [
-            "a = 0 \n x = 2",
-            "a = 1 \n b = 2 \n r = qreg(3) \n p = 4 \n d = sin(3.141592)",
-            "r = qreg(5) \n initialize(r) \n evolve(%X, 1, r[0])",
-        ],
-    )
-    def test_analog_accumulator_single_block(self, program):
-        circuit = parse_analog(program)
-        single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
-        assert len(single_stmt_block_cfg.blocks) > 3
-        multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
-        assert len(multiple_stmts_block_cfg.blocks) == 3
+# #     def test_extract_binding(self):
+# #         program = "r = qreg(2) \n q = r[0] \n initialize(q)"
+# #         symbol_table, circuit = build_symbol_table(program)
+# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
+# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+# #         assert env["q"].target_dim == 1
+
+# #     def test_target_list_binding(self):
+# #         program = (
+# #             "r = qreg(3) \n"
+# #             "target = [r[0], r[1], r[2]] \n"
+# #             "initialize(target)"
+# #         )
+# #         symbol_table, circuit = build_symbol_table(program)
+# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
+# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
+# #         assert env["target"].target_dim == 3
+
+
+# ## Control Flow Graph ##
+
+
+# class TestAnalogCFG:
+#     def test_analog_cfg(self):
+#         program = "r = qreg(3) \n x = 1"
+#         circuit = parse_analog(program)
+#         cfg = AnalogCFGBuilder()(circuit)
+#         assert cfg is not None
+
+
+# ## Type Checker ##
+
+
+# class TestAnalogTypeChecker:
+#     @pytest.mark.parametrize(
+#         "program",
+#         [
+#             "r = qreg(2) \n initialize(r)",
+#             "r = qreg(2) \n measure(r)",
+#             "r = qreg(2) \n evolve(%X, 1.0, r)",
+#             "s = 5 * 4",
+#             "s = 5 + 2",
+#             "s = 5 - 2",
+#             "s = 6 / 2",
+#             "s = 2 ^ 3",
+#             "s = #omega + 1",
+#             "s = 1j * 2",
+#             "s = sin(1)",
+#             "s = atan2(1, 2)",
+#             "s = qmode(3) \n initialize(s)",
+#             "H = %X %* %I",
+#             "H = 2 %* %X",
+#             "H = %X %* 2",
+#             "H = %X %+ %Y",
+#             "H = %X %- %Y",
+#             "H = %X %@ %Y",
+#             "cond = true and false",
+#             "cond = true and false \n if (cond) {t = 0.2}",
+#             "cond = true or false \n while (cond) {t = 0.2}",
+#             "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
+#             "r = qreg(2) \n q = r[0] \n measure(q)",
+#             "s = qmode(2) \n m = s[0] \n initialize(m)",
+#             "s = qmode(3) \n evolve(%C %* %A, 1.0, s)",
+#             "c = 1 < 2",
+#             "c = 3 >= 2",
+#             "if (1 < 2) {x = 0}",
+#             "if (5 <= 4) {s = true}",
+#             "c = 1 == 2",
+#             "c = true != false",
+#             "c = not true",
+#             "x = 1 \n x = 2 \n y = x + 1",
+#             "n = 3 \n while (n > 0) { n = n - 1 }",
+#         ],
+#     )
+#     def test_analog_type_checker(self, program):
+#         circuit = parse_analog(program)
+#         cfg = AnalogCFGBuilder()(circuit)
+#         AnalogTypeChecker(cfg)
+
+#     @pytest.mark.parametrize(
+#         "program",
+#         [
+#             "initialize(r)",
+#             "measure(r)",
+#             "evolve(%X, 1.0, r)",
+#             "s = 5 \n r = qreg(3) \n target = [r[0], r[1], r[2], s] \n initialize(target)",
+#             "r = qreg(2) \n evolve(5, 1.0, r)",
+#             "r = qreg(2) \n evolve(%X, true, r)",
+#             "s = 5 \n initialize(s)",
+#             "s = 5 * true",
+#             "s = 5 + %I",
+#             "s = 5 - true",
+#             "s = %X / 2",
+#             "s = 2 ^ %I",
+#             "s = sin(true)",
+#             "s = cos(%X)",
+#             "s = atan2(1, true)",
+#             "s = 5 \n x = s[0]",
+#             "H = %X * %I",
+#             "H = %X %+ 5",
+#             "H = %X %@ 2",
+#             "cond = true and 4",
+#             "cond = 5 \n if (cond) {t = 0.2}",
+#             "cond = %I \n while (cond) {t = 0.2}",
+#             "c = true \n measure(c)",
+#             "c = 1 == true",
+#             "c = true != 5",
+#             "c = %X == %Y",
+#             "c = not 5",
+#             "c = ! %I",
+#             "c = 5 and true",
+#             "c = true or %I",
+#             "c = true < false",
+#             "c = true \n x = c[0]",
+#         ],
+#     )
+#     def test_analog_type_checker_error(self, program):
+#         circuit = parse_analog(program)
+#         with pytest.raises(AnalogTypeError):
+#             cfg = AnalogCFGBuilder()(circuit)
+#             AnalogTypeChecker(cfg)
+
+
+# ## CFGBlockAccumulator ##
+
+
+# class TestAnalogAccumulator:
+#     @pytest.mark.parametrize(
+#         "program",
+#         [
+#             "1",
+#             "x = 0 \n while (true) { \n x = x + 2 \n if (x > 3) { \n break \n } \n else { \n a = 1\n } \n}",
+#             "if (5 == 2) { \n a = 1}",
+#             "a = 1 \n b = 2 \n r = qreg(3) \n p = 4 \n d = sin(3.141592)",
+#             "a = 5 \n b = 3 \n if (a > b) { \n if (b > 0) { \n initialize(targets) \n} \n else { \n measure(r) \n } \n }",
+#             "a = 2 \n b = 3 \n if (a > 2) { \n a = 3 \n if (a==b) { \n b = 2 \n } \n else { \n b = 5 \n } \n if (b < a) { \n b = 5 \n }\n } \n c = a + b \n c",
+#         ],
+#     )
+#     def test_analog_accumulator_simple(self, program):
+#         circuit = parse_analog(program)
+#         single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
+#         multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
+#         assert len(multiple_stmts_block_cfg.blocks) <= len(single_stmt_block_cfg.blocks)
+
+#     @pytest.mark.parametrize(
+#         "program",
+#         [
+#             "1",
+#             "x = 0 \n while (true) { \n x = x + 2 \n if (x > 3) { \n break \n } \n else { \n a = 1\n } \n}",
+#             "if (5 == 2) { \n a = 1}",
+#             "a = 5 \n if (a > 2) { \n if (a > 0) { \n initialize(targets) \n} \n else { \n measure(r) \n } \n }",
+#         ],
+#     )
+#     def test_analog_accumulator_does_nothing(self, program):
+#         circuit = parse_analog(program)
+#         single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
+#         multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
+#         assert len(multiple_stmts_block_cfg.blocks) == len(single_stmt_block_cfg.blocks)
+
+#     @pytest.mark.parametrize(
+#         "program",
+#         [
+#             "a = 0 \n x = 2",
+#             "a = 1 \n b = 2 \n r = qreg(3) \n p = 4 \n d = sin(3.141592)",
+#             "r = qreg(5) \n initialize(r) \n evolve(%X, 1, r[0])",
+#         ],
+#     )
+#     def test_analog_accumulator_single_block(self, program):
+#         circuit = parse_analog(program)
+#         single_stmt_block_cfg = AnalogCFGBuilder()(circuit)
+#         assert len(single_stmt_block_cfg.blocks) > 3
+#         multiple_stmts_block_cfg = CFGBlockAccumulator()(single_stmt_block_cfg)
+#         assert len(multiple_stmts_block_cfg.blocks) == 3

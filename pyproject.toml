@@ -77,7 +77,6 @@ exclude = [
   "src/oqd_core/frontend/atomic/AtomicParser.py",
   "src/oqd_core/frontend/atomic/AtomicParserListener.py",
   "src/oqd_core/frontend/atomic/AtomicParserVisitor.py",
-  "src/oqd_core/compiler/*",
   "tests/test_analog/*",
   "tests/test_atomic/*",
   "tests/test_math/*",
