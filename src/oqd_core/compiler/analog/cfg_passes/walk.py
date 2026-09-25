@@ -15,10 +15,11 @@
 from __future__ import annotations
 
 from oqd_compiler_infrastructure import CFG, CFGBlock
+
 from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
+from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator_expr
 from oqd_core.interface.analog import Declaration, Evolve
 from oqd_core.interface.analog.expr import MathExpr, OperatorExpr
-from oqd_core.compiler.analog.operator.canonicalize import canonicalize_operator_expr
 
 
 def iter_stmt_blocks(cfg: CFG):
@@ -28,7 +29,7 @@ def iter_stmt_blocks(cfg: CFG):
 
 def canonicalize_math_block(block: CFGBlock):
     stmts = block.stmts
-    
+
     for stmt in stmts:
         if block.edge_labels:
             if isinstance(stmt, MathExpr):
@@ -45,7 +46,8 @@ def canonicalize_math_cfg(cfg: CFG):
     for _, block in iter_stmt_blocks(cfg):
         canonicalize_math_block(block)
     return cfg
-            
+
+
 def canonicalize_operators_cfg(cfg: CFG) -> CFG:
     """Canonicalize inline operator declarations."""
     for _, block in iter_stmt_blocks(cfg):
@@ -56,4 +58,3 @@ def canonicalize_operators_cfg(cfg: CFG) -> CFG:
             if isinstance(stmt, Evolve):
                 stmt.hamiltonian = canonicalize_operator_expr(stmt.hamiltonian)
     return cfg
-

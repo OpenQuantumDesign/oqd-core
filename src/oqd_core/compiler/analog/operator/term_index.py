@@ -32,7 +32,7 @@ from oqd_core.interface.analog.expr import (
     PauliZ,
 )
 
-from .dim import is_scalar_mul, coeff_and_op
+from .dim import coeff_and_op, is_scalar_mul
 
 ########################################################################################
 
@@ -80,7 +80,7 @@ class TermIndex(RewriteRule):
             return 2
         if isinstance(model, Identity):
             return 0
-    
+
     def _visit_operator(self, model):
         if isinstance(model, OperatorKron):
             self.map_OperatorKron(model)
@@ -115,26 +115,21 @@ class TermIndex(RewriteRule):
             _, op = coeff_and_op(model)
             self._visit_operator(op)
             return
-        
+
         if isinstance(model.op1, Ladder) and isinstance(model.op2, Ladder):
             if self._potential_terminal:
                 self.term_idx[-1] = []
 
             term1 = self._get_index(model.op1)
             term2 = self._get_index(model.op2)
-            self.term_idx[-1].insert(
-                len(self.term_idx[-1]), (term1 + term2)
-            )
+            self.term_idx[-1].insert(len(self.term_idx[-1]), (term1 + term2))
         else:
             idx = len(self.term_idx[-1]) - 1
             new = self._get_index(model.op2)
-            self.term_idx[-1][idx] = (
-                self.term_idx[-1][idx] + new
-            )
+            self.term_idx[-1][idx] = self.term_idx[-1][idx] + new
 
 
 def term_index(model):
     walker = In(TermIndex())
     walker(model=model)
     return walker.children[0].term_idx
-

@@ -13,18 +13,23 @@
 # limitations under the License.
 
 from __future__ import annotations
+
 from oqd_compiler_infrastructure import Post
-from oqd_core.compiler.atomic.canonicalize import ResolveNestedProtocol, ResolveRelativeTime
+
+from oqd_core.compiler.atomic.canonicalize import (
+    ResolveNestedProtocol,
+    ResolveRelativeTime,
+)
 from oqd_core.compiler.atomic.math.rules import _is_constant_math
 from oqd_core.compiler.atomic.verify.passes import iter_pulses
 from oqd_core.interface.atomic import (
+    AtomicCircuit,
     Declaration,
+    IfElse,
     ParallelProtocol,
     Pulse,
     SerialProtocol,
-    IfElse,
     While,
-    AtomicCircuit,
 )
 
 PROTOCOL_TYPES = (Pulse, ParallelProtocol, SerialProtocol)
@@ -43,22 +48,21 @@ def canonicalize_protocol_tree(stmt):
         stmt.then_branch = [canonicalize_protocol_tree(s) for s in stmt.then_branch]
         stmt.else_branch = [canonicalize_protocol_tree(s) for s in stmt.else_branch]
         return stmt
-    
+
     if isinstance(stmt, While):
         stmt.body = [canonicalize_protocol_tree(s) for s in stmt.body]
         return stmt
-    
+
     if isinstance(stmt, Declaration) and isinstance(stmt.value, PROTOCOL_TYPES):
         stmt.value = apply_protocol_passes(stmt.value)
         return stmt
-    
+
     if isinstance(stmt, PROTOCOL_TYPES):
         return apply_protocol_passes(stmt)
-    
+
     return stmt
 
 
 def canonicalize_protocol_circuit(circuit: AtomicCircuit) -> AtomicCircuit:
     circuit.statements = [canonicalize_protocol_tree(s) for s in circuit.statements]
     return circuit
-

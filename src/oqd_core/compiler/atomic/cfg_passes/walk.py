@@ -15,9 +15,9 @@
 
 from __future__ import annotations
 
-from oqd_compiler_infrastructure import DataflowResult
+from oqd_compiler_infrastructure import CFG, DataflowResult
+
 from oqd_core.analysis.atomic.types import TBeam, TPulse, TScalar, TypeEnv
-from oqd_compiler_infrastructure import CFG
 from oqd_core.compiler.atomic.math.passes import canonicalize_math_expr
 from oqd_core.interface.atomic import (
     Beam,
@@ -26,14 +26,17 @@ from oqd_core.interface.atomic import (
 )
 from oqd_core.interface.atomic.expr import MathExpr
 
+
 def iter_stmt_blocks(cfg: CFG):
     for node_id, block in cfg.blocks.items():
         yield node_id, block
+
 
 def canonicalize_scalar_expr(expr):
     if isinstance(expr, Bool):
         return expr
     return canonicalize_math_expr(expr)
+
 
 def canonicalize_beam(beam: Beam) -> Beam:
     beam.frequency = canonicalize_scalar_expr(beam.frequency)
@@ -43,7 +46,11 @@ def canonicalize_beam(beam: Beam) -> Beam:
     beam.wavevector = canonicalize_scalar_expr(beam.wavevector)
     return beam
 
-def canonicalize_declarations_cfg(cfg: ControlFlowGraph, type_result: DataflowResult[int, TypeEnv],) -> ControlFlowGraph:
+
+def canonicalize_declarations_cfg(
+    cfg: ControlFlowGraph,
+    type_result: DataflowResult[int, TypeEnv],
+) -> ControlFlowGraph:
 
     for node_id, block in iter_stmt_blocks(cfg):
         stmts = block.stmts
@@ -52,10 +59,10 @@ def canonicalize_declarations_cfg(cfg: ControlFlowGraph, type_result: DataflowRe
                 if isinstance(stmt, MathExpr):
                     stmt = canonicalize_math_expr(stmt)
                 continue
-            
+
             if not isinstance(stmt, Declaration):
                 continue
-            
+
             t = type_result.out_states[node_id].get(stmt.name)
             if t is TScalar:
                 stmt.value = canonicalize_scalar_expr(stmt.value)
@@ -68,4 +75,3 @@ def canonicalize_declarations_cfg(cfg: ControlFlowGraph, type_result: DataflowRe
                     pulse.beam = canonicalize_beam(pulse.beam)
 
     return cfg
-

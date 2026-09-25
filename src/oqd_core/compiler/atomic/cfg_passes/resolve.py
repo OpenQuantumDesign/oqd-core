@@ -16,10 +16,16 @@ from __future__ import annotations
 
 from oqd_compiler_infrastructure.lattice import LatticeTop
 
-from oqd_core.compiler.atomic.cfg_passes.walk import canonicalize_beam, canonicalize_expr, canonicalize_scalar_expr
+from oqd_core.compiler.atomic.cfg_passes.walk import (
+    canonicalize_beam,
+    canonicalize_expr,
+    canonicalize_scalar_expr,
+)
 from oqd_core.compiler.atomic.error import AtomicCompilerError
 from oqd_core.interface.atomic import (
     Access,
+    AtomicList,
+    Beam,
     Bool,
     BoolAnd,
     BoolEq,
@@ -39,18 +45,29 @@ from oqd_core.interface.atomic import (
     MathPow,
     MathSub,
     MathVar,
-    Pulse,
-    Beam,
-    AtomicList,
     ParallelProtocol,
+    Pulse,
     SerialProtocol,
 )
 
 ScalarEnv = dict[str, object]
 
-MATH_BOOL_TYPES = (MathAdd, MathSub, MathMul, MathDiv, MathPow, 
-                   BoolAnd, BoolOr, BoolEq, BoolNotEq, BoolLessThan, 
-                   BoolLessThanEq, BoolGreaterThan, BoolGreaterThanEq)
+MATH_BOOL_TYPES = (
+    MathAdd,
+    MathSub,
+    MathMul,
+    MathDiv,
+    MathPow,
+    BoolAnd,
+    BoolOr,
+    BoolEq,
+    BoolNotEq,
+    BoolLessThan,
+    BoolLessThanEq,
+    BoolGreaterThan,
+    BoolGreaterThanEq,
+)
+
 
 def resolve_scalar_expr(expr, env: ScalarEnv):
     if isinstance(expr, Access):
@@ -62,13 +79,13 @@ def resolve_scalar_expr(expr, env: ScalarEnv):
         if isinstance(bound, Access):
             return resolve_scalar_expr(bound, env)
         return bound
-    
+
     if isinstance(expr, MATH_BOOL_TYPES):
         return expr.__class__(
             expr1=resolve_scalar_expr(expr.expr1, env),
             expr2=resolve_scalar_expr(expr.expr2, env),
         )
-        
+
     if isinstance(expr, MathFunc):
         if isinstance(expr.expr, list):
             return MathFunc(
@@ -76,14 +93,16 @@ def resolve_scalar_expr(expr, env: ScalarEnv):
                 expr=[resolve_scalar_expr(e, env) for e in expr.expr],
             )
         return MathFunc(func=expr.func, expr=resolve_scalar_expr(expr.expr, env))
-    
+
     if isinstance(expr, BoolNot):
         return BoolNot(expr=resolve_scalar_expr(expr.expr, env))
-    
+
     if isinstance(expr, (MathNum, MathVar, MathImag, Bool)):
         return expr
 
-    raise AtomicCompilerError(f"Cannot resolve scalar expression: {type(expr).__name__}")
+    raise AtomicCompilerError(
+        f"Cannot resolve scalar expression: {type(expr).__name__}"
+    )
 
 
 def resolve_beam_expr(beam: Beam, env: ScalarEnv) -> Beam:
@@ -92,11 +111,16 @@ def resolve_beam_expr(beam: Beam, env: ScalarEnv) -> Beam:
         frequency=resolve_scalar_expr(beam.frequency, env),
         rabi=resolve_scalar_expr(beam.rabi, env),
         phase=resolve_scalar_expr(beam.phase, env),
-        polarization=AtomicList(values=[resolve_scalar_expr(v, env) for v in pol.values])
-        if isinstance(pol, AtomicList) else resolve_scalar_expr(pol, env),
+        polarization=AtomicList(
+            values=[resolve_scalar_expr(v, env) for v in pol.values]
+        )
+        if isinstance(pol, AtomicList)
+        else resolve_scalar_expr(pol, env),
         wavevector=AtomicList(values=[resolve_scalar_expr(v, env) for v in wv.values])
-        if isinstance(wv, AtomicList) else resolve_scalar_expr(wv, env),
+        if isinstance(wv, AtomicList)
+        else resolve_scalar_expr(wv, env),
     )
+
 
 def resolve_beam_ref(expr, env: ScalarEnv):
     if isinstance(expr, Access):
@@ -132,7 +156,7 @@ def resolve_pulse_ref(expr, env: ScalarEnv):
         if not isinstance(bound, Pulse):
             raise AtomicCompilerError(f"Access {expr.name} is not a pulse")
         return bound.model_copy(deep=True)
-    
+
     if isinstance(expr, Pulse):
         return resolve_pulse_expr(expr, env)
     raise AtomicCompilerError(f"Cannot resolve pulse expression: {type(expr).__name__}")
@@ -146,9 +170,6 @@ def resolve_protocol_pulses(pulses, env: ScalarEnv):
         elif isinstance(child, Pulse):
             child = resolve_pulse_expr(child, env)
         elif isinstance(child, (ParallelProtocol, SerialProtocol)):
-            child = child.__class__(
-                pulses=resolve_protocol_pulses(child.pulses, env)
-            )
+            child = child.__class__(pulses=resolve_protocol_pulses(child.pulses, env))
         resolved.append(child)
     return resolved
-

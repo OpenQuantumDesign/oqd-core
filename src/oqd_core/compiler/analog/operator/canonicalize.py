@@ -13,18 +13,33 @@
 # limitations under the License.
 
 
-from oqd_compiler_infrastructure import Chain, FixedPoint, Pre, Post
+from oqd_compiler_infrastructure import Chain, FixedPoint, Post, Pre
+
+from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
+from oqd_core.compiler.analog.operator.dim import operator_dim
 from oqd_core.compiler.analog.rewrite.canonicalize import (
-    GatherMathExpr, GatherPauli, NormalOrder, OperatorDistribute,
-    PauliAlgebra, ProperOrder, PruneIdentity, PruneZeros, ScaleTerms, SortedOrder,
+    GatherMathExpr,
+    GatherPauli,
+    NormalOrder,
+    OperatorDistribute,
+    PauliAlgebra,
+    ProperOrder,
+    PruneIdentity,
+    PruneZeros,
+    ScaleTerms,
+    SortedOrder,
 )
 from oqd_core.compiler.analog.verify.canonicalize import (
-    CanVerGatherMathExpr, CanVerGatherPauli, CanVerNormalOrder,
-    CanVerOperatorDistribute, CanVerPauliAlgebra, CanVerProperOrder,
-    CanVerPruneIdentity, CanVerScaleTerm, CanVerSortedOrder,
+    CanVerGatherMathExpr,
+    CanVerGatherPauli,
+    CanVerNormalOrder,
+    CanVerOperatorDistribute,
+    CanVerPauliAlgebra,
+    CanVerProperOrder,
+    CanVerPruneIdentity,
+    CanVerScaleTerm,
+    CanVerSortedOrder,
 )
-from oqd_core.compiler.analog.operator.dim import operator_dim
-from oqd_core.compiler.analog.math.passes import canonicalize_math_expr
 
 ########################################################################################
 
@@ -71,10 +86,12 @@ verify_canonicalization = Chain(
     Pre(CanVerScaleTerm()),
 )
 
+
 def verify_operator_dim(expr):
     operator_dim(expr)
     return expr
-    
+
+
 def canonicalize_operator_expr(model):
     return Chain(
         FixedPoint(dist_chain),
@@ -90,5 +107,3 @@ def canonicalize_operator_expr(model):
         FixedPoint(Post(PruneZeros())),
         verify_canonicalization,
     )(model=model)
-
-
