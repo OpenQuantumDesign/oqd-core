@@ -12,26 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .canonicalize import (
-    CanVerGatherMathExpr,
-    CanVerGatherPauli,
-    CanVerNormalOrder,
-    CanVerOperatorDistribute,
-    CanVerPauliAlgebra,
-    CanVerProperOrder,
-    CanVerPruneIdentity,
-    CanVerScaleTerm,
-    CanVerSortedOrder,
-)
+import pytest
+from oqd_compiler_infrastructure import CFGBlockAccumulator, Chain
 
-__all__ = [
-    "CanVerPauliAlgebra",
-    "CanVerGatherMathExpr",
-    "CanVerOperatorDistribute",
-    "CanVerProperOrder",
-    "CanVerPruneIdentity",
-    "CanVerGatherPauli",
-    "CanVerNormalOrder",
-    "CanVerSortedOrder",
-    "CanVerScaleTerm",
-]
+from oqd_core.analysis.analog import AnalogCFGBuilder
+from oqd_core.analysis.dominator import DominatorTreeAnalysis
+from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+
+########################################################################################
+
+
+@pytest.fixture()
+def cfg_builder():
+
+    passes = Chain(
+        AnalogCFGBuilder(),
+        CFGBlockAccumulator(),
+    )
+
+    return lambda source: passes(parse_analog(source))
+
+
+class TestDominatorTreeAnalysis: ...
