@@ -41,15 +41,15 @@ from oqd_core.interface.analog import (
     Evolve,
     Extract,
     Identity,
-    Neg,
-    Pos,
     Kron,
     ModeRegister,
     Mul,
+    Neg,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
+    Pos,
     QuantumRegister,
     Sub,
 )
@@ -141,10 +141,10 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case QuantumRegister() if self._is_integer(expr.size) and self._is_integer(
                 expr.dim
             ):
-                return [[expr.dim.value]] * expr.size.value
+                return [expr.dim.value] * expr.size.value
 
             case ModeRegister() if self._is_integer(expr.size):
-                return [[-1]] * expr.size.value
+                return [-1] * expr.size.value
 
             case QuantumRegister():
                 raise DimensionError(
@@ -164,7 +164,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             ):
                 value = self._infer_dim(expr.access, env=env)
 
-                return value if value == DInvalid else value[expr.index.value]
+                return value if value == DInvalid else [value[expr.index.value]]
 
             case Neg() | Pos():
                 arg = self._infer_dim(expr.expr, env=env)
@@ -201,25 +201,29 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                 return op_args[0] if op_args else DInvalid
 
             case Evolve():
-                args = (
-                    self._infer_dim(expr.hamiltonian, env=env),
-                    self._infer_dim(expr.targets, env=env),
-                )
+                hamiltonian_dim = self._infer_dim(expr.hamiltonian, env=env)
+                jumps_dim = [self._infer_dim(L, env=env) for L in expr.jumps.values]
 
-                if self.lattice.element_lattice.equal(*args):
-                    return DInvalid
+                match expr.targets:
+                    case AnalogList():
+                        targets_dim = [
+                            d
+                            for target in expr.targets.values
+                            for d in self._infer_dim(target, env=env)
+                        ]
+                    case _:
+                        targets_dim = self._infer_dim(expr.targets, env=env)
+
+                args = (hamiltonian_dim, *jumps_dim, targets_dim)
 
                 if all(
-                    map(lambda x: isinstance(x, list), args[1])
-                ) and self.lattice.element_lattice.equal(
-                    args[0], [a[0] for a in args[1]]
+                    self.lattice.element_lattice.equal(arg1, arg2)
+                    for arg1, arg2 in zip(args[:-1], args[1:])
                 ):
                     return DInvalid
 
                 raise DimensionError(
-                    f"Got Hamiltonian dimensions ({args[0]}) and target dimensions ({args[1]}), expected target dimensions to be one of:\n"
-                    f"  {args[0]}\n"
-                    f"  {[[a] for a in args[0]]}"
+                    f"Got Hamiltonian dimensions ({args[0]}), jump operators dimensions {args[1:-1]} and target dimensions ({args[-1]})"
                 )
 
             case _:
