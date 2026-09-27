@@ -248,7 +248,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
             case "qmode":
                 if len(args) != 1:
                     raise ValueError(f"qmode takes 1 arguments, got {len(args)}")
-                return QuantumRegister(size=args[0])
+                return ModeRegister(size=args[0])
 
         return BuiltinCall(func=func, args=args)
 
@@ -378,14 +378,6 @@ class AnalogASTBuilder(AnalogParserVisitor):
 
     def visitExpr(self, ctx: AnalogParser.ExprContext):
         return self.visit(ctx.orexpr())
-
-    ## Register and operator terminals ##
-
-    def visitQuantum_register(self, ctx: AnalogParser.Quantum_registerContext):
-        return QuantumRegister(size=int(ctx.INT().getText()))
-
-    def visitMode_register(self, ctx: AnalogParser.Mode_registerContext):
-        return ModeRegister(size=int(ctx.INT().getText()))
 
 
 ########################################################################################
