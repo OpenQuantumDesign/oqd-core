@@ -188,9 +188,9 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     ],
     "Kron": [((TOp, TOp), TOp)],
     "Evolve": [
-        ((TOp, TFloat, TQReg), TNull),
-        ((TOp, TFloat, TQRegElem), TNull),
-        ((TOp, TFloat, TList[TQRegElem]), TNull),
+        ((TOp, TList[TOp], TFloat, TQReg), TNull),
+        ((TOp, TList[TOp], TFloat, TQRegElem), TNull),
+        ((TOp, TList[TOp], TFloat, TList[TQRegElem]), TNull),
     ],
     "Initialize": [
         ((TQReg,), TNull),

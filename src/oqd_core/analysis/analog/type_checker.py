@@ -198,7 +198,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
             case Evolve():
                 name = expr.__class__.__name__
-                args = [expr.hamiltonian, expr.duration, expr.targets]
+                args = [expr.hamiltonian, expr.jumps, expr.duration, expr.targets]
 
             case Initialize() | Measure():
                 name = expr.__class__.__name__

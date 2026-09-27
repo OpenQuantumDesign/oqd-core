@@ -17,7 +17,7 @@ from __future__ import annotations
 from typing import Annotated, Any, List, Literal, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
-from pydantic import AfterValidator, BaseModel, BeforeValidator, Discriminator
+from pydantic import AfterValidator, BaseModel, BeforeValidator, Discriminator, Field
 from typing_extensions import TypeAliasType
 
 ########################################################################################
@@ -434,6 +434,7 @@ class Evolve(QuantumExpr, AnalogExpr):
     """
 
     hamiltonian: CastAnalogExpr
+    jumps: CastAnalogExpr = Field(default_factory=lambda: AnalogList(values=[]))
     duration: CastAnalogExpr
     targets: CastAnalogExpr
 
