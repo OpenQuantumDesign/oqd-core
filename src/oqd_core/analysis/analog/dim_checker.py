@@ -177,14 +177,26 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                 arg = self._infer_dim(expr.expr, env=env)
                 return arg
 
-            case Add() | Sub():
+            case Add() | Sub() | Mul():
+                binop = {Add: "add", Sub: "subtract", Mul: "multiply"}[expr.__class__]
+
                 args = [self._infer_dim(e, env=env) for e in expr.exprs]
+                op_args = list(
+                    filter(
+                        lambda x: x is not self.lattice.element_lattice.bottom(),
+                        args,
+                    )
+                )
 
-                dim = reduce(self.lattice.element_lattice.meet, args)
+                dim = reduce(
+                    self.lattice.element_lattice.meet,
+                    op_args,
+                    self.lattice.element_lattice.top(),
+                )
 
-                if dim is self.lattice.element_lattice.bottom():
+                if op_args and dim is self.lattice.element_lattice.bottom():
                     raise DimensionError(
-                        f"attempted to add/subtract operators of different dimensions {tuple(args)}"
+                        f"attempted to {binop} operators of different dimensions {tuple(args)}"
                     )
 
                 return dim
@@ -193,23 +205,6 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                 args = [self._infer_dim(e, env=env) for e in expr.exprs]
 
                 return reduce(lambda x, y: x + y, args, [])
-
-            case Mul():
-                args = [self._infer_dim(e, env=env) for e in expr.exprs]
-
-                dim = reduce(
-                    self.lattice.element_lattice.meet,
-                    filter(
-                        lambda x: x is not self.lattice.element_lattice.bottom(), args
-                    ),
-                )
-
-                if dim is self.lattice.element_lattice.bottom():
-                    raise DimensionError(
-                        f"attempted to multiply operators of different dimensions {tuple(args)}"
-                    )
-
-                return dim
 
             case Evolve():
                 hamiltonian_dim = self._infer_dim(expr.hamiltonian, env=env)
