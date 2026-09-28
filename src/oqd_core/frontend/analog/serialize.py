@@ -142,6 +142,9 @@ class SerializeAnalog(ConversionRule):
         return "continue"
 
     def map_Evolve(self, model: Evolve, operands):
+        if model.jumps.values:
+            return f"evolve({operands['hamiltonian']}, {operands['jumps']}, {operands['duration']}, {operands['targets']})"
+
         return f"evolve({operands['hamiltonian']}, {operands['duration']}, {operands['targets']})"
 
     def map_Measure(self, model: Measure, operands):
@@ -160,6 +163,8 @@ class SerializeAnalog(ConversionRule):
         return operands["name"]
 
     def map_QuantumRegister(self, model: QuantumRegister, operands):
+        if model.dim != 2:
+            return f"qreg({operands['size']}, {operands['dim']})"
         return f"qreg({operands['size']})"
 
     def map_ModeRegister(self, model: ModeRegister, operands):

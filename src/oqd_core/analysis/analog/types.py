@@ -92,6 +92,8 @@ def isTList(value: TLatticeValue):
 class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for analog expressions."""
 
+    # TODO: Add test for AnalogTypeLattice especially with TList interaction with other LatticeValues
+
     def top(self):
         return TAnalog
 
@@ -99,32 +101,36 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         return TInvalid
 
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
-        if t1 is self.bottom():
-            return True
         if isTList(t1) and isTList(t2):
             return self.leq(t1.__args__[0], t2.__args__[0])
-        if isTList(t1) or isTList(t2):
-            return False
+
+        t1 = TList if isTList(t1) else t1
+        t2 = TList if isTList(t2) else t2
+
         return super().leq(t1, t2)
 
     def join(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
-        if self.leq(t1, t2):
-            return t2
-        if self.leq(t2, t1):
-            return t1
         if isTList(t1) and isTList(t2):
             return TList[self.join(t1.__args__[0], t2.__args__[0])]
-        if isTList(t1) or isTList(t2):
-            return TAnalog
+
+        if isTList(t1) and super().leq(t2, TList):
+            return t1
+
+        if isTList(t2) and super().leq(t1, TList):
+            return t2
+
         return super().join(t1, t2)
 
     def meet(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
-        if self.leq(t1, t2):
-            return t1
-        if self.leq(t2, t1):
-            return t2
         if isTList(t1) and isTList(t2):
             return TList[self.meet(t1.__args__[0], t2.__args__[0])]
+
+        if isTList(t1) and super().leq(TList, t2):
+            return t1
+
+        if isTList(t2) and super().leq(TList, t1):
+            return t2
+
         return super().meet(t1, t2)
 
 
@@ -138,8 +144,8 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "And": [((TBool, TBool), TBool)],
     "Xor": [((TBool, TBool), TBool)],
     "Or": [((TBool, TBool), TBool)],
-    "Eq": [((TComplex, TComplex), TBool)],
-    "Neq": [((TComplex, TComplex), TBool)],
+    "Eq": [((VariableType, VariableType), TBool)],
+    "Neq": [((VariableType, VariableType), TBool)],
     "Lt": [((TFloat, TFloat), TBool)],
     "Leq": [((TFloat, TFloat), TBool)],
     "Gt": [((TFloat, TFloat), TBool)],
@@ -188,9 +194,9 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     ],
     "Kron": [((TOp, TOp), TOp)],
     "Evolve": [
-        ((TOp, TFloat, TQReg), TNull),
-        ((TOp, TFloat, TQRegElem), TNull),
-        ((TOp, TFloat, TList[TQRegElem]), TNull),
+        ((TOp, TList[TOp], TFloat, TQReg), TNull),
+        ((TOp, TList[TOp], TFloat, TQRegElem), TNull),
+        ((TOp, TList[TOp], TFloat, TList[TQRegElem]), TNull),
     ],
     "Initialize": [
         ((TQReg,), TNull),

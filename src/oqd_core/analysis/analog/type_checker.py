@@ -24,7 +24,6 @@ from oqd_compiler_infrastructure import (
     CFG,
     CFGBlock,
     ForwardDataflowAnalysis,
-    LatticeTop,
     maplattice,
 )
 
@@ -32,7 +31,6 @@ from oqd_core.analysis.analog.types import (
     ANALOG_SUPPORTED_FUNC_SIGNATURES,
     AnalogTypeError,
     AnalogTypeLattice,
-    TAnalog,
     TBool,
     TComplex,
     TFloat,
@@ -70,7 +68,7 @@ from oqd_core.interface.analog.expr import BinaryOp, Operator
 class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
 
-    lattice = maplattice(AnalogTypeLattice)()
+    lattice = maplattice(AnalogTypeLattice, default_mode="top")()
 
     def __init__(self, runtime_var_types={}, **kwargs):
         super().__init__(**kwargs)
@@ -198,7 +196,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
             case Evolve():
                 name = expr.__class__.__name__
-                args = [expr.hamiltonian, expr.duration, expr.targets]
+                args = [expr.hamiltonian, expr.jumps, expr.duration, expr.targets]
 
             case Initialize() | Measure():
                 name = expr.__class__.__name__
@@ -211,7 +209,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 name = expr.__class__.__name__
                 args = [expr.access, expr.index]
             case _:
-                raise AnalogTypeError(f"Unable to infer type information from {expr}")
+                raise AnalogTypeError(f"unable to infer type information from {expr}")
 
         return self._match_function_signature(
             name, *[self._infer_type(a, env=env) for a in args]
@@ -226,7 +224,11 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     def _infer_type(self, expr, *, env: TypeEnv):
         match expr:
             case Access():
-                return TAnalog if env is LatticeTop else env[expr.name]
+                return (
+                    self.lattice.element_lattice.top()
+                    if env is self.lattice.top()
+                    else env.get(expr.name, self.lattice.element_lattice.top())
+                )
             case RuntimeVar():
                 return getattr(self.runtime_var_types, expr.name, TFloat)
             case Constant() if type(expr.value) is bool:
@@ -238,17 +240,17 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case Constant() if isinstance(expr.value, Complex):
                 return TComplex
             case AnalogList() if len(expr.values) == 0:
-                return TList[TAnalog]
+                return TList[self.lattice.element_lattice.top()]
             case AnalogList():
                 elem_types = [self._infer_type(e, env=env) for e in expr.values]
 
                 combined_elem_type = reduce(
-                    self.lattice.element_lattice.join, elem_types
+                    self.lattice.element_lattice.meet, elem_types
                 )
 
-                if self.lattice.element_lattice.leq(TAnalog, combined_elem_type):
+                if combined_elem_type is self.lattice.element_lattice.bottom():
                     raise AnalogTypeError(
-                        f"List elements must all be compatible but got [{', '.join([get_type_name(e) for e in elem_types])}]"
+                        f"list elements must all have consistent type but got [{', '.join([get_type_name(e) for e in elem_types])}]"
                     )
 
                 return TList[combined_elem_type]
@@ -260,16 +262,31 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 return self._infer_function_signature(expr, env=env)
 
     def merge(self, states):
-        return self.lattice.merge_meet(states)
+        out = self.lattice.merge_meet(states)
+
+        invalids = (
+            tuple(
+                k for k, v in out.items() if v is self.lattice.element_lattice.bottom()
+            )
+            if isinstance(out, dict)
+            else tuple()
+        )
+        if invalids:
+            raise AnalogTypeError(
+                f"declaration of {invalids} inconsistent types across different branches"
+            )
+
+        return out
 
     def transfer(self, graph: CFG, node_id: int, state_in: TypeEnv) -> TypeEnv:
         block = graph[node_id]
 
-        state_out = {} if state_in == self.lattice.top() else state_in.copy()
-
+        block_types = {}
         for stmt in block.stmts:
             if block.edge_labels:
-                cond_type = self._infer_type(stmt, env=state_out)
+                cond_type = self._infer_type(
+                    stmt, env=self.lattice.meet(state_in, block_types)
+                )
                 if not self.lattice.element_lattice.equal(cond_type, TBool):
                     raise AnalogTypeError(
                         f"branch condition must be TBool got ({get_type_name(cond_type)})"
@@ -280,10 +297,23 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 continue
 
             if isinstance(stmt, Declaration):
-                state_out[stmt.name] = self._infer_type(stmt.value, env=state_out)
+                declare_type = self._infer_type(
+                    stmt.value, env=self.lattice.meet(state_in, block_types)
+                )
+
+                block_types[stmt.name] = declare_type
+
+                if (
+                    self.lattice.meet(state_in, block_types)[stmt.name]
+                    is self.lattice.element_lattice.bottom()
+                ):
+                    raise AnalogTypeError(
+                        f"attempted to redeclare '{stmt.name}' to a different type {get_type_name(declare_type)}"
+                    )
 
                 continue
 
-            self._infer_type(stmt, env=state_out)
+            self._infer_type(stmt, env=self.lattice.meet(state_in, block_types))
 
+        state_out = self.lattice.meet(state_in, block_types)
         return state_out

@@ -41,15 +41,15 @@ from oqd_core.interface.analog import (
     Evolve,
     Extract,
     Identity,
-    Neg,
-    Pos,
     Kron,
     ModeRegister,
     Mul,
+    Neg,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
+    Pos,
     QuantumRegister,
     Sub,
 )
@@ -117,10 +117,9 @@ class DimensionError(Exception): ...
 
 
 class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
-    lattice = maplattice(DimensionLattice)()
+    """Forward dataflow dimension checker over the Control Flow Graph."""
 
-    def merge(self, states):
-        return self.lattice.merge_meet(states)
+    lattice = maplattice(DimensionLattice, default_mode="top")()
 
     def _is_integer(self, expr):
         return isinstance(expr, Constant) and type(expr.value) is int
@@ -128,7 +127,11 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
     def _infer_dim(self, expr, *, env):
         match expr:
             case Access():
-                return env[expr.name]
+                return (
+                    self.lattice.element_lattice.top()
+                    if env is self.lattice.top()
+                    else env.get(expr.name, self.lattice.element_lattice.top())
+                )
 
             case PauliX() | PauliY() | PauliZ() | PauliI() if self._is_integer(
                 expr.dim
@@ -141,10 +144,10 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case QuantumRegister() if self._is_integer(expr.size) and self._is_integer(
                 expr.dim
             ):
-                return [[expr.dim.value]] * expr.size.value
+                return [expr.dim.value] * expr.size.value
 
             case ModeRegister() if self._is_integer(expr.size):
-                return [[-1]] * expr.size.value
+                return [-1] * expr.size.value
 
             case QuantumRegister():
                 raise DimensionError(
@@ -164,78 +167,83 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             ):
                 value = self._infer_dim(expr.access, env=env)
 
-                return value if value == DInvalid else value[expr.index.value]
+                return (
+                    value
+                    if value == self.lattice.element_lattice.bottom()
+                    else [value[expr.index.value]]
+                )
 
             case Neg() | Pos():
                 arg = self._infer_dim(expr.expr, env=env)
                 return arg
 
-            case Add() | Sub():
+            case Add() | Sub() | Mul():
+                binop = {Add: "add", Sub: "subtract", Mul: "multiply"}[expr.__class__]
+
                 args = [self._infer_dim(e, env=env) for e in expr.exprs]
+                op_args = list(
+                    filter(
+                        lambda x: x is not self.lattice.element_lattice.bottom(),
+                        args,
+                    )
+                )
 
-                if not all(
-                    [self.lattice.element_lattice.equal(args[0], e) for e in args[1:]]
-                ):
-                    raise DimensionError()
+                dim = reduce(
+                    self.lattice.element_lattice.meet,
+                    op_args,
+                    self.lattice.element_lattice.top(),
+                )
 
-                return args[0]
+                if op_args and dim is self.lattice.element_lattice.bottom():
+                    raise DimensionError(
+                        f"attempted to {binop} operators of different dimensions {tuple(args)}"
+                    )
+
+                return dim
 
             case Kron():
                 args = [self._infer_dim(e, env=env) for e in expr.exprs]
 
                 return reduce(lambda x, y: x + y, args, [])
 
-            case Mul():
-                args = [self._infer_dim(e, env=env) for e in expr.exprs]
-
-                op_args = list(filter(lambda x: x is not DInvalid, args))
-
-                if not all(
-                    [
-                        self.lattice.element_lattice.equal(op_args[0], e)
-                        for e in op_args[1:]
-                    ]
-                ):
-                    raise DimensionError()
-
-                return op_args[0] if op_args else DInvalid
-
             case Evolve():
-                args = (
-                    self._infer_dim(expr.hamiltonian, env=env),
-                    self._infer_dim(expr.targets, env=env),
-                )
+                hamiltonian_dim = self._infer_dim(expr.hamiltonian, env=env)
+                jumps_dim = [self._infer_dim(L, env=env) for L in expr.jumps.values]
 
-                if self.lattice.element_lattice.equal(*args):
-                    return DInvalid
+                match expr.targets:
+                    case AnalogList():
+                        targets_dim = [
+                            d
+                            for target in expr.targets.values
+                            for d in self._infer_dim(target, env=env)
+                        ]
+                    case _:
+                        targets_dim = self._infer_dim(expr.targets, env=env)
+
+                args = (hamiltonian_dim, *jumps_dim, targets_dim)
 
                 if all(
-                    map(lambda x: isinstance(x, list), args[1])
-                ) and self.lattice.element_lattice.equal(
-                    args[0], [a[0] for a in args[1]]
+                    self.lattice.element_lattice.equal(arg1, arg2)
+                    for arg1, arg2 in zip(args[:-1], args[1:])
                 ):
-                    return DInvalid
+                    return self.lattice.element_lattice.bottom()
 
                 raise DimensionError(
-                    f"Got Hamiltonian dimensions ({args[0]}) and target dimensions ({args[1]}), expected target dimensions to be one of:\n"
-                    f"  {args[0]}\n"
-                    f"  {[[a] for a in args[0]]}"
+                    f"evolve got inconsistent Hamiltonian dimensions ({args[0]}), jump operators dimensions {args[1:-1]} and target dimensions ({args[-1]})"
                 )
 
             case _:
-                return DInvalid
+                return self.lattice.element_lattice.bottom()
+
+    def merge(self, states):
+        return self.lattice.merge_meet(states)
 
     def transfer(self, graph, node_id, state_in):
         block = graph[node_id]
 
         state_out = {} if state_in == self.lattice.top() else state_in.copy()
-
         for stmt in block.stmts:
             match stmt:
-                case _ if block.edge_labels:
-                    continue
-                case Continue() | Break():
-                    continue
                 case Declaration():
                     state_out[stmt.name] = self._infer_dim(stmt.value, env=state_out)
                 case _:

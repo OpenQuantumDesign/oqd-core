@@ -213,27 +213,42 @@ class AnalogASTBuilder(AnalogParserVisitor):
         match func:
             case "initialize":
                 if len(args) != 1:
-                    raise ValueError(f"Initialize takes 1 arguments, got {len(args)}")
+                    raise ValueError(f"initialize takes 1 arguments, got {len(args)}")
                 return Initialize(targets=args[0])
             case "evolve":
-                if len(args) != 3:
-                    raise ValueError(f"Evolve takes 3 arguments, got {len(args)}")
-                return Evolve(hamiltonian=args[0], duration=args[1], targets=args[2])
+                num_args = len(args)
+                match num_args:
+                    case 3:
+                        (hamiltonian, duration, targets) = args
+                        jumps = AnalogList(values=[])
+                    case 4:
+                        (hamiltonian, jumps, duration, targets) = args
+                    case _:
+                        raise ValueError(
+                            f"evolve takes 3 or 4 arguments, got {num_args}"
+                        )
+
+                return Evolve(
+                    hamiltonian=hamiltonian,
+                    jumps=jumps,
+                    duration=duration,
+                    targets=targets,
+                )
             case "measure":
                 if len(args) != 1:
-                    raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
+                    raise ValueError(f"measure takes 1 arguments, got {len(args)}")
                 return Measure(targets=args[0])
             case "qreg":
                 if len(args) not in [1, 2]:
-                    raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
+                    raise ValueError(f"qreg takes 1 or 2 arguments, got {len(args)}")
 
                 size = args[0]
-                dim = args[1] if len(args) > 1 else 2
+                dim = args[1] if len(args) == 2 else 2
                 return QuantumRegister(size=size, dim=dim)
             case "qmode":
                 if len(args) != 1:
-                    raise ValueError(f"Measure takes 1 arguments, got {len(args)}")
-                return QuantumRegister(size=args[0])
+                    raise ValueError(f"qmode takes 1 arguments, got {len(args)}")
+                return ModeRegister(size=args[0])
 
         return BuiltinCall(func=func, args=args)
 
@@ -363,14 +378,6 @@ class AnalogASTBuilder(AnalogParserVisitor):
 
     def visitExpr(self, ctx: AnalogParser.ExprContext):
         return self.visit(ctx.orexpr())
-
-    ## Register and operator terminals ##
-
-    def visitQuantum_register(self, ctx: AnalogParser.Quantum_registerContext):
-        return QuantumRegister(size=int(ctx.INT().getText()))
-
-    def visitMode_register(self, ctx: AnalogParser.Mode_registerContext):
-        return ModeRegister(size=int(ctx.INT().getText()))
 
 
 ########################################################################################
