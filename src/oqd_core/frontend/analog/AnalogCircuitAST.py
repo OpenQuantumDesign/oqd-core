@@ -142,11 +142,14 @@ class AnalogASTBuilder(AnalogParserVisitor):
         values = [self.visit(e) for e in ctx.expr()]
         return AnalogList(values=values)
 
-    def visitAnalog_list_extract(self, ctx: AnalogParser.Analog_list_extractContext):
-        access = self.visit(ctx.access())
+    def visitIexpr(self, ctx: AnalogParser.IexprContext):
+        if ctx.terminal():
+            return self.visit(ctx.terminal())
+
+        expr = self.visit(ctx.iexpr())
         index = self.visit(ctx.expr())
 
-        return Extract(access=access, index=index)
+        return Extract(value=expr, index=index)
 
     ## Quantum Op ##
 

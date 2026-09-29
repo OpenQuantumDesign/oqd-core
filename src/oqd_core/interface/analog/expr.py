@@ -123,7 +123,7 @@ class AnalogList(CollectionExpr, AnalogExpr):
 
 
 class Extract(IndexingExpr, AnalogExpr):
-    access: Access
+    value: CastAnalogExpr
     index: CastAnalogExpr
 
 

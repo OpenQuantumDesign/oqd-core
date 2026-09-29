@@ -98,24 +98,6 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AnalogParser#analog_list.
-    def enterAnalog_list(self, ctx:AnalogParser.Analog_listContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#analog_list.
-    def exitAnalog_list(self, ctx:AnalogParser.Analog_listContext):
-        pass
-
-
-    # Enter a parse tree produced by AnalogParser#analog_list_extract.
-    def enterAnalog_list_extract(self, ctx:AnalogParser.Analog_list_extractContext):
-        pass
-
-    # Exit a parse tree produced by AnalogParser#analog_list_extract.
-    def exitAnalog_list_extract(self, ctx:AnalogParser.Analog_list_extractContext):
-        pass
-
-
     # Enter a parse tree produced by AnalogParser#pauli_op.
     def enterPauli_op(self, ctx:AnalogParser.Pauli_opContext):
         pass
@@ -203,6 +185,24 @@ class AnalogParserListener(ParseTreeListener):
 
     # Exit a parse tree produced by AnalogParser#func.
     def exitFunc(self, ctx:AnalogParser.FuncContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#analog_list.
+    def enterAnalog_list(self, ctx:AnalogParser.Analog_listContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#analog_list.
+    def exitAnalog_list(self, ctx:AnalogParser.Analog_listContext):
+        pass
+
+
+    # Enter a parse tree produced by AnalogParser#iexpr.
+    def enterIexpr(self, ctx:AnalogParser.IexprContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#iexpr.
+    def exitIexpr(self, ctx:AnalogParser.IexprContext):
         pass
 
 

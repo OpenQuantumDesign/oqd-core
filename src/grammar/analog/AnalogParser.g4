@@ -34,7 +34,7 @@ continue_stmt: CONTINUE;
 
 // Atom
 
-terminal: analog_list_extract | operator_terminal | math_terminal | bool_literal | analog_list | func;
+terminal: operator_terminal | math_terminal | bool_literal | analog_list | func;
 
 /** ================================================================================= */
 
@@ -42,13 +42,6 @@ terminal: analog_list_extract | operator_terminal | math_terminal | bool_literal
 
 declaration: ID ASSIGN expr;
 access: ID;
-
-/** ================================================================================= */
-
-// List
-
-analog_list: SQUARELBRACKET expr? (COMMA expr)* COMMA? SQUARERBRACKET;
-analog_list_extract: access SQUARELBRACKET expr SQUARERBRACKET;
 
 /** ================================================================================= */
 
@@ -86,6 +79,14 @@ func: func_names LBRACKET args? RBRACKET;
 
 /** ================================================================================= */
 
+// List
+
+analog_list: SQUARELBRACKET expr? (COMMA expr)* COMMA? SQUARERBRACKET;
+
+iexpr: terminal | iexpr SQUARELBRACKET expr SQUARERBRACKET;
+
+/** ================================================================================= */
+
 // Arithmetic
 
 complex: REAL_PART | REAL_PART? IMAG_PART;
@@ -94,7 +95,7 @@ math_terminal: INT | FLOAT | MATH_VAR | complex | access | pexpr;
 
 pexpr: LBRACKET expr RBRACKET;
 
-eexpr: terminal | eexpr POWER terminal;
+eexpr: iexpr | eexpr POWER iexpr;
 
 uexpr: eexpr | (PLUS|MINUS|NOT) eexpr;
 
