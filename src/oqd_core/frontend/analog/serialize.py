@@ -157,7 +157,7 @@ class SerializeAnalog(ConversionRule):
         return "[" + ", ".join(operands["values"]) + "]"
 
     def map_Extract(self, model: Extract, operands):
-        return f"{operands['access']}[{operands['index']}]"
+        return f"{operands['value']}[{operands['index']}]"
 
     def map_Access(self, model: Access, operands):
         return operands["name"]

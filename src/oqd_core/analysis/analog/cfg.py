@@ -15,7 +15,6 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from functools import reduce
 
 from oqd_compiler_infrastructure import CFG, CFGBlock, RewriteRule
