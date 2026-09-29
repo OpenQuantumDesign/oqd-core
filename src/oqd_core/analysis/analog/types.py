@@ -232,12 +232,12 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "round": [((TInt,), TInt), ((TFloat,), TInt)],
     "len": [((TList[VariableType],), TInt)],
     "range": [
-        ((TFloat,), TList[TFloat]),
         ((TInt,), TList[TInt]),
-        ((TFloat, TFloat), TList[TFloat]),
+        ((TFloat,), TList[TFloat]),
         ((TInt, TInt), TList[TInt]),
-        ((TFloat, TFloat, TFloat), TList[TFloat]),
+        ((TFloat, TFloat), TList[TFloat]),
         ((TInt, TInt, TInt), TList[TInt]),
+        ((TFloat, TFloat, TFloat), TList[TFloat]),
     ],
     "QuantumRegister": [((TInt,), TQReg)],
     "ModeRegister": [((TInt,), TQReg)],
@@ -246,4 +246,5 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
         ((TList[VariableType], TInt), VariableType),
     ],
     "flatten": [((TList[TList[VariableType]],), TList[VariableType])],
+    "print": [((VariableType,), TNull)],
 }
