@@ -12,24 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
 from __future__ import annotations
-
+import inspect
 from typing import Dict, Iterable, Union
 
-from oqd_compiler_infrastructure.dataflow import DataflowResult, ForwardDataflowAnalysis
-from oqd_compiler_infrastructure.lattice import (
+from oqd_compiler_infrastructure import (
+    DataflowResult, 
+    ForwardDataflowAnalysis,
+    CFGBlock,
+    CFG,
     LatticeBase,
     LatticeBottom,
     LatticeTop,
     maplattice,
 )
 
-from oqd_core.analysis.analog.types import BIN_SIG_TABLE, OP_TABLE, AnalogTypeError
-from oqd_core.analysis.utils.control_flow import (
-    Block,
-    ControlFlowGraph,
-)
 from oqd_core.interface.analog import (
     AnalogList,
     BoolEq,
@@ -49,99 +46,92 @@ from oqd_core.interface.analog import (
 )
 
 
-class AnalogOutOfBoundsError(AnalogTypeError):
-    pass
+class OutOfBoundsError(Exception): ...
 
-class AnalogBoundsLattice(LatticeBase):
+
+BLatticeValue = Union[int, LatticeTop]
+BoundsEnv = Dict[str, BLatticeValue]
+
+class AnalogBoundsLattice(LatticeBase[BLatticeValue]):
     """Lattice for bounds of AnalogList, QuantumRegister and ModeRegister."""
-    pass
+    def leq(self, t1: BLatticeValue, t2: BLatticeValue) -> bool:
+        # print("t1: ", t1)
+        # print("t2: ", t2)
+        if t1 is self.bottom() or t2 is self.top():
+            return True
+        if t1 is self.top() or t2 is self.bottom():
+            return False
+        return t1 <= t2
 
-TLatticeValue = Union[int, LatticeTop]
-BoundsEnv = Dict[str, TLatticeValue]
+    def join(self, t1: BLatticeValue, t2: BLatticeValue) -> BLatticeValue:
+        print("t1: ", t1)
+        print("t2: ", t2)
+        if t1 is self.top() or t2 is self.top():
+            return self.top()
+        if t1 is self.bottom():
+            return t2
+        if  t2 is self.bottom():
+            return t1
+        return max(t1, t2)
 
-class AnalogBoundsChecker(ForwardDataflowAnalysis[int, BoundsEnv]):
-    def __init__(self, graph: ControlFlowGraph) -> None:
-        self.lattice = maplattice(AnalogBoundsLattice)()
-        self.blocks: Dict[int, Block] = graph.blocks
-        self.dataflow_result: DataflowResult = self.analyze(graph, self.merge_bounds)
-    
-    def merge_bounds(self, states: Iterable[BoundsEnv]) -> BoundsEnv:
-        states_list = list(states)
-        if not states_list:
-            return self.lattice.bottom()
-        merged = {} if states_list[0] is LatticeBottom else dict(states_list[0])
-        for state in states_list[1:]:
-            if state is LatticeBottom:
-                continue
-            for name in set(merged).union(state):
-                b1 = merged.get(name)
-                b2 = state.get(name)
-                if b1 is None:
-                    merged[name] = b2
-                elif b2 is None:
-                    continue
-                    
-        return merged
-    
-    def infer_bounds(self, expr, env):
-        if isinstance(expr, AnalogList):
-            for v in expr.values:
-                self.infer_bounds(v, env)
+    def meet(self, t1: BLatticeValue, t2: BLatticeValue) -> BLatticeValue:
+        if t1 is self.bottom() or t2 is self.bottom():
+            return self.bottom()
+        if t1 is self.top():
+            return t2
+        if  t2 is self.top():
+            return t1
+        return min(t1, t2)
 
-        if isinstance(expr, Extract):
-            if expr.access.name not in env:
-                raise AnalogOutOfBoundsError(f"Cannot index into variable: {expr.access.name}")
-            if expr.index >= env[expr.access.name]:
-                raise AnalogOutOfBoundsError(f"Index {expr.index} out of bounds for variable: {expr.access.name}")
-        
-        sig = BIN_SIG_TABLE.get(type(expr))
-        if sig is not None or isinstance(expr, (BoolEq, BoolNotEq)):
-            self.infer_bounds(expr.expr1, env)
-            self.infer_bounds(expr.expr2, env)
-        
-        sig = OP_TABLE.get(type(expr))
-        if sig is not None or isinstance(expr, OperatorMul):
-            self.infer_bounds(expr.op1, env)
-            self.infer_bounds(expr.op2, env)
-        
-        if isinstance(expr, BoolNot):
-            self.infer_bounds(expr.expr, env)
-        
-        if isinstance(expr, MathFunc):
-            arg = expr.expr
-            if isinstance(arg, list):
-                for v in arg:
-                    self.infer_bounds(v, env)
-            else:
-                self.infer_bounds(arg, env)
-            
-        if isinstance(expr, (Initialize, Measure)):
-            self.infer_bounds(expr.targets, env)
-        
-        if isinstance(expr, Evolve):
-            self.infer_bounds(expr.targets, env)
-            self.infer_bounds(expr.duration, env)
-            self.infer_bounds(expr.hamiltonian, env)
+
+class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
+    lattice = maplattice(AnalogBoundsLattice)()
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    
+    def merge(self, states):
+        return self.lattice.merge_meet(states)
+
+    def _infer_bounds(self, expr, *, env: BoundsEnv):
+        match expr:
+            case Extract():
+                if expr.access.name not in env:
+                    raise OutOfBoundsError(f"Cannot index into variable: {expr.access.name}")
+                if not self.lattice.leq(expr.index + 1, env[expr.access.name]):
+                    raise OutOfBoundsError(f"Index {expr.index} out of bounds for variable: {expr.access.name}")
+            case (
+                QuantumRegister()
+                | ModeRegister()
+            ):
+                return expr.size
+            case AnalogList():
+                for val in expr.values:
+                    self._infer_bounds(val, env=env)
+                return len(expr.values)
+            case _:
+                if isinstance(expr, (int, float, str)):
+                    return
+                for a in getattr(expr, "model_fields_set"):
+                    self._infer_bounds(getattr(expr, a), env=env)
+                
     
     
-    def transfer(self, node_id: int, state_in: BoundsEnv) -> BoundsEnv:
-        env = {} if state_in is LatticeBottom else dict(state_in)
+    def transfer(self, graph: CFG, node_id: int, state_in: BoundsEnv) -> BoundsEnv:
+        block = graph[node_id]
+
+        state_out = {} if state_in == self.lattice.top() else state_in.copy()
+        if block.edge_labels:
+            return state_out
         
-        if self.blocks[node_id].preds == [] or self.blocks[node_id].succs == []:
-            return env
-        
-        stmts = self.blocks[node_id].stmts
-        for stmt in stmts:
+        for stmt in block.stmts:
             if isinstance(stmt, (Break, Continue)):
                 continue
             if isinstance(stmt, Declaration):
-                self.infer_bounds(stmt.value, env)
-                if isinstance(stmt.value, AnalogList):
-                    env[stmt.name] = len(stmt.value.values)
-                if isinstance(stmt.value, (QuantumRegister, ModeRegister)):
-                    env[stmt.name] = stmt.value.size
+                val = self._infer_bounds(stmt.value, env=state_out)
+                if val is not None:
+                    state_out[stmt.name] = val
                 continue
-            
-            self.infer_bounds(stmt, env)
+
+            self._infer_bounds(stmt, env=state_out)
         
-        return env
+        return state_out

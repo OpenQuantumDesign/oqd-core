@@ -71,8 +71,12 @@ class TQReg(TAnalog): ...
 
 class TNull(TAnalog): ...
 
+subclasses = all_subclasses(TAnalog)
+out = None
+for c in subclasses:
+    out = Union[out, c]
 
-TLatticeValue = Union[all_subclasses(TAnalog)]
+TLatticeValue = out
 TypeEnv = dict[str, TLatticeValue]
 
 
@@ -113,7 +117,8 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         if self.leq(t2, t1):
             return t1
         if isTList(t1) and isTList(t2):
-            return TList[self.join(t1.__args__[0], t2.__args__[0])]
+            elem = self.join(t1.__args__[0], t2.__args__[0])
+            return TList[elem]
         if isTList(t1) or isTList(t2):
             return TAnalog
         return super().join(t1, t2)
@@ -124,7 +129,8 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         if self.leq(t2, t1):
             return t2
         if isTList(t1) and isTList(t2):
-            return TList[self.meet(t1.__args__[0], t2.__args__[0])]
+            elem = self.meet(t1.__args__[0], t2.__args__[0])
+            return TList[elem]
         return super().meet(t1, t2)
 
 

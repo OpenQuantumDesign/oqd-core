@@ -269,7 +269,6 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
             if isinstance(stmt, Declaration):
                 state_out[stmt.name] = self._infer_type(stmt.value, env=state_out)
-
                 continue
 
             self._infer_type(stmt, env=state_out)
