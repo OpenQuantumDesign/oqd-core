@@ -207,7 +207,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 args = [expr.size]
             case Extract():
                 name = expr.__class__.__name__
-                args = [expr.access, expr.index]
+                args = [expr.value, expr.index]
             case _:
                 raise AnalogTypeError(f"unable to infer type information from {expr}")
 

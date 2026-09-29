@@ -165,7 +165,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case Extract() if (
                 isinstance(expr.index, Constant) and type(expr.index.value) is int
             ):
-                value = self._infer_dim(expr.access, env=env)
+                value = self._infer_dim(expr.value, env=env)
 
                 return (
                     value
