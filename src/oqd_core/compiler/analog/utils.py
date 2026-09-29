@@ -186,7 +186,7 @@ class PyASTtoAnalog(ConversionRule):
         return AnalogList(values=operands["elts"])
 
     def map_Subscript(self, model, operands):
-        return Extract(access=operands["value"], index=operands["slice"])
+        return Extract(value=operands["value"], index=operands["slice"])
 
     def map_UnaryOp(self, model, operands):
         operand = operands["operand"]
