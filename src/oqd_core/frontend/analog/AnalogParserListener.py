@@ -161,6 +161,15 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AnalogParser#misc_func.
+    def enterMisc_func(self, ctx:AnalogParser.Misc_funcContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#misc_func.
+    def exitMisc_func(self, ctx:AnalogParser.Misc_funcContext):
+        pass
+
+
     # Enter a parse tree produced by AnalogParser#func_names.
     def enterFunc_names(self, ctx:AnalogParser.Func_namesContext):
         pass

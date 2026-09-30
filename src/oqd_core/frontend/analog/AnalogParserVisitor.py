@@ -94,6 +94,11 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by AnalogParser#misc_func.
+    def visitMisc_func(self, ctx:AnalogParser.Misc_funcContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by AnalogParser#func_names.
     def visitFunc_names(self, ctx:AnalogParser.Func_namesContext):
         return self.visitChildren(ctx)
