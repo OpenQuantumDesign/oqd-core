@@ -60,9 +60,10 @@ class BackendBase(ABC):
         args = inspect.getfullargspec(cls.run)
 
         for arg in args.args[1:] + args.kwonlyargs:
-            warnings.warn(
-                f"Misisng type hint for argument `{arg}` in run method of {cls.__name__}. Defaults to Any."
-            )
+            if arg not in args.annotations:
+                warnings.warn(
+                    f"Missing type hint for argument `{arg}` in run method of {cls.__name__}. Defaults to Any."
+                )
 
             cls.run.__annotations__[arg] = Any
 
