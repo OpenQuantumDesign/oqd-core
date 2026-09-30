@@ -97,7 +97,7 @@ math_terminal: INT | FLOAT | MATH_VAR | complex | access | pexpr;
 
 pexpr: LBRACKET expr RBRACKET;
 
-eexpr: iexpr | eexpr POWER iexpr;
+eexpr: iexpr | iexpr POWER eexpr;
 
 uexpr: eexpr | (PLUS|MINUS|NOT) eexpr;
 
