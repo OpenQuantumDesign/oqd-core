@@ -99,20 +99,20 @@ pexpr: LBRACKET expr RBRACKET;
 
 eexpr: iexpr | iexpr POWER eexpr;
 
-uexpr: eexpr | (PLUS|MINUS|NOT) eexpr;
+uexpr: eexpr | (PLUS|MINUS|NOT) uexpr;
 
-mexpr: uexpr | mexpr (MULT|DIV|AT) uexpr;
+mexpr: uexpr | mexpr (MULT uexpr)+ | mexpr (DIV uexpr)+ | mexpr (AT uexpr)+;
 
-aexpr: mexpr | aexpr (PLUS|MINUS) mexpr;
+aexpr: mexpr | aexpr (PLUS mexpr)+ | aexpr (MINUS mexpr)+;
 
 cexpr: aexpr | cexpr (LT | LEQ | GT | GEQ) aexpr;
 
 eqexpr: cexpr | eqexpr (EQ | NEQ) cexpr;
 
-andexpr: eqexpr | andexpr AND eqexpr;
+andexpr: eqexpr | eqexpr (AND eqexpr)+;
 
-xorexpr: andexpr | xorexpr XOR andexpr;
+xorexpr: andexpr | andexpr (XOR andexpr)+;
 
-orexpr: xorexpr | orexpr OR xorexpr;
+orexpr: xorexpr | xorexpr (OR xorexpr)+;
 
 expr: orexpr;
