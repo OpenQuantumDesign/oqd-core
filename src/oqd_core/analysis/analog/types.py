@@ -15,31 +15,14 @@
 
 from __future__ import annotations
 
-from typing import Union
+from typing import Generic, TypeVar, Union, _GenericAlias
 
 from oqd_compiler_infrastructure.lattice import (
     LatticeBase,
-    LatticeBottom,
     LatticeTop,
 )
-from pydantic import BaseModel, ConfigDict
 
-from oqd_core.interface.analog import (
-    BoolAnd,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolOr,
-    MathAdd,
-    MathDiv,
-    MathMul,
-    MathPow,
-    MathSub,
-    OperatorAdd,
-    OperatorKron,
-    OperatorSub,
-)
+from oqd_core.analysis.utils import all_subclasses
 
 ########################################################################################
 
@@ -50,75 +33,77 @@ class AnalogTypeError(TypeError):
     pass
 
 
-class TList(LatticeTop, BaseModel):
-    """Lattice value representing a list."""
-
-    model_config = ConfigDict(frozen=True)
-    elem: TLatticeValue
+########################################################################################
 
 
-TLatticeValue = Union[TList, type[LatticeTop]]
+class TAnalog(LatticeTop): ...
+
+
+class TInvalid(TAnalog): ...
+
+
+LatticeValueTypeVar = TypeVar("LatticeValueTypeVar", bound=TAnalog)
+
+
+class TList(TAnalog, Generic[LatticeValueTypeVar]): ...
+
+
+class TInt(TAnalog): ...
+
+
+class TFloat(TInt): ...
+
+
+class TComplex(TFloat): ...
+
+
+class TBool(TAnalog): ...
+
+
+class TOp(TAnalog): ...
+
+
+class TQRegElem(TAnalog): ...
+
+
+class TQReg(TAnalog): ...
+
+
+class TNull(TAnalog): ...
+
+
+TLatticeValue = Union[all_subclasses(TAnalog)]
 TypeEnv = dict[str, TLatticeValue]
 
 
-def type_name(t: TLatticeValue) -> str:
-    """Format a lattice value into a readable type name for error messages."""
-    if isinstance(t, TList):
-        return f"TList[{type_name(t.elem)}]"
-    if isinstance(t, type) and issubclass(t, LatticeTop):
-        return t.__name__
-    return str(t)
+def get_type_name(value: TLatticeValue):
+    if issubclass(type(value), _GenericAlias):
+        return f"{value.__name__}[{','.join(map(get_type_name, value.__args__))}]"
+
+    return value.__name__
 
 
-class TAnalog(LatticeTop):
-    pass
-
-
-class TScalar(TAnalog):
-    pass
-
-
-class TBool(TAnalog):
-    pass
-
-
-class TOp(TAnalog):
-    pass
-
-
-class TTarget(TAnalog):
-    pass
-
-
-class TTargetRef(TTarget):
-    pass
-
-
-class TQReg(TTarget):
-    pass
-
-
-class TMReg(TTarget):
-    pass
-
-
-class TQRef(TTargetRef):
-    pass
-
-
-class TMRef(TTargetRef):
-    pass
+def isTList(value: TLatticeValue):
+    if issubclass(type(value), _GenericAlias) and value.__origin__ is TList:
+        return True
+    return False
 
 
 class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for analog expressions."""
 
+    def top(self):
+        return TAnalog
+
+    def bottom(self):
+        return TInvalid
+
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
-        if t1 is LatticeBottom:
+        if t1 is self.bottom():
             return True
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return self.leq(t1.elem, t2.elem)
-        if isinstance(t1, TList) or isinstance(t2, TList):
+        if isTList(t1) and isTList(t2):
+            return self.leq(t1.__args__[0], t2.__args__[0])
+        if isTList(t1) or isTList(t2):
             return False
         return super().leq(t1, t2)
 
@@ -127,9 +112,9 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
             return t2
         if self.leq(t2, t1):
             return t1
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.join(t1.elem, t2.elem))
-        if isinstance(t1, TList) or isinstance(t2, TList):
+        if isTList(t1) and isTList(t2):
+            return TList[self.join(t1.__args__[0], t2.__args__[0])]
+        if isTList(t1) or isTList(t2):
             return TAnalog
         return super().join(t1, t2)
 
@@ -138,41 +123,86 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
             return t1
         if self.leq(t2, t1):
             return t2
-        if isinstance(t1, TList) and isinstance(t2, TList):
-            return TList(elem=self.meet(t1.elem, t2.elem))
+        if isTList(t1) and isTList(t2):
+            return TList[self.meet(t1.__args__[0], t2.__args__[0])]
         return super().meet(t1, t2)
 
 
 ########################################################################################
 
 
-# Binary expression signature table: node -> ((left_type, right_type), output_type)
-BIN_SIG_TABLE = {
-    MathAdd: ((TScalar, TScalar), TScalar),
-    MathSub: ((TScalar, TScalar), TScalar),
-    MathMul: ((TScalar, TScalar), TScalar),
-    MathDiv: ((TScalar, TScalar), TScalar),
-    MathPow: ((TScalar, TScalar), TScalar),
-    BoolAnd: ((TBool, TBool), TBool),
-    BoolOr: ((TBool, TBool), TBool),
-    BoolLessThan: ((TScalar, TScalar), TBool),
-    BoolLessThanEq: ((TScalar, TScalar), TBool),
-    BoolGreaterThan: ((TScalar, TScalar), TBool),
-    BoolGreaterThanEq: ((TScalar, TScalar), TBool),
-}
-
-
-# Operator expression signatures
-OP_TABLE = {
-    OperatorAdd: ((TOp, TOp), TOp),
-    OperatorSub: ((TOp, TOp), TOp),
-    OperatorKron: ((TOp, TOp), TOp),
-}
-
-
-# Allowed type pairs for OperatorMul
-OPMUL_ALLOWED = {
-    (TOp, TOp): TOp,
-    (TOp, TScalar): TOp,
-    (TScalar, TOp): TOp,
+ANALOG_SUPPORTED_FUNC_SIGNATURES = {
+    "BoolNot": [((TBool,), TBool)],
+    "BoolEq": [((TComplex, TComplex), TBool)],
+    "BoolNotEq": [((TComplex, TComplex), TBool)],
+    "BoolLessThan": [((TFloat, TFloat), TBool)],
+    "BoolLessThanEq": [((TFloat, TFloat), TBool)],
+    "BoolGreaterThan": [((TFloat, TFloat), TBool)],
+    "BoolGreaterThanEq": [((TFloat, TFloat), TBool)],
+    "MathAdd": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "MathSub": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "MathMul": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+        ((TComplex, TOp), TOp),
+        ((TOp, TComplex), TOp),
+    ],
+    "MathDiv": [
+        ((TInt, TInt), TFloat),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "MathPow": [
+        ((TInt, TInt), TInt),
+        ((TFloat, TFloat), TFloat),
+        ((TComplex, TComplex), TComplex),
+    ],
+    "OperatorAdd": [((TOp, TOp), TOp)],
+    "OperatorSub": [((TOp, TOp), TOp)],
+    "OperatorMul": [((TOp, TOp), TOp)],
+    "OperatorKron": [((TOp, TOp), TOp)],
+    "Evolve": [
+        ((TOp, TFloat, TQReg), TNull),
+        ((TOp, TFloat, TQRegElem), TNull),
+        ((TOp, TFloat, TList[TQRegElem]), TNull),
+    ],
+    "Initialize": [
+        ((TQReg,), TNull),
+        ((TQRegElem,), TNull),
+        ((TList[TQRegElem],), TNull),
+    ],
+    "Measure": [
+        ((TQReg,), TList[TInt]),
+        ((TQRegElem,), TList[TInt]),
+        ((TList[TQRegElem],), TList[TInt]),
+    ],
+    "abs": [((TInt,), TInt), ((TFloat,), TFloat), ((TComplex,), TFloat)],
+    "sin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "cos": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "tan": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "exp": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "log": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "sinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "cosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "tanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "atan": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "acos": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "asin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "atanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "asinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "acosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "heaviside": [((TFloat,), TInt), ((TInt), TInt)],
+    "conj": [((TComplex,), TComplex)],
+    "real": [((TComplex,), TFloat)],
+    "imag": [((TComplex,), TFloat)],
+    "atan2": [((TFloat, TFloat), TFloat), ((TComplex, TComplex), TComplex)],
 }
