@@ -69,11 +69,13 @@ math_func: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
 
 quantum_func: QUANTUMREGISTER | MODEREGISTER | EVOLVE | MEASURE | INITIALIZE;
 
-list_func: RANGE | PRINT | LENGTH | FLATTEN;
+list_func: RANGE | LENGTH | FLATTEN;
 
-func_names: math_func | quantum_func | list_func;
+misc_func: PRINT;
 
-args: expr (COMMA expr)*;
+func_names: math_func | quantum_func | list_func | misc_func;
+
+args: expr (COMMA expr)* COMMA?;
 
 func: func_names LBRACKET args? RBRACKET;
 

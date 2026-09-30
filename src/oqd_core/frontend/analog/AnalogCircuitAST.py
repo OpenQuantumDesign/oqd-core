@@ -202,11 +202,14 @@ class AnalogASTBuilder(AnalogParserVisitor):
     def visitList_func(self, ctx: AnalogParser.List_funcContext):
         return ctx.getChild(0).getText()
 
+    def visitMisc_func(self, ctx: AnalogParser.Misc_funcContext):
+        return ctx.getChild(0).getText()
+
     def visitFunc_names(self, ctx: AnalogParser.Func_namesContext):
         return self.visitChildren(ctx)
 
     def visitArgs(self, ctx: AnalogParser.ArgsContext):
-        args = [self.visit(args) for args in ctx.expr() if args is not None]
+        args = [self.visit(args) for args in ctx.expr()]
         return args
 
     def visitFunc(self, ctx: AnalogParser.FuncContext):
