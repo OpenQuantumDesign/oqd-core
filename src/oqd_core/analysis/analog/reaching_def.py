@@ -31,7 +31,6 @@ from oqd_compiler_infrastructure import (
 from oqd_core.frontend.analog import serialize_analog
 from oqd_core.interface.analog import (
     Access,
-    AnalogExpr,
     Declaration,
 )
 

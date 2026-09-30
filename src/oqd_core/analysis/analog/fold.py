@@ -17,23 +17,20 @@
 
 from __future__ import annotations
 
-from typing import Tuple, Union
+from typing import Union
 
 from oqd_compiler_infrastructure import (
     CFGBlock,
     ForwardDataflowAnalysis,
     Lattice,
     LatticeTop,
-    MapLatticeValue,
     Post,
-    VisitableBaseModel,
     gen_pass,
     maplattice,
 )
 
 from oqd_core.interface.analog import (
     Access,
-    AnalogExpr,
     Declaration,
     MathNum,
 )

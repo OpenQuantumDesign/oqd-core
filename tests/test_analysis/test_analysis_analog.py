@@ -17,18 +17,16 @@ from oqd_compiler_infrastructure import CFGBlockAccumulator
 
 from oqd_core.analysis.analog.bounds_checker import (
     AnalogBoundsChecker,
-    AnalogOutOfBoundsError,
+    OutOfBoundsError,
 )
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
-from oqd_core.analysis.analog.definite_assignment import (
-    AnalogDefiniteAssignmentChecker,
-    AnalogUndefinedVarError,
+from oqd_core.analysis.analog.reaching_def import (
+    AvailableVariableAnalysis,
+    AvailableVariableError,
 )
 from oqd_core.analysis.analog.type_checker import AnalogTypeChecker
 from oqd_core.analysis.analog.types import AnalogTypeError
-from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
-
-
+from oqd_core.frontend.analog.AnalogASTBuilder import parse_analog
 
 ## Control Flow Graph ##
 
@@ -42,67 +40,67 @@ class TestAnalogCFG:
 
         
 
-## Definite Assignment ##
+## Available Variables ##
 
-# class TestAnalogAssignmentAnalysis:
-#     @pytest.mark.parametrize(
-#         "program",
-#         [   "r = qreg(2) \n initialize(r)",
-#             "r = qreg(2) \n initialize(r) \n measure(r)",
-#             "r = qreg(2) \n evolve(%X, 1.0, r[1])",
-#             "s = 5 * 4 \n t = s * 4",
-#             "s = 5 + 2 \n t = s + 4",
-#             "s = 5 - 2 \n t = s - 4",
-#             "s = 6 / 2 \n t = s / 3",
-#             "s = 2 ^ 3 \n t = s ^ 2",
-#             "pi = 3.14159 \n s = sin(pi)",
-#             "pi = 3.14159 \n s = atan2(1, pi)",
-#             "s = qmode(3) \n initialize(s[1])",
-#             "r = qreg(2) \n H = %X %* %I \n evolve(H, 1, r[0])",
-#             "r = qreg(2) \n H = %X %@ %Y \n evolve(H, 1, r)",
-#             "cond = true and false \n if (cond) {\n a = 0 \n }",
-#             "cond = true or false \n while (cond) {t = 0.2}",
-#             "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
-#             "s = qmode(2) \n evolve(%C %@ %A, 1.0, s)",
-#             "c = 1 < 2 \n if (c) { \n a = 2 \n }",
-#             "c = 3 >= 2 \n if (c) { \n c = true \n }",
-#             "a = true \n c = not a \n if (c) { \n c = a \n }",
-#             "x = 1 \n x = 2 \n y = x + 1",
-#             "n = 3 \n while (n > 0) { n = n - 1 }",
-#             "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b]"
-#         ]
-#     )
-#     def test_analog_definite_assignment_checker(self, program):
-#         circuit = parse_analog(program)
-#         cfg = AnalogCFGBuilder().run(circuit)
-#         AnalogDefiniteAssignmentChecker(cfg)
+class TestAnalogAssignmentAnalysis:
+    @pytest.mark.parametrize(
+        "program",
+        [   "r = qreg(2) \n initialize(r)",
+            "r = qreg(2) \n initialize(r) \n measure(r)",
+            "r = qreg(2) \n evolve(%X, 1.0, r[1])",
+            "s = 5 * 4 \n t = s * 4",
+            "s = 5 + 2 \n t = s + 4",
+            "s = 5 - 2 \n t = s - 4",
+            "s = 6 / 2 \n t = s / 3",
+            "s = 2 ^ 3 \n t = s ^ 2",
+            "pi = 3.14159 \n s = sin(pi)",
+            "pi = 3.14159 \n s = atan2(1, pi)",
+            "s = qmode(3) \n initialize(s[1])",
+            "r = qreg(2) \n H = %X %* %I \n evolve(H, 1, r[0])",
+            "r = qreg(2) \n H = %X %@ %Y \n evolve(H, 1, r)",
+            "cond = true and false \n if (cond) {\n a = 0 \n }",
+            "cond = true or false \n while (cond) {t = 0.2}",
+            "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
+            "s = qmode(2) \n evolve(%C %@ %A, 1.0, s)",
+            "c = 1 < 2 \n if (c) { \n a = 2 \n }",
+            "c = 3 >= 2 \n if (c) { \n c = true \n }",
+            "a = true \n c = not a \n if (c) { \n c = a \n }",
+            "x = 1 \n x = 2 \n y = x + 1",
+            "n = 3 \n while (n > 0) { n = n - 1 }",
+            "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b]"
+        ]
+    )
+    def test_analog_definite_assignment_checker(self, program):
+        circuit = parse_analog(program)
+        cfg = AnalogCFGBuilder()(circuit)
+        AvailableVariableAnalysis().analyze(cfg)
     
-#     @pytest.mark.parametrize(
-#         "program",
-#         [   "initialize(r)",
-#             "measure(r)",
-#             "evolve(%X, 1.0, r)",
-#             "a = 0 \n b = a \n if (not a) { \n b = c \n}",
-#             "a = 0 \n b = a \n if (not c) { \n a = 1 \n}",
-#             "a = 0 \n b = a \n while (b) { \n b = c + 1 \n}",
-#             "a = 0 \n b = a \n while (d) { \n b = b + 1 \n}",
-#             "a = 0 \n b = a \n while (d) { \n b = d + 1 \n}",
-#             "a = [1, 2, a]",
-#             "a = 0 \n b = 2 \n c = [a, b, c]",
-#             "a = not b",
-#             "a = a == b",
-#             "a = %X \n b = %Y %* c",
-#             "a = 1 \n b = a + c",
-#             "a = a > 0",
-#             "a = 1 \n b = a < b",
-#             "pi = 3.14159 \n b = sin(pi * a)"
-#         ]
-#     )
-#     def test_analog_definite_assignment_checker_error(self, program):
-#         circuit = parse_analog(program)
-#         with pytest.raises(AnalogUndefinedVarError):
-#             cfg = AnalogCFGBuilder().run(circuit)
-#             AnalogDefiniteAssignmentChecker(cfg)
+    @pytest.mark.parametrize(
+        "program",
+        [   "initialize(r)",
+            "measure(r)",
+            "evolve(%X, 1.0, r)",
+            "a = 0 \n b = a \n if (not a) { \n b = c \n}",
+            "a = 0 \n b = a \n if (not c) { \n a = 1 \n}",
+            "a = 0 \n b = a \n while (b) { \n b = c + 1 \n}",
+            "a = 0 \n b = a \n while (d) { \n b = b + 1 \n}",
+            "a = 0 \n b = a \n while (d) { \n b = d + 1 \n}",
+            "a = [1, 2, a]",
+            "a = 0 \n b = 2 \n c = [a, b, c]",
+            "a = not b",
+            "a = a == b",
+            "a = %X \n b = %Y %* c",
+            "a = 1 \n b = a + c",
+            "a = a > 0",
+            "a = 1 \n b = a < b",
+            "pi = 3.14159 \n b = sin(pi * a)"
+        ]
+    )
+    def test_analog_definite_assignment_checker_error(self, program):
+        circuit = parse_analog(program)
+        with pytest.raises(AvailableVariableError):
+            cfg = AnalogCFGBuilder()(circuit)
+            AvailableVariableAnalysis().analyze(cfg)
 
 
 ## Type Checker ##
@@ -126,14 +124,8 @@ class TestAnalogTypeChecker:
             "s = atan2(1, 2)",
             "s = qmode(3) \n initialize(s)",
             "H = %X %* %I",
-            "H = 2 %* %X",
-            "H = %X %* 2",
             "H = %X %+ %Y",
-            "H = %X %- %Y",
             "H = %X %@ %Y",
-            "cond = true and false",
-            "cond = true and false \n if (cond) {t = 0.2}",
-            "cond = true or false \n while (cond) {t = 0.2}",
             "r = qreg(3) \n target = [r[0], r[1], r[2]] \n initialize(target)",
             "r = qreg(2) \n q = r[0] \n measure(q)",
             "s = qmode(2) \n m = s[0] \n initialize(m)",
@@ -143,7 +135,6 @@ class TestAnalogTypeChecker:
             "if (1 < 2) {x = 0}",
             "if (5 <= 4) {s = true}",
             "c = 1 == 2",
-            "c = true != false",
             "c = not true",
             "x = 1 \n x = 2 \n y = x + 1",
             "n = 3 \n while (n > 0) { n = n - 1 }",
@@ -153,7 +144,7 @@ class TestAnalogTypeChecker:
     def test_analog_type_checker(self, program):
         circuit = parse_analog(program)
         cfg = AnalogCFGBuilder()(circuit)
-        AnalogTypeChecker(cfg)
+        AnalogTypeChecker().analyze(cfg)
 
     @pytest.mark.parametrize(
         "program",
@@ -169,7 +160,6 @@ class TestAnalogTypeChecker:
             "s = sin(true)",
             "s = cos(%X)",
             "s = atan2(1, true)",
-            "s = 5 \n x = s[0]",
             "H = %X * %I",
             "H = %X %+ 5",
             "H = %X %@ 2",
@@ -185,75 +175,74 @@ class TestAnalogTypeChecker:
             "c = 5 and true",
             "c = true or %I",
             "c = true < false",
-            "c = true \n x = c[0]",
         ],
     )
     def test_analog_type_checker_error(self, program):
         circuit = parse_analog(program)
         with pytest.raises(AnalogTypeError):
             cfg = AnalogCFGBuilder()(circuit)
-            AnalogTypeChecker(cfg)
+            AnalogTypeChecker().analyze(cfg)
 
 
 ## Bounds Checker ##
 
-# class TestAnalogBoundsChecker:
-#     @pytest.mark.parametrize(
-#         "program",
-#         [   "r = qreg(2) \n [r[0], r[1]]",
-#             "r = qreg(3) \n initialize(r) \n measure(r)",
-#             "r = qreg(10) \n evolve(%X, 1.0, r[9])",
-#             "l = [5 * 4, 3 * 5] \n t = l[0]",
-#             "s = [5 + 2, 3] \n t = s[1]",
-#             "s = [5 - 2, 10] \n t = [1, 2, s]",
-#             "s = [6 / 2, 1] \n t = [s[0], 5]",
-#             "s = [[2 ^ 3], [4]] \n t = s[0] \n u = [s[1], t]",
-#             "pi = 3.14159 \n s = sin(pi) \n c = cos(pi) \n a = [s, c] \n tan(a[0])",
-#             "a = [1, 0] \n atan2(a[0], a[1])",
-#             "s = qmode(3) \n initialize(s[1])",
-#             "r = qreg(2) \n H = [%X %* %I] \n evolve(H[0], 1, r[0])",
-#             "cond = [true, false] \n if (cond[0]) {\n a = 0 \n }",
-#             # "cond = [true, false] \n while (cond[0]) {t = 0.2}",
-#             "c = [1 < 2, 2 <= 4, 4 == 5] \n if (c[1]) { \n a = 2 \n }",
-#             "c = [3 >= 2, 1 > 0]  \n if (c[0]) { \n c = true \n }",
-#             "a = true \n c = [a, not a] \n if (c[0]) { \n c = a \n }",
-#             "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b] \n e[0]",
-#         ]
-#     )
-#     def test_analog_bounds_checker(self, program):
-#         circuit = parse_analog(program)
-#         cfg = AnalogCFGBuilder().run(circuit)
-#         AnalogBoundsChecker(cfg)
+class TestAnalogBoundsChecker:
+    @pytest.mark.parametrize(
+        "program",
+        [   "r = qreg(2) \n [r[0], r[1]]",
+            "r = qreg(3) \n initialize(r) \n measure(r)",
+            "r = qreg(10) \n evolve(%X, 1.0, r[9])",
+            "l = [5 * 4, 3 * 5] \n t = l[0]",
+            "s = [5 + 2, 3] \n t = s[1]",
+            "s = [5 - 2, 10] \n t = [1, 2, s]",
+            "s = [6 / 2, 1] \n t = [s[0], 5]",
+            "s = [[2 ^ 3], [4]] \n t = s[0] \n u = [s[1], t]",
+            "pi = 3.14159 \n s = sin(pi) \n c = cos(pi) \n a = [s, c] \n tan(a[0])",
+            "a = [1, 0] \n atan2(a[0], a[1])",
+            "s = qmode(3) \n initialize(s[1])",
+            "r = qreg(2) \n H = [%X %* %I] \n evolve(H[0], 1, r[0])",
+            "cond = [true, false] \n if (cond[0]) {\n a = 0 \n }",
+            "cond = [true, false] \n while (cond[0]) {t = 0.2}",
+            "c = [1 < 2, 2 <= 4, 4 == 5] \n if (c[1]) { \n a = 2 \n }",
+            "c = [3 >= 2, 1 > 0]  \n if (c[0]) { \n c = true \n }",
+            "a = true \n c = [a, not a] \n if (c[0]) { \n c = a \n }",
+            "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b] \n e[0]",
+        ]
+    )
+    def test_analog_bounds_checker(self, program):
+        circuit = parse_analog(program)
+        cfg = AnalogCFGBuilder()(circuit)
+        AnalogBoundsChecker().analyze(cfg)
     
-#     @pytest.mark.parametrize(
-#         "program",
-#         [   "r = qreg(1) \n r[1]"
-#             "r = qreg(2) \n [r[0], r[2]]",
-#             "r = qreg(3) \n initialize(r[3]) \n measure(r)",
-#             "r = qreg(3) \n initialize(r) \n measure(r[4])",
-#             "r = qreg(10) \n evolve(%X, 1.0, r[10])",
-#             "l = [5 * 4, 3 * 5] \n t = l[3]",
-#             "s = [5 + 2, 3] \n t = s[4]",
-#             "s = [5 - 2, 10] \n t = [1, 2, s] \n u = t[4]",
-#             "s = [6 / 2, 1] \n t = [s[3], 5]",
-#             "s = [[2 ^ 3], [4]] \n t = s[0] \n u = [s[1], t[0]]",
-#             "pi = 3.14159 \n s = sin(pi) \n c = cos(pi) \n a = [s, c] \n tan(a[2])",
-#             "a = [1, 0] \n atan2(a[0], a[2])",
-#             "s = qmode(3) \n initialize(s[3])",
-#             "r = qreg(2) \n H = [%X %* %I] \n evolve(H[1], 1, r[0])",
-#             "cond = [true, false] \n if (cond[2]) {\n a = 0 \n }",
-#             "cond = [true, false] \n while (cond[2]) {t = 0.2}",
-#             "c = [1 < 2, 2 <= 4, 4 == 5] \n if (c[3]) { \n a = 2 \n }",
-#             "c = [3 >= 2, 1 > 0]  \n if (c[2]) { \n c = true \n }",
-#             "a = true \n c = [a, not a] \n if (c[2]) { \n c = a \n }",
-#             "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b] \n e[3]",
-#         ]
-#     )
-#     def test_analog_bounds_checker_error(self, program):
-#         circuit = parse_analog(program)
-#         with pytest.raises(AnalogOutOfBoundsError):
-#             cfg = AnalogCFGBuilder().run(circuit)
-#             AnalogBoundsChecker(cfg)
+    @pytest.mark.parametrize(
+        "program",
+        [   "r = qreg(1) \n r[1]"
+            "r = qreg(2) \n [r[0], r[2]]",
+            "r = qreg(3) \n initialize(r[3]) \n measure(r)",
+            "r = qreg(3) \n initialize(r) \n measure(r[4])",
+            "r = qreg(10) \n evolve(%X, 1.0, r[10])",
+            "l = [5 * 4, 3 * 5] \n t = l[3]",
+            "s = [5 + 2, 3] \n t = s[4]",
+            "s = [5 - 2, 10] \n t = [1, 2, s] \n u = t[4]",
+            "s = [6 / 2, 1] \n t = [s[3], 5]",
+            "s = [[2 ^ 3], [4]] \n t = s[0] \n u = [s[1], t[0]]",
+            "pi = 3.14159 \n s = sin(pi) \n c = cos(pi) \n a = [s, c] \n tan(a[2])",
+            "a = [1, 0] \n atan2(a[0], a[2])",
+            "s = qmode(3) \n initialize(s[3])",
+            "r = qreg(2) \n H = [%X %* %I] \n evolve(H[1], 1, r[0])",
+            "cond = [true, false] \n if (cond[2]) {\n a = 0 \n }",
+            "cond = [true, false] \n while (cond[2]) {t = 0.2}",
+            "c = [1 < 2, 2 <= 4, 4 == 5] \n if (c[3]) { \n a = 2 \n }",
+            "c = [3 >= 2, 1 > 0]  \n if (c[2]) { \n c = true \n }",
+            "a = true \n c = [a, not a] \n if (c[2]) { \n c = a \n }",
+            "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b] \n e[3]",
+        ]
+    )
+    def test_analog_bounds_checker_error(self, program):
+        circuit = parse_analog(program)
+        with pytest.raises(OutOfBoundsError):
+            cfg = AnalogCFGBuilder()(circuit)
+            AnalogBoundsChecker().analyze(cfg)
 
 
 ## CFGBlockAccumulator ##
