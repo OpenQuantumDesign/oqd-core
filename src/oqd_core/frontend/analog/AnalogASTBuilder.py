@@ -297,8 +297,10 @@ class AnalogASTBuilder(AnalogParserVisitor):
         return Pow(exprs=args) if len(args) > 1 else args[0]
 
     def visitUexpr(self, ctx: AnalogParser.UexprContext):
-        expr = self.visit(ctx.eexpr())
+        if ctx.eexpr():
+            return self.visit(ctx.eexpr())
 
+        expr = self.visit(ctx.uexpr())
         if ctx.PLUS():
             return Pos(expr=expr)
         if ctx.MINUS():
@@ -309,10 +311,10 @@ class AnalogASTBuilder(AnalogParserVisitor):
         return expr
 
     def visitMexpr(self, ctx: AnalogParser.MexprContext):
-        args = self._get_binop_args(ctx)
+        if ctx.mexpr() is None:
+            return self.visit(ctx.uexpr()[0])
 
-        if len(args) == 1:
-            return args[0]
+        args = [self.visit(ctx.mexpr())] + [self.visit(expr) for expr in ctx.uexpr()]
 
         if ctx.MULT():
             return Mul(exprs=args)
@@ -322,10 +324,10 @@ class AnalogASTBuilder(AnalogParserVisitor):
             return Kron(exprs=args)
 
     def visitAexpr(self, ctx: AnalogParser.AexprContext):
-        args = self._get_binop_args(ctx)
+        if ctx.aexpr() is None:
+            return self.visit(ctx.mexpr()[0])
 
-        if len(args) == 1:
-            return args[0]
+        args = [self.visit(ctx.aexpr())] + [self.visit(expr) for expr in ctx.mexpr()]
 
         if ctx.PLUS():
             return Add(exprs=args)
@@ -359,7 +361,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
             return Neq(exprs=args)
 
     def visitAndexpr(self, ctx: AnalogParser.AndContext):
-        args = self._get_binop_args(ctx)
+        args = [self.visit(expr) for expr in ctx.eqexpr()]
 
         if len(args) == 1:
             return args[0]
@@ -367,7 +369,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
         return And(exprs=args) if len(args) > 1 else args[0]
 
     def visitXorexpr(self, ctx: AnalogParser.XorContext):
-        args = self._get_binop_args(ctx)
+        args = [self.visit(expr) for expr in ctx.andexpr()]
 
         if len(args) == 1:
             return args[0]
@@ -375,7 +377,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
         return Xor(exprs=args) if len(args) > 1 else args[0]
 
     def visitOrexpr(self, ctx: AnalogParser.OrContext):
-        args = self._get_binop_args(ctx)
+        args = [self.visit(expr) for expr in ctx.xorexpr()]
 
         if len(args) == 1:
             return args[0]
