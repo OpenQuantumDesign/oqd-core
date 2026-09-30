@@ -189,7 +189,7 @@ class SerializeAnalog(ConversionRule):
         if model.real == 0:
             return f"{imag}j"
 
-        return f"({real}r{imag}j)"
+        return f"{real}r{imag}j"
 
     def map_BuiltinCall(self, model: BuiltinCall, operands):
         func = model.func
