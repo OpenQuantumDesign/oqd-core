@@ -186,6 +186,7 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
         ((TInt, TInt), TFloat),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
+        ((TOp, TComplex), TOp),
     ],
     "Pow": [
         ((TInt, TInt), TInt),
