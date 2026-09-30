@@ -33,11 +33,10 @@ from oqd_core.interface.analog import (
     Add,
     AnalogList,
     Annihilation,
-    Break,
     Constant,
-    Continue,
     Creation,
     Declaration,
+    Div,
     Evolve,
     Extract,
     Identity,
@@ -50,6 +49,7 @@ from oqd_core.interface.analog import (
     PauliY,
     PauliZ,
     Pos,
+    Pow,
     QuantumRegister,
     Sub,
 )
@@ -200,6 +200,11 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
                     )
 
                 return dim
+
+            case Div() | Pow():
+                arg0 = self._infer_dim(expr.exprs[0], env=env)
+
+                return arg0
 
             case Kron():
                 args = [self._infer_dim(e, env=env) for e in expr.exprs]
