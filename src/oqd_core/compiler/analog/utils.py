@@ -139,9 +139,20 @@ class PyASTtoAnalog(ConversionRule):
                 return BuiltinCall(func=name, args=args)
 
             case "evolve":
-                if len(args) != 3:
+                if len(args) not in [3, 4]:
                     raise ValueError()
-                return Evolve(hamiltonian=args[0], duration=args[1], targets=args[2])
+
+                if len(args) == 3:
+                    return Evolve(
+                        hamiltonian=args[0], duration=args[1], targets=args[2]
+                    )
+
+                return Evolve(
+                    hamiltonian=args[0],
+                    jumps=args[1],
+                    duration=args[2],
+                    targets=args[3],
+                )
 
             case "initialize" | "measure":
                 if len(args) != 1:
