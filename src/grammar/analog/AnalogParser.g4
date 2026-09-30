@@ -34,7 +34,7 @@ continue_stmt: CONTINUE;
 
 // Atom
 
-terminal: analog_list_extract | operator_terminal | math_terminal | bool_literal | analog_list | func;
+terminal: operator_terminal | math_terminal | bool_literal | analog_list | func;
 
 /** ================================================================================= */
 
@@ -42,13 +42,6 @@ terminal: analog_list_extract | operator_terminal | math_terminal | bool_literal
 
 declaration: ID ASSIGN expr;
 access: ID;
-
-/** ================================================================================= */
-
-// List
-
-analog_list: SQUARELBRACKET expr? (COMMA expr)* COMMA? SQUARERBRACKET;
-analog_list_extract: access SQUARELBRACKET expr SQUARERBRACKET;
 
 /** ================================================================================= */
 
@@ -76,13 +69,23 @@ math_func: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
 
 quantum_func: QUANTUMREGISTER | MODEREGISTER | EVOLVE | MEASURE | INITIALIZE;
 
-list_func: RANGE | PRINT | LENGTH | FLATTEN;
+list_func: RANGE | LENGTH | FLATTEN;
 
-func_names: math_func | quantum_func | list_func;
+misc_func: PRINT;
 
-args: expr (COMMA expr)*;
+func_names: math_func | quantum_func | list_func | misc_func;
+
+args: expr (COMMA expr)* COMMA?;
 
 func: func_names LBRACKET args? RBRACKET;
+
+/** ================================================================================= */
+
+// List
+
+analog_list: SQUARELBRACKET expr? (COMMA expr)* COMMA? SQUARERBRACKET;
+
+iexpr: terminal | iexpr SQUARELBRACKET expr SQUARERBRACKET;
 
 /** ================================================================================= */
 
@@ -94,7 +97,7 @@ math_terminal: INT | FLOAT | MATH_VAR | complex | access | pexpr;
 
 pexpr: LBRACKET expr RBRACKET;
 
-eexpr: terminal | eexpr POWER terminal;
+eexpr: iexpr | eexpr POWER iexpr;
 
 uexpr: eexpr | (PLUS|MINUS|NOT) eexpr;
 

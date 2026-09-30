@@ -59,16 +59,6 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
-    # Visit a parse tree produced by AnalogParser#analog_list.
-    def visitAnalog_list(self, ctx:AnalogParser.Analog_listContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by AnalogParser#analog_list_extract.
-    def visitAnalog_list_extract(self, ctx:AnalogParser.Analog_list_extractContext):
-        return self.visitChildren(ctx)
-
-
     # Visit a parse tree produced by AnalogParser#pauli_op.
     def visitPauli_op(self, ctx:AnalogParser.Pauli_opContext):
         return self.visitChildren(ctx)
@@ -104,6 +94,11 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by AnalogParser#misc_func.
+    def visitMisc_func(self, ctx:AnalogParser.Misc_funcContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by AnalogParser#func_names.
     def visitFunc_names(self, ctx:AnalogParser.Func_namesContext):
         return self.visitChildren(ctx)
@@ -116,6 +111,16 @@ class AnalogParserVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by AnalogParser#func.
     def visitFunc(self, ctx:AnalogParser.FuncContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#analog_list.
+    def visitAnalog_list(self, ctx:AnalogParser.Analog_listContext):
+        return self.visitChildren(ctx)
+
+
+    # Visit a parse tree produced by AnalogParser#iexpr.
+    def visitIexpr(self, ctx:AnalogParser.IexprContext):
         return self.visitChildren(ctx)
 
 

@@ -207,7 +207,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 args = [expr.size]
             case Extract():
                 name = expr.__class__.__name__
-                args = [expr.access, expr.index]
+                args = [expr.value, expr.index]
             case _:
                 raise AnalogTypeError(f"unable to infer type information from {expr}")
 
@@ -301,7 +301,13 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                     stmt.value, env=self.lattice.meet(state_in, block_types)
                 )
 
-                block_types[stmt.name] = declare_type
+                block_types[stmt.name] = self.lattice.element_lattice.meet(
+                    declare_type,
+                    block_types.get(
+                        stmt.name,
+                        self.lattice.element_lattice.top(),
+                    ),
+                )
 
                 if (
                     self.lattice.meet(state_in, block_types)[stmt.name]
