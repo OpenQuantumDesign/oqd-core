@@ -20,6 +20,7 @@ from oqd_core.analysis.analog.bounds_checker import (
     OutOfBoundsError,
 )
 from oqd_core.analysis.analog.cfg import AnalogCFGBuilder
+from oqd_core.analysis.analog.dim_checker import DimensionChecker, DimensionError
 from oqd_core.analysis.analog.reaching_def import (
     AvailableVariableAnalysis,
     AvailableVariableError,
@@ -243,6 +244,44 @@ class TestAnalogBoundsChecker:
         with pytest.raises(OutOfBoundsError):
             cfg = AnalogCFGBuilder()(circuit)
             AnalogBoundsChecker().analyze(cfg)
+
+
+## Dimension Checker ##
+
+class TestAnalogDimensionChecker:
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = qreg(2) \n initialize(r) \n evolve(%X, 1, r[0])",
+            "r = qreg(2) \n initialize(r) \n evolve(%X %@ %X, 1, r)",
+            "H = %X \n r = qreg(2) \n initialize(r) \n evolve(H, 1, r[0])",
+            "H = %X %@ %X \n r = qreg(2) \n initialize(r) \n evolve(H, 1, r)",
+            "H = %A \n r = qmode(2) \n initialize(r) \n evolve(H, 1, r[0])",
+            "H = %A %@ %C \n r = qmode(2) \n initialize(r) \n evolve(H, 1, r)",
+        ],
+    )
+    def test_analog_dimension_checker(self, program):
+        circuit = parse_analog(program)
+        cfg = AnalogCFGBuilder()(circuit)
+        DimensionChecker().analyze(cfg)
+    
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = qreg(2) \n initialize(r) \n evolve(%X, 1, r)",
+            "r = qreg(2) \n initialize(r) \n evolve(%X %@ %X, 1, r[0])",
+            "H = %X \n r = qreg(2) \n initialize(r) \n evolve(H, 1, r)",
+            "H = %X %@ %X \n r = qreg(2) \n initialize(r) \n evolve(H, 1, r[0])",
+            "H = %A \n r = qmode(2) \n initialize(r) \n evolve(H, 1, r)",
+            "H = %A %@ %C \n r = qmode(2) \n initialize(r) \n evolve(H, 1, r[0])",
+        ],
+    )
+    def test_analog_dimension_checker_error(self, program):
+        circuit = parse_analog(program)
+        with pytest.raises(DimensionError):
+            cfg = AnalogCFGBuilder()(circuit)
+            DimensionChecker().analyze(cfg)
+
 
 
 ## CFGBlockAccumulator ##
