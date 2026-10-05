@@ -214,16 +214,10 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case Evolve():
                 hamiltonian_dim = self._infer_dim(expr.hamiltonian, env=env)
                 jumps_dim = [self._infer_dim(L, env=env) for L in expr.jumps.values]
+                targets_dim = self._infer_dim(expr.targets, env=env)
 
-                match expr.targets:
-                    case AnalogList():
-                        targets_dim = [
-                            d
-                            for target in expr.targets.values
-                            for d in self._infer_dim(target, env=env)
-                        ]
-                    case _:
-                        targets_dim = self._infer_dim(expr.targets, env=env)
+                if isinstance(targets_dim[0], list):
+                    targets_dim = [d for target in targets_dim for d in target]
 
                 args = (hamiltonian_dim, *jumps_dim, targets_dim)
 
