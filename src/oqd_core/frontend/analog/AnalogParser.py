@@ -100,7 +100,7 @@ def serializedATN():
         222,1,0,0,0,227,223,1,0,0,0,227,224,1,0,0,0,227,225,1,0,0,0,227,
         226,1,0,0,0,228,49,1,0,0,0,229,230,5,26,0,0,230,231,3,70,35,0,231,
         232,5,27,0,0,232,51,1,0,0,0,233,239,3,44,22,0,234,235,3,44,22,0,
-        235,236,5,36,0,0,236,237,3,52,26,0,237,239,1,0,0,0,238,233,1,0,0,
+        235,236,5,36,0,0,236,237,3,54,27,0,237,239,1,0,0,0,238,233,1,0,0,
         0,238,234,1,0,0,0,239,53,1,0,0,0,240,244,3,52,26,0,241,242,7,6,0,
         0,242,244,3,54,27,0,243,240,1,0,0,0,243,241,1,0,0,0,244,55,1,0,0,
         0,245,246,6,28,-1,0,246,247,3,54,27,0,247,271,1,0,0,0,248,251,10,
@@ -2267,8 +2267,8 @@ class AnalogParser ( Parser ):
         def POWER(self):
             return self.getToken(AnalogParser.POWER, 0)
 
-        def eexpr(self):
-            return self.getTypedRuleContext(AnalogParser.EexprContext,0)
+        def uexpr(self):
+            return self.getTypedRuleContext(AnalogParser.UexprContext,0)
 
 
         def getRuleIndex(self):
@@ -2312,7 +2312,7 @@ class AnalogParser ( Parser ):
                 self.state = 235
                 self.match(AnalogParser.POWER)
                 self.state = 236
-                self.eexpr()
+                self.uexpr()
                 pass
 
 
