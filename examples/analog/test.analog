@@ -50,6 +50,8 @@ if (x == 1) {
     evolve(H_single, 1.0, r[0])
 }
 else { evolve(H_pair, 0.5, r) }
+
+
 n = 3
 while (n > 0){
     evolve(H_rabi, 0.1, targets)
@@ -99,13 +101,13 @@ if (x >= 0) {
     x = 0
 }
 
-a2 = true
-if (a2) {
-    b = 5
+c = true
+if (c) {
+    d = 5
 }
 
 
-if (a2) {}
+if (c) {}
 
 
-while (a2) {}
+while (c) {}
