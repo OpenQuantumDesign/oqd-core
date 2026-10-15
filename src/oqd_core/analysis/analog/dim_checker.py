@@ -150,10 +150,10 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
             case QuantumRegister() if self._is_integer(expr.size) and self._is_integer(
                 expr.dim
             ):
-                return [expr.dim.value] * expr.size.value
+                return [[expr.dim.value]] * expr.size.value
 
             case ModeRegister() if self._is_integer(expr.size):
-                return [-1] * expr.size.value
+                return [[-1]] * expr.size.value
 
             case QuantumRegister():
                 raise DimensionError(
@@ -171,13 +171,10 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
             case Extract() if self._is_integer(expr.index):
                 value = self._infer_dim(expr.value, env=env)
 
-                print(value)
+                if value is self.lattice.element_lattice.bottom():
+                    return value
 
-                return (
-                    value
-                    if value == self.lattice.element_lattice.bottom()
-                    else value[expr.index.value]
-                )
+                return value[expr.index.value]
 
             case Neg() | Pos():
                 arg = self._infer_dim(expr.expr, env=env)
