@@ -23,6 +23,7 @@ from oqd_compiler_infrastructure import (
     Lattice,
     LatticeTop,
     MapLatticeValue,
+    Post,
     gen_pass,
     maplattice,
 )
@@ -130,8 +131,8 @@ class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
     def _is_integer(self, expr):
         return isinstance(expr, Constant) and type(expr.value) is int
 
-    @gen_pass(rule_type="rewrite", method=True)
-    def _infer_bounds(self, expr, *, env: BoundsEnv):
+    @gen_pass(rule_type="conversion", walk=Post, method=True)
+    def _infer_bounds(self, expr, operands, *, env: BoundsEnv):
 
         match expr:
             case Access():
@@ -141,8 +142,11 @@ class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
                     else env.get(expr.name, self.lattice.element_lattice.top())
                 )
 
+            case list():
+                return operands
+
             case AnalogList():
-                return [self._infer_bounds(value, env=env) for value in expr.values]
+                return operands["values"]
 
             case QuantumRegister() | ModeRegister() if self._is_integer(expr.size):
                 return [[]] * expr.size.value
@@ -157,7 +161,7 @@ class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
 
                 if expr.index.value + 1 > len(lval):
                     raise OutOfBoundsError(
-                        f"Index {expr.index.value} out of bounds for {serialize_analog(expr.value)} for some path"
+                        f"Index {expr.index.value} out of bounds for {serialize_analog(expr)} for some path"
                     )
 
                 return lval[expr.index.value]
