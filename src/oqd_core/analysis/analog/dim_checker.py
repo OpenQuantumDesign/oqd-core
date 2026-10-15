@@ -162,15 +162,15 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case AnalogList():
                 return [self._infer_dim(element, env=env) for element in expr.values]
 
-            case Extract() if (
-                isinstance(expr.index, Constant) and type(expr.index.value) is int
-            ):
+            case Extract() if self._is_integer(expr.index):
                 value = self._infer_dim(expr.value, env=env)
+
+                print(value)
 
                 return (
                     value
                     if value == self.lattice.element_lattice.bottom()
-                    else [value[expr.index.value]]
+                    else value[expr.index.value]
                 )
 
             case Neg() | Pos():
