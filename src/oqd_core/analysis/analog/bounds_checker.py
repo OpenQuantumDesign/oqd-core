@@ -179,6 +179,6 @@ class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
                 case Declaration():
                     state_out[stmt.name] = self._infer_bounds(stmt.value, env=state_out)
                 case _:
-                    self._infer_bounds(stmt.value, env=state_out)
+                    self._infer_bounds(stmt, env=state_out)
 
         return state_out
