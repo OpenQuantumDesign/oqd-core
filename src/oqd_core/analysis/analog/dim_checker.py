@@ -18,13 +18,14 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import List, Union
+from typing import List, Type, Union
 
 from oqd_compiler_infrastructure import (
     CFGBlock,
     ForwardDataflowAnalysis,
-    LatticeBase,
+    Lattice,
     LatticeTop,
+    MapLatticeValue,
     maplattice,
 )
 
@@ -65,10 +66,12 @@ class DInvalid(DAny): ...
 
 DQuantum = List[Union[int, "DQuantum"]]
 
-DLatticeValue = Union[DAny, DInvalid, DQuantum]
+DLatticeValue = Union[DQuantum, Type[DAny]]
+
+########################################################################################
 
 
-class DimensionLattice(LatticeBase[DLatticeValue]):
+class DimensionLattice(Lattice[DLatticeValue]):
     """Quantum dimension lattice for analog layer."""
 
     def top(self):
@@ -116,7 +119,10 @@ class DimensionError(Exception): ...
 ########################################################################################
 
 
-class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
+DimEnv = MapLatticeValue[DLatticeValue]
+
+
+class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
     """Forward dataflow dimension checker over the Control Flow Graph."""
 
     lattice = maplattice(DimensionLattice, default_mode="top")()
