@@ -251,7 +251,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
                 size = args[0]
                 dim = args[1] if len(args) == 2 else 2
                 return QuantumRegister(size=size, dim=dim)
-            case "qmode":
+            case "qmode" | "mreg":
                 if len(args) != 1:
                     raise ValueError(f"qmode takes 1 arguments, got {len(args)}")
                 return ModeRegister(size=args[0])
