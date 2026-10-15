@@ -153,7 +153,7 @@ class AnalogParser ( Parser ):
                      "<INVALID>", "'evolve'", "'measure'", "'initialize'", 
                      "'if'", "'else'", "'while'", "'with'", "'for'", "'break'", 
                      "'continue'", "<INVALID>", "<INVALID>", "<INVALID>", 
-                     "<INVALID>", "'true'", "'false'", "'qreg'", "'qmode'", 
+                     "<INVALID>", "'true'", "'false'", "'qreg'", "<INVALID>", 
                      "':'", "';'", "','", "'('", "')'", "'['", "']'", "'{'", 
                      "'}'", "'*'", "'/'", "'+'", "'-'", "'^'", "'='", "'=='", 
                      "'!='", "'<'", "'<='", "'>'", "'>='", "'@'", "<INVALID>", 
