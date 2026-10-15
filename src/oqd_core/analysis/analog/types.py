@@ -72,7 +72,12 @@ class TQReg(TAnalog): ...
 class TNull(TAnalog): ...
 
 
-TLatticeValue = Union[all_subclasses(TAnalog)]
+subclasses = all_subclasses(TAnalog)
+out = None
+for c in subclasses:
+    out = Union[out, c]
+
+TLatticeValue = out
 TypeEnv = dict[str, TLatticeValue]
 
 

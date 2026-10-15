@@ -79,9 +79,9 @@ class AnalogCFGBuilder(RewriteRule):
         self.preds = []
         self.edge_labels = None
         self.fallthrough_labels = {}
-        node = self.new_node([], [])
+        node = self.new_node([], [], tags={"__label__": "entry"})
         node = self.walk_block(model.statements, [node])
-        node = self.new_node(node, [])
+        node = self.new_node(node, [], tags={"__label__": "exit"})
         return CFG(blocks=self.blocks)
 
     def map_IfElse(self, model: IfElse):
