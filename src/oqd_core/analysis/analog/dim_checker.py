@@ -18,13 +18,14 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import List, Union
+from typing import List, Type, Union
 
 from oqd_compiler_infrastructure import (
     CFGBlock,
     ForwardDataflowAnalysis,
-    LatticeBase,
+    Lattice,
     LatticeTop,
+    MapLatticeValue,
     maplattice,
 )
 
@@ -65,10 +66,12 @@ class DInvalid(DAny): ...
 
 DQuantum = List[Union[int, "DQuantum"]]
 
-DLatticeValue = Union[DAny, DInvalid, DQuantum]
+DLatticeValue = Union[DQuantum, Type[DAny]]
+
+########################################################################################
 
 
-class DimensionLattice(LatticeBase[DLatticeValue]):
+class DimensionLattice(Lattice[DLatticeValue]):
     """Quantum dimension lattice for analog layer."""
 
     def top(self):
@@ -116,7 +119,10 @@ class DimensionError(Exception): ...
 ########################################################################################
 
 
-class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
+DimEnv = MapLatticeValue[DLatticeValue]
+
+
+class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
     """Forward dataflow dimension checker over the Control Flow Graph."""
 
     lattice = maplattice(DimensionLattice, default_mode="top")()
@@ -144,10 +150,10 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case QuantumRegister() if self._is_integer(expr.size) and self._is_integer(
                 expr.dim
             ):
-                return [expr.dim.value] * expr.size.value
+                return [[expr.dim.value]] * expr.size.value
 
             case ModeRegister() if self._is_integer(expr.size):
-                return [-1] * expr.size.value
+                return [[-1]] * expr.size.value
 
             case QuantumRegister():
                 raise DimensionError(
@@ -162,16 +168,13 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DLatticeValue]):
             case AnalogList():
                 return [self._infer_dim(element, env=env) for element in expr.values]
 
-            case Extract() if (
-                isinstance(expr.index, Constant) and type(expr.index.value) is int
-            ):
+            case Extract() if self._is_integer(expr.index):
                 value = self._infer_dim(expr.value, env=env)
 
-                return (
-                    value
-                    if value == self.lattice.element_lattice.bottom()
-                    else [value[expr.index.value]]
-                )
+                if value is self.lattice.element_lattice.bottom():
+                    return value
+
+                return value[expr.index.value]
 
             case Neg() | Pos():
                 arg = self._infer_dim(expr.expr, env=env)

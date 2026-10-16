@@ -1,6 +1,11 @@
-from .dim_checker import DimensionChecker
-from .fold import ConstantFolding
-from .reaching_def import AvailableVariableAnalysis, ReachingDefinition
+from .bounds_checker import AnalogBoundsChecker, OutOfBoundsError
+from .dim_checker import DimensionChecker, DimensionError
+from .fold import ConstantFolding, ConstantFoldingRule
+from .reaching_def import (
+    AvailableVariableAnalysis,
+    AvailableVariableError,
+    ReachingDefinition,
+)
 from .type_checker import AnalogTypeChecker
 from .types import AnalogTypeError
 
@@ -13,4 +18,9 @@ __all__ = [
     "DimensionChecker",
     "AvailableVariableAnalysis",
     "ReachingDefinition",
+    "AnalogBoundsChecker",
+    "ConstantFoldingRule",
+    "AvailableVariableError",
+    "DimensionError",
+    "OutOfBoundsError",
 ]

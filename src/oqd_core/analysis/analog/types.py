@@ -15,14 +15,9 @@
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar, Union, _GenericAlias
+from typing import Generic, Type, TypeVar, _GenericAlias
 
-from oqd_compiler_infrastructure.lattice import (
-    LatticeBase,
-    LatticeTop,
-)
-
-from oqd_core.analysis.utils import all_subclasses
+from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeTop, MapLatticeValue
 
 ########################################################################################
 
@@ -72,8 +67,11 @@ class TQReg(TAnalog): ...
 class TNull(TAnalog): ...
 
 
-TLatticeValue = Union[all_subclasses(TAnalog)]
-TypeEnv = dict[str, TLatticeValue]
+TLatticeValue = Type[TAnalog]
+
+TypeEnv = MapLatticeValue[TLatticeValue]
+
+########################################################################################
 
 
 def get_type_name(value: TLatticeValue):
@@ -87,6 +85,9 @@ def isTList(value: TLatticeValue):
     if issubclass(type(value), _GenericAlias) and value.__origin__ is TList:
         return True
     return False
+
+
+########################################################################################
 
 
 class AnalogTypeLattice(LatticeBase[TLatticeValue]):

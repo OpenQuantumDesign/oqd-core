@@ -14,11 +14,16 @@
 
 
 from oqd_core.analysis.analog import (
+    AnalogBoundsChecker,
     AnalogTypeChecker,
     AnalogTypeError,
     AvailableVariableAnalysis,
+    AvailableVariableError,
     ConstantFolding,
+    ConstantFoldingRule,
     DimensionChecker,
+    DimensionError,
+    OutOfBoundsError,
     ReachingDefinition,
 )
 from oqd_core.compiler.analog import (
@@ -143,4 +148,9 @@ __all__ = [
     "PyASTtoAnalog",
     "analog",
     "compile_analog_circuit",
+    "AnalogBoundsChecker",
+    "ConstantFoldingRule",
+    "AvailableVariableError",
+    "DimensionError",
+    "OutOfBoundsError",
 ]

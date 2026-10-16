@@ -36,7 +36,7 @@ FALSE: 'false';
 // Register
 
 QUANTUMREGISTER: 'qreg';
-MODEREGISTER: 'qmode';
+MODEREGISTER: 'qmode' | 'mreg';
 
 
 /** ================================================================================= */

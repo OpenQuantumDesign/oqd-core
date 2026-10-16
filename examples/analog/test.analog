@@ -2,6 +2,7 @@
 // assignments
 r = qreg(2)
 s = qmode(3)
+s2 = mreg(3)
 q0 = r[0]
 q1 = r[1]
 targets = [q0, q1]
@@ -89,13 +90,13 @@ if (x >= 0) {
     x = 0
 }
 
-c = true
-if (c) {
-    d = 5
+a2 = true
+if (a2) {
+    b = 5
 }
 
 
-if (c) {}
+if (a2) {}
 
 
-while (c) {}
+while (a2) {}
