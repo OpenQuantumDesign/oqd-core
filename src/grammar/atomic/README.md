@@ -1,4 +1,3 @@
-
 # Grammar for Atomic Interface
 
 Make sure you're in the virtual environment, and sync your requirements.
@@ -14,6 +13,6 @@ Navigate into the directory which contains the grammar for the language. Run `an
 
 ```bash
 cd src/grammar/atomic
-antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic AtomicLexer.g4 
-antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic AtomicParser.g4 
+antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic/_generated AtomicLexer.g4
+antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic/_generated AtomicParser.g4
 ```

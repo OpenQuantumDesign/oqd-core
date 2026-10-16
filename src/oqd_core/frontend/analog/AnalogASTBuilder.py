@@ -16,9 +16,11 @@ from __future__ import annotations
 
 import antlr4
 
-from oqd_core.frontend.analog.AnalogLexer import AnalogLexer
-from oqd_core.frontend.analog.AnalogParser import AnalogParser
-from oqd_core.frontend.analog.AnalogParserVisitor import AnalogParserVisitor
+from oqd_core.frontend.analog._generated import (
+    AnalogLexer,
+    AnalogParser,
+    AnalogParserVisitor,
+)
 from oqd_core.interface.analog import (
     Access,
     Add,

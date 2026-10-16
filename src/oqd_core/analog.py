@@ -35,6 +35,11 @@ from oqd_core.compiler.analog import (
 )
 from oqd_core.frontend.analog import (
     AnalogASTBuilder,
+    AnalogLexer,
+    AnalogParser,
+    AnalogParserListener,
+    AnalogParserVisitor,
+    SerializeAnalog,
     parse_analog,
     serialize_analog,
 )
@@ -153,4 +158,9 @@ __all__ = [
     "AvailableVariableError",
     "DimensionError",
     "OutOfBoundsError",
+    "AnalogLexer",
+    "AnalogParser",
+    "AnalogParserListener",
+    "AnalogParserVisitor",
+    "SerializeAnalog",
 ]
