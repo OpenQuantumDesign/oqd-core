@@ -25,13 +25,13 @@ from oqd_compiler_infrastructure import (
     Lattice,
     LatticeTop,
     Post,
+    RewriteRule,
     gen_pass,
     maplattice,
 )
 
 from oqd_core.interface.analog import (
     Access,
-    AnalogExpr,
     Constant,
     Declaration,
 )
@@ -132,3 +132,22 @@ class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, ConstantFoldingValu
 
         self._fold(block, env=state_out)
         return state_out
+
+
+########################################################################################
+
+
+class ConstantFoldingRule(RewriteRule):
+    def __init__(self, fold_res):
+        super().__init__()
+
+        self.fold_res = fold_res
+
+    def map_CFGBlock(self, model):
+        self._current_block = model.register_id
+
+    def map_Access(self, model):
+        if (
+            value := self.fold_res.in_states[self._current_block].get(model.name, None)
+        ) not in [CInvalid, None]:
+            return value
