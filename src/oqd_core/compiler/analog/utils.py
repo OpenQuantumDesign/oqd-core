@@ -161,7 +161,7 @@ class PyASTtoAnalog(ConversionRule):
                     targets=args[0]
                 )
 
-            case "qmode":
+            case "qmode" | "mreg":
                 if len(args) != 1:
                     raise ValueError()
                 return ModeRegister(size=args[0])
