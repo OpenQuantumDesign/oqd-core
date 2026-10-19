@@ -112,6 +112,27 @@ REAL: 'real';
 IMAG_FN: 'imag';
 ATAN2: 'atan2';
 ROUND: 'round';
+DAG: 'dag';
+COMMUTATOR: 'commutator';
+ANTICOMMUTATOR: 'acommutator';
+POSF: '_pos';
+NEGF: '_neg';
+ADDF: '_add';
+SUBF: '_sub';
+MULF: '_mul';
+DIVF: '_div';
+POWF: '_pow';
+KRONF: '_kron';
+EQF: '_eq';
+NEQF: '_neq';
+LTF: '_lt';
+LEQF: '_leq';
+GTF: '_gt';
+GEQF: '_geq';
+ANDF: '_and';
+ORF: '_or';
+XORF: '_xor';
+NOTF: '_not';
 
 /** ================================================================================= */
 

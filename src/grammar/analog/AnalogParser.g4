@@ -62,18 +62,22 @@ bool_literal: TRUE | FALSE;
 
 // Function
 
+arith_func: POSF | NEGF | ADDF | SUBF | MULF | DIVF | POWF | KRONF | EQF | NEQF
+    | LTF | LEQF | GTF | LEQF | ANDF | ORF | XORF | NOTF;
+
 math_func: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
     | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2 | CONJ
     | HEAVISIDE | REAL | IMAG_FN | ROUND;
 
 
-quantum_func: QUANTUMREGISTER | MODEREGISTER | EVOLVE | MEASURE | INITIALIZE;
+quantum_func: QUANTUMREGISTER | MODEREGISTER | EVOLVE | MEASURE
+    | INITIALIZE | COMMUTATOR | ANTICOMMUTATOR | DAG;
 
 list_func: RANGE | LENGTH | FLATTEN;
 
 misc_func: PRINT;
 
-func_names: math_func | quantum_func | list_func | misc_func;
+func_names: math_func | quantum_func | list_func | misc_func | arith_func;
 
 args: expr (COMMA expr)* COMMA?;
 

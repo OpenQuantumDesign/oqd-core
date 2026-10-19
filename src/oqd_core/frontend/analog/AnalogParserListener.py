@@ -134,6 +134,15 @@ class AnalogParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AnalogParser#arith_func.
+    def enterArith_func(self, ctx:AnalogParser.Arith_funcContext):
+        pass
+
+    # Exit a parse tree produced by AnalogParser#arith_func.
+    def exitArith_func(self, ctx:AnalogParser.Arith_funcContext):
+        pass
+
+
     # Enter a parse tree produced by AnalogParser#math_func.
     def enterMath_func(self, ctx:AnalogParser.Math_funcContext):
         pass

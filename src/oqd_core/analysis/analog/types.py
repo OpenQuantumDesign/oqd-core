@@ -249,4 +249,7 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     ],
     "flatten": [((TList[TList[VariableType]],), TList[VariableType])],
     "print": [((VariableType,), TNull)],
+    "commutator": [((TOp, TOp), TOp)],
+    "acommutator": [((TOp, TOp), TOp)],
+    "dag": [((TOp,), TOp)],
 }

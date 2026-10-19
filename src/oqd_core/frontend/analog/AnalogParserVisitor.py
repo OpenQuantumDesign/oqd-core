@@ -79,6 +79,11 @@ class AnalogParserVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by AnalogParser#arith_func.
+    def visitArith_func(self, ctx:AnalogParser.Arith_funcContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by AnalogParser#math_func.
     def visitMath_func(self, ctx:AnalogParser.Math_funcContext):
         return self.visitChildren(ctx)
