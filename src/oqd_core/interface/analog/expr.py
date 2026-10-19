@@ -368,7 +368,8 @@ class Pauli(Operator, AbstractAnalogExpr):
 
     level1: CastAnalogExpr = Constant(value=0)
     level2: CastAnalogExpr = Constant(value=1)
-    dim: CastAnalogExpr = Constant(value=2)
+    dims: CastAnalogExpr = Constant(value=2)
+    target: CastAnalogExpr = Constant(value=0)
 
 
 class PauliI(Pauli, AnalogExpr):
@@ -399,6 +400,9 @@ class Ladder(Operator, AbstractAnalogExpr):
     """
     Class representing a ladder operator in Fock space
     """
+
+    dims: CastAnalogExpr = Constant(value=2)
+    target: CastAnalogExpr = Constant(value=0)
 
 
 class Creation(Ladder, AnalogExpr):

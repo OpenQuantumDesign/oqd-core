@@ -139,13 +139,29 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
                     else env.get(expr.name, self.lattice.element_lattice.top())
                 )
 
-            case PauliX() | PauliY() | PauliZ() | PauliI() if self._is_integer(
-                expr.dim
-            ):
-                return [expr.dim.value]
+            case (
+                PauliX(dims=dims)
+                | PauliY(dims=dims)
+                | PauliZ(dims=dims)
+                | PauliI(dims=dims)
+                | Annihilation(dims=dims)
+                | Creation(dims=dims)
+                | Identity(dims=dims)
+            ) if self._is_integer(dims):
+                return [dims.value]
 
-            case Annihilation() | Creation() | Identity():
-                return [-1]
+            case (
+                PauliX(dims=dims)
+                | PauliY(dims=dims)
+                | PauliZ(dims=dims)
+                | PauliI(dims=dims)
+                | Annihilation(dims=dims)
+                | Creation(dims=dims)
+                | Identity(dims=dims)
+            ) if isinstance(dims, AnalogList) and all(
+                [self._is_integer(dim) for dim in dims.values]
+            ):
+                return [dim.value for dim in dims.values]
 
             case QuantumRegister() if self._is_integer(expr.size) and self._is_integer(
                 expr.dim
