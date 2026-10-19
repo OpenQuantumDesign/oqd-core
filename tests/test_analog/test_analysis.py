@@ -77,9 +77,9 @@ class TestAnalogCFG:
         cfg = AnalogCFGBuilder()(circuit)
         assert cfg is not None
 
+########################################################################################
 
 ## Available Variables ##
-
 
 class TestAnalogAssignmentAnalysis:
     @pytest.mark.parametrize(
@@ -143,9 +143,9 @@ class TestAnalogAssignmentAnalysis:
             cfg = AnalogCFGBuilder()(circuit)
             AvailableVariableAnalysis().analyze(cfg)
 
+########################################################################################
 
 ## Type Checker ##
-
 
 class TestAnalogTypeChecker:
     @pytest.mark.parametrize(
@@ -273,9 +273,9 @@ class TestAnalogTypeChecker:
         with pytest.raises(AnalogTypeError):
             AnalogTypeChecker().analyze(cfg)
 
+########################################################################################
 
 ## Bounds Checker ##
-
 
 class TestAnalogBoundsChecker:
     @pytest.mark.parametrize(
@@ -334,9 +334,9 @@ class TestAnalogBoundsChecker:
             cfg = AnalogCFGBuilder()(circuit)
             AnalogBoundsChecker().analyze(cfg)
 
+########################################################################################
 
 ## Dimension Checker ##
-
 
 class TestAnalogDimensionChecker:
     @pytest.mark.parametrize(
@@ -373,41 +373,8 @@ class TestAnalogDimensionChecker:
             DimensionChecker().analyze(cfg)
 
 
-## CFGBlockAccumulator ##
+########################################################################################
 
-
-# # class TestAnalogSymbolTable:
-# #     def test_qreg_binding(self):
-# #         symbol_table, circuit = build_symbol_table("r = qreg(3) \n initialize(r)")
-# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-# #         assert env["r"].target_dim == 3
-# #         assert env["r"].lattice_type is TQReg
-
-# #     def test_qmode_binding(self):
-# #         symbol_table, circuit = build_symbol_table("s = qmode(2) \n initialize(s)")
-# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-# #         assert env["s"].target_dim == 2
-# #         assert env["s"].lattice_type is TMReg
-
-# #     def test_extract_binding(self):
-# #         program = "r = qreg(2) \n q = r[0] \n initialize(q)"
-# #         symbol_table, circuit = build_symbol_table(program)
-# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-# #         assert env["q"].target_dim == 1
-
-# #     def test_target_list_binding(self):
-# #         program = (
-# #             "r = qreg(3) \n"
-# #             "target = [r[0], r[1], r[2]] \n"
-# #             "initialize(target)"
-# #         )
-# #         symbol_table, circuit = build_symbol_table(program)
-# #         init = next(s for s in circuit.statements if isinstance(s, Initialize))
-# #         env = symbol_table.in_env[symbol_table.stmt_index[id(init)]]
-# #         assert env["target"].target_dim == 3
 
 
 # ## Control Flow Graph ##

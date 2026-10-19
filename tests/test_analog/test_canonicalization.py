@@ -42,6 +42,8 @@ from oqd_core.compiler.analog.operator.dim import scalar_mul
 
 from helpers import parse_math
 
+########################################################################################
+
 X, Y, Z, PI, A, C, LI = (
     PauliX(),
     PauliY(),
@@ -53,15 +55,19 @@ X, Y, Z, PI, A, C, LI = (
 )
 
 
+########################################################################################
+
 def canonicalize_operator(
     operator: OperatorExpr, rule: RewriteRule, walk_method: WalkBase = Post
 ):
     return FixedPoint(walk_method(rule))(operator)
 
+########################################################################################
 
 @pytest.fixture
 def operator_distribute_rule():
     return OperatorDistribute()
+
 
 
 def test_operator_distribute_simple(operator_distribute_rule):
@@ -75,6 +81,8 @@ def test_operator_distribute_no_effect(operator_distribute_rule):
     expected = 2 * (X @ Y) * (3 * (PI @ PI))
     assert canonicalize_operator(operator=op, rule=operator_distribute_rule) == expected
 
+
+########################################################################################
 
 @pytest.fixture
 def gather_math_expr_rule():
@@ -120,6 +128,8 @@ def test_gather_math_expr_no_effect(gather_math_expr_rule):
     assert canonicalize_operator(operator=op, rule=gather_math_expr_rule) == expected
 
 
+########################################################################################
+
 @pytest.fixture
 def proper_order_rule():
     return ProperOrder()
@@ -136,6 +146,8 @@ def test_proper_order_complicated(proper_order_rule):
     expected = (X @ Y) @ Z + 3 * ((Z @ Y) @ PI)
     assert canonicalize_operator(operator=op, rule=proper_order_rule) == expected
 
+
+########################################################################################
 
 @pytest.fixture
 def pauli_algebra_rule():
@@ -166,6 +178,8 @@ def test_nested_multiplications_complicated(pauli_algebra_rule):
     )  # check fails
 
 
+########################################################################################
+
 @pytest.fixture
 def pauli_gather_rule():
     return GatherPauli()
@@ -184,6 +198,8 @@ def test_complicated_pauli_gather(pauli_gather_rule):
     expected = X @ Y @ A + Y @ Z @ (A * A * C) + X @ Y @ Z
     assert canonicalize_operator(operator=op, rule=pauli_gather_rule) == expected
 
+
+########################################################################################
 
 @pytest.fixture
 def normal_order_rule():
@@ -211,6 +227,8 @@ def test_normal_order_inside_pauli(normal_order_rule):
     assert canonicalize_operator(operator=op, rule=normal_order_rule) == expected
 
 
+########################################################################################
+
 @pytest.fixture
 def prune_identity_rule():
     return PruneIdentity()
@@ -229,6 +247,8 @@ def test_prune_identity_simple_nested(prune_identity_rule):
     expected = (A * C * A * C) @ LI @ (A)
     assert canonicalize_operator(operator=op, rule=prune_identity_rule) == expected
 
+
+########################################################################################
 
 @pytest.fixture
 def sorted_order_rule():
@@ -255,6 +275,8 @@ def test_sorted_order_ladder(sorted_order_rule):
     expected = X @ (C * A) + X @ (C * A * A)
     assert canonicalize_operator(operator=op, rule=sorted_order_rule) == expected
 
+
+########################################################################################
 
 @pytest.fixture
 def scale_terms_rule():

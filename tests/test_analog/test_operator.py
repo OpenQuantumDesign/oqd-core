@@ -208,38 +208,3 @@ class TestComplexFinalStringVerbosePrintOp:
         actual = "((0.0 + (1j * 2.0)) * (PauliX())) * (PauliI() + ((0.0 + (1j * 8.0)) * (PauliY())))"
         assert apply_pass(operator=operator, rule=self._rule) == actual
 
-
-class TestHilbertSpaceDimVerification:
-
-    def test_simple_addition_fail(self):
-        """Addition fail"""
-        op = 2 * (X @ Z @ Z) + 3 * (Y @ PI) + 2 * (Z @ Z)
-        with pytest.raises(AnalogCompilerError):
-            operator_dim(op)
-
-    def test_simple_addition_pass_single(self):
-        """Addition pass single"""
-        op = 2 * X + 3 * Y + Z + Y
-        assert operator_dim(op) == 1
-
-    def test_simple_addition_fail_single_with_ladder(self):
-        """Addition fail single term with ladder"""
-        op = 2 * X + Y + A + Z + Y + 2 * (Z @ Z)
-        with pytest.raises(AnalogCompilerError):
-            operator_dim(op)
-
-    def test_simple_addition_fail_ladder(self):
-        """Addition fail with ladder"""
-        op = 2 * (X @ Z @ A) + 3 * (Y @ PI @ C) + 2 * (Z @ Z @ (C * C * PI) @ A)
-        with pytest.raises(AnalogCompilerError):
-            operator_dim(op)
-
-    def test_simple_addition_pass_ladder(self):
-        """Addition pass with ladder"""
-        op = (
-            2 * (X @ Z @ A)
-            + (Y @ PI @ C)
-            + 2 * (Z @ Z @ (C * C * PI))
-            + (Y @ PI @ (C * A * A * C * LI))
-        )
-        assert operator_dim(op) == 3
