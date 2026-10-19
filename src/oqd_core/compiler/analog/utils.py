@@ -85,9 +85,11 @@ class PyASTtoAnalog(ConversionRule):
 
     def map_Assign(self, model, operands):
         if len(model.targets) != 1:
-            raise ValueError()
+            raise ValueError("Multiple assignments not suppoorted")
+        if not isinstance(model.targets[0], ast.Name):
+            raise ValueError("Only names supported for assignment")
         if model.targets[0].id.startswith("__"):
-            raise ValueError()
+            raise ValueError("Cannot assign runtime variable")
         return Declaration(name=model.targets[0].id, value=operands["value"])
 
     def map_Constant(self, model, operands):
@@ -102,7 +104,7 @@ class PyASTtoAnalog(ConversionRule):
         args = operands["args"]
 
         if not isinstance(model.func, ast.Name):
-            raise ValueError
+            raise ValueError("Only names supported for call")
 
         name = model.func.id
         match name:
