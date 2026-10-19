@@ -190,6 +190,10 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 name = expr.__class__.__name__
                 args = [expr.expr]
 
+            case BuiltinCall() if expr.func.startswith("_"):
+                name = expr.func.removeprefix("_").capitalize()
+                args = expr.args
+
             case BuiltinCall():
                 name = expr.func
                 args = expr.args
@@ -215,10 +219,10 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             name, *[self._infer_type(a, env=env) for a in args]
         )
 
-    def _infer_binop_signature(self, expr, *, env: TypeEnv):
+    def _infer_binop_signature(self, name, args, *, env: TypeEnv):
         return reduce(
-            lambda x, y: self._match_function_signature(expr.__class__.__name__, x, y),
-            [self._infer_type(a, env=env) for a in expr.exprs],
+            lambda x, y: self._match_function_signature(name, x, y),
+            [self._infer_type(a, env=env) for a in args],
         )
 
     def _infer_type(self, expr, *, env: TypeEnv):
@@ -257,7 +261,29 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case Operator():
                 return TOp
             case BinaryOp():
-                return self._infer_binop_signature(expr, env=env)
+                return self._infer_binop_signature(
+                    expr.__class__.__name__, expr.exprs, env=env
+                )
+            case BuiltinCall() if expr.func in [
+                "_add",
+                "_sub",
+                "_mul",
+                "_div",
+                "_pow",
+                "_kron",
+                "_eq",
+                "_neq",
+                "_lt",
+                "_leq",
+                "_gt",
+                "_geq",
+                "_and",
+                "_or",
+                "_xor",
+            ]:
+                return self._infer_binop_signature(
+                    expr.func.removeprefix("_").capitalize(), expr.args, env=env
+                )
             case _:
                 return self._infer_function_signature(expr, env=env)
 
