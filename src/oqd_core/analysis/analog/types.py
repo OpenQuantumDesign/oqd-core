@@ -141,6 +141,25 @@ VariableType = TypeVar("VariableType", bound=TAnalog)
 
 
 ANALOG_SUPPORTED_FUNC_SIGNATURES = {
+    "PauliX": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliY": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliZ": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliI": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "Identity": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
+    "Creation": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
+    "Annihilation": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
     "Not": [((TBool,), TBool)],
     "And": [((TBool, TBool), TBool)],
     "Xor": [((TBool, TBool), TBool)],

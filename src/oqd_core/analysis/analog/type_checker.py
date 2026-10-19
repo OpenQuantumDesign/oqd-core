@@ -36,7 +36,6 @@ from oqd_core.analysis.analog.types import (
     TFloat,
     TInt,
     TList,
-    TOp,
     TypeEnv,
     get_type_name,
 )
@@ -60,7 +59,7 @@ from oqd_core.interface.analog import (
     QuantumRegister,
     RuntimeVar,
 )
-from oqd_core.interface.analog.expr import BinaryOp, Operator
+from oqd_core.interface.analog.expr import BinaryOp, Ladder, Pauli
 
 ########################################################################################
 
@@ -186,26 +185,27 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
     def _infer_function_signature(self, expr, *, env: TypeEnv):
         match expr:
+            case Pauli():
+                name = expr.__class__.__name__
+                args = [expr.level1, expr.level2, expr.dims, expr.target]
+            case Ladder():
+                name = expr.__class__.__name__
+                args = [expr.dims, expr.target]
             case Not() | Neg() | Pos():
                 name = expr.__class__.__name__
                 args = [expr.expr]
-
             case BuiltinCall() if expr.func.startswith("_"):
                 name = expr.func.removeprefix("_").capitalize()
                 args = expr.args
-
             case BuiltinCall():
                 name = expr.func
                 args = expr.args
-
             case Evolve():
                 name = expr.__class__.__name__
                 args = [expr.hamiltonian, expr.jumps, expr.duration, expr.targets]
-
             case Initialize() | Measure():
                 name = expr.__class__.__name__
                 args = [expr.targets]
-
             case QuantumRegister() | ModeRegister():
                 name = expr.__class__.__name__
                 args = [expr.size]
@@ -258,8 +258,6 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                     )
 
                 return TList[combined_elem_type]
-            case Operator():
-                return TOp
             case BinaryOp():
                 return self._infer_binop_signature(
                     expr.__class__.__name__, expr.exprs, env=env

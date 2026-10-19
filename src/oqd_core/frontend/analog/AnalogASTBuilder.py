@@ -159,29 +159,42 @@ class AnalogASTBuilder(AnalogParserVisitor):
     def visitPauli_op(self, ctx: AnalogParser.Pauli_opContext):
         args = self.visit(ctx.args()) if ctx.args() else []
 
-        if len(args) not in [0, 2, 3]:
-            raise ValueError(f"Pauli operator takes 0 or 2 arguments, got {len(args)}")
+        if len(args) not in [0, 2, 3, 4]:
+            raise ValueError(
+                f"Pauli operator takes 0, 2, 3 or 4 arguments, got {len(args)}"
+            )
 
         level1 = args[0] if args else 0
         level2 = args[1] if args else 1
-        dim = args[2] if args and len(args) > 2 else 2
+        dims = args[2] if args and len(args) > 2 else 2
+        target = args[3] if args and len(args) > 3 else 0
 
         if ctx.PAULI_X():
-            return PauliX(level1=level1, level2=level2, dim=dim)
+            return PauliX(level1=level1, level2=level2, dims=dims, target=target)
         if ctx.PAULI_Y():
-            return PauliY(level1=level1, level2=level2, dim=dim)
+            return PauliY(level1=level1, level2=level2, dims=dims, target=target)
         if ctx.PAULI_Z():
-            return PauliZ(level1=level1, level2=level2, dim=dim)
+            return PauliZ(level1=level1, level2=level2, dims=dims, target=target)
         if ctx.PAULI_I():
-            return PauliI(level1=level1, level2=level2, dim=dim)
+            return PauliI(level1=level1, level2=level2, dims=dims, target=target)
 
     def visitLadder_op(self, ctx: AnalogParser.Ladder_opContext):
+        args = self.visit(ctx.args()) if ctx.args() else []
+
+        if len(args) not in [0, 1, 2]:
+            raise ValueError(
+                f"Pauli operator takes 0, 1 or 2 arguments, got {len(args)}"
+            )
+
+        dims = args[0] if args else -1
+        target = args[1] if args and len(args) > 1 else 0
+
         if ctx.ANNIHILATION():
-            return Annihilation()
+            return Annihilation(dims=dims, target=target)
         if ctx.CREATION():
-            return Creation()
+            return Creation(dims=dims, target=target)
         if ctx.IDENTITY_OP():
-            return Identity()
+            return Identity(dims=dims, target=target)
 
     ## Boolean ##
 
