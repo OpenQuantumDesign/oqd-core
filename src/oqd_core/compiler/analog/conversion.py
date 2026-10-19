@@ -64,6 +64,7 @@ from oqd_core.interface.analog import (
     Sub,
     While,
     Xor,
+    SupportedBuiltinFuncs
 )
 
 ########################################################################################
@@ -356,40 +357,7 @@ class PyASTtoAnalog(ConversionRule):
             raise ValueError
 
         name = model.func.id
-
         match name:
-            case (
-                "sin"
-                | "cos"
-                | "heaviside"
-                | "abs"
-                | "sin"
-                | "cos"
-                | "tan"
-                | "exp"
-                | "log"
-                | "sinh"
-                | "cosh"
-                | "tanh"
-                | "atan"
-                | "acos"
-                | "asin"
-                | "atanh"
-                | "asinh"
-                | "acosh"
-                | "heaviside"
-                | "conj"
-                | "real"
-                | "imag"
-                | "atan2"
-                | "round"
-                | "range"
-                | "flatten"
-                | "print"
-                | "len"
-            ):
-                return BuiltinCall(func=name, args=args)
-
             case "evolve":
                 if len(args) not in [3, 4]:
                     raise ValueError()
@@ -413,7 +381,7 @@ class PyASTtoAnalog(ConversionRule):
                     targets=args[0]
                 )
 
-            case "qmode":
+            case "qmode" | "mreg":
                 if len(args) != 1:
                     raise ValueError()
                 return ModeRegister(size=args[0])
@@ -441,7 +409,8 @@ class PyASTtoAnalog(ConversionRule):
                 )
             case "A" | "C" | "J":
                 return dict(A=Annihilation, C=Creation, J=Identity)[name]()
-
+            case str() if name in SupportedBuiltinFuncs.__args__:
+                return BuiltinCall(func=name, args=args)
             case _:
                 raise ValueError("Unsupported builtin function call")
 

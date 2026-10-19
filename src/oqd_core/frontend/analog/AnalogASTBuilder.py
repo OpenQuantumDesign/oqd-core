@@ -207,6 +207,9 @@ class AnalogASTBuilder(AnalogParserVisitor):
     def visitMisc_func(self, ctx: AnalogParser.Misc_funcContext):
         return ctx.getChild(0).getText()
 
+    def visitArith_func(self, ctx: AnalogParser.Arith_funcContext):
+        return ctx.getChild(0).getText()
+
     def visitFunc_names(self, ctx: AnalogParser.Func_namesContext):
         return self.visitChildren(ctx)
 

@@ -53,6 +53,7 @@ from oqd_core.interface.analog.expr import (
     QuantumRegister,
     RuntimeVar,
     Sub,
+    SupportedBuiltinFuncs,
     Xor,
 )
 from oqd_core.interface.analog.statement import (
@@ -111,4 +112,5 @@ __all__ = [
     "While",
     "Break",
     "Continue",
+    "SupportedBuiltinFuncs",
 ]
