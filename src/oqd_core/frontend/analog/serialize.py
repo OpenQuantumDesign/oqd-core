@@ -113,6 +113,13 @@ class SerializeAnalog(ConversionRule):
         if inner_precedence > outer_precedence:
             return f"({expr})"
 
+        if (
+            inner_precedence == outer_precedence
+            and inner_type != outer_type
+            and outer_type == Kron
+        ):
+            return f"({expr})"
+
         return expr
 
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
