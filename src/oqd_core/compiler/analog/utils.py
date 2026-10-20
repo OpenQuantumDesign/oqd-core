@@ -146,19 +146,29 @@ class PyASTtoAnalog(ConversionRule):
                 return QuantumRegister(size=args[0], dim=args[1])
 
             case "X" | "Y" | "Z" | "I":
-                if len(args) not in [0, 2, 3]:
-                    raise ValueError()
+                if len(args) not in [0, 2, 3, 4]:
+                    raise ValueError(f"Pauli operator can take 0, 2, 3 or 4 arguments not {len(args)}")
                 if len(args) == 0:
                     return dict(X=PauliX, Y=PauliY, Z=PauliZ, I=PauliI)[name]()
                 if len(args) == 2:
                     return dict(X=PauliX, Y=PauliY, Z=PauliZ, I=PauliI)[name](
                         level1=args[0], level2=args[1]
                     )
+                if len(args) == 3:
+                    return dict(X=PauliX, Y=PauliY, Z=PauliZ, I=PauliI)[name](
+                    level1=args[0], level2=args[1], dims=args[2]
+                )
                 return dict(X=PauliX, Y=PauliY, Z=PauliZ, I=PauliI)[name](
-                    level1=args[0], level2=args[1], dim=args[2]
+                    level1=args[0], level2=args[1], dims=args[2], target=args[3]
                 )
             case "A" | "C" | "J":
-                return dict(A=Annihilation, C=Creation, J=Identity)[name]()
+                if len(args) not in [0,1,2]:
+                    raise ValueError(f"Pauli operator can take 0, 1 or 2 arguments not {len(args)}")
+                if len(args) == 0:
+                    return dict(A=Annihilation, C=Creation, J=Identity)[name]()
+                if len(args) == 1:
+                    return dict(A=Annihilation, C=Creation, J=Identity)[name](dims=args[0])
+                return dict(A=Annihilation, C=Creation, J=Identity)[name](dims=args[0], target=args[1])
             case str() if name in SupportedBuiltinFuncs.__args__:
                 return BuiltinCall(func=name, args=args)
             case _:
