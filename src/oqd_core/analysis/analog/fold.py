@@ -233,6 +233,168 @@ class EvaluateConstant(RewriteRule):
                 ](model.expr.value)
             )
 
+    def map_And(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value and expr.value)
+                continue
+
+            exprs.append(expr)
+
+        if any(e == Constant(value=False) for e in exprs):
+            return Constant(value=False)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Or(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value or expr.value)
+                continue
+
+            exprs.append(expr)
+
+        if any(e == Constant(value=True) for e in exprs):
+            return Constant(value=True)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Xor(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value ^ expr.value)
+                continue
+
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Eq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value == expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Neq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value != expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Lt(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value < expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Leq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value <= expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Gt(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value > expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Geq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value >= expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
 
 class ConstantFoldingRule(EvaluateConstant, RewriteRule):
     def __init__(self, fold_res):
