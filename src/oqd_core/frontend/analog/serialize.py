@@ -115,6 +115,22 @@ class SerializeAnalog(ConversionRule):
 
         return body_str
 
+    def _parenthesize_precedence(self, expr, inner_type, outer_type):
+        inner_precedence = ARITH_OP_MAPPING.get(inner_type, (0, ""))[0]
+        outer_precedence = ARITH_OP_MAPPING.get(outer_type, (0, ""))[0]
+
+        if inner_precedence > outer_precedence:
+            return f"({expr})"
+
+        if (
+            inner_precedence == outer_precedence
+            and inner_type != outer_type
+            and outer_type == Kron
+        ):
+            return f"({expr})"
+
+        return expr
+
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
         statements = operands["statements"]
 
