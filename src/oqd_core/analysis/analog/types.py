@@ -15,14 +15,9 @@
 
 from __future__ import annotations
 
-from typing import Generic, TypeVar, Union, _GenericAlias
+from typing import Generic, Type, TypeVar, _GenericAlias
 
-from oqd_compiler_infrastructure.lattice import (
-    LatticeBase,
-    LatticeTop,
-)
-
-from oqd_core.analysis.utils import all_subclasses
+from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeTop, MapLatticeValue
 
 ########################################################################################
 
@@ -71,13 +66,12 @@ class TQReg(TAnalog): ...
 
 class TNull(TAnalog): ...
 
-subclasses = all_subclasses(TAnalog)
-out = None
-for c in subclasses:
-    out = Union[out, c]
 
-TLatticeValue = out
-TypeEnv = dict[str, TLatticeValue]
+TLatticeValue = Type[TAnalog]
+
+TypeEnv = MapLatticeValue[TLatticeValue]
+
+########################################################################################
 
 
 def get_type_name(value: TLatticeValue):
@@ -93,8 +87,13 @@ def isTList(value: TLatticeValue):
     return False
 
 
+########################################################################################
+
+
 class AnalogTypeLattice(LatticeBase[TLatticeValue]):
     """Type lattice for analog expressions."""
+
+    # TODO: Add test for AnalogTypeLattice especially with TList interaction with other LatticeValues
 
     def top(self):
         return TAnalog
@@ -103,83 +102,123 @@ class AnalogTypeLattice(LatticeBase[TLatticeValue]):
         return TInvalid
 
     def leq(self, t1: TLatticeValue, t2: TLatticeValue) -> bool:
-        if t1 is self.bottom():
-            return True
         if isTList(t1) and isTList(t2):
             return self.leq(t1.__args__[0], t2.__args__[0])
-        if isTList(t1) or isTList(t2):
-            return False
+
+        t1 = TList if isTList(t1) else t1
+        t2 = TList if isTList(t2) else t2
+
         return super().leq(t1, t2)
 
     def join(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
-        if self.leq(t1, t2):
-            return t2
-        if self.leq(t2, t1):
-            return t1
         if isTList(t1) and isTList(t2):
-            elem = self.join(t1.__args__[0], t2.__args__[0])
-            return TList[elem]
-        if isTList(t1) or isTList(t2):
-            return TAnalog
+            return TList[self.join(t1.__args__[0], t2.__args__[0])]
+
+        if isTList(t1) and super().leq(t2, TList):
+            return t1
+
+        if isTList(t2) and super().leq(t1, TList):
+            return t2
+
         return super().join(t1, t2)
 
     def meet(self, t1: TLatticeValue, t2: TLatticeValue) -> TLatticeValue:
-        if self.leq(t1, t2):
-            return t1
-        if self.leq(t2, t1):
-            return t2
         if isTList(t1) and isTList(t2):
-            elem = self.meet(t1.__args__[0], t2.__args__[0])
-            return TList[elem]
+            return TList[self.meet(t1.__args__[0], t2.__args__[0])]
+
+        if isTList(t1) and super().leq(TList, t2):
+            return t1
+
+        if isTList(t2) and super().leq(TList, t1):
+            return t2
+
         return super().meet(t1, t2)
 
 
 ########################################################################################
 
+VariableType = TypeVar("VariableType", bound=TAnalog)
+
 
 ANALOG_SUPPORTED_FUNC_SIGNATURES = {
-    "BoolNot": [((TBool,), TBool)],
-    "BoolEq": [((TComplex, TComplex), TBool)],
-    "BoolNotEq": [((TComplex, TComplex), TBool)],
-    "BoolLessThan": [((TFloat, TFloat), TBool)],
-    "BoolLessThanEq": [((TFloat, TFloat), TBool)],
-    "BoolGreaterThan": [((TFloat, TFloat), TBool)],
-    "BoolGreaterThanEq": [((TFloat, TFloat), TBool)],
-    "MathAdd": [
+    "PauliX": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliY": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliZ": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliI": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "Identity": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
+    "Creation": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
+    "Annihilation": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
+    "Not": [((TBool,), TBool)],
+    "And": [((TBool, TBool), TBool)],
+    "Xor": [((TBool, TBool), TBool)],
+    "Or": [((TBool, TBool), TBool)],
+    "Eq": [((VariableType, VariableType), TBool)],
+    "Neq": [((VariableType, VariableType), TBool)],
+    "Lt": [((TFloat, TFloat), TBool)],
+    "Leq": [((TFloat, TFloat), TBool)],
+    "Gt": [((TFloat, TFloat), TBool)],
+    "Geq": [((TFloat, TFloat), TBool)],
+    "Neg": [
+        ((TInt,), TInt),
+        ((TFloat,), TFloat),
+        ((TComplex,), TComplex),
+        ((TOp,), TOp),
+    ],
+    "Pos": [
+        ((TInt,), TInt),
+        ((TFloat,), TFloat),
+        ((TComplex,), TComplex),
+        ((TOp,), TOp),
+    ],
+    "Add": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
+        ((TOp, TOp), TOp),
     ],
-    "MathSub": [
+    "Sub": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
+        ((TOp, TOp), TOp),
     ],
-    "MathMul": [
+    "Mul": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
         ((TComplex, TOp), TOp),
         ((TOp, TComplex), TOp),
+        ((TOp, TOp), TOp),
     ],
-    "MathDiv": [
+    "Div": [
         ((TInt, TInt), TFloat),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
+        ((TOp, TComplex), TOp),
     ],
-    "MathPow": [
+    "Pow": [
         ((TInt, TInt), TInt),
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
+        ((TOp, TInt), TOp),
     ],
-    "OperatorAdd": [((TOp, TOp), TOp)],
-    "OperatorSub": [((TOp, TOp), TOp)],
-    "OperatorMul": [((TOp, TOp), TOp)],
-    "OperatorKron": [((TOp, TOp), TOp)],
+    "Kron": [((TOp, TOp), TOp)],
     "Evolve": [
-        ((TOp, TFloat, TQReg), TNull),
-        ((TOp, TFloat, TQRegElem), TNull),
-        ((TOp, TFloat, TList[TQRegElem]), TNull),
+        ((TOp, TList[TOp], TFloat, TQReg), TNull),
+        ((TOp, TList[TOp], TFloat, TQRegElem), TNull),
+        ((TOp, TList[TOp], TFloat, TList[TQRegElem]), TNull),
     ],
     "Initialize": [
         ((TQReg,), TNull),
@@ -192,23 +231,44 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
         ((TList[TQRegElem],), TList[TInt]),
     ],
     "abs": [((TInt,), TInt), ((TFloat,), TFloat), ((TComplex,), TFloat)],
-    "sin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "cos": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "tan": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "exp": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "log": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "sinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "cosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "tanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "atan": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "acos": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "asin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "atanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "asinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "acosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "sin": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "cos": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "tan": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "exp": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "log": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "sinh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "cosh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "tanh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "atan": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "acos": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "asin": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "atanh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "asinh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "acosh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
     "heaviside": [((TFloat,), TInt), ((TInt), TInt)],
     "conj": [((TComplex,), TComplex)],
     "real": [((TComplex,), TFloat)],
     "imag": [((TComplex,), TFloat)],
     "atan2": [((TFloat, TFloat), TFloat), ((TComplex, TComplex), TComplex)],
+    "round": [((TInt,), TInt), ((TFloat,), TInt)],
+    "len": [((TList[VariableType],), TInt)],
+    "range": [
+        ((TInt,), TList[TInt]),
+        ((TFloat,), TList[TFloat]),
+        ((TInt, TInt), TList[TInt]),
+        ((TFloat, TFloat), TList[TFloat]),
+        ((TInt, TInt, TInt), TList[TInt]),
+        ((TFloat, TFloat, TFloat), TList[TFloat]),
+    ],
+    "QuantumRegister": [((TInt,), TQReg)],
+    "ModeRegister": [((TInt,), TQReg)],
+    "Extract": [
+        ((TQReg, TInt), TQRegElem),
+        ((TList[VariableType], TInt), VariableType),
+    ],
+    "flatten": [((TList[TList[VariableType]],), TList[VariableType])],
+    "print": [((VariableType,), TNull)],
+    "commutator": [((TOp, TOp), TOp)],
+    "acommutator": [((TOp, TOp), TOp)],
+    "dag": [((TOp,), TOp)],
 }

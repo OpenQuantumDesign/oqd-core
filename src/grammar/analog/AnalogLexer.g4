@@ -24,12 +24,10 @@ CONTINUE: 'continue';
 /** ================================================================================= */
 
 // Boolean
-AND: 'and';
-AND2: '&&';
-OR: 'or';
-OR2: '||';
-NOT: 'not';
-NOT2: '!';
+AND: 'and' | '&&';
+OR: 'or' | '||';
+XOR: 'xor' | '^^';
+NOT: 'not' | '!';
 TRUE: 'true';
 FALSE: 'false';
 
@@ -38,7 +36,7 @@ FALSE: 'false';
 // Register
 
 QUANTUMREGISTER: 'qreg';
-MODEREGISTER: 'qmode';
+MODEREGISTER: 'qmode' | 'mreg';
 
 
 /** ================================================================================= */
@@ -65,16 +63,13 @@ ASSIGN: '=';
 EQ: '==';
 NEQ: '!=';
 LT: '<';
-LTE: '<=';
+LEQ: '<=';
 GT: '>';
-GTE: '>=';
+GEQ: '>=';
+AT: '@';
 
 // Analog Operators
 
-AT: '%@';
-OP_ADD: '%+';
-OP_MUL: '%*';
-OP_MINUS: '%-';
 
 /** ================================================================================= */
 
@@ -92,7 +87,8 @@ FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? INT)?
      | INT (('e' | 'E') (PLUS | MINUS)? INT);
 
 MATH_VAR: '#' ID;
-IMAG: '1j';
+REAL_PART:  (INT | FLOAT) 'r';
+IMAG_PART:  (INT | FLOAT) 'j';
 
 // Math functions
 ABS: 'abs';
@@ -115,7 +111,36 @@ CONJ: 'conj';
 REAL: 'real';
 IMAG_FN: 'imag';
 ATAN2: 'atan2';
+ROUND: 'round';
+DAG: 'dag';
+COMMUTATOR: 'commutator';
+ANTICOMMUTATOR: 'acommutator';
+POSF: '_pos';
+NEGF: '_neg';
+ADDF: '_add';
+SUBF: '_sub';
+MULF: '_mul';
+DIVF: '_div';
+POWF: '_pow';
+KRONF: '_kron';
+EQF: '_eq';
+NEQF: '_neq';
+LTF: '_lt';
+LEQF: '_leq';
+GTF: '_gt';
+GEQF: '_geq';
+ANDF: '_and';
+ORF: '_or';
+XORF: '_xor';
+NOTF: '_not';
 
+/** ================================================================================= */
+
+// Builtin functions
+RANGE: 'range';
+PRINT: 'print';
+LENGTH: 'len';
+FLATTEN: 'flatten';
 
 /** ================================================================================= */
 
