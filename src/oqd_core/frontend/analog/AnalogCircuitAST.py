@@ -17,6 +17,9 @@ from __future__ import annotations
 import antlr4
 from antlr4.tree.Tree import TerminalNodeImpl
 
+from oqd_core.frontend.analog.AnalogErrorListener import (
+    AnalogErrorListener,
+)
 from oqd_core.frontend.analog.AnalogLexer import AnalogLexer
 from oqd_core.frontend.analog.AnalogParser import AnalogParser
 from oqd_core.frontend.analog.AnalogParserVisitor import AnalogParserVisitor
@@ -434,12 +437,19 @@ class AnalogASTBuilder(AnalogParserVisitor):
 def parse_analog(source):
     stream = antlr4.InputStream(source)
     lexer = AnalogLexer(stream)
+    lexer.removeErrorListeners()
+    listener = AnalogErrorListener()
+    lexer.addErrorListener(listener)
+
     tokens = antlr4.CommonTokenStream(lexer)
-    parse_result = AnalogParser(tokens)
-    tree = parse_result.program()
+    parser = AnalogParser(tokens)
+    parser.removeErrorListeners()
+    parser.addErrorListener(listener)
+
+    tree = parser.program()
+    listener.report_errors()
 
     builder = AnalogASTBuilder()
 
     circuit = builder.visit(tree)
-
     return circuit

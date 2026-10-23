@@ -452,3 +452,37 @@ class TestAnalogSerialize:
         serialized = serialize_analog(circuit)
         deserialized_circuit = parse_analog(serialized)
         assert circuit == deserialized_circuit
+
+class TestAnalogError:
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = qreg(2)",
+            "list = [1, 2, 3]",
+            "initialize(r)",
+            "evolve(%X, 1.0, r)",
+            "measure(r)",
+            "x = 1\n if (x > 0) {\n y = 2\n}",
+            "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
+            "while(true) {\n if (a == b) {x = 0} \n if (x == 0) { break}\n}",
+        ],
+    )
+    def test_analog_error_pass(self, program):
+        parse_analog(program)
+    
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = qreg()",
+            "list = [1, 2,",
+            "initialize(?)",
+            "evolve(%X, 1.0, r)!",
+            "measure(r);",
+            "x = 1\n if x > 0: \n y = 2\n",
+            "x = 1\n if (x > 0) {\n y = 2\n} \n else: \n y = 3\n",
+            "for (x != 0) {\n if (a == b) {x = 0} \n}",
+        ],
+    )
+    def test_analog_error_raise(self, program):
+        with pytest.raises(Exception):
+            parse_analog(program)
