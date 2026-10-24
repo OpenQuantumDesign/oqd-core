@@ -134,7 +134,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
 
         return Declaration(name=name, value=value)
 
-    def visitAccess(self, ctx: AnalogParser.DeclarationContext):
+    def visitAccess(self, ctx: AnalogParser.AccessContext):
         name = ctx.ID().getText()
         return Access(name=name)
 
