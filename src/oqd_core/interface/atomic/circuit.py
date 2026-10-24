@@ -12,18 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from typing import List
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
 
-from .expr import Beam, Pulse
-from .statement import ParallelProtocol, SerialProtocol, Statement
+from oqd_core.interface.atomic.expr import Beam, Pulse
+from oqd_core.interface.atomic.statement import (
+    ParallelProtocol,
+    SerialProtocol,
+    Statement,
+    StatementSubtypes,
+)
 
 ########################################################################################
 
-__all__ = [
-    "AtomicCircuit",
-]
+__all__ = ["AtomicCircuit"]
 
 ########################################################################################
 
@@ -36,7 +41,7 @@ class AtomicCircuit(TypeReflectBaseModel):
         statements: The trapped-ion system.
     """
 
-    statements: List[Statement] = []
+    statements: List[StatementSubtypes] = []
 
     def beam(self, frequency, rabi, phase, polarization, wavevector):
         self.statements.append(

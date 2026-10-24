@@ -17,59 +17,60 @@ from __future__ import annotations
 from typing import Annotated, List, Union
 
 from oqd_compiler_infrastructure import TypeReflectBaseModel
-from pydantic import Discriminator, Tag
+from pydantic import Discriminator
 
-from .expr import AtomicExprSubtypes, Identifier
+from oqd_core.interface.atomic.expr import AtomicExpr, CastAtomicExpr, Identifier
 
 ########################################################################################
 
 __all__ = [
     "Declaration",
-    "ParallelProtocol",
-    "SerialProtocol",
+    "SCF",
     "IfElse",
     "While",
     "Break",
     "Continue",
+    "ParallelProtocol",
+    "SerialProtocol",
 ]
-
 
 ########################################################################################
 
+class Statement(TypeReflectBaseModel): ...
 
-class Declaration(TypeReflectBaseModel):
+
+class AbstractStatement: ...
+
+
+class SCF(AbstractStatement): ...
+
+########################################################################################
+
+class Declaration(Statement):
     name: Identifier
-    value: AtomicExprSubtypes
+    value: CastAtomicExpr
 
 
-class ParallelProtocol(TypeReflectBaseModel):
-    pulses: List[Statement]
-
-
-class SerialProtocol(TypeReflectBaseModel):
-    pulses: List[Statement]
-
-
-class IfElse(TypeReflectBaseModel):
+class IfElse(Statement, SCF):
     """
     Class representing a conditional branch in the atomic circuit
     """
 
-    condition: AtomicExprSubtypes
-    then_branch: List[Statement] = []
-    else_branch: List[Statement] = []
+    condition: CastAtomicExpr
+    then_branch: List[StatementSubtypes] = []
+    else_branch: List[StatementSubtypes] = []
 
 
-class While(TypeReflectBaseModel):
+class While(Statement, SCF):
     """
     Class representing a while loop in the atomic circuit
     """
 
-    condition: AtomicExprSubtypes
-    body: List[Statement] = []
+    condition: CastAtomicExpr
+    body: List[StatementSubtypes] = []
 
 
-class Break(TypeReflectBaseModel):
+class Break(Statement, SCF):
     """
     Class representing a break statement to exit the innermost loop
     """
@@ -77,12 +78,20 @@ class Break(TypeReflectBaseModel):
     pass
 
 
-class Continue(TypeReflectBaseModel):
+class Continue(Statement, SCF):
     """
     Class representing a continue statement to jump to the next loop iteration
     """
 
     pass
+
+
+class ParallelProtocol(Statement, SCF):
+    pulses: List[StatementSubtypes] = []
+
+
+class SerialProtocol(Statement, SCF):
+    pulses: List[StatementSubtypes] = []
 
 
 ########################################################################################
@@ -93,36 +102,7 @@ Union of classes
 """
 
 
-def _Statement_discriminator(value):
-    if isinstance(value, dict):
-        class_ = value["class_"]
-    else:
-        class_ = getattr(value, "class_")
-
-    if class_ not in [
-        "Declaration",
-        "IfElse",
-        "While",
-        "Break",
-        "Continue",
-        "ParallelProtocol",
-        "SerialProtocol",
-    ]:
-        class_ = "AtomicExpr"
-
-    return class_
-
-
-Statement = Annotated[
-    Union[
-        Annotated[Declaration, Tag("Declaration")],
-        Annotated[IfElse, Tag("IfElse")],
-        Annotated[While, Tag("While")],
-        Annotated[Break, Tag("Break")],
-        Annotated[Continue, Tag("Continue")],
-        Annotated[ParallelProtocol, Tag("ParallelProtocol")],
-        Annotated[SerialProtocol, Tag("SerialProtocol")],
-        Annotated[AtomicExprSubtypes, Tag("AtomicExpr")],
-    ],
-    Discriminator(discriminator=_Statement_discriminator),
+StatementSubtypes = Annotated[
+    Union[tuple(AtomicExpr.__subclasses__() + Statement.__subclasses__())],
+    Discriminator(discriminator="class_"),
 ]

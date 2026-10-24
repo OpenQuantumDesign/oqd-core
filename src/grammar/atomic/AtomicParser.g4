@@ -19,90 +19,97 @@ statement
 
 block: (statement EOL | EOL)* (statement)?;
 
-/** ================================================================================= */
-
-terminal: ion_register | atomic_list_extract | math_terminal | bool_literal | atomic_list;
-expr
-    : aexpr (comparators aexpr)+
-    | expr (bool_and_op|bool_or_op) expr
-    | bool_not_op expr
-    | LBRACKET expr RBRACKET
-    | atomic_list 
-    | terminal
-    | aexpr
-    ;
-cond: expr;
-atomic_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
-
-declaration: ID ASSIGN expr;
-access: ID;
-atomic_list_extract: access SQUARELBRACKET INT SQUARERBRACKET;
+parallel_stmt: PARALLEL LBRACE block RBRACE;
+serial_stmt: SERIAL LBRACE block RBRACE;
 
 /** ================================================================================= */
-
 
 // Structural control flow
+
+ifelse_stmt
+    : IF LBRACKET expr RBRACKET LBRACE block RBRACE (EOL? ELSE LBRACE block RBRACE)?;
+
+while_stmt: WHILE LBRACKET expr RBRACKET LBRACE block RBRACE;
 
 break_stmt: BREAK;
 continue_stmt: CONTINUE;
 
-while_stmt: WHILE LBRACKET cond RBRACKET LBRACE block RBRACE;
+/** ================================================================================= */
 
-ifelse_stmt
-    : IF LBRACKET cond RBRACKET LBRACE block RBRACE
-    | IF LBRACKET cond RBRACKET LBRACE block RBRACE EOL? ELSE LBRACE block RBRACE;
+// Atom
+
+terminal: math_terminal | bool_literal | atomic_list | func;
 
 /** ================================================================================= */
 
-// Quantum
-ion_register: IONREGISTER LBRACKET INT RBRACKET;
+// Variable
 
-parallel_stmt: PARALLEL LBRACE block RBRACE;
-serial_stmt: SERIAL LBRACE block RBRACE;
-targets: expr;
+declaration: ID ASSIGN expr;
+access: ID;
 
 /** ================================================================================= */
 
 // Boolean
 
-bool_and_op: AND | AND2;
-bool_or_op: OR | OR2;
-bool_not_op: NOT | NOT2;
-bool_eq_op: EQ;
-bool_not_eq_op: NEQ;
-bool_lt_op: LT;
-bool_lte_op: LTE;
-bool_gt_op: GT;
-bool_gte_op: GTE;
 bool_literal: TRUE | FALSE;
-
-comparators
-    : bool_eq_op
-    | bool_not_eq_op
-    | bool_lt_op 
-    | bool_lte_op 
-    | bool_gt_op 
-    | bool_gte_op
-    ;
 
 /** ================================================================================= */
 
-// Math
+// Function
 
-math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr | atomic_list | atomic_list_extract;
+arith_func: POSF | NEGF | ADDF | SUBF | MULF | DIVF | POWF | EQF | NEQF
+    | LTF | LEQF | GTF | LEQF | ANDF | ORF | XORF | NOTF;
 
-func_names: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
-    | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2
-    | HEAVISIDE | CONJ | REAL | IMAG_FN | BEAM | PULSE;
+math_func: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
+    | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2 | CONJ
+    | HEAVISIDE | REAL | IMAG_FN | ROUND;
 
-pexpr: LBRACKET aexpr RBRACKET;
+quantum_func: IONREGISTER | BEAM | PULSE;
 
-fexpr: func_names LBRACKET (aexpr (COMMA aexpr)*)? RBRACKET;
+list_func: RANGE | LENGTH | FLATTEN;
 
-aexpr: mexpr | aexpr (PLUS|MINUS) mexpr;
+misc_func: PRINT;
 
-mexpr: uexpr | mexpr (MULT|DIV) uexpr;
+func_names: math_func | quantum_func | list_func | misc_func | arith_func;
 
-uexpr: eexpr | (PLUS|MINUS) eexpr;
+args: expr (COMMA expr)* COMMA?;
 
-eexpr: terminal | terminal POWER uexpr;
+func: func_names LBRACKET args? RBRACKET;
+
+/** ================================================================================= */
+
+// List
+
+atomic_list: SQUARELBRACKET expr? (COMMA expr)* COMMA? SQUARERBRACKET;
+
+iexpr: terminal | iexpr SQUARELBRACKET expr SQUARERBRACKET;
+
+/** ================================================================================= */
+
+// Arithmetic
+
+complex: REAL_PART | REAL_PART? IMAG_PART;
+
+math_terminal: INT | FLOAT | MATH_VAR | complex | access | pexpr;
+
+pexpr: LBRACKET expr RBRACKET;
+
+eexpr: iexpr | iexpr POWER uexpr;
+
+uexpr: eexpr | (PLUS|MINUS|NOT) uexpr;
+
+mexpr: uexpr | mexpr (MULT uexpr)+ | mexpr (DIV uexpr)+;
+
+aexpr: mexpr | aexpr (PLUS mexpr)+ | aexpr (MINUS mexpr)+;
+
+cexpr: aexpr | cexpr (LT | LEQ | GT | GEQ) aexpr;
+
+eqexpr: cexpr | eqexpr (EQ | NEQ) cexpr;
+
+andexpr: eqexpr | eqexpr (AND eqexpr)+;
+
+xorexpr: andexpr | andexpr (XOR andexpr)+;
+
+orexpr: xorexpr | xorexpr (OR xorexpr)+;
+
+expr: orexpr;

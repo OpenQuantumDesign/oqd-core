@@ -16,7 +16,6 @@
 from __future__ import annotations
 
 import antlr4
-from antlr4.tree.Tree import TerminalNodeImpl
 
 from oqd_core.frontend.atomic._generated import (
     AtomicLexer,
@@ -25,152 +24,94 @@ from oqd_core.frontend.atomic._generated import (
 )
 from oqd_core.interface.atomic import (
     Access,
+    Add,
+    And,
     AtomicCircuit,
     AtomicList,
     Beam,
-    Bool,
-    BoolAnd,
-    BoolEq,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolNot,
-    BoolNotEq,
-    BoolOr,
     Break,
+    BuiltinCall,
+    Complex,
+    Constant,
     Continue,
     Declaration,
+    Div,
+    Eq,
     Extract,
+    Geq,
+    Gt,
     IfElse,
     IonRegister,
-    MathAdd,
-    MathDiv,
-    MathFunc,
-    MathImag,
-    MathMul,
-    MathNum,
-    MathPow,
-    MathSub,
-    MathVar,
+    Leq,
+    Lt,
+    Mul,
+    Neg,
+    Neq,
+    Not,
+    Or,
     ParallelProtocol,
+    Pos,
+    Pow,
     Pulse,
+    RuntimeVar,
     SerialProtocol,
+    Sub,
     While,
+    Xor,
 )
 
 ########################################################################################
 
-__all__ = ["AtomicASTBuilder"]
-
-########################################################################################
-
-_BOOL_OP_MAP = {
-    AtomicLexer.AND: BoolAnd,
-    AtomicLexer.AND2: BoolAnd,
-    AtomicLexer.OR: BoolOr,
-    AtomicLexer.OR2: BoolOr,
-    AtomicLexer.EQ: BoolEq,
-    AtomicLexer.NEQ: BoolNotEq,
-    AtomicLexer.LT: BoolLessThan,
-    AtomicLexer.LTE: BoolLessThanEq,
-    AtomicLexer.GT: BoolGreaterThan,
-    AtomicLexer.GTE: BoolGreaterThanEq,
-}
-
-_FUNC_TOKEN_TO_NAME = {
-    AtomicLexer.ABS: "abs",
-    AtomicLexer.SIN: "sin",
-    AtomicLexer.COS: "cos",
-    AtomicLexer.TAN: "tan",
-    AtomicLexer.EXP: "exp",
-    AtomicLexer.LOG: "log",
-    AtomicLexer.SINH: "sinh",
-    AtomicLexer.COSH: "cosh",
-    AtomicLexer.TANH: "tanh",
-    AtomicLexer.ATAN: "atan",
-    AtomicLexer.ACOS: "acos",
-    AtomicLexer.ASIN: "asin",
-    AtomicLexer.ATANH: "atanh",
-    AtomicLexer.ASINH: "asinh",
-    AtomicLexer.ACOSH: "acosh",
-    AtomicLexer.HEAVISIDE: "heaviside",
-    AtomicLexer.CONJ: "conj",
-    AtomicLexer.REAL: "real",
-    AtomicLexer.IMAG_FN: "imag",
-    AtomicLexer.ATAN2: "atan2",
-}
-
-
-def _get_token_type(node) -> int:
-    """Extract token type from a terminal or context"""
-    if isinstance(node, TerminalNodeImpl):
-        return node.symbol.type
-    payload = getattr(node, "getPayload", lambda: None)()
-    return getattr(payload, "type", -1) if payload else -1
-
-
-def _get_text(node) -> str:
-    """Get text from a parse tree node"""
-    return node.getText() if hasattr(node, "getText") else str(node)
-
-
-def _comparator_to_bool_class(cmp_ctx: AtomicParser.ComparatorsContext):
-    op_ctx = (
-        cmp_ctx.bool_eq_op()
-        or cmp_ctx.bool_not_eq_op()
-        or cmp_ctx.bool_lt_op()
-        or cmp_ctx.bool_lte_op()
-        or cmp_ctx.bool_gt_op()
-        or cmp_ctx.bool_gte_op()
-    )
-    if op_ctx is None:
-        raise ValueError("Empty comparators")
-    tt = _get_token_type(op_ctx.getChild(0))
-    cls = _BOOL_OP_MAP.get(tt)
-    if cls is None:
-        raise ValueError(f"Unknown comparator token type: {tt}")
-    return cls
-
+__all__ = ["AtomicASTBuilder", "parse_atomic"]
 
 ########################################################################################
 
 
 class AtomicASTBuilder(AtomicParserVisitor):
+    """
+    Visitor that converts ANTLR parse tree to Atomic interface AST
+    """
+
     def __init__(self):
         self._loop_depth = 0
 
     def visitProgram(self, ctx: AtomicParser.ProgramContext):
         block = ctx.block()
-        statements = []
-        if block:
-            statements = self.visit(block)
-
+        statements = self.visit(block) if block else []
         return AtomicCircuit(statements=statements)
 
     def visitBlock(self, ctx: AtomicParser.BlockContext):
-        statements = []
-        for stmt_ctx in ctx.statement():
-            stmt = self.visit(stmt_ctx)
-            if stmt is not None:
-                statements.append(stmt)
+        statements = [self.visit(stmt) for stmt in ctx.statement() if stmt]
         return statements
 
     def visitStatement(self, ctx: AtomicParser.StatementContext):
-        child = ctx.getChild(0)
-        return self.visit(child)
+        return self.visit(ctx.getChild(0))
+    
+    ## Structural Control Flow ##
 
-    def visitDeclaration(self, ctx: AtomicParser.DeclarationContext):
-        name = ctx.ID().getText()
-        val = self.visit(ctx.expr())
-        decl = Declaration(name=name, value=val)
-        return decl
+    def visitIfelse_stmt(self, ctx: AtomicParser.Ifelse_stmtContext):
+        cond = self.visit(ctx.expr())
+        then_branch = self.visit(ctx.block(0))
+        else_branch = self.visit(ctx.block(1)) if len(ctx.block()) > 1 else []
+        return IfElse(condition=cond, then_branch=then_branch, else_branch=else_branch)
+    
+    def visitWhile_stmt(self, ctx: AtomicParser.While_stmtContext):
+        self._loop_depth += 1
+        cond = self.visit(ctx.expr())
+        body = self.visit(ctx.block())
+        self._loop_depth -= 1
+        return While(condition=cond, body=body)
 
-    ## Statements ##
+    def visitBreak_stmt(self, ctx: AtomicParser.Break_stmtContext):
+        if self._loop_depth == 0:
+            raise SyntaxError("break outside of loop")
+        return Break()
 
-    def visitTargets(self, ctx: AtomicParser.TargetsContext):
-        return self.visit(ctx.expr())
-
+    def visitContinue_stmt(self, ctx: AtomicParser.Continue_stmtContext):
+        if self._loop_depth == 0:
+            raise SyntaxError("continue outside of loop")
+        return Continue()
+    
     def visitParallel_stmt(self, ctx: AtomicParser.Parallel_stmtContext):
         body = self.visit(ctx.block())
         return ParallelProtocol(pulses=body)
@@ -179,217 +120,238 @@ class AtomicASTBuilder(AtomicParserVisitor):
         body = self.visit(ctx.block())
         return SerialProtocol(pulses=body)
 
-    def visitWhile_stmt(self, ctx: AtomicParser.While_stmtContext):
-        self._loop_depth += 1
-        try:
-            cond = self.visit(ctx.cond())
-            body = self.visit(ctx.block())
-            return While(condition=cond, body=body)
-        finally:
-            self._loop_depth -= 1
-
-    def visitIfelse_stmt(self, ctx: AtomicParser.Ifelse_stmtContext):
-        cond = self.visit(ctx.cond())
-        blocks = list(ctx.block())
-        then_branch = self.visit(blocks[0]) if blocks else []
-        else_branch = self.visit(blocks[1]) if len(blocks) > 1 else []
-        return IfElse(condition=cond, then_branch=then_branch, else_branch=else_branch)
-
-    def visitBreak_stmt(self, ctx):
-        if self._loop_depth == 0:
-            raise SyntaxError("break outside of loop")
-        return Break()
-
-    def visitContinue_stmt(self, ctx):
-        if self._loop_depth == 0:
-            raise SyntaxError("continue outside of loop")
-        return Continue()
-
-    ## Expressions
-
-    def visitExpr(self, ctx: AtomicParser.ExprContext):
-        if ctx.bool_and_op() or ctx.bool_or_op():
-            left = self.visit(ctx.expr(0))
-            right = self.visit(ctx.expr(1))
-            if ctx.bool_and_op():
-                return BoolAnd(expr1=left, expr2=right)
-            return BoolOr(expr1=left, expr2=right)
-
-        if ctx.bool_not_op():
-            return BoolNot(expr=self.visit(ctx.expr(0)))
-        if ctx.LBRACKET():
-            return self.visit(ctx.expr(0))
-        if ctx.atomic_list() is not None:
-            return self.visit(ctx.atomic_list())
-
-        comps = ctx.comparators()
-        aexprs = ctx.aexpr()
-        if comps:
-            op_cls = _comparator_to_bool_class(comps[0])
-            left = self.visit(aexprs[0])
-            right = self.visit(aexprs[1])
-            return op_cls(expr1=left, expr2=right)
-
-        if ctx.terminal() is not None:
-            return self.visit(ctx.terminal())
-        if aexprs and len(aexprs) == 1:
-            return self.visit(aexprs[0])
-
-        raise ValueError("Undefined value")
-
-    def visitAtomic_list_extract(self, ctx: AtomicParser.Atomic_list_extractContext):
-        access = self.visit(ctx.access())
-        index = int(ctx.INT().getText())
-        return Extract(access=access, index=index)
-
-    def visitAtomic_list(self, ctx: AtomicParser.Atomic_listContext):
-        values = [self.visit(e) for e in ctx.expr()]
-        return AtomicList(values=values)
+    ## Atom ##
 
     def visitTerminal(self, ctx: AtomicParser.TerminalContext):
         return self.visitChildren(ctx)
 
+    ## Variable ##
+
+    def visitDeclaration(self, ctx: AtomicParser.DeclarationContext):
+        name = ctx.ID().getText()
+        value = self.visit(ctx.expr())
+
+        return Declaration(name=name, value=value)
+    
     def visitAccess(self, ctx: AtomicParser.AccessContext):
         return Access(name=ctx.ID().getText())
+    
+    ## List ##
 
-    def visitIon_register(self, ctx: AtomicParser.Ion_registerContext):
-        return IonRegister(size=int(ctx.INT().getText()))
+    def visitAtomic_list(self, ctx: AtomicParser.Atomic_listContext):
+        values = [self.visit(e) for e in ctx.expr()]
+        return AtomicList(values=values)
+    
+    def visitIexpr(self, ctx: AtomicParser.IexprContext):
+        if ctx.terminal():
+            return self.visit(ctx.terminal())
 
-    ## Math Terminals ##
+        expr = self.visit(ctx.iexpr())
+        index = self.visit(ctx.expr())
+
+        return Extract(value=expr, index=index)
+    
+    ## Boolean ##
+
+    def visitBool_literal(self, ctx: AtomicParser.Bool_literalContext):
+        if ctx.TRUE():
+            return Constant(value=True)
+        if ctx.FALSE():
+            return Constant(value=False)
+    
+
+    ## Function ##
+
+    def visitMath_func(self, ctx: AtomicParser.Math_funcContext):
+        return ctx.getChild(0).getText()
+
+    def visitQuantum_func(self, ctx: AtomicParser.Quantum_funcContext):
+        return ctx.getChild(0).getText()
+
+    def visitList_func(self, ctx: AtomicParser.List_funcContext):
+        return ctx.getChild(0).getText()
+
+    def visitMisc_func(self, ctx: AtomicParser.Misc_funcContext):
+        return ctx.getChild(0).getText()
+
+    def visitArith_func(self, ctx: AtomicParser.Arith_funcContext):
+        return ctx.getChild(0).getText()
+
+    def visitFunc_names(self, ctx: AtomicParser.Func_namesContext):
+        return self.visitChildren(ctx)
+
+    def visitArgs(self, ctx: AtomicParser.ArgsContext):
+        args = [self.visit(args) for args in ctx.expr()]
+        return args
+
+    def visitFunc(self, ctx: AtomicParser.FuncContext):
+        func = self.visit(ctx.func_names())
+        args = self.visit(ctx.args()) if ctx.args() else []
+
+        match func:
+            case "ionreg":
+                if len(args) != 1:
+                    raise ValueError(f"ionreg takes 1 arguments, got {len(args)}")
+                return IonRegister(size=args[0])
+            case "beam":
+                if len(args) != 5:
+                    raise ValueError(f"beam takes 5 arguments, got {len(args)}")
+                (frequency, rabi, phase, polarization, wavevector) = args
+                return Beam(
+                    frequency=frequency,
+                    rabi=rabi,
+                    phase=phase,
+                    polarization=polarization,
+                    wavevector=wavevector,
+                )
+            case "pulse":
+                num_args = len(args)
+                match num_args:
+                    case 3:
+                        (beam, duration, target) = args
+                        measured = False
+                    case 4:
+                        (beam, duration, target, measured) = args
+                    case _:
+                        raise ValueError(
+                            f"pulse takes 3 or 4 arguments, got {num_args}"
+                        )
+
+                return Pulse(
+                    beam=beam,
+                    duration=duration,
+                    target=target,
+                    measured=measured,
+                )
+
+        return BuiltinCall(func=func, args=args)
+
+    ## Arithmetic ##
 
     def visitMath_terminal(self, ctx: AtomicParser.Math_terminalContext):
         if ctx.INT() is not None:
-            return MathNum(value=int(ctx.INT().getText()))
+            return Constant(value=int(ctx.INT().getText()))
         if ctx.FLOAT() is not None:
-            return MathNum(value=float(ctx.FLOAT().getText()))
+            return Constant(value=float(ctx.FLOAT().getText()))
         if ctx.MATH_VAR() is not None:
-            return MathVar(name=ctx.MATH_VAR().getText())
-        if ctx.IMAG() is not None:
-            return MathImag()
+            return RuntimeVar(name=ctx.MATH_VAR().getText())
         if ctx.access() is not None:
             return self.visit(ctx.access())
         if ctx.pexpr() is not None:
             return self.visit(ctx.pexpr())
-        if ctx.fexpr() is not None:
-            return self.visit(ctx.fexpr())
-        if ctx.atomic_list() is not None:
-            return self.visit(ctx.atomic_list())
-        if ctx.atomic_list_extract() is not None:
-            return self.visit(ctx.atomic_list_extract())
-        raise ValueError("Empty math_terminal")
+        if ctx.complex_() is not None:
+            return self.visit(ctx.complex_())
 
-    ## Arithmetic Expressions ##
+    def visitComplex(self, ctx: AtomicParser.ComplexContext):
+        real = float(ctx.REAL_PART().getText()[:-1]) if ctx.REAL_PART() else 0
+        imag = float(ctx.IMAG_PART().getText()[:-1]) if ctx.IMAG_PART() else 0
 
-    def visitAexpr(self, ctx: AtomicParser.AexprContext):
-        if ctx.getChildCount() == 1:
-            return self.visit(ctx.mexpr())
-        left = self.visit(ctx.aexpr())
-        right = self.visit(ctx.mexpr())
-        op_token = None
-        for i in range(ctx.getChildCount()):
-            c = ctx.getChild(i)
-            if isinstance(c, TerminalNodeImpl):
-                tt = c.symbol.type
-                if tt in (AtomicLexer.PLUS, AtomicLexer.MINUS):
-                    op_token = tt
-                    break
-        if op_token == AtomicLexer.PLUS:
-            return MathAdd(expr1=left, expr2=right)
-        if op_token == AtomicLexer.MINUS:
-            return MathSub(expr1=left, expr2=right)
-        return self.visitChildren(ctx)
+        return Complex(real=real, imag=imag)
 
-    def visitMexpr(self, ctx: AtomicParser.MexprContext):
-        if ctx.getChildCount() == 1:
-            return self.visit(ctx.uexpr())
-        left = self.visit(ctx.mexpr())
-        right = self.visit(ctx.uexpr())
-        op_token = None
-        for i in range(ctx.getChildCount()):
-            c = ctx.getChild(i)
-            if isinstance(c, TerminalNodeImpl):
-                tt = c.symbol.type
-                if tt in (AtomicLexer.MULT, AtomicLexer.DIV):
-                    op_token = tt
-                    break
-        if op_token == AtomicLexer.MULT:
-            return MathMul(expr1=left, expr2=right)
-        if op_token == AtomicLexer.DIV:
-            return MathDiv(expr1=left, expr2=right)
-        return self.visitChildren(ctx)
+    def _get_binop_args(self, expr):
+        args = [self.visit(expr.getChild(0))]
 
-    def visitUexpr(self, ctx: AtomicParser.UexprContext):
-        if ctx.getChildCount() == 1:
-            return self.visit(ctx.eexpr())
-        sign = None
-        for i in range(ctx.getChildCount()):
-            c = ctx.getChild(i)
-            if isinstance(c, TerminalNodeImpl) and c.symbol.type in (
-                AtomicLexer.PLUS,
-                AtomicLexer.MINUS,
-            ):
-                sign = c.symbol.type
-                break
-        val = self.visit(ctx.eexpr())
-        if sign == AtomicLexer.MINUS:
-            return MathMul(expr1=MathNum(value=-1), expr2=val)
-        return val
+        if expr.getChild(2):
+            args.append(self.visit(expr.getChild(2)))
 
-    def visitEexpr(self, ctx: AtomicParser.EexprContext):
-        if ctx.getChildCount() == 1:
-            return self.visit(ctx.terminal())
-        base = self.visit(ctx.terminal())
-        exp = self.visit(ctx.uexpr())
-        return MathPow(expr1=base, expr2=exp)
+        return args
 
     def visitPexpr(self, ctx: AtomicParser.PexprContext):
-        return self.visit(ctx.aexpr())
-
-    def visitFexpr(self, ctx: AtomicParser.FexprContext):
-        fn_ctx = ctx.func_names()
-        tt = _get_token_type(fn_ctx.getChild(0))
-        args = [self.visit(ax) for ax in ctx.aexpr()]
-        if tt == AtomicLexer.BEAM:
-            if len(args) != 5:
-                raise ValueError(f"beam expects 5 arguments, got {len(args)}")
-            return Beam(
-                frequency=args[0],
-                rabi=args[1],
-                phase=args[2],
-                polarization=args[3],
-                wavevector=args[4],
-            )
-        if tt == AtomicLexer.PULSE:
-            if len(args) == 4:
-                return Pulse(
-                    beam=args[0], duration=args[1], target=args[2], measured=args[3]
-                )
-            elif len(args) == 3:
-                return Pulse(
-                    beam=args[0],
-                    duration=args[1],
-                    target=args[2],
-                    measured=Bool(value=False),
-                )
-            raise ValueError(f"pulse expects 3/4 arguments, got {len(args)}")
-        name = _FUNC_TOKEN_TO_NAME.get(tt)
-        if name is None:
-            raise ValueError(f"Unknown function token type: {tt}")
-        if name == "atan2":
-            return MathFunc(func=name, expr=args)
-
-        return MathFunc(func=name, expr=args[0])
-
-    ## Bool Expressions ##
-
-    def visitCond(self, ctx: AtomicParser.CondContext):
         return self.visit(ctx.expr())
 
-    def visitBool_literal(self, ctx: AtomicParser.Bool_literalContext):
-        token = ctx.getChild(0).getText()
-        if token == "true":
-            return Bool(value=True)
-        return Bool(value=False)
+    def visitEexpr(self, ctx: AtomicParser.EexprContext):
+        args = self._get_binop_args(ctx)
+
+        return Pow(exprs=args) if len(args) > 1 else args[0]
+
+    def visitUexpr(self, ctx: AtomicParser.UexprContext):
+        if ctx.eexpr():
+            return self.visit(ctx.eexpr())
+
+        expr = self.visit(ctx.uexpr())
+        if ctx.PLUS():
+            return Pos(expr=expr)
+        if ctx.MINUS():
+            return Neg(expr=expr)
+        if ctx.NOT():
+            return Not(expr=expr)
+
+        return expr
+
+    def visitMexpr(self, ctx: AtomicParser.MexprContext):
+        if ctx.mexpr() is None:
+            return self.visit(ctx.uexpr()[0])
+
+        args = [self.visit(ctx.mexpr())] + [self.visit(expr) for expr in ctx.uexpr()]
+
+        if ctx.MULT():
+            return Mul(exprs=args)
+        if ctx.DIV():
+            return Div(exprs=args)
+
+    def visitAexpr(self, ctx: AtomicParser.AexprContext):
+        if ctx.aexpr() is None:
+            return self.visit(ctx.mexpr()[0])
+
+        args = [self.visit(ctx.aexpr())] + [self.visit(expr) for expr in ctx.mexpr()]
+
+        if ctx.PLUS():
+            return Add(exprs=args)
+        if ctx.MINUS():
+            return Sub(exprs=args)
+
+    def visitCexpr(self, ctx: AtomicParser.CexprContext):
+        args = self._get_binop_args(ctx)
+
+        if len(args) == 1:
+            return args[0]
+
+        if ctx.LT():
+            return Lt(exprs=args)
+        if ctx.LEQ():
+            return Leq(exprs=args)
+        if ctx.GT():
+            return Gt(exprs=args)
+        if ctx.GEQ():
+            return Geq(exprs=args)
+
+    def visitEqexpr(self, ctx: AtomicParser.EqexprContext):
+        args = self._get_binop_args(ctx)
+
+        if len(args) == 1:
+            return args[0]
+
+        if ctx.EQ():
+            return Eq(exprs=args)
+        if ctx.NEQ():
+            return Neq(exprs=args)
+
+    def visitAndexpr(self, ctx: AtomicParser.AndContext):
+        args = [self.visit(expr) for expr in ctx.eqexpr()]
+
+        if len(args) == 1:
+            return args[0]
+
+        return And(exprs=args) if len(args) > 1 else args[0]
+
+    def visitXorexpr(self, ctx: AtomicParser.XorContext):
+        args = [self.visit(expr) for expr in ctx.andexpr()]
+
+        if len(args) == 1:
+            return args[0]
+
+        return Xor(exprs=args) if len(args) > 1 else args[0]
+
+    def visitOrexpr(self, ctx: AtomicParser.OrContext):
+        args = [self.visit(expr) for expr in ctx.xorexpr()]
+
+        if len(args) == 1:
+            return args[0]
+
+        return Or(exprs=args) if len(args) > 1 else args[0]
+
+    def visitExpr(self, ctx: AtomicParser.ExprContext):
+        return self.visit(ctx.orexpr())
 
 
 ########################################################################################
@@ -401,6 +363,7 @@ def parse_atomic(source):
     tokens = antlr4.CommonTokenStream(lexer)
     parser = AtomicParser(tokens)
     tree = parser.program()
+    
     builder = AtomicASTBuilder()
 
     circuit = builder.visit(tree)

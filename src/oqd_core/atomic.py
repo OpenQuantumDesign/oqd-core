@@ -19,9 +19,9 @@ from oqd_core.frontend.atomic import (
     AtomicParser,
     AtomicParserListener,
     AtomicParserVisitor,
-    SerializeAtomic,
     parse_atomic,
-    serialize_atomic,
+    # SerializeAtomic,
+    # serialize_atomic,
 )
 
 ########################################################################################
@@ -33,6 +33,6 @@ __all__ = [
     "AtomicParser",
     "AtomicParserListener",
     "AtomicParserVisitor",
-    "SerializeAtomic",
-    "serialize_atomic",
+    # "SerializeAtomic",
+    # "serialize_atomic",
 ]
