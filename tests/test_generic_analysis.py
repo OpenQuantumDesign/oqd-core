@@ -14,10 +14,10 @@
 
 import pytest
 from oqd_compiler_infrastructure import CFGBlockAccumulator, Chain
-from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
 
-from oqd_core.analysis.analog import AnalogCFGBuilder
-from oqd_core.analysis.dominator import DominatorTreeAnalysis
+from oqd_core.analysis.dominator import DominatorAnalysis
+from oqd_core.compiler.analog.conversion import AnalogCFGBuilder
+from oqd_core.frontend.analog import parse_analog
 
 ########################################################################################
 
@@ -33,4 +33,4 @@ def cfg_builder():
     return lambda source: passes(parse_analog(source))
 
 
-class TestDominatorTreeAnalysis: ...
+class TestDominatorAnalysis: ...
