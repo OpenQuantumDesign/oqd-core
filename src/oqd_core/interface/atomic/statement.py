@@ -86,11 +86,11 @@ class Continue(Statement, SCF):
     pass
 
 
-class ParallelProtocol(Statement, SCF):
+class ParallelProtocol(Statement):
     pulses: List[StatementSubtypes] = []
 
 
-class SerialProtocol(Statement, SCF):
+class SerialProtocol(Statement):
     pulses: List[StatementSubtypes] = []
 
 

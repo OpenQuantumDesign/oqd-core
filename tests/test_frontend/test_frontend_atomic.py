@@ -14,41 +14,40 @@
 
 import pytest
 
-from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
-from oqd_core.frontend.atomic.serialize import serialize_atomic
+from oqd_core.frontend.atomic import parse_atomic, serialize_atomic
 from oqd_core.interface.atomic import (
     Access,
+    Add,
+    And,
     AtomicCircuit,
     AtomicList,
     Beam,
-    Bool,
-    BoolAnd,
-    BoolEq,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolNot,
-    BoolNotEq,
-    BoolOr,
     Break,
+    BuiltinCall,
+    Complex,
+    Constant,
     Continue,
     Declaration,
+    Div,
+    Eq,
     Extract,
+    Geq,
+    Gt,
     IfElse,
     IonRegister,
-    MathAdd,
-    MathDiv,
-    MathFunc,
-    MathImag,
-    MathMul,
-    MathNum,
-    MathPow,
-    MathSub,
-    MathVar,
+    Leq,
+    Lt,
+    Mul,
+    Neg,
+    Neq,
+    Not,
+    Or,
     ParallelProtocol,
+    Pow,
     Pulse,
+    RuntimeVar,
     SerialProtocol,
+    Sub,
     While,
 )
 
@@ -71,24 +70,24 @@ class TestAtomicDeclarations:
         decl = circuit.statements[0]
         assert isinstance(decl, Declaration)
         assert decl.name == "x"
-        assert decl.value == MathNum(value=1)
+        assert decl.value == Constant(value=1)
 
     def test_float(self):
         circuit = parse_atomic("pi = 3.14")
         decl = circuit.statements[0]
         assert isinstance(decl, Declaration)
         assert decl.name == "pi"
-        assert decl.value == MathNum(value=3.14)
+        assert decl.value == Constant(value=3.14)
 
     def test_math_var(self):
         circuit = parse_atomic("omega = #omega")
         decl = circuit.statements[0]
-        assert decl.value == MathVar(name="#omega")
+        assert decl.value == RuntimeVar(name="#omega")
 
     def test_imag(self):
         circuit = parse_atomic("z = 1j")
         decl = circuit.statements[0]
-        assert decl.value == MathImag()
+        assert decl.value == Constant(value=Complex(real=0, imag=1))
 
     def test_ion_register(self):
         circuit = parse_atomic("r = ionreg(2)")
@@ -100,68 +99,70 @@ class TestAtomicDeclarations:
         decl = circuit.statements[0]
         assert isinstance(decl.value, AtomicList)
         assert decl.value.values == [
-            MathNum(value=1),
-            MathNum(value=2),
-            MathNum(value=3),
+            Constant(value=1),
+            Constant(value=2),
+            Constant(value=3),
         ]
 
     def test_list_extract(self):
         circuit = parse_atomic("r = ionreg(2)\n ion = r[0]")
         decl = circuit.statements[1]
         assert isinstance(decl.value, Extract)
-        assert decl.value.access == Access(name="r")
-        assert decl.value.index == 0
+        assert decl.value.value == Access(name="r")
+        assert decl.value.index == Constant(value=0)
 
 
-## Math Expressions ##
+##  Expressions ##
 
 
 class TestAtomicMathExpressions:
     def test_addition(self):
         circuit = parse_atomic("x = 1 + 2")
         decl = circuit.statements[0]
-        assert decl.value == MathAdd(expr1=MathNum(value=1), expr2=MathNum(value=2))
+        assert decl.value == Add(exprs=[Constant(value=1), Constant(value=2)])
 
     def test_subtraction(self):
         circuit = parse_atomic("x = 5 - 3")
         decl = circuit.statements[0]
-        assert decl.value == MathSub(expr1=MathNum(value=5), expr2=MathNum(value=3))
+        assert decl.value == Sub(exprs=[Constant(value=5), Constant(value=3)])
 
     def test_multiplication(self):
         circuit = parse_atomic("x = 2 * 3")
         decl = circuit.statements[0]
-        assert decl.value == MathMul(expr1=MathNum(value=2), expr2=MathNum(value=3))
+        assert decl.value == Mul(exprs=[Constant(value=2), Constant(value=3)])
 
     def test_division(self):
         circuit = parse_atomic("x = 6 / 2")
         decl = circuit.statements[0]
-        assert decl.value == MathDiv(expr1=MathNum(value=6), expr2=MathNum(value=2))
+        assert decl.value == Div(exprs=[Constant(value=6), Constant(value=2)])
 
     def test_power(self):
         circuit = parse_atomic("x = 2^3")
         decl = circuit.statements[0]
-        assert decl.value == MathPow(expr1=MathNum(value=2), expr2=MathNum(value=3))
+        assert decl.value == Pow(exprs=[Constant(value=2), Constant(value=3)])
 
     def test_negation(self):
         circuit = parse_atomic("x = -1")
         decl = circuit.statements[0]
-        assert decl.value == MathMul(expr1=MathNum(value=-1), expr2=MathNum(value=1))
+        assert decl.value == Neg(expr=Constant(value=1))
 
     def test_nested_expression(self):
         circuit = parse_atomic("x = 2 * 3 + 1")
         decl = circuit.statements[0]
-        expected = MathAdd(
-            expr1=MathMul(expr1=MathNum(value=2), expr2=MathNum(value=3)),
-            expr2=MathNum(value=1),
+        expected = Add(exprs=[
+            Mul(exprs=[Constant(value=2), Constant(value=3)]),
+            Constant(value=1),
+            ]
         )
         assert decl.value == expected
 
     def test_paranthesis_expression(self):
         circuit = parse_atomic("x = 2 * (3 + 1)")
         decl = circuit.statements[0]
-        expected = MathMul(
-            expr1=MathNum(value=2),
-            expr2=MathAdd(expr1=MathNum(value=3), expr2=MathNum(value=1)),
+        expected = Mul(exprs=[
+            Constant(value=2),
+            Add(exprs=[Constant(value=3), Constant(value=1)]),
+            ]
         )
         assert decl.value == expected
 
@@ -192,16 +193,16 @@ class TestAtomicMathExpressions:
     def test_unary_math_function(self, func_name):
         circuit = parse_atomic(f"x = {func_name}(1)")
         decl = circuit.statements[0]
-        assert isinstance(decl.value, MathFunc)
+        assert isinstance(decl.value, BuiltinCall)
         assert decl.value.func == func_name
-        assert decl.value.expr == MathNum(value=1)
+        assert decl.value.args == [Constant(value=1)]
 
     def test_atan2(self):
         circuit = parse_atomic("x = atan2(1, 2)")
         decl = circuit.statements[0]
-        assert isinstance(decl.value, MathFunc)
+        assert isinstance(decl.value, BuiltinCall)
         assert decl.value.func == "atan2"
-        assert decl.value.expr == [MathNum(value=1), MathNum(value=2)]
+        assert decl.value.args == [Constant(value=1), Constant(value=2)]
 
 
 ## Bool Expressions ##
@@ -210,25 +211,25 @@ class TestAtomicMathExpressions:
 class TestAtomicBool:
     def test_true(self):
         circuit = parse_atomic("x = true")
-        assert circuit.statements[0].value == Bool(value=True)
+        assert circuit.statements[0].value == Constant(value=True)
 
     def test_false(self):
         circuit = parse_atomic("x = false")
-        assert circuit.statements[0].value == Bool(value=False)
+        assert circuit.statements[0].value == Constant(value=False)
 
     @pytest.mark.parametrize(
         "op, cls",
         [
-            ("==", BoolEq),
-            ("!=", BoolNotEq),
-            ("<=", BoolLessThanEq),
-            ("<", BoolLessThan),
-            ("and", BoolAnd),
-            ("&&", BoolAnd),
-            ("or", BoolOr),
-            ("||", BoolOr),
-            (">=", BoolGreaterThanEq),
-            (">", BoolGreaterThan),
+            ("==", Eq),
+            ("!=", Neq),
+            ("<=", Leq),
+            ("<", Lt),
+            ("and", And),
+            ("&&", And),
+            ("or", Or),
+            ("||", Or),
+            (">=", Geq),
+            (">", Gt),
         ],
     )
     def test_comparison(self, op, cls):
@@ -240,8 +241,8 @@ class TestAtomicBool:
     @pytest.mark.parametrize(
         "op, cls",
         [
-            ("not", BoolNot),
-            ("!", BoolNot),
+            ("not", Not),
+            ("!", Not),
         ],
     )
     def test_not(self, op, cls):
@@ -249,7 +250,6 @@ class TestAtomicBool:
         decl = circuit.statements[1]
         assert isinstance(decl, Declaration)
         assert isinstance(decl.value, cls)
-
 
 ## Statements ##
 
@@ -269,9 +269,9 @@ class TestAtomicStatements:
         )
         statement = circuit.statements[1]
         assert isinstance(statement, Beam)
-        assert statement.frequency == MathNum(value=2e6)
-        assert statement.rabi == MathNum(value=0.25)
-        assert statement.phase == MathNum(value=0.0)
+        assert statement.frequency == Constant(value=2e6)
+        assert statement.rabi == Constant(value=0.25)
+        assert statement.phase == Constant(value=0.0)
         assert statement.polarization == AtomicList(values=[0.0, 1.0, 0.0])
         assert statement.wavevector == AtomicList(values=[0.0, 0.0, 1.0])
 
@@ -280,18 +280,18 @@ class TestAtomicStatements:
         statement = circuit.statements[2]
         assert isinstance(statement, Pulse)
         assert statement.beam == Access(name="beam_mw")
-        assert statement.duration == MathNum(value=1e-5)
+        assert statement.duration == Constant(value=1e-5)
         assert statement.target == Access(name="r")
-        assert statement.measured == Bool(value=True)
+        assert statement.measured == Constant(value=True)
 
     def test_pulse_not_measured(self, register, beam):
         circuit = parse_atomic(register + beam + "pulse(beam_mw, 1e-5, r)")
         statement = circuit.statements[2]
         assert isinstance(statement, Pulse)
         assert statement.beam == Access(name="beam_mw")
-        assert statement.duration == MathNum(value=1e-5)
+        assert statement.duration == Constant(value=1e-5)
         assert statement.target == Access(name="r")
-        assert statement.measured == Bool(value=False)
+        assert statement.measured == Constant(value=False)
 
     def test_parallel(self, register, beam):
         circuit = parse_atomic(
@@ -344,7 +344,7 @@ class TestAtomicControlFlow:
         circuit = parse_atomic(program)
         ifelse = circuit.statements[1]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolGreaterThan)
+        assert isinstance(ifelse.condition, Gt)
         assert len(ifelse.then_branch) == 1
         assert ifelse.else_branch == []
 
@@ -353,7 +353,7 @@ class TestAtomicControlFlow:
         circuit = parse_atomic(program)
         ifelse = circuit.statements[1]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolGreaterThan)
+        assert isinstance(ifelse.condition, Gt)
         assert len(ifelse.then_branch) == 1
         assert len(ifelse.else_branch) == 1
 
@@ -362,7 +362,7 @@ class TestAtomicControlFlow:
         circuit = parse_atomic(program)
         while_statement = circuit.statements[1]
         assert isinstance(while_statement, While)
-        assert isinstance(while_statement.condition, BoolGreaterThan)
+        assert isinstance(while_statement.condition, Gt)
         assert len(while_statement.body) == 1
 
     def test_break_loop(self):
@@ -390,14 +390,14 @@ class TestAtomicControlFlow:
         circuit = parse_atomic(program)
         while_statement = circuit.statements[0]
         assert isinstance(while_statement, While)
-        assert isinstance(while_statement.condition, Bool)
+        assert while_statement.condition == Constant(value=True)
         ifelse = while_statement.body[0]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolEq)
+        assert isinstance(ifelse.condition, Eq)
         assert isinstance(ifelse.then_branch[0], Declaration)
         ifelse = while_statement.body[1]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolEq)
+        assert isinstance(ifelse.condition, Eq)
         assert isinstance(ifelse.then_branch[0], Break)
 
 
@@ -419,8 +419,8 @@ class TestAtomicSerialize:
             "r = ionreg(2)",
             "list = [1, 2, 3]",
             "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
-            "pulse(beam_mw, 1e-5, r, true)",
-            "parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
+            "pulse(beam_mw, 1e-05, r, true)",
+            "parallel {\n pulse(beam_mw, 5e-06, r[0])\n pulse(beam_mw, 5e-06, r[1])}",
             "x = 1\n if (x > 0) {\n y = 2\n}",
             "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
             "n = 3\nwhile (n > 0) {\n    n = n - 1\n}",

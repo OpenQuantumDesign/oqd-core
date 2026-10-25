@@ -12,6 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import canonicalize
+# from . import canonicalize
 
-__all__ = ["canonicalize"]
+# __all__ = ["canonicalize"]
+
+from oqd_core.compiler.atomic.conversion import AtomicCFGBuilder, AtomicCFGtoAST
+
+__all__ = [
+    "AtomicCFGBuilder",
+    "AtomicCFGtoAST",
+]

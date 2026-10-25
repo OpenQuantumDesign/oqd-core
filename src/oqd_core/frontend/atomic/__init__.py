@@ -20,7 +20,7 @@ from ._generated import (
     AtomicParserVisitor,
 )
 from .AtomicASTBuilder import AtomicASTBuilder, parse_atomic
-# from .serialize import SerializeAtomic, serialize_atomic
+from .serialize import SerializeAtomic, serialize_atomic
 
 ########################################################################################
 
@@ -31,6 +31,6 @@ __all__ = [
     "AtomicParser",
     "AtomicParserListener",
     "AtomicParserVisitor",
-    # "SerializeAtomic",
-    # "serialize_atomic",
+    "SerializeAtomic",
+    "serialize_atomic",
 ]

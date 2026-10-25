@@ -120,7 +120,6 @@ class TestAnalogDeclarations:
     def test_list_extract(self):
         circuit = parse_analog("r = qreg(2)\nq0 = r[0]")
         decl = circuit.statements[1]
-        print(decl)
         assert isinstance(decl.value, Extract)
         assert decl.value.value == Access(name="r")
         assert decl.value.index == Constant(value=0)
@@ -133,7 +132,6 @@ class TestAnalogMathExpressions:
     def test_addition(self):
         circuit = parse_analog("x = 1 + 2")
         decl = circuit.statements[0]
-        print(decl)
         assert decl.value == Add(exprs=[Constant(value=1), Constant(value=2)])
 
     def test_subtraction(self):
