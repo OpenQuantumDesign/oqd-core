@@ -53,6 +53,7 @@ from oqd_core.interface.analog import (
     Pow,
     QuantumRegister,
     Sub,
+    BuiltinCall,
 )
 
 ########################################################################################
@@ -249,6 +250,12 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
                 raise DimensionError(
                     f"evolve got inconsistent Hamiltonian dimensions ({args[0]}), jump operators dimensions {args[1:-1]} and target dimensions ({args[-1]})"
                 )
+
+            case BuiltinCall(
+                func="sin" | "cos" | "tan" | "exp" | "log" | "sinh" | "cosh" | "tanh",
+                args=args,
+            ):
+                return self._infer_dim(args[0], env=env)
 
             case _:
                 return self.lattice.element_lattice.bottom()
