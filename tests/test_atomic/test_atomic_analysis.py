@@ -13,28 +13,49 @@
 # limitations under the License.
 
 import pytest
-from oqd_compiler_infrastructure import CFGBlockAccumulator
-
-from oqd_core.analysis.atomic.cfg import AtomicCFGBuilder
-from oqd_core.analysis.atomic.symbol_table import (
-    AtomicSymbolTableBuilder,
+from oqd_compiler_infrastructure import (
+    CFG,
+    CFGBlockAccumulator,
+    Chain,
+    RelabelCFGBlocks,
 )
+
+from oqd_core.compiler.atomic.conversion import AtomicCFGBuilder
 from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker
-from oqd_core.analysis.atomic.types import AtomicTypeError
-from oqd_core.frontend.atomic.AtomicCircuitAST import parse_atomic
-
-## Symbol Table ##
+from oqd_core.frontend.atomic import parse_atomic
 
 
-def build_symbol_table(program: str):
-    circuit = parse_atomic(program)
-    cfg = AtomicCFGBuilder()(circuit)
-    cfg = CFGBlockAccumulator()(cfg)
-    type_checker = AtomicTypeChecker(cfg)
-    symbol_table = AtomicSymbolTableBuilder(
-        cfg, type_checker.dataflow_result
-    ).symbol_table
-    return symbol_table, cfg, circuit
+from oqd_core.analysis.atomic.types import (
+    AtomicTypeError,
+    TBool,
+    TComplex,
+    TFloat,
+    TInt,
+    TList,
+    TIReg,
+    TIRegElem,
+    TPulse,
+    TBeam,
+)
+
+
+@pytest.fixture()
+def cfg_builder():
+
+    passes = Chain(
+        parse_atomic,
+        AtomicCFGBuilder(),
+        CFGBlockAccumulator(),
+        RelabelCFGBlocks(),
+    )
+
+    return passes
+
+
+@pytest.fixture()
+def type_checker():
+    return AtomicTypeChecker()
+
 
 
 # class TestAtomicSymbolTable:
@@ -71,6 +92,49 @@ class TestAtomicCFG:
 
 
 class TestAtomicTypeChecker:
+    @pytest.mark.parametrize(
+        ("source", "expected"),
+        [
+            ("x=1", {0: {}, 1: {"x": TInt}, 2: {"x": TInt}}),
+            (
+                "x=1 \n y = 2.0",
+                {0: {}, 1: {"x": TInt, "y": TFloat}, 2: {"x": TInt, "y": TFloat}},
+            ),
+            (
+                "x = 1 \n while (x<10) {x = x + 0.1}",
+                {
+                    0: {},
+                    1: {"x": TInt},
+                    2: {"x": TFloat},
+                    3: {"x": TFloat},
+                    4: {"x": TFloat},
+                },
+            ),
+            (
+                "x = 1 \n while (real(x)<10) {x = x + 0.1 * 1j}",
+                {
+                    0: {},
+                    1: {"x": TInt},
+                    2: {"x": TComplex},
+                    3: {"x": TComplex},
+                    4: {"x": TComplex},
+                },
+            ),
+        ],
+    )
+    def test_atomic_type_checker(
+        self,
+        source,
+        expected,
+        cfg_builder,
+        type_checker,
+    ):
+        cfg = cfg_builder(source)
+
+        type_result = type_checker.analyze(cfg).out_states
+
+        assert type_result == expected
+
     @pytest.mark.parametrize(
         "program",
         [
@@ -112,10 +176,10 @@ class TestAtomicTypeChecker:
             "n = 3 \n while (n > 0) { n = n - 1 }",
         ],
     )
-    def test_atomic_type_checker(self, program):
+    def test_atomic_type_checker_pass(self, program):
         circuit = parse_atomic(program)
         cfg = AtomicCFGBuilder()(circuit)
-        AtomicTypeChecker(cfg)
+        AtomicTypeChecker().analyze(cfg)
 
     @pytest.mark.parametrize(
         "program",
@@ -141,10 +205,16 @@ class TestAtomicTypeChecker:
             "c = 5 and true",
             "c = true < false",
             "c = true \n x = c[0]",
+            "parallel {\n x = 2}",
+            "serial {\n x = 5}",
+            "a = 5 \n parallel { \n a}",
+            "a = 3 \n serial { \n a}",
+            "parallel {\n serial { \n a = 4 * 5 \n b = 3 + 5}}",
+            "serial {\n parallel { \n a = 4 * 5 \n b = 3 + 5}}",
         ],
     )
     def test_atomic_type_checker_error(self, program):
         circuit = parse_atomic(program)
+        cfg = AtomicCFGBuilder()(circuit)
         with pytest.raises(AtomicTypeError):
-            cfg = AtomicCFGBuilder()(circuit)
-            AtomicTypeChecker(cfg)
+            AtomicTypeChecker().analyze(cfg)
