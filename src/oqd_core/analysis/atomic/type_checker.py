@@ -321,8 +321,6 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         return out
 
     def _check_protocol_stmt(self, stmt, env: TypeEnv) -> TypeEnv:
-        # TODO: Verify that every stmt inside Parallel/Serial block is:
-        # {Parallel, Serial, Declaration, Pulse}. If stmt is Declaration, stmt.value must be Pulse.
 
         if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
             return self._check_protocol(stmt, env)
@@ -338,7 +336,6 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                     self.lattice.element_lattice.top(),
                 ),
             )
-            # t = self._infer_type(stmt.value, env=env)
             if not self.lattice.element_lattice.leq(declare_type, TPulse):
                 raise AtomicTypeError(
                     f"Parallel/Serial blocks expect only Pulse statements, got {get_type_name(declare_type)}"

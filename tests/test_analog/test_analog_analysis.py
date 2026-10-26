@@ -44,7 +44,6 @@ from oqd_core.analysis.analog.types import (
     TQRegElem,
 )
 
-########################################################################################
 
 ########################################################################################
 
@@ -308,7 +307,7 @@ class TestAnalogBoundsChecker:
     @pytest.mark.parametrize(
         "program",
         [
-            "r = qreg(1) \n r[1]r = qreg(2) \n [r[0], r[2]]",
+            "r = qreg(1) \n r[1] \n r = qreg(2) \n [r[0], r[2]]",
             "r = qreg(3) \n initialize(r[3]) \n measure(r)",
             "r = qreg(3) \n initialize(r) \n measure(r[4])",
             "r = qreg(10) \n evolve(%X, 1.0, r[10])",

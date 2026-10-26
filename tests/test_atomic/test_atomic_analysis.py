@@ -38,6 +38,17 @@ from oqd_core.analysis.atomic.types import (
     TBeam,
 )
 
+from oqd_core.atomic import (
+    AtomicBoundsChecker,
+    AtomicCFGBuilder,
+    AtomicTypeChecker,
+    AtomicTypeError,
+    AvailableVariableAnalysis,
+    AvailableVariableError,
+    OutOfBoundsError,
+    parse_atomic,
+)
+
 
 @pytest.fixture()
 def cfg_builder():
@@ -57,26 +68,6 @@ def type_checker():
     return AtomicTypeChecker()
 
 
-
-# class TestAtomicSymbolTable:
-#     def test_ionreg_binding(self):
-#         symbol_table, _, circuit = build_symbol_table(
-#             "r = ionreg(3)\n"
-#             "pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, r, true)"
-#         )
-#         pulse = next(s for s in circuit.statements if isinstance(s, Pulse))
-#         node_id = symbol_table.stmt_index[id(pulse)]
-#         assert symbol_table.in_env[node_id]["r"].target_dim == 3
-
-#     def test_extract_out_of_range(self):
-#         symbol_table, cfg, _ = build_symbol_table(
-#             "r = ionreg(2)\n"
-#             "pulse(beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), 1e-5, r[2], true)"
-#         )
-#         with pytest.raises(AtomicSymbolError):
-#             verify_pulse_target_dim(cfg, symbol_table)
-
-
 ## Control Flow Graph ##
 
 
@@ -86,6 +77,77 @@ class TestAtomicCFG:
         circuit = parse_atomic(program)
         cfg = AtomicCFGBuilder()(circuit)
         assert cfg is not None
+
+
+## Available Variables ##
+
+class TestAtomicAssignmentAnalysis:
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = ionreg(2)",
+            "s = 5 * 4 \n t = s * 4",
+            "s = 5 + 2 \n t = s + 4",
+            "s = 5 - 2 \n t = s - 4",
+            "s = 6 / 2 \n t = s / 3",
+            "s = 2 ^ 3 \n t = s ^ 2",
+            "pi = 3.14159 \n s = sin(pi)",
+            "pi = 3.14159 \n s = atan2(1, pi)",
+            "cond = true and false \n if (cond) {\n a = 0 \n }",
+            "cond = true or false \n while (cond) {t = 0.2}",
+            "c = 1 < 2 \n if (c) { \n a = 2 \n }",
+            "c = 3 >= 2 \n if (c) { \n c = true \n }",
+            "a = true \n c = not a \n if (c) { \n c = a \n }",
+            "x = 1 \n x = 2 \n y = x + 1",
+            "n = 3 \n while (n > 0) { n = n - 1 }",
+            "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b]",
+            "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])",
+            "r = ionreg(1) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+                p0 = pulse(beam_mw, 5e-6, r[0])",
+            "a = [1, 2, 4] \n parallel {\n b = a[0] \n c = a[2] }",
+            "r = ionreg(3) \n target = [r[0], r[1], r[2]]",
+            "if (5 <= 4) {s = true}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])\n }\n}",
+            "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            p0 = pulse(beam_mw, 5e-6, r[0]) \n p1 = pulse(beam_mw, 5e-6, r[1]) \n \
+            p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            pulse(b, 1e-5, r[0], false)",
+            # "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            # parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n x\n }\n}",
+        ],
+    )
+    def test_atomic_definite_assignment_checker(self, program):
+        circuit = parse_atomic(program)
+        cfg = AtomicCFGBuilder()(circuit)
+        AvailableVariableAnalysis().analyze(cfg)
+
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "a = 0 \n b = a \n if (not a) { \n b = c \n}",
+            "a = 0 \n b = a \n if (not c) { \n a = 1 \n}",
+            "a = 0 \n b = a \n while (b) { \n b = c + 1 \n}",
+            "a = 0 \n b = a \n while (d) { \n b = b + 1 \n}",
+            "a = 0 \n b = a \n while (d) { \n b = d + 1 \n}",
+            "a = [1, 2, a]",
+            "a = 0 \n b = 2 \n c = [a, b, c]",
+            "a = not b",
+            "a = a == b",
+            "a = 1 \n b = a + c",
+            "a = a > 0",
+            "a = 1 \n b = a < b",
+            "pi = 3.14159 \n b = sin(pi * a)",
+        ],
+    )
+    def test_atomic_definite_assignment_checker_error(self, program):
+        circuit = parse_atomic(program)
+        with pytest.raises(AvailableVariableError):
+            cfg = AtomicCFGBuilder()(circuit)
+            AvailableVariableAnalysis().analyze(cfg)
+
+########################################################################################
 
 
 ## Type Checker ##
@@ -218,3 +280,87 @@ class TestAtomicTypeChecker:
         cfg = AtomicCFGBuilder()(circuit)
         with pytest.raises(AtomicTypeError):
             AtomicTypeChecker().analyze(cfg)
+
+
+## Bounds Checker ##
+
+class TestAtomicBoundsChecker:
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = ionreg(2)",
+            "l = [5 * 4, 3 * 5] \n t = l[0]",
+            "s = [5 + 2, 3] \n t = s[1]",
+            "s = [5 - 2, 10] \n t = [1, 2, s]",
+            "s = [6 / 2, 1] \n t = [s[0], 5]",
+            "pi = 3.14159 \n s = sin(pi) \n c = cos(pi) \n a = [s, c] \n tan(a[0])",
+            "a = [1, 0] \n atan2(a[0], a[1])",
+            "cond = [true, false] \n if (cond[0]) {\n a = 0 \n }",
+            "cond = [true, false] \n while (cond[0]) {t = 0.2}",
+            "c = [1 < 2, 2 <= 4, 4 == 5] \n if (c[1]) { \n a = 2 \n }",
+            "c = [3 >= 2, 1 > 0]  \n if (c[0]) { \n c = true \n }",
+            "a = true \n c = [a, not a] \n if (c[0]) { \n c = a \n }",
+            "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b] \n e[0]",
+            "r = ionreg(3) \n target = [r[0], r[1], r[2]]",
+            "r = ionreg(3) \n b = [beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), \
+            beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])] \n \
+            p0 = pulse(b[0], 5e-6, r[0]) \n p1 = pulse(b[1], 5e-6, r[1])",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            c = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n parallel {\n \
+            serial {\n x = pulse(b, 5e-6, r[0])\n } \n pulse(c, 4e-06, r[1]\n}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])\n }\n}",
+            "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            p0 = pulse(beam_mw, 5e-6, r[0]) \n p1 = pulse(beam_mw, 5e-6, r[1]) \n \
+            p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            pulse(b, 1e-5, r[0], false)",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n x\n }\n}",
+        ],
+    )
+    def test_atomic_bounds_checker(self, program):
+        circuit = parse_atomic(program)
+        cfg = AtomicCFGBuilder()(circuit)
+        AtomicBoundsChecker().analyze(cfg)
+
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = ionreg(1) \n r[1] \n r = ionreg(2) \n [r[0], r[2]]",
+            "l = [5 * 4, 3 * 5] \n t = l[3]",
+            "s = [5 + 2, 3] \n t = s[4]",
+            "s = [5 - 2, 10] \n t = [1, 2, s] \n u = t[4]",
+            "s = [6 / 2, 1] \n t = [s[3], 5]",
+            "pi = 3.14159 \n s = sin(pi) \n c = cos(pi) \n a = [s, c] \n tan(a[2])",
+            "a = [1, 0] \n atan2(a[0], a[2])",
+            "cond = [true, false] \n if (cond[2]) {\n a = 0 \n }",
+            "cond = [true, false] \n while (cond[2]) {t = 0.2}",
+            "c = [1 < 2, 2 <= 4, 4 == 5] \n if (c[3]) { \n a = 2 \n }",
+            "c = [3 >= 2, 1 > 0]  \n if (c[2]) { \n c = true \n }",
+            "a = true \n c = [a, not a] \n if (c[2]) { \n c = a \n }",
+            "a = [1 , 2 , 3] \n b = a[1] \n e = [a, b] \n e[3]",
+            "r = ionreg(3) \n target = [r[0], r[1], r[3]]",
+            "r = ionreg(3) \n b = [beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), \
+            beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])] \n \
+            p0 = pulse(b[0], 5e-6, r[0]) \n p1 = pulse(b[3], 5e-6, r[1])",
+            # "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            # c = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n parallel {\n \
+            # serial {\n x = pulse(b, 5e-6, r[0])\n } \n pulse(c, 4e-06, r[3]\n}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[2])\n }\n}",
+            "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            p0 = pulse(beam_mw, 5e-6, r[0]) \n p1 = pulse(beam_mw, 5e-6, r[1]) \n \
+            p2 = pulse(beam_mw, 5e-6, r[3]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            pulse(b, 1e-5, r[4], false)",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[2])\n x\n }\n}",
+        ],
+    )
+    def test_atomic_bounds_checker_error(self, program):
+        circuit = parse_atomic(program)
+        with pytest.raises(OutOfBoundsError):
+            cfg = AtomicCFGBuilder()(circuit)
+            AtomicBoundsChecker().analyze(cfg)
+

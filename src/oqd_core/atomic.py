@@ -1,27 +1,88 @@
-# # Copyright 2024-2025 Open Quantum Design
+# Copyright 2024-2025 Open Quantum Design
 
-# # Licensed under the Apache License, Version 2.0 (the "License");
-# # you may not use this file except in compliance with the License.
-# # You may obtain a copy of the License at
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
 
-# #     http://www.apache.org/licenses/LICENSE-2.0
+#     http://www.apache.org/licenses/LICENSE-2.0
 
-# # Unless required by applicable law or agreed to in writing, software
-# # distributed under the License is distributed on an "AS IS" BASIS,
-# # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# # See the License for the specific language governing permissions and
-# # limitations under the License.
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 
+from oqd_core.analysis.atomic import (
+    AtomicBoundsChecker,
+    AtomicTypeChecker,
+    AtomicTypeError,
+    AvailableVariableAnalysis,
+    AvailableVariableError,
+    ConstantFolding,
+    ConstantFoldingRule,
+    OutOfBoundsError,
+    ReachingDefinition,
+)
+from oqd_core.compiler.atomic import (
+    AtomicCFGBuilder,
+    AtomicCFGtoAST,
+    # PyASTtoAtomic,
+    # atomic,
+    # compile_atomic_circuit,
+)
 from oqd_core.frontend.atomic import (
     AtomicASTBuilder,
     AtomicLexer,
     AtomicParser,
     AtomicParserListener,
     AtomicParserVisitor,
+    SerializeAtomic,
     parse_atomic,
-    # SerializeAtomic,
-    # serialize_atomic,
+    serialize_atomic,
+)
+from oqd_core.interface.atomic import (
+    Access,
+    Add,
+    And,
+    AtomicCircuit,
+    AtomicExpr,
+    AtomicList,
+    Ba133IIBuilder,
+    Beam,
+    Break,
+    BuiltinCall,
+    CastAtomicExpr,
+    Complex,
+    Constant,
+    Continue,
+    Declaration,
+    Div,
+    Eq,
+    Extract,
+    Geq,
+    Gt,
+    IfElse,
+    IonBuilder,
+    IonRegister,
+    Leq,
+    Lt,
+    Mul,
+    Neg,
+    Neq,
+    Not,
+    Or,
+    ParallelProtocol,
+    Pos,
+    Pow,
+    Pulse,
+    RuntimeVar,
+    SerialProtocol,
+    Sub,
+    SupportedBuiltinFuncs,
+    While,
+    Xor,
+    Yb171IIBuilder,
 )
 
 ########################################################################################
@@ -33,6 +94,58 @@ __all__ = [
     "AtomicParser",
     "AtomicParserListener",
     "AtomicParserVisitor",
-    # "SerializeAtomic",
-    # "serialize_atomic",
+    "SerializeAtomic",
+    "serialize_atomic",
+    "Access",
+    "Add",
+    "And",
+    "AtomicExpr",
+    "AtomicList",
+    "Beam",
+    "BuiltinCall",
+    "CastAtomicExpr",
+    "Complex",
+    "Constant",
+    "Div",
+    "Eq",
+    "Extract",
+    "Geq",
+    "Gt",
+    "IonRegister",
+    "Leq",
+    "Lt",
+    "Mul",
+    "Neg",
+    "Neq",
+    "Not",
+    "Or",
+    "Pos",
+    "Pow",
+    "Pulse",
+    "RuntimeVar",
+    "Sub",
+    "SupportedBuiltinFuncs",
+    "Xor",
+    "AtomicCircuit",
+    "IonBuilder",
+    "Yb171IIBuilder",
+    "Ba133IIBuilder",
+    "ParallelProtocol",
+    "SerialProtocol",
+    "Declaration",
+    "While",
+    "IfElse",
+    "Break",
+    "Continue",
+    "AtomicBoundsChecker",
+    "AtomicTypeChecker",
+    "AtomicTypeError",
+    "AvailableVariableAnalysis",
+    "AvailableVariableError",
+    "ConstantFolding",
+    "ConstantFoldingRule",
+    "OutOfBoundsError",
+    "ReachingDefinition",
+    "AtomicCFGBuilder",
+    "AtomicCFGtoAST",
 ]
