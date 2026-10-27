@@ -16,9 +16,12 @@
 
 # __all__ = ["canonicalize"]
 
-from oqd_core.compiler.atomic.conversion import AtomicCFGBuilder, AtomicCFGtoAST
+from .compile import atomic, compile_atomic_circuit
+from .conversion import AtomicCFGBuilder, AtomicCFGtoAST
 
 __all__ = [
     "AtomicCFGBuilder",
     "AtomicCFGtoAST",
+    "atomic",
+    "compile_atomic_circuit"
 ]

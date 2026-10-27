@@ -360,9 +360,9 @@ class TestAtomicBoundsChecker:
             "r = ionreg(3) \n b = [beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), \
             beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])] \n \
             p0 = pulse(b[0], 5e-6, r[0]) \n p1 = pulse(b[3], 5e-6, r[1])",
-            # "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
-            # c = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n parallel {\n \
-            # serial {\n x = pulse(b, 5e-6, r[0])\n } \n pulse(c, 4e-06, r[3]\n}",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            c = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n parallel {\n \
+            serial {\n x = pulse(b, 5e-6, r[0])\n } \n pulse(c, 4e-6, r[3])\n}",
             "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[2])\n }\n}",
             "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \

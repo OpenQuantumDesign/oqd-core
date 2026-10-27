@@ -27,9 +27,8 @@ from oqd_core.analysis.atomic import (
 from oqd_core.compiler.atomic import (
     AtomicCFGBuilder,
     AtomicCFGtoAST,
-    # PyASTtoAtomic,
-    # atomic,
-    # compile_atomic_circuit,
+    atomic,
+    compile_atomic_circuit,
 )
 from oqd_core.frontend.atomic import (
     AtomicASTBuilder,
@@ -148,4 +147,6 @@ __all__ = [
     "ReachingDefinition",
     "AtomicCFGBuilder",
     "AtomicCFGtoAST",
+    "atomic",
+    "compile_atomic_circuit",
 ]
