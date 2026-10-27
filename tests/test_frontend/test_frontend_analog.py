@@ -14,7 +14,8 @@
 
 import pytest
 
-from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+from oqd_core.frontend.analog.AnalogASTBuilder import parse_analog
+from oqd_core.frontend.analog.AnalogParserErrorListener import AnalogParserErrorListener
 from oqd_core.frontend.analog.serialize import serialize_analog
 from oqd_core.interface.analog import (
     Access,
@@ -453,6 +454,7 @@ class TestAnalogSerialize:
         deserialized_circuit = parse_analog(serialized)
         assert circuit == deserialized_circuit
 
+
 class TestAnalogError:
     @pytest.mark.parametrize(
         "program",
@@ -469,7 +471,7 @@ class TestAnalogError:
     )
     def test_analog_error_pass(self, program):
         parse_analog(program)
-    
+
     @pytest.mark.parametrize(
         "program",
         [
@@ -484,5 +486,5 @@ class TestAnalogError:
         ],
     )
     def test_analog_error_raise(self, program):
-        with pytest.raises(Exception):
+        with pytest.raises(AnalogParserErrorListener._error_class):
             parse_analog(program)
