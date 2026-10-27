@@ -434,7 +434,7 @@ class AnalogASTBuilder(AnalogParserVisitor):
 ########################################################################################
 
 
-def parse_analog(source):
+def parse_analog(source: str) -> AnalogCircuit:
     stream = antlr4.InputStream(source)
     lexer = AnalogLexer(stream)
     lexer.removeErrorListeners()
