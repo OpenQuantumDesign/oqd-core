@@ -17,6 +17,17 @@ cubed = 2^3
 sine = sin(0.5)
 cosed = cos(phase)
 cplx = 1.0 + 1j * 0.5
+cplx2 = 1.0r0.5j
+cplx3 = 1.0r0.5j + 1
+cplx4 = 1.0r0.5j - 1
+cplx5 = 1.0r0.5j * 1
+cplx6 = 1.0r0.5j / 1
+cplx7 = 1.0r0.5j ^ 1
+cplx8 = 1 + 1.0r0.5j
+cplx9 = 1 - 1.0r0.5j
+cplx10 = 1 * 1.0r0.5j
+cplx11 = 1 / 1.0r0.5j
+cplx12 = 1 ^ 1.0r0.5j
 
 // Operators
 X = %X
