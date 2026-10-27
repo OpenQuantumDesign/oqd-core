@@ -134,6 +134,60 @@ class Complex(VisitableBaseModel):
     real: float
     imag: float
 
+    @classmethod
+    def cast(cls, value):
+        match value:
+            case Complex():
+                return value
+            case complex():
+                return Complex(real=value.real, imag=value.imag)
+            case float() | int():
+                return Complex(real=value.real, imag=value.imag)
+            case _:
+                raise TypeError(
+                    f"Unsupported type ({value.__class__.__name__}) for casting to Complex"
+                )
+
+    @property
+    def value(self):
+        return self.real + 1j * self.imag
+
+    def __pos__(self):
+        return self
+
+    def __neg__(self):
+        return self.cast(-self.value)
+
+    def __add__(self, other):
+        return self.cast(self.value + self.cast(other).value)
+
+    def __sub__(self, other):
+        return self.cast(self.value - self.cast(other).value)
+
+    def __mul__(self, other):
+        return self.cast(self.value * self.cast(other).value)
+
+    def __truediv__(self, other):
+        return self.cast(self.value / self.cast(other).value)
+
+    def __pow__(self, other):
+        return self.cast(self.value ** self.cast(other).value)
+
+    def __radd__(self, other):
+        return self + other
+
+    def __rsub__(self, other):
+        return self.cast(self.cast(other).value - self.value)
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __rtruediv__(self, other):
+        return self.cast(self.cast(other).value / self.value)
+
+    def __rpow__(self, other):
+        return self.cast(self.cast(other).value ** self.value)
+
 
 class Constant(AnalogExpr):
     value: Union[int, float, Complex, RuntimeVar, bool]
