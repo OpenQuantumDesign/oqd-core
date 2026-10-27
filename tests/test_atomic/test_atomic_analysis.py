@@ -114,8 +114,8 @@ class TestAtomicAssignmentAnalysis:
             p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
             "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             pulse(b, 1e-5, r[0], false)",
-            # "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
-            # parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n x\n }\n}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n x\n }\n}",
         ],
     )
     def test_atomic_definite_assignment_checker(self, program):
@@ -139,6 +139,22 @@ class TestAtomicAssignmentAnalysis:
             "a = a > 0",
             "a = 1 \n b = a < b",
             "pi = 3.14159 \n b = sin(pi * a)",
+            "a = 5 \n parallel {\n b = a + 5 \n c = b + 2}",
+            "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], a)",
+            "r = ionreg(1) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+                p0 = pulse(beam_mw, 5e-6, s[0])",
+            "a = [1, 2, 4] \n parallel {\n b = a[0] \n serial {\n c = a[1] + b} }",
+            "r = ionreg(3) \n target = [r[0], r[1], p[2]]",
+            "if (5 <= 4) {s = b}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_w, 5e-6, r[1])\n }\n}",
+            "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            p0 = pulse(beam_mw, 5e-6, r[0]) \n p1 = pulse(beam_mw, 5e-6, r[1]) \n \
+            p2 = pulse(beam_mw, 5e-6, r[2]) \n parallel {\n p0\n serial {\n p1\n p \n}\n}",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            pulse(b, 1e-5, w[0], false)",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            parallel {\n serial {\n x = pulse(beam_mw, 5e-6, r[0])\n x\n } \n x\n}",
         ],
     )
     def test_atomic_definite_assignment_checker_error(self, program):

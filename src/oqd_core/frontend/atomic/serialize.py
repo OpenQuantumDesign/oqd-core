@@ -14,8 +14,6 @@
 
 from __future__ import annotations
 
-import re
-
 from oqd_compiler_infrastructure import ConversionRule, Post
 
 from oqd_core.interface.atomic import (

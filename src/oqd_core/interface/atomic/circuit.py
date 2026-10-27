@@ -22,7 +22,6 @@ from oqd_core.interface.atomic.expr import Beam, Pulse
 from oqd_core.interface.atomic.statement import (
     ParallelProtocol,
     SerialProtocol,
-    Statement,
     StatementSubtypes,
 )
 

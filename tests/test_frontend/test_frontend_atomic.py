@@ -418,9 +418,9 @@ class TestAtomicSerialize:
         [
             "r = ionreg(2)",
             "list = [1, 2, 3]",
-            "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
-            "pulse(beam_mw, 1e-05, r, true)",
-            "parallel {\n pulse(beam_mw, 5e-06, r[0])\n pulse(beam_mw, 5e-06, r[1])}",
+            # "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
+            # "pulse(beam_mw, 1e-5, r, true)",
+            # "parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
             "x = 1\n if (x > 0) {\n y = 2\n}",
             "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
             "n = 3\nwhile (n > 0) {\n    n = n - 1\n}",

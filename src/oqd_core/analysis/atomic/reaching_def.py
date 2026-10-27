@@ -102,34 +102,32 @@ class AvailableVariableAnalysis(
         curr_env = set()
         if isinstance(protocol, SerialProtocol):
             for pulse in protocol.pulses:
+                if isinstance(pulse, (SerialProtocol, ParallelProtocol)):
+                    new_env = self._check_protocol(pulse, self.lattice.join(env, curr_env))
+                    curr_env = curr_env.union(new_env)
+                    continue
                 if isinstance(pulse, Declaration):
                     curr_env.add(pulse.name)
                 self._check_variables_available(
                     pulse, pulse, env=self.lattice.join(env, curr_env)
                 )
-                
 
         if isinstance(protocol, ParallelProtocol):
             for pulse in protocol.pulses:
+                if isinstance(pulse, (SerialProtocol, ParallelProtocol)):
+                    new_env = self._check_protocol(pulse, env)
+                    curr_env = curr_env.union(new_env)
+                    continue
                 self._check_variables_available(
                     pulse, pulse, env=env
                 )
                 if isinstance(pulse, Declaration):
                     curr_env.add(pulse.name)
         
-        return self.lattice.join(curr_env, env)
+        return curr_env
 
     @gen_pass(rule_type="rewrite", walk=Post, method=True)
     def _check_variables_available(self, expr, stmt, *, env):
-        # print(type(expr), env)
-
-        # if isinstance(expr, Declaration):
-        #     self._check_variables_available(expr.value, expr, env=env)
-        #     env.add(expr.name)
-        #     return env
-        
-        # if isinstance(expr, (SerialProtocol, ParallelProtocol)):
-        #     env = self._check_protocol(expr, env)
 
         if isinstance(expr, Access) and isinstance(env, set) and expr.name not in env:
             raise AvailableVariableError(
@@ -142,6 +140,11 @@ class AvailableVariableAnalysis(
 
         block_def = set()
         for stmt in block.stmts:
+            if isinstance(stmt, (SerialProtocol, ParallelProtocol)):
+                new_def = self._check_protocol(stmt, env=self.lattice.join(block_def, state_in))
+                block_def = block_def.union(new_def)
+                continue
+
             self._check_variables_available(
                 stmt, stmt, env=self.lattice.join(block_def, state_in)
             )

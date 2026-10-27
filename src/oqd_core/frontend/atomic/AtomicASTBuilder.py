@@ -87,6 +87,14 @@ class AtomicASTBuilder(AtomicParserVisitor):
     def visitStatement(self, ctx: AtomicParser.StatementContext):
         return self.visit(ctx.getChild(0))
     
+    def visitParallel_stmt(self, ctx: AtomicParser.Parallel_stmtContext):
+        body = self.visit(ctx.block())
+        return ParallelProtocol(pulses=body)
+
+    def visitSerial_stmt(self, ctx: AtomicParser.Serial_stmtContext):
+        body = self.visit(ctx.block())
+        return SerialProtocol(pulses=body)
+    
     ## Structural Control Flow ##
 
     def visitIfelse_stmt(self, ctx: AtomicParser.Ifelse_stmtContext):
@@ -112,13 +120,6 @@ class AtomicASTBuilder(AtomicParserVisitor):
             raise SyntaxError("continue outside of loop")
         return Continue()
     
-    def visitParallel_stmt(self, ctx: AtomicParser.Parallel_stmtContext):
-        body = self.visit(ctx.block())
-        return ParallelProtocol(pulses=body)
-
-    def visitSerial_stmt(self, ctx: AtomicParser.Serial_stmtContext):
-        body = self.visit(ctx.block())
-        return SerialProtocol(pulses=body)
 
     ## Atom ##
 
