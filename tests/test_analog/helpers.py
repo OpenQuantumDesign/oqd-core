@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from oqd_core.frontend.analog.AnalogCircuitAST import parse_analog
+from oqd_core.frontend.analog import parse_analog
 from oqd_core.interface.analog import Declaration, AnalogExpr
 
 
