@@ -22,15 +22,6 @@ from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeTop, MapLatt
 ########################################################################################
 
 
-class AnalogTypeError(TypeError):
-    """Type Error class for Analog."""
-
-    pass
-
-
-########################################################################################
-
-
 class TAnalog(LatticeTop): ...
 
 

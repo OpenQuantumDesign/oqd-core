@@ -18,7 +18,8 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import List, Type, Union
+from typing import List, Tuple, Type, Union
+from warnings import warn
 
 from oqd_compiler_infrastructure import (
     CFGBlock,
@@ -29,11 +30,14 @@ from oqd_compiler_infrastructure import (
     maplattice,
 )
 
+from oqd_core.analysis.utils import AnalysisError, AnalysisWarning
+from oqd_core.frontend.analog import serialize_analog
 from oqd_core.interface.analog import (
     Access,
     Add,
     AnalogList,
     Annihilation,
+    BuiltinCall,
     Constant,
     Creation,
     Declaration,
@@ -53,7 +57,6 @@ from oqd_core.interface.analog import (
     Pow,
     QuantumRegister,
     Sub,
-    BuiltinCall,
 )
 
 ########################################################################################
@@ -114,7 +117,11 @@ class DimensionLattice(Lattice[DLatticeValue]):
 ########################################################################################
 
 
-class DimensionError(Exception): ...
+class DimensionError(AnalysisError):
+    """Dimension error class for Analog."""
+
+
+class DimensionWarning(AnalysisWarning): ...
 
 
 ########################################################################################
@@ -131,7 +138,7 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
     def _is_integer(self, expr):
         return isinstance(expr, Constant) and type(expr.value) is int
 
-    def _infer_dim(self, expr, *, env):
+    def _infer_dim(self, expr, *, env: DimEnv, loc: Tuple[int, int]):
         match expr:
             case Access():
                 return (
@@ -164,6 +171,22 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
             ):
                 return [dim.value for dim in dims.values]
 
+            case (
+                PauliX(dims=dims)
+                | PauliY(dims=dims)
+                | PauliZ(dims=dims)
+                | PauliI(dims=dims)
+                | Annihilation(dims=dims)
+                | Creation(dims=dims)
+                | Identity(dims=dims)
+            ):
+                warn(
+                    f"(block={loc[0]}, stmt={loc[1]}) DimensionChecker only checks dimensions of an operator of constant dims,"
+                    f" got `{serialize_analog(expr)}`",
+                    DimensionWarning,
+                )
+                return self.lattice.element_lattice.top()
+
             case QuantumRegister() if self._is_integer(expr.size) and self._is_integer(
                 expr.dim
             ):
@@ -172,21 +195,25 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
             case ModeRegister() if self._is_integer(expr.size):
                 return [[-1]] * expr.size.value
 
-            case QuantumRegister():
-                raise DimensionError(
-                    "Dimension checker only works for constant args for QuantumRegister"
+            case QuantumRegister() | ModeRegister():
+                warn(
+                    f"(block={loc[0]}, stmt={loc[1]}) DimensionChecker only checks dimensions of a quantum register of constant size,"
+                    f" got `{serialize_analog(expr)}`",
+                    DimensionWarning,
                 )
-
-            case ModeRegister():
-                raise DimensionError(
-                    "Dimension checker only works for constant args for QuantumRegister"
-                )
+                return self.lattice.element_lattice.top()
 
             case AnalogList():
-                return [self._infer_dim(element, env=env) for element in expr.values]
+                return [
+                    self._infer_dim(element, env=env, loc=loc)
+                    for element in expr.values
+                ]
 
             case Extract() if self._is_integer(expr.index):
-                value = self._infer_dim(expr.value, env=env)
+                value = self._infer_dim(expr.value, env=env, loc=loc)
+
+                if value is self.lattice.element_lattice.top():
+                    return value
 
                 if value is self.lattice.element_lattice.bottom():
                     return value
@@ -194,13 +221,13 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
                 return value[expr.index.value]
 
             case Neg() | Pos():
-                arg = self._infer_dim(expr.expr, env=env)
+                arg = self._infer_dim(expr.expr, env=env, loc=loc)
                 return arg
 
             case Add() | Sub() | Mul():
                 binop = {Add: "add", Sub: "subtract", Mul: "multiply"}[expr.__class__]
 
-                args = [self._infer_dim(e, env=env) for e in expr.exprs]
+                args = [self._infer_dim(e, env=env, loc=loc) for e in expr.exprs]
                 op_args = list(
                     filter(
                         lambda x: x is not self.lattice.element_lattice.bottom(),
@@ -216,46 +243,51 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
 
                 if op_args and dim is self.lattice.element_lattice.bottom():
                     raise DimensionError(
-                        f"attempted to {binop} operators of different dimensions {tuple(args)}"
+                        f"attempted to {binop} operators of different dimensions {tuple(args)}",
+                        loc=loc,
                     )
 
                 return dim
 
             case Div() | Pow():
-                arg0 = self._infer_dim(expr.exprs[0], env=env)
+                arg0 = self._infer_dim(expr.exprs[0], env=env, loc=loc)
 
                 return arg0
 
             case Kron():
-                args = [self._infer_dim(e, env=env) for e in expr.exprs]
+                args = [self._infer_dim(e, env=env, loc=loc) for e in expr.exprs]
 
                 return reduce(lambda x, y: x + y, args, [])
 
             case Evolve():
-                hamiltonian_dim = self._infer_dim(expr.hamiltonian, env=env)
-                jumps_dim = [self._infer_dim(L, env=env) for L in expr.jumps.values]
-                targets_dim = self._infer_dim(expr.targets, env=env)
+                hamiltonian_dim = self._infer_dim(expr.hamiltonian, env=env, loc=loc)
+                jumps_dim = [
+                    self._infer_dim(L, env=env, loc=loc) for L in expr.jumps.values
+                ]
+                targets_dim = self._infer_dim(expr.targets, env=env, loc=loc)
 
-                if isinstance(targets_dim[0], list):
+                if isinstance(targets_dim, list) and isinstance(targets_dim[0], list):
                     targets_dim = [d for target in targets_dim for d in target]
 
                 args = (hamiltonian_dim, *jumps_dim, targets_dim)
 
-                if all(
-                    self.lattice.element_lattice.equal(arg1, arg2)
-                    for arg1, arg2 in zip(args[:-1], args[1:])
+                if (
+                    self.lattice.element_lattice.merge_meet(args)
+                    is not self.lattice.element_lattice.bottom()
                 ):
                     return self.lattice.element_lattice.bottom()
 
                 raise DimensionError(
-                    f"evolve got inconsistent Hamiltonian dimensions ({args[0]}), jump operators dimensions {args[1:-1]} and target dimensions ({args[-1]})"
+                    f"evolve got inconsistent Hamiltonian dimensions ({args[0]}), jump operators dimensions {args[1:-1]}"
+                    f" and target dimensions ({args[-1]})",
+                    loc=loc,
                 )
 
             case BuiltinCall(
                 func="sin" | "cos" | "tan" | "exp" | "log" | "sinh" | "cosh" | "tanh",
                 args=args,
             ):
-                return self._infer_dim(args[0], env=env)
+                return self._infer_dim(args[0], env=env, loc=loc)
 
             case _:
                 return self.lattice.element_lattice.bottom()
@@ -267,11 +299,13 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
         block = graph[node_id]
 
         state_out = {} if state_in == self.lattice.top() else state_in.copy()
-        for stmt in block.stmts:
+        for n, stmt in enumerate(block.stmts):
             match stmt:
                 case Declaration():
-                    state_out[stmt.name] = self._infer_dim(stmt.value, env=state_out)
+                    state_out[stmt.name] = self._infer_dim(
+                        stmt.value, env=state_out, loc=(node_id, n)
+                    )
                 case _:
-                    self._infer_dim(stmt, env=state_out)
+                    self._infer_dim(stmt, env=state_out, loc=(node_id, n))
 
         return state_out
