@@ -48,7 +48,7 @@ access: ID;
 // Quantum operator
 
 pauli_op: (PAULI_I | PAULI_X | PAULI_Y | PAULI_Z) (LBRACKET args? RBRACKET)?;
-ladder_op: CREATION | ANNIHILATION | IDENTITY_OP;
+ladder_op: (CREATION | ANNIHILATION | IDENTITY_OP) (LBRACKET args? RBRACKET)?;
 
 operator_terminal: pauli_op | ladder_op;
 

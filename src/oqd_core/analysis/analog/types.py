@@ -22,15 +22,6 @@ from oqd_compiler_infrastructure.lattice import LatticeBase, LatticeTop, MapLatt
 ########################################################################################
 
 
-class AnalogTypeError(TypeError):
-    """Type Error class for Analog."""
-
-    pass
-
-
-########################################################################################
-
-
 class TAnalog(LatticeTop): ...
 
 
@@ -141,6 +132,25 @@ VariableType = TypeVar("VariableType", bound=TAnalog)
 
 
 ANALOG_SUPPORTED_FUNC_SIGNATURES = {
+    "PauliX": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliY": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliZ": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "PauliI": [
+        ((TInt, TInt, TInt, TInt), TOp),
+        ((TInt, TInt, TList[TInt], TInt), TOp),
+    ],
+    "Identity": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
+    "Creation": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
+    "Annihilation": [((TInt, TInt), TOp), ((TList[TInt], TInt), TOp)],
     "Not": [((TBool,), TBool)],
     "And": [((TBool, TBool), TBool)],
     "Xor": [((TBool, TBool), TBool)],
@@ -220,12 +230,12 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "sinh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
     "cosh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
     "tanh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
-    "atan": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
-    "acos": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
-    "asin": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
-    "atanh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
-    "asinh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
-    "acosh": [((TFloat,), TFloat), ((TComplex,), TComplex), ((TOp,), TOp)],
+    "atan": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "acos": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "asin": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "atanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "asinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
+    "acosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
     "heaviside": [((TFloat,), TInt), ((TInt), TInt)],
     "conj": [((TComplex,), TComplex)],
     "real": [((TComplex,), TFloat)],

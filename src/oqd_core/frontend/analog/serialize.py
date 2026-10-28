@@ -113,6 +113,13 @@ class SerializeAnalog(ConversionRule):
         if inner_precedence > outer_precedence:
             return f"({expr})"
 
+        if (
+            inner_precedence == outer_precedence
+            and inner_type != outer_type
+            and outer_type == Kron
+        ):
+            return f"({expr})"
+
         return expr
 
     def map_AnalogCircuit(self, model: AnalogCircuit, operands):
@@ -211,29 +218,42 @@ class SerializeAnalog(ConversionRule):
         return f"{ARITH_OP_MAPPING[model.__class__][1]}{expr}"
 
     def map_Pauli(self, model: Pauli, operands):
-        args = (model.level1, model.level2, model.dim)
-        args_string = (operands["level1"], operands["level2"], operands["dim"])
+        args = (model.level1, model.level2, model.dims, model.target)
+        args_string = (
+            operands["level1"],
+            operands["level2"],
+            operands["dims"],
+            operands["target"],
+        )
 
         pauli = {PauliX: "%X", PauliY: "%Y", PauliZ: "%Z", PauliI: "%I"}[
             model.__class__
         ]
 
-        if args[2] != Constant(value=2):
+        if args[3] != Constant(value=0):
             return f"{pauli}({', '.join(args_string)})"
+
+        if args[2] != Constant(value=2):
+            return f"{pauli}({', '.join(args_string[:3])})"
 
         if args[:2] != (Constant(value=0), Constant(value=1)):
             return f"{pauli}({', '.join(args_string[:2])})"
 
         return pauli
 
-    def map_Creation(self, model: Creation, operands):
-        return "%C"
+    def map_Ladder(self, model: Creation, operands):
+        args = (model.dims, model.target)
+        args_string = (operands["dims"], operands["target"])
 
-    def map_Annihilation(self, model: Annihilation, operands):
-        return "%A"
+        ladder = {Creation: "%C", Annihilation: "%A", Identity: "%J"}[model.__class__]
 
-    def map_Identity(self, model: Identity, operands):
-        return "%J"
+        if args[1] != Constant(value=0):
+            return f"{ladder}({', '.join(args_string)})"
+
+        if args[0] != Constant(value=-1):
+            return f"{ladder}({', '.join(args_string[:1])})"
+
+        return ladder
 
 
 ########################################################################################

@@ -31,9 +31,9 @@ from oqd_core.analog import (
     DimensionError,
     OutOfBoundsError,
     parse_analog,
+    AnalogTypeError,
 )
 from oqd_core.analysis.analog.types import (
-    AnalogTypeError,
     TBool,
     TComplex,
     TFloat,
@@ -137,9 +137,10 @@ class TestAnalogAssignmentAnalysis:
     )
     def test_analog_definite_assignment_checker_error(self, program):
         circuit = parse_analog(program)
-        with pytest.raises(AvailableVariableError):
-            cfg = AnalogCFGBuilder()(circuit)
-            AvailableVariableAnalysis().analyze(cfg)
+        cfg = AnalogCFGBuilder()(circuit)
+        checker = AvailableVariableAnalysis()
+        with pytest.raises(checker._err_collector._error_class):
+            checker.analyze(cfg)
 
 ########################################################################################
 
@@ -267,9 +268,10 @@ class TestAnalogTypeChecker:
     def test_analog_type_checker_error(self, program):
         circuit = parse_analog(program)
         cfg = AnalogCFGBuilder()(circuit)
+        checker = AnalogTypeChecker()
 
-        with pytest.raises(AnalogTypeError):
-            AnalogTypeChecker().analyze(cfg)
+        with pytest.raises(checker._err_collector._error_class):
+            checker.analyze(cfg)
 
 ########################################################################################
 
@@ -306,7 +308,7 @@ class TestAnalogBoundsChecker:
     @pytest.mark.parametrize(
         "program",
         [
-            "r = qreg(1) \n r[1]r = qreg(2) \n [r[0], r[2]]",
+            "r = qreg(1) \n r[1] \n r = qreg(2) \n [r[0], r[2]]",
             "r = qreg(3) \n initialize(r[3]) \n measure(r)",
             "r = qreg(3) \n initialize(r) \n measure(r[4])",
             "r = qreg(10) \n evolve(%X, 1.0, r[10])",
@@ -328,9 +330,10 @@ class TestAnalogBoundsChecker:
     )
     def test_analog_bounds_checker_error(self, program):
         circuit = parse_analog(program)
-        with pytest.raises(OutOfBoundsError):
-            cfg = AnalogCFGBuilder()(circuit)
-            AnalogBoundsChecker().analyze(cfg)
+        cfg = AnalogCFGBuilder()(circuit)
+        checker = AnalogBoundsChecker()
+        with pytest.raises(checker._err_collector._error_class):
+            checker.analyze(cfg)
 
 ########################################################################################
 
@@ -378,7 +381,8 @@ class TestAnalogDimensionChecker:
     )
     def test_analog_dimension_checker_error(self, program):
         circuit = parse_analog(program)
-        with pytest.raises(DimensionError):
-            cfg = AnalogCFGBuilder()(circuit)
-            DimensionChecker().analyze(cfg)
+        cfg = AnalogCFGBuilder()(circuit)
+        checker = DimensionChecker()
+        with pytest.raises(checker._err_collector._error_class):
+            checker.analyze(cfg)
 
