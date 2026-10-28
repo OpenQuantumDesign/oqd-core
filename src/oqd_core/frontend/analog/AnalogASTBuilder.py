@@ -19,6 +19,9 @@ from antlr4.tree.Tree import TerminalNodeImpl
 
 from oqd_core.frontend.analog.AnalogLexer import AnalogLexer
 from oqd_core.frontend.analog.AnalogParser import AnalogParser
+from oqd_core.frontend.analog.AnalogParserErrorListener import (
+    AnalogParserErrorListener,
+)
 from oqd_core.frontend.analog.AnalogParserVisitor import AnalogParserVisitor
 from oqd_core.interface.analog import (
     Access,
@@ -434,12 +437,19 @@ class AnalogASTBuilder(AnalogParserVisitor):
 def parse_analog(source: str) -> AnalogCircuit:
     stream = antlr4.InputStream(source)
     lexer = AnalogLexer(stream)
+    lexer.removeErrorListeners()
+    listener = AnalogParserErrorListener()
+    lexer.addErrorListener(listener)
+
     tokens = antlr4.CommonTokenStream(lexer)
     parser = AnalogParser(tokens)
+    parser.removeErrorListeners()
+    parser.addErrorListener(listener)
+
     tree = parser.program()
+    listener.report_errors()
 
     builder = AnalogASTBuilder()
 
     circuit = builder.visit(tree)
-
     return circuit
