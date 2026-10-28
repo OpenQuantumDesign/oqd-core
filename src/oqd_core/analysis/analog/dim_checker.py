@@ -220,6 +220,14 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
 
                 return value[expr.index.value]
 
+            case Extract():
+                warn(
+                    f"(block={loc[0]}, stmt={loc[1]}) DimensionChecker only checks dimensions when index is constant,"
+                    f" got `{serialize_analog(expr)}`",
+                    DimensionWarning,
+                )
+                return self.lattice.element_lattice.top()
+
             case Neg() | Pos():
                 arg = self._infer_dim(expr.expr, env=env, loc=loc)
                 return arg
