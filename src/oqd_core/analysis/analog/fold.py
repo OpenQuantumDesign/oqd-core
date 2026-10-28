@@ -18,7 +18,6 @@
 from __future__ import annotations
 
 import operator
-from functools import reduce
 from typing import Type, Union
 
 from oqd_compiler_infrastructure import (

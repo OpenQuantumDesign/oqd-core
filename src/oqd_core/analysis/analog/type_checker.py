@@ -18,7 +18,7 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import TypeVar
+from typing import Tuple, TypeVar
 
 from oqd_compiler_infrastructure import (
     CFG,
@@ -29,7 +29,6 @@ from oqd_compiler_infrastructure import (
 
 from oqd_core.analysis.analog.types import (
     ANALOG_SUPPORTED_FUNC_SIGNATURES,
-    AnalogTypeError,
     AnalogTypeLattice,
     TBool,
     TComplex,
@@ -39,6 +38,8 @@ from oqd_core.analysis.analog.types import (
     TypeEnv,
     get_type_name,
 )
+from oqd_core.analysis.utils import AnalysisError
+from oqd_core.frontend.analog import serialize_analog
 from oqd_core.interface.analog import (
     Access,
     AnalogList,
@@ -64,6 +65,13 @@ from oqd_core.interface.analog.expr import BinaryOp, Ladder, Pauli
 ########################################################################################
 
 
+class AnalogTypeError(AnalysisError, TypeError):
+    """Type error class for Analog."""
+
+
+########################################################################################
+
+
 class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
 
@@ -74,7 +82,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         self.runtime_var_types = runtime_var_types
 
     def _compare_variable_type(
-        self, signature, args, subsignature, subargs, variable_type_mapping={}
+        self, signature, args, subsignature, subargs, variable_type_mapping={}, *, loc
     ):
         try:
             for n, _ in enumerate(subsignature):
@@ -85,6 +93,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                         subsignature[n].__args__,
                         subargs[n].__args__,
                         variable_type_mapping=variable_type_mapping,
+                        loc=loc,
                     )
                     continue
 
@@ -97,11 +106,13 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
                 if variable_type_mapping[subsignature[n]] != subargs[n]:
                     raise AnalogTypeError(
-                        f"Got signature {self._print_function_signature(args)} inconsistent with {signature}"
+                        f"Got signature {self._print_function_signature((args, None))}"
+                        f" inconsistent with {self._print_function_signature(signature)}",
+                        loc=loc,
                     )
 
             return True, variable_type_mapping
-        except Exception:
+        except AnalogTypeError:
             return False, _
 
     def _replace_variable_type(self, variable_type_mapping, original_type):
@@ -120,14 +131,14 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         return original_type
 
-    def _match_single_function_signature(self, signature, *args):
+    def _match_single_function_signature(self, signature, *args, loc):
         sig_args_types, sig_return_type = signature
 
         if len(args) != len(sig_args_types):
             return False, None
 
         success, variable_type_mapping = self._compare_variable_type(
-            signature, args, sig_args_types, args, {}
+            signature, args, sig_args_types, args, {}, loc=loc
         )
 
         if success and all(
@@ -157,7 +168,7 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         return f"({', '.join([get_type_name(x) for x in sig_args_types])})"
 
-    def _match_function_signature(self, func, *args):
+    def _match_function_signature(self, func, *args, loc):
         signature = (args, None)
         supported_signatures = ANALOG_SUPPORTED_FUNC_SIGNATURES[func]
 
@@ -166,11 +177,14 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         ):
             raise AnalogTypeError(
                 f"Got signature {self._print_function_signature(signature)} containing TLatticeBottom for {func}, "
-                "these arguments type is inconsistent"
+                "these arguments type is inconsistent",
+                loc=loc,
             )
 
         for sig in supported_signatures:
-            _match, return_type = self._match_single_function_signature(sig, *args)
+            _match, return_type = self._match_single_function_signature(
+                sig, *args, loc=loc
+            )
 
             if _match:
                 return return_type
@@ -180,10 +194,11 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             "but signature must be one of:\n  "
             + "\n  ".join(
                 [self._print_function_signature(sig) for sig in supported_signatures]
-            )
+            ),
+            loc=loc,
         )
 
-    def _infer_function_signature(self, expr, *, env: TypeEnv):
+    def _infer_function_signature(self, expr, *, env: TypeEnv, loc: Tuple[int, int]):
         match expr:
             case Pauli():
                 name = expr.__class__.__name__
@@ -213,19 +228,22 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 name = expr.__class__.__name__
                 args = [expr.value, expr.index]
             case _:
-                raise AnalogTypeError(f"unable to infer type information from {expr}")
+                raise AnalogTypeError(
+                    f"(block={loc[0]}, stmt={loc[1]}) unable to infer type information from {expr}",
+                    loc=loc,
+                )
 
         return self._match_function_signature(
-            name, *[self._infer_type(a, env=env) for a in args]
+            name, *[self._infer_type(a, env=env, loc=loc) for a in args], loc=loc
         )
 
-    def _infer_binop_signature(self, name, args, *, env: TypeEnv):
+    def _infer_binop_signature(self, name, args, *, env: TypeEnv, loc: Tuple[int, int]):
         return reduce(
-            lambda x, y: self._match_function_signature(name, x, y),
-            [self._infer_type(a, env=env) for a in args],
+            lambda x, y: self._match_function_signature(name, x, y, loc=loc),
+            [self._infer_type(a, env=env, loc=loc) for a in args],
         )
 
-    def _infer_type(self, expr, *, env: TypeEnv):
+    def _infer_type(self, expr, *, env: TypeEnv, loc: Tuple[int, int]):
         match expr:
             case Access():
                 return (
@@ -246,7 +264,9 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case AnalogList() if len(expr.values) == 0:
                 return TList[self.lattice.element_lattice.top()]
             case AnalogList():
-                elem_types = [self._infer_type(e, env=env) for e in expr.values]
+                elem_types = [
+                    self._infer_type(e, env=env, loc=loc) for e in expr.values
+                ]
 
                 combined_elem_type = reduce(
                     self.lattice.element_lattice.meet, elem_types
@@ -254,13 +274,14 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
                 if combined_elem_type is self.lattice.element_lattice.bottom():
                     raise AnalogTypeError(
-                        f"list elements must all have consistent type but got [{', '.join([get_type_name(e) for e in elem_types])}]"
+                        f"list elements must all have consistent type but got [{', '.join([get_type_name(e) for e in elem_types])}]",
+                        loc=loc,
                     )
 
                 return TList[combined_elem_type]
             case BinaryOp():
                 return self._infer_binop_signature(
-                    expr.__class__.__name__, expr.exprs, env=env
+                    expr.__class__.__name__, expr.exprs, env=env, loc=loc
                 )
             case BuiltinCall() if expr.func in [
                 "_add",
@@ -280,10 +301,13 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 "_xor",
             ]:
                 return self._infer_binop_signature(
-                    expr.func.removeprefix("_").capitalize(), expr.args, env=env
+                    expr.func.removeprefix("_").capitalize(),
+                    expr.args,
+                    env=env,
+                    loc=loc,
                 )
             case _:
-                return self._infer_function_signature(expr, env=env)
+                return self._infer_function_signature(expr, env=env, loc=loc)
 
     def merge(self, states):
         out = self.lattice.merge_meet(states)
@@ -306,14 +330,15 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         block = graph[node_id]
 
         block_types = {}
-        for stmt in block.stmts:
-            if block.edge_labels:
+        for n, stmt in enumerate(block.stmts):
+            if block.edge_labels and n == len(block.stmts) - 1:
                 cond_type = self._infer_type(
-                    stmt, env=self.lattice.meet(state_in, block_types)
+                    stmt, env=self.lattice.meet(state_in, block_types), loc=(node_id, n)
                 )
                 if not self.lattice.element_lattice.equal(cond_type, TBool):
                     raise AnalogTypeError(
-                        f"branch condition must be TBool got ({get_type_name(cond_type)})"
+                        f"branch condition `{serialize_analog(stmt)}` must be TBool, got {get_type_name(cond_type)}",
+                        loc=(node_id, n),
                     )
                 continue
 
@@ -322,7 +347,9 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
             if isinstance(stmt, Declaration):
                 declare_type = self._infer_type(
-                    stmt.value, env=self.lattice.meet(state_in, block_types)
+                    stmt.value,
+                    env=self.lattice.meet(state_in, block_types),
+                    loc=(node_id, n),
                 )
 
                 block_types[stmt.name] = self.lattice.element_lattice.meet(
@@ -338,12 +365,16 @@ class AnalogTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                     is self.lattice.element_lattice.bottom()
                 ):
                     raise AnalogTypeError(
-                        f"attempted to redeclare '{stmt.name}' to a different type {get_type_name(declare_type)}"
+                        f"attempted to redeclare `{stmt.name}` from {get_type_name(state_in.get(stmt.name))}"
+                        f" to a different type {get_type_name(declare_type)}",
+                        loc=(node_id, n),
                     )
 
                 continue
 
-            self._infer_type(stmt, env=self.lattice.meet(state_in, block_types))
+            self._infer_type(
+                stmt, env=self.lattice.meet(state_in, block_types), loc=(node_id, n)
+            )
 
         state_out = self.lattice.meet(state_in, block_types)
         return state_out

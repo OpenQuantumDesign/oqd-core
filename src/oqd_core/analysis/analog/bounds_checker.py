@@ -14,7 +14,8 @@
 
 from __future__ import annotations
 
-from typing import List, Type, Union
+from typing import List, Tuple, Type, Union
+from warnings import warn
 
 from oqd_compiler_infrastructure import (
     CFG,
@@ -28,6 +29,7 @@ from oqd_compiler_infrastructure import (
     maplattice,
 )
 
+from oqd_core.analysis.utils import AnalysisError, AnalysisWarning
 from oqd_core.frontend.analog import serialize_analog
 from oqd_core.interface.analog import (
     Access,
@@ -42,7 +44,10 @@ from oqd_core.interface.analog import (
 ########################################################################################
 
 
-class OutOfBoundsError(Exception): ...
+class OutOfBoundsError(AnalysisError): ...
+
+
+class OutOfBoundsWarning(AnalysisWarning): ...
 
 
 class BLatticeTop(LatticeTop): ...
@@ -132,7 +137,7 @@ class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
         return isinstance(expr, Constant) and type(expr.value) is int
 
     @gen_pass(rule_type="conversion", walk=Post, method=True)
-    def _infer_bounds(self, expr, operands, *, env: BoundsEnv):
+    def _infer_bounds(self, expr, operands, *, env: BoundsEnv, loc: Tuple[int, int]):
 
         match expr:
             case Access():
@@ -152,24 +157,34 @@ class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
                 return [[]] * expr.size.value
 
             case QuantumRegister() | ModeRegister():
-                raise OutOfBoundsError(
-                    "Out of bounds checker only works for constant args for QuantumRegister and ModeRegister"
+                warn(
+                    f"(block={loc[0]}, stmt={loc[1]}) AnalogBoundschecker only checks bounds for list and registers of constant size,"
+                    f" got `{serialize_analog(expr)}`",
+                    OutOfBoundsWarning,
                 )
+                return self.lattice.element_lattice.top()
 
             case Extract() if self._is_integer(expr.index):
-                lval = self._infer_bounds(expr.value, env=env)
+                lval = self._infer_bounds(expr.value, env=env, loc=loc)
+
+                if lval is self.lattice.element_lattice.top():
+                    return self.lattice.element_lattice.top()
 
                 if expr.index.value + 1 > len(lval):
                     raise OutOfBoundsError(
-                        f"Index {expr.index.value} out of bounds for {serialize_analog(expr)} for some path"
+                        f"Index {expr.index.value} out of bounds for {serialize_analog(expr)} for some path",
+                        loc=loc,
                     )
 
                 return lval[expr.index.value]
 
             case Extract():
-                raise OutOfBoundsError(
-                    "Out of bounds checker only works for constant index for Extract"
+                warn(
+                    f"(block={loc[0]}, stmt={loc[1]}) AnalogBoundschecker only checks bounds for an index of a constant value,"
+                    f" got `{serialize_analog(expr)}`",
+                    OutOfBoundsWarning,
                 )
+                return self.lattice.element_lattice.top()
 
             case _:
                 return self.lattice.element_lattice.bottom()
@@ -178,11 +193,13 @@ class AnalogBoundsChecker(ForwardDataflowAnalysis[int, CFGBlock, BoundsEnv]):
         block = graph[node_id]
 
         state_out = {} if state_in == self.lattice.top() else state_in.copy()
-        for stmt in block.stmts:
+        for n, stmt in enumerate(block.stmts):
             match stmt:
                 case Declaration():
-                    state_out[stmt.name] = self._infer_bounds(stmt.value, env=state_out)
+                    state_out[stmt.name] = self._infer_bounds(
+                        stmt.value, env=state_out, loc=(node_id, n)
+                    )
                 case _:
-                    self._infer_bounds(stmt, env=state_out)
+                    self._infer_bounds(stmt, env=state_out, loc=(node_id, n))
 
         return state_out
