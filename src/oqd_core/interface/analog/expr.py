@@ -455,7 +455,7 @@ class Ladder(Operator, AbstractAnalogExpr):
     Class representing a ladder operator in Fock space
     """
 
-    dims: CastAnalogExpr = Constant(value=2)
+    dims: CastAnalogExpr = Constant(value=-1)
     target: CastAnalogExpr = Constant(value=0)
 
 
