@@ -24,6 +24,7 @@ from oqd_compiler_infrastructure import (
 )
 
 from oqd_core.analysis.analog import (
+    AnalogBoundsChecker,
     AnalogTypeChecker,
     AvailableVariableAnalysis,
     DimensionChecker,
@@ -63,13 +64,16 @@ def compile_analog_circuit(
     avail_checker = AvailableVariableAnalysis()
     type_checker = AnalogTypeChecker()
     dim_checker = DimensionChecker()
+    bounds_checker = AnalogBoundsChecker()
+    
 
     avail_res = avail_checker.analyze(cfg)
     type_res = type_checker.analyze(cfg)
     dim_res = dim_checker.analyze(cfg)
+    bounds_res = bounds_checker.analyze(cfg)
 
     if return_analysis:
-        return circuit, cfg, (avail_res, type_res, dim_res)
+        return circuit, cfg, (avail_res, type_res, dim_res, bounds_res)
 
     return circuit, cfg
 
@@ -90,13 +94,15 @@ def analog(func=None, *, return_analysis=False):
         avail_checker = AvailableVariableAnalysis()
         type_checker = AnalogTypeChecker()
         dim_checker = DimensionChecker()
+        bounds_checker = AnalogBoundsChecker()
 
         avail_res = avail_checker.analyze(cfg)
         type_res = type_checker.analyze(cfg)
         dim_res = dim_checker.analyze(cfg)
+        bounds_res = bounds_checker.analyze(cfg)
 
         if return_analysis:
-            return circuit, cfg, (avail_res, type_res, dim_res)
+            return circuit, cfg, (avail_res, type_res, dim_res, bounds_res)
 
         return circuit, cfg
 
