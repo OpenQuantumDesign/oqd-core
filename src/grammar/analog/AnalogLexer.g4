@@ -88,6 +88,8 @@ REAL_PART:  (INT | FLOAT) 'r';
 IMAG_PART:  (INT | FLOAT) 'j';
 
 // Math functions
+MIN: 'min';
+MAX: 'max';
 ABS: 'abs';
 SIN: 'sin';
 COS: 'cos';

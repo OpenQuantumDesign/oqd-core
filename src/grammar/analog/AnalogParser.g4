@@ -65,7 +65,7 @@ bool_literal: TRUE | FALSE;
 arith_func: POSF | NEGF | ADDF | SUBF | MULF | DIVF | POWF | KRONF | EQF | NEQF
     | LTF | LEQF | GTF | LEQF | ANDF | ORF | XORF | NOTF;
 
-math_func: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
+math_func: MIN | MAX | ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
     | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2 | CONJ
     | HEAVISIDE | REAL | IMAG_FN | ROUND;
 

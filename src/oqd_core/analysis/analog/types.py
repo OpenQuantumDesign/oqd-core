@@ -242,6 +242,8 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
         ((TFloat, TFloat), TInt),
         ((TInt, TInt), TInt),
     ],
+    "min": [((TInt, TInt), TInt), ((TFloat, TFloat), TFloat)],
+    "max": [((TInt, TInt), TInt), ((TFloat, TFloat), TFloat)],
     "conj": [((TComplex,), TComplex)],
     "real": [((TComplex,), TFloat)],
     "imag": [((TComplex,), TFloat)],
