@@ -236,7 +236,12 @@ ANALOG_SUPPORTED_FUNC_SIGNATURES = {
     "atanh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
     "asinh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
     "acosh": [((TFloat,), TFloat), ((TComplex,), TComplex)],
-    "heaviside": [((TFloat,), TInt), ((TInt), TInt)],
+    "heaviside": [
+        ((TFloat,), TInt),
+        ((TInt,), TInt),
+        ((TFloat, TFloat), TInt),
+        ((TInt, TInt), TInt),
+    ],
     "conj": [((TComplex,), TComplex)],
     "real": [((TComplex,), TFloat)],
     "imag": [((TComplex,), TFloat)],
