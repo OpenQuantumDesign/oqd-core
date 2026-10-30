@@ -79,9 +79,9 @@ fragment DIGITSEQ: DIGIT+;
 
 INT: ZERO | NONZERODIGIT DIGITSEQ?;
 
-FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? INT)?
-     | INT '.' (DIGITSEQ)? (('e' | 'E') (PLUS | MINUS)? INT)?
-     | INT (('e' | 'E') (PLUS | MINUS)? INT);
+FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? DIGITSEQ)?
+     | INT '.' (DIGITSEQ)? (('e' | 'E') (PLUS | MINUS)? DIGITSEQ)?
+     | INT (('e' | 'E') (PLUS | MINUS)? DIGITSEQ);
 
 MATH_VAR: '#' ID;
 REAL_PART:  (INT | FLOAT) 'r';
