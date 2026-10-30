@@ -6,6 +6,8 @@ options { tokenVocab = AnalogLexer; }
 
 program: block EOF;
 
+block: (statement EOL | EOL)* (statement)?;
+
 statement
     : declaration
     | while_stmt
@@ -15,100 +17,106 @@ statement
     | expr
     ;
 
-block: (statement EOL | EOL)* (statement)?;
-
 /** ================================================================================= */
-
-terminal: mode_register | quantum_register | analog_list_extract | operator_terminal | math_terminal | bool_literal | analog_list;
-expr
-    : aexpr (comparators aexpr)+
-    | expr (bool_and_op|bool_or_op) expr
-    | bool_not_op expr
-    | LBRACKET expr RBRACKET
-    | analog_list
-    | terminal
-    | aexpr
-    ;
-cond: expr;
-analog_list: SQUARELBRACKET expr? (COMMA expr)* SQUARERBRACKET;
-
-declaration: ID ASSIGN expr;
-access: ID;
-analog_list_extract: access SQUARELBRACKET INT SQUARERBRACKET;
-
-/** ================================================================================= */
-
 
 // Structural control flow
+
+
+ifelse_stmt
+    : IF LBRACKET expr RBRACKET LBRACE block RBRACE (EOL? ELSE LBRACE block RBRACE)?;
+
+while_stmt: WHILE LBRACKET expr RBRACKET LBRACE block RBRACE;
 
 break_stmt: BREAK;
 continue_stmt: CONTINUE;
 
-while_stmt: WHILE LBRACKET cond RBRACKET LBRACE block RBRACE;
+/** ================================================================================= */
 
-ifelse_stmt
-    : IF LBRACKET cond RBRACKET LBRACE block RBRACE
-    | IF LBRACKET cond RBRACKET LBRACE block RBRACE EOL? ELSE LBRACE block RBRACE;
+// Atom
+
+terminal: operator_terminal | math_terminal | bool_literal | analog_list | func;
 
 /** ================================================================================= */
 
-// Quantum
+// Variable
 
-quantum_register: QUANTUMREGISTER LBRACKET INT RBRACKET;
-mode_register: MODEREGISTER LBRACKET INT RBRACKET;
-
-targets: expr;
-
-/** ================================================================================= */
-
-// Boolean
-
-bool_and_op: AND | AND2;
-bool_or_op: OR | OR2;
-bool_not_op: NOT | NOT2;
-bool_eq_op: EQ;
-bool_not_eq_op: NEQ;
-bool_lt_op: LT;
-bool_lte_op: LTE;
-bool_gt_op: GT;
-bool_gte_op: GTE;
-bool_literal: TRUE | FALSE;
-
-comparators
-    : bool_eq_op
-    | bool_not_eq_op
-    | bool_lt_op
-    | bool_lte_op
-    | bool_gt_op
-    | bool_gte_op
-    ;
+declaration: ID ASSIGN expr;
+access: ID;
 
 /** ================================================================================= */
 
 // Quantum operator
 
-pauli_op: PAULI_I | PAULI_X | PAULI_Y | PAULI_Z;
-ladder_op: CREATION | ANNIHILATION | IDENTITY_OP;
+pauli_op: (PAULI_I | PAULI_X | PAULI_Y | PAULI_Z) (LBRACKET args? RBRACKET)?;
+ladder_op: (CREATION | ANNIHILATION | IDENTITY_OP) (LBRACKET args? RBRACKET)?;
+
 operator_terminal: pauli_op | ladder_op;
 
 /** ================================================================================= */
 
-// Math
+// Boolean
 
-math_terminal: INT | FLOAT | MATH_VAR | IMAG | access | pexpr | fexpr;
+bool_literal: TRUE | FALSE;
 
-func_names: ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
+/** ================================================================================= */
+
+// Function
+
+arith_func: POSF | NEGF | ADDF | SUBF | MULF | DIVF | POWF | KRONF | EQF | NEQF
+    | LTF | LEQF | GTF | LEQF | ANDF | ORF | XORF | NOTF;
+
+math_func: MIN | MAX | ABS | SIN | COS | TAN | EXP | LOG | SINH | COSH | TANH
     | ATAN | ACOS | ASIN | ATANH | ASINH | ACOSH | ATAN2 | CONJ
-    | HEAVISIDE | REAL | IMAG_FN | EVOLVE | MEASURE | INITIALIZE;
+    | HEAVISIDE | REAL | IMAG_FN | ROUND;
 
-pexpr: LBRACKET aexpr RBRACKET;
 
-fexpr: func_names LBRACKET (aexpr (COMMA aexpr)*)? RBRACKET;
+quantum_func: QUANTUMREGISTER | MODEREGISTER | EVOLVE | MEASURE
+    | INITIALIZE | COMMUTATOR | ANTICOMMUTATOR | DAG;
 
-aexpr: mexpr | aexpr (PLUS|MINUS|OP_ADD|OP_MINUS) mexpr;
+list_func: RANGE | LENGTH | FLATTEN;
 
-mexpr: uexpr | mexpr (MULT|DIV|OP_MUL|AT) uexpr;
+misc_func: PRINT;
 
-uexpr: eexpr | (PLUS|MINUS) eexpr;
+func_names: math_func | quantum_func | list_func | misc_func | arith_func;
 
-eexpr: terminal | terminal POWER uexpr;
+args: expr (COMMA expr)* COMMA?;
+
+func: func_names LBRACKET args? RBRACKET;
+
+/** ================================================================================= */
+
+// List
+
+analog_list: SQUARELBRACKET expr? (COMMA expr)* COMMA? SQUARERBRACKET;
+
+iexpr: terminal | iexpr SQUARELBRACKET expr SQUARERBRACKET;
+
+/** ================================================================================= */
+
+// Arithmetic
+
+complex: REAL_PART | REAL_PART? IMAG_PART;
+
+math_terminal: INT | FLOAT | MATH_VAR | complex | access | pexpr;
+
+pexpr: LBRACKET expr RBRACKET;
+
+eexpr: iexpr | iexpr POWER uexpr;
+
+uexpr: eexpr | (PLUS|MINUS|NOT) uexpr;
+
+mexpr: uexpr | mexpr (MULT uexpr)+ | mexpr (DIV uexpr)+ | mexpr (AT uexpr)+;
+
+aexpr: mexpr | aexpr (PLUS mexpr)+ | aexpr (MINUS mexpr)+;
+
+cexpr: aexpr | cexpr (LT | LEQ | GT | GEQ) aexpr;
+
+eqexpr: cexpr | eqexpr (EQ | NEQ) cexpr;
+
+andexpr: eqexpr | eqexpr (AND eqexpr)+;
+
+xorexpr: andexpr | andexpr (XOR andexpr)+;
+
+orexpr: xorexpr | xorexpr (OR xorexpr)+;
+
+expr: orexpr;
