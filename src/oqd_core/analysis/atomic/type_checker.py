@@ -16,7 +16,7 @@
 from __future__ import annotations
 
 from functools import reduce
-from typing import TypeVar
+from typing import Tuple, TypeVar
 
 from oqd_compiler_infrastructure import (
     CFG,
@@ -27,7 +27,6 @@ from oqd_compiler_infrastructure import (
 
 from oqd_core.analysis.atomic.types import (
     ATOMIC_SUPPORTED_FUNC_SIGNATURES,
-    AtomicTypeError,
     AtomicTypeLattice,
     TBeam,
     TBool,
@@ -39,6 +38,8 @@ from oqd_core.analysis.atomic.types import (
     TypeEnv,
     get_type_name,
 )
+from oqd_core.analysis.utils import AnalysisError
+from oqd_core.frontend.atomic import serialize_atomic
 from oqd_core.interface.atomic import (
     Access,
     AtomicList,
@@ -63,6 +64,7 @@ from oqd_core.interface.atomic.expr import BinaryOp
 
 ########################################################################################
 
+class AtomicTypeError(AnalysisError, TypeError): ...
 
 class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
     """Forward dataflow type checker over the Control Flow Graph."""
@@ -74,7 +76,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         self.runtime_var_types = runtime_var_types
     
     def _compare_variable_type(
-        self, signature, args, subsignature, subargs, variable_type_mapping={}
+        self, signature, args, subsignature, subargs, variable_type_mapping={}, *, loc
     ):
         try:
             for n, _ in enumerate(subsignature):
@@ -85,6 +87,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                         subsignature[n].__args__,
                         subargs[n].__args__,
                         variable_type_mapping=variable_type_mapping,
+                        loc=loc,
                     )
                     continue
 
@@ -97,23 +100,24 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
                 if variable_type_mapping[subsignature[n]] != subargs[n]:
                     raise AtomicTypeError(
-                        f"Got signature {self._print_function_signature(args)} inconsistent with {signature}"
+                        f"Got signature {self._print_function_signature(args)} inconsistent with {signature}",
+                        loc=loc,
                     )
 
             return True, variable_type_mapping
         except Exception:
             return False, _
     
-    def _check_protocol(self, protocol, env: TypeEnv) -> TypeEnv:
+    def _check_protocol(self, protocol, env: TypeEnv, loc: Tuple[int, int]) -> TypeEnv:
         if isinstance(protocol, SerialProtocol):
             curr_env = env
             for child in protocol.pulses:
-                curr_env = self._check_protocol_stmt(child, curr_env)
+                curr_env = self._check_protocol_stmt(child, curr_env, loc=loc)
             return curr_env
 
         if isinstance(protocol, ParallelProtocol):
             for child in protocol.pulses:
-                self._check_protocol_stmt(child, env)
+                self._check_protocol_stmt(child, env, loc=loc)
             return env
 
         raise AtomicTypeError(f"Unsupported protocol node: {type(protocol).__name__}")
@@ -134,15 +138,17 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         return original_type
     
-    def _match_single_function_signature(self, signature, *args):
+    def _match_single_function_signature(self, signature, *args, loc):
         sig_args_types, sig_return_type = signature
 
         if len(args) != len(sig_args_types):
             return False, None
 
         success, variable_type_mapping = self._compare_variable_type(
-            signature, args, sig_args_types, args, {}
+            signature, args, sig_args_types, args, {}, loc=loc
         )
+        # print("SUCCESS: ", success)
+        # print("SIG: ", signature)
 
         if success and all(
             [
@@ -171,7 +177,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         return f"({', '.join([get_type_name(x) for x in sig_args_types])})"
     
-    def _match_function_signature(self, func, *args):
+    def _match_function_signature(self, func, *args, loc):
         signature = (args, None)
         supported_signatures = ATOMIC_SUPPORTED_FUNC_SIGNATURES[func]
 
@@ -180,11 +186,12 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         ):
             raise AtomicTypeError(
                 f"Got signature {self._print_function_signature(signature)} containing TLatticeBottom for {func}, "
-                "these arguments type is inconsistent"
+                "these arguments type is inconsistent",
+                loc=loc,
             )
 
         for sig in supported_signatures:
-            _match, return_type = self._match_single_function_signature(sig, *args)
+            _match, return_type = self._match_single_function_signature(sig, *args, loc=loc)
 
             if _match:
                 return return_type
@@ -194,10 +201,11 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             "but signature must be one of:\n  "
             + "\n  ".join(
                 [self._print_function_signature(sig) for sig in supported_signatures]
-            )
+            ), 
+            loc=loc,
         )
     
-    def _infer_function_signature(self, expr, *, env: TypeEnv):
+    def _infer_function_signature(self, expr, *, env: TypeEnv, loc: Tuple[int, int]):
         match expr:
             case Not() | Neg() | Pos():
                 name = expr.__class__.__name__
@@ -228,19 +236,22 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 args = [expr.value, expr.index]
             
             case _:
-                raise AtomicTypeError(f"unable to infer type information from {expr}")
+                raise AtomicTypeError(
+                    f"(block={loc[0]}, stmt={loc[1]})unable to infer type information from {expr}",
+                    loc=loc,
+                )
 
         return self._match_function_signature(
-            name, *[self._infer_type(a, env=env) for a in args]
+            name, *[self._infer_type(a, env=env, loc=loc) for a in args], loc=loc
         )
     
-    def _infer_binop_signature(self, name, args, *, env: TypeEnv):
+    def _infer_binop_signature(self, name, args, *, env: TypeEnv, loc: Tuple[int, int]):
         return reduce(
-            lambda x, y: self._match_function_signature(name, x, y),
-            [self._infer_type(a, env=env) for a in args],
+            lambda x, y: self._match_function_signature(name, x, y, loc=loc),
+            [self._infer_type(a, env=env, loc=loc) for a in args],
         )
     
-    def _infer_type(self, expr, *, env: TypeEnv):
+    def _infer_type(self, expr, *, env: TypeEnv, loc: Tuple[int, int]):
         match expr:
             case Access():
                 return (
@@ -265,7 +276,7 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             case AtomicList() if len(expr.values) == 0:
                 return TList[self.lattice.element_lattice.top()]
             case AtomicList():
-                elem_types = [self._infer_type(e, env=env) for e in expr.values]
+                elem_types = [self._infer_type(e, env=env, loc=loc) for e in expr.values]
 
                 combined_elem_type = reduce(
                     self.lattice.element_lattice.meet, elem_types
@@ -273,13 +284,14 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
                 if combined_elem_type is self.lattice.element_lattice.bottom():
                     raise AtomicTypeError(
-                        f"list elements must all have consistent type but got [{', '.join([get_type_name(e) for e in elem_types])}]"
+                        f"list elements must all have consistent type but got [{', '.join([get_type_name(e) for e in elem_types])}]",
+                        loc=loc,
                     )
 
                 return TList[combined_elem_type]
             case BinaryOp():
                 return self._infer_binop_signature(
-                    expr.__class__.__name__, expr.exprs, env=env
+                    expr.__class__.__name__, expr.exprs, env=env, loc=loc
                 )
             case BuiltinCall() if expr.func in [
                 "_add",
@@ -298,10 +310,10 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 "_xor",
             ]:
                 return self._infer_binop_signature(
-                    expr.func.removeprefix("_").capitalize(), expr.args, env=env
+                    expr.func.removeprefix("_").capitalize(), expr.args, env=env, loc=loc
                 )
             case _:
-                return self._infer_function_signature(expr, env=env)
+                return self._infer_function_signature(expr, env=env, loc=loc)
 
     def merge(self, states):
         out = self.lattice.merge_meet(states)
@@ -320,14 +332,14 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
 
         return out
 
-    def _check_protocol_stmt(self, stmt, env: TypeEnv) -> TypeEnv:
+    def _check_protocol_stmt(self, stmt, env: TypeEnv, loc: Tuple[int, int]) -> TypeEnv:
 
         if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
-            return self._check_protocol(stmt, env)
+            return self._check_protocol(stmt, env, loc=loc)
 
         if isinstance(stmt, Declaration):
             declare_type = self._infer_type(
-                stmt.value, env=env
+                stmt.value, env=env, loc=loc
             )
             env[stmt.name] = self.lattice.element_lattice.meet(
                 declare_type,
@@ -338,14 +350,16 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
             )
             if not self.lattice.element_lattice.leq(declare_type, TPulse):
                 raise AtomicTypeError(
-                    f"Parallel/Serial blocks expect only Pulse statements, got {get_type_name(declare_type)}"
+                    f"Parallel/Serial blocks expect only Pulse statements, got {get_type_name(declare_type)}",
+                    loc=loc,
                 )
             return env
 
-        t = self._infer_type(stmt, env=env)
+        t = self._infer_type(stmt, env=env, loc=loc)
         if not self.lattice.element_lattice.leq(t, TPulse):
             raise AtomicTypeError(
-                f"Parallel/Serial blocks expect only Pulse statements, got {get_type_name(t)}"
+                f"Parallel/Serial blocks expect only Pulse statements, got {get_type_name(t)}",
+                loc=loc,
             )
         return env
 
@@ -353,14 +367,15 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         block = graph[node_id]
 
         block_types = {}
-        for stmt in block.stmts:
-            if block.edge_labels:
+        for n, stmt in enumerate(block.stmts):
+            if block.edge_labels and n == len(block.stmts) - 1:
                 cond_type = self._infer_type(
-                    stmt, env=self.lattice.meet(state_in, block_types)
+                    stmt, env=self.lattice.meet(state_in, block_types), loc=(node_id, n)
                 )
                 if not self.lattice.element_lattice.equal(cond_type, TBool):
                     raise AtomicTypeError(
-                        f"branch condition must be TBool got ({get_type_name(cond_type)})"
+                        f"branch condition `{serialize_atomic(stmt)}` must be TBool, got {get_type_name(cond_type)}",
+                        loc=(node_id, n)
                     )
                 continue
 
@@ -368,12 +383,12 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                 continue
 
             if isinstance(stmt, (ParallelProtocol, SerialProtocol)):
-                self._check_protocol(stmt, self.lattice.meet(state_in, block_types))
+                self._check_protocol(stmt, self.lattice.meet(state_in, block_types), loc=(node_id, n))
                 continue
 
             if isinstance(stmt, Declaration):
                 declare_type = self._infer_type(
-                    stmt.value, env=self.lattice.meet(state_in, block_types)
+                    stmt.value, env=self.lattice.meet(state_in, block_types), loc=(node_id, n)
                 )
 
                 block_types[stmt.name] = self.lattice.element_lattice.meet(
@@ -389,12 +404,14 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
                     is self.lattice.element_lattice.bottom()
                 ):
                     raise AtomicTypeError(
-                        f"attempted to redeclare '{stmt.name}' to a different type {get_type_name(declare_type)}"
+                        f"attempted to redeclare `{stmt.name}` from {get_type_name(state_in.get(stmt.name))}"
+                        f" to a different type {get_type_name(declare_type)}",
+                        loc=(node_id, n),
                     )
 
                 continue
 
-            self._infer_type(stmt, env=self.lattice.meet(state_in, block_types))
+            self._infer_type(stmt, env=self.lattice.meet(state_in, block_types), loc=(node_id, n))
 
         state_out = self.lattice.meet(state_in, block_types)
         return state_out

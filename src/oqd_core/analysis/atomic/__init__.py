@@ -5,8 +5,7 @@ from .reaching_def import (
     AvailableVariableError,
     ReachingDefinition,
 )
-from .type_checker import AtomicTypeChecker
-from .types import AtomicTypeError
+from .type_checker import AtomicTypeChecker, AtomicTypeError
 
 ########################################################################################
 

@@ -26,7 +26,6 @@ from oqd_core.frontend.atomic import parse_atomic
 
 
 from oqd_core.analysis.atomic.types import (
-    AtomicTypeError,
     TBool,
     TComplex,
     TFloat,

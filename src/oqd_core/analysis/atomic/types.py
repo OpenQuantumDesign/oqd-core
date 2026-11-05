@@ -25,14 +25,6 @@ from oqd_compiler_infrastructure.lattice import (
 
 ########################################################################################
 
-
-class AtomicTypeError(TypeError):
-    """Type Error class for Atomic."""
-
-    pass
-
-########################################################################################
-
 class TAtomic(LatticeTop): ...
 
 
@@ -190,7 +182,9 @@ ATOMIC_SUPPORTED_FUNC_SIGNATURES = {
         ((TFloat, TFloat), TFloat),
         ((TComplex, TComplex), TComplex),
     ],
-    "Beam": [((TFloat, TFloat, TFloat, TList[TFloat], TList[TFloat]), TBeam)],
+    "Beam": [
+        ((TFloat, TFloat, TFloat, TList[TFloat], TList[TFloat]), TBeam),
+    ],
     "Pulse": [
         ((TBeam, TFloat, TIReg,), TPulse),
         ((TBeam, TFloat, TIRegElem,), TPulse),

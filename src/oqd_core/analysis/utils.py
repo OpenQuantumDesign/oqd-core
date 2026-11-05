@@ -21,6 +21,23 @@ from typing import Annotated, Tuple, Union, get_args, get_origin
 
 ########################################################################################
 
+class AnalysisError(Exception):
+    def __init__(
+        self, msg: str = "", loc: Tuple[int | None, int | None] = (None, None)
+    ):
+        super().__init__()
+
+        self.msg = msg
+        self.loc = loc
+
+    def __str__(self):
+        return f"(block={self.loc[0]}, stmt={self.loc[1]}) {self.msg}"
+
+
+class AnalysisWarning(UserWarning): ...
+
+########################################################################################
+
 
 def alias_types(alias: object) -> tuple[type, ...]:
     """Flatten `Annotated`/`Union` aliases into a tuple of concrete Python types."""
