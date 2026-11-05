@@ -22,6 +22,9 @@ from oqd_core.frontend.atomic._generated import (
     AtomicParser,
     AtomicParserVisitor,
 )
+from oqd_core.frontend.atomic.AtomicParserErrorListener import (
+    AtomicParserErrorListener,
+)
 from oqd_core.interface.atomic import (
     Access,
     Add,
@@ -361,9 +364,17 @@ class AtomicASTBuilder(AtomicParserVisitor):
 def parse_atomic(source):
     stream = antlr4.InputStream(source)
     lexer = AtomicLexer(stream)
+    lexer.removeErrorListeners()
+    listener = AtomicParserErrorListener()
+    lexer.addErrorListener(listener)
+
     tokens = antlr4.CommonTokenStream(lexer)
     parser = AtomicParser(tokens)
+    parser.removeErrorListeners()
+    parser.addErrorListener(listener)
+
     tree = parser.program()
+    listener.report_errors()
     
     builder = AtomicASTBuilder()
 
