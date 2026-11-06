@@ -18,10 +18,12 @@
 
 from .compile import atomic, compile_atomic_circuit
 from .conversion import AtomicCFGBuilder, AtomicCFGtoAST
+from .error import AtomicCompilerError
 
 __all__ = [
     "AtomicCFGBuilder",
     "AtomicCFGtoAST",
     "atomic",
-    "compile_atomic_circuit"
+    "compile_atomic_circuit",
+    "AtomicCompilerError",
 ]
