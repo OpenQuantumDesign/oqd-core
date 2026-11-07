@@ -18,9 +18,13 @@ from oqd_compiler_infrastructure import (
     CFGBlockAccumulator,
     Chain,
     RelabelCFGBlocks,
+    InplacePre,
+    FixedPoint,
 )
 
 from oqd_core.compiler.atomic.conversion import AtomicCFGBuilder
+from oqd_core.analysis.dominator import PostDominatorAnalysis
+from oqd_core.analysis.atomic import ConstantFolding, ConstantFoldingRule
 from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker
 from oqd_core.frontend.atomic import parse_atomic
 
@@ -40,12 +44,15 @@ from oqd_core.analysis.atomic.types import (
 from oqd_core.atomic import (
     AtomicBoundsChecker,
     AtomicCFGBuilder,
+    AtomicCFGtoAST,
     AtomicTypeChecker,
     AtomicTypeError,
     AvailableVariableAnalysis,
     AvailableVariableError,
     OutOfBoundsError,
     parse_atomic,
+    Constant,
+    Declaration,
 )
 
 
@@ -378,4 +385,41 @@ class TestAtomicBoundsChecker:
         with pytest.raises(OutOfBoundsError):
             cfg = AtomicCFGBuilder()(circuit)
             AtomicBoundsChecker().analyze(cfg)
+
+
+class TestAtomicFoldChecker:
+    @pytest.mark.parametrize(
+        "input, expected",
+        [
+            ("a = 2 + 5", Constant(value=7)),
+            ("a = 3 * 4", Constant(value=12)),
+            ("a = 8 / 4", Constant(value=2)),
+            ("a = 5 - 3", Constant(value=2)),
+            ("a = 2 + 5", Constant(value=7)),
+            ("a = 3 ^ 4", Constant(value=81)),
+            ("a = 2 < 5", Constant(value=True)),
+            ("a = 2 > 5", Constant(value=False)),
+            ("a = 3 >= 0", Constant(value=True)),
+            ("a = 2 <= 5", Constant(value=True)),
+            ("a = 5 > 3 and 3 < 4", Constant(value=True)),
+            ("a = 2 < 5 and 3 > 4", Constant(value=False)),
+            ("a = 2 < 5 or 3 > 4", Constant(value=True)),
+            ("a = 2 + 5 + 8", Constant(value=15)),
+            ("a = 2 * 2 + 6", Constant(value=10)),
+        ],
+    )
+    def test_atomic_fold_checker(self, input, expected):
+        circuit = parse_atomic(input)
+        cfg = AtomicCFGBuilder()(circuit)
+        checker = ConstantFolding()
+        fold_res = checker.analyze(cfg)
+        fold_pass = FixedPoint(InplacePre(ConstantFoldingRule(fold_res=fold_res)))
+        new_cfg = fold_pass(cfg)
+        pdom_result = PostDominatorAnalysis().analyze(cfg)
+        circuit = AtomicCFGtoAST(pdom_result=pdom_result)(cfg)
+        decl = circuit.statements[0]
+        assert(isinstance(decl, Declaration))
+        assert(decl.value == expected)
+        
+
 
