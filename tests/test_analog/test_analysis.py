@@ -12,12 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from oqd_core.interface.analog import Declaration
+from oqd_core.compiler.analog import AnalogCFGtoAST
+from oqd_core.analysis.dominator import PostDominatorAnalysis
+from oqd_core.analysis.analog import ConstantFolding, ConstantFoldingRule
 import pytest
 from oqd_compiler_infrastructure import (
     CFG,
     CFGBlockAccumulator,
     Chain,
     RelabelCFGBlocks,
+    FixedPoint,
+    InplacePre,
 )
 
 from oqd_core.analog import (
@@ -27,6 +33,7 @@ from oqd_core.analog import (
     AnalogTypeError,
     AvailableVariableAnalysis,
     AvailableVariableError,
+    Constant,
     DimensionChecker,
     DimensionError,
     OutOfBoundsError,
@@ -385,4 +392,43 @@ class TestAnalogDimensionChecker:
         checker = DimensionChecker()
         with pytest.raises(checker._err_collector._error_class):
             checker.analyze(cfg)
+
+
+class TestAnalogFoldChecker:
+    @pytest.mark.parametrize(
+        "input, expected",
+        [
+            ("a = 2 + 5", Constant(value=7)),
+            ("a = 3 * 4", Constant(value=12)),
+            ("a = 8 / 4", Constant(value=2)),
+            ("a = 5 - 3", Constant(value=2)),
+            ("a = 2 + 5", Constant(value=7)),
+            ("a = 3 ^ 4", Constant(value=81)),
+            ("a = 2 < 5", Constant(value=True)),
+            ("a = 2 > 5", Constant(value=False)),
+            ("a = 3 >= 0", Constant(value=True)),
+            ("a = 2 <= 5", Constant(value=True)),
+            ("a = 5 > 3 and 3 < 4", Constant(value=True)),
+            ("a = 2 < 5 and 3 > 4", Constant(value=False)),
+            ("a = 2 < 5 or 3 > 4", Constant(value=True)),
+            ("a = 2 + 5 + 8", Constant(value=15)),
+            ("a = 2 * 2 + 6", Constant(value=10)),
+        ],
+    )
+    def test_analog_fold_checker(self, input, expected):
+        circuit = parse_analog(input)
+        cfg = AnalogCFGBuilder()(circuit)
+        checker = ConstantFolding()
+        fold_res = checker.analyze(cfg)
+        fold_pass = FixedPoint(InplacePre(ConstantFoldingRule(fold_res=fold_res)))
+        new_cfg = fold_pass(cfg)
+        pdom_result = PostDominatorAnalysis().analyze(cfg)
+        circuit = AnalogCFGtoAST(pdom_result=pdom_result)(cfg)
+        decl = circuit.statements[0]
+        assert(isinstance(decl, Declaration))
+        assert(decl.value == expected)
+        
+
+        
+
 

@@ -35,10 +35,12 @@ from oqd_compiler_infrastructure import (
 from oqd_core.interface.analog import Access, Constant, Declaration, Neg, Not, Pos
 from oqd_core.interface.analog.expr import BinaryOp, Operator, UnaryOp
 
+from .type_checker import AnalogTypeError
+
 ########################################################################################
 
 
-class ConstantFoldingError(Exception): ...
+class ConstantFoldingError(AnalogTypeError): ...
 
 
 ########################################################################################
