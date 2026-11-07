@@ -341,6 +341,8 @@ class Geq(BinaryOp, BoolOp, ComparisonOp, AnalogExpr): ...
 
 
 SupportedBuiltinFuncs = Literal[
+    "min",
+    "max",
     "abs",
     "sin",
     "cos",

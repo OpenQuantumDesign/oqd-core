@@ -58,7 +58,7 @@ MULT: '*';
 DIV: '/';
 PLUS: '+';
 MINUS: '-';
-POWER: '^';
+POWER: '^' | '**';
 ASSIGN: '=';
 EQ: '==';
 NEQ: '!=';
@@ -67,9 +67,6 @@ LEQ: '<=';
 GT: '>';
 GEQ: '>=';
 AT: '@';
-
-// Analog Operators
-
 
 /** ================================================================================= */
 
@@ -82,15 +79,17 @@ fragment DIGITSEQ: DIGIT+;
 
 INT: ZERO | NONZERODIGIT DIGITSEQ?;
 
-FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? INT)?
-     | INT '.' (DIGITSEQ)? (('e' | 'E') (PLUS | MINUS)? INT)?
-     | INT (('e' | 'E') (PLUS | MINUS)? INT);
+FLOAT: INT? '.' DIGITSEQ (('e' | 'E') (PLUS | MINUS)? DIGITSEQ)?
+     | INT '.' (DIGITSEQ)? (('e' | 'E') (PLUS | MINUS)? DIGITSEQ)?
+     | INT (('e' | 'E') (PLUS | MINUS)? DIGITSEQ);
 
 MATH_VAR: '#' ID;
 REAL_PART:  (INT | FLOAT) 'r';
 IMAG_PART:  (INT | FLOAT) 'j';
 
 // Math functions
+MIN: 'min';
+MAX: 'max';
 ABS: 'abs';
 SIN: 'sin';
 COS: 'cos';
