@@ -14,7 +14,11 @@
 
 import pytest
 
-from oqd_core.frontend.analog.AnalogASTBuilder import parse_analog
+from oqd_core.analog import (
+    analog,
+    parse_analog,
+    serialize_analog,
+)
 from oqd_core.frontend.analog.AnalogParserErrorListener import AnalogParserErrorListener
 from oqd_core.frontend.analog.serialize import serialize_analog
 from oqd_core.interface.analog import (
@@ -485,3 +489,20 @@ class TestAnalogError:
     def test_analog_error_raise(self, program):
         with pytest.raises(AnalogParserErrorListener._error_class):
             parse_analog(program)
+
+
+@analog
+def test_circuit(self):
+    q = qreg(2)
+    a = C([2, 2], 0)
+    evolve(a, 1, q)
+    r = qreg(2)
+    list = [1, 2, 3]
+    initialize(r)
+    measure(q)
+
+
+class TestAnalogPyASTtoCFG:
+    def test_analog_pyast_cfg(self):
+        circuit, cfg = test_circuit
+    
