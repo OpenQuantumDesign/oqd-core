@@ -17,23 +17,23 @@
 
 from __future__ import annotations
 
-from typing import Union
+import operator
+from typing import Type, Union
 
 from oqd_compiler_infrastructure import (
     CFGBlock,
     ForwardDataflowAnalysis,
     Lattice,
     LatticeTop,
+    MapLatticeValue,
     Post,
+    RewriteRule,
     gen_pass,
     maplattice,
 )
 
-from oqd_core.interface.analog import (
-    Access,
-    Declaration,
-    MathNum,
-)
+from oqd_core.interface.analog import Access, Constant, Declaration, Neg, Not, Pos
+from oqd_core.interface.analog.expr import BinaryOp, Operator, UnaryOp
 
 ########################################################################################
 
@@ -50,7 +50,9 @@ class CLatticeTop(LatticeTop): ...
 class CInvalid(CLatticeTop): ...
 
 
-ConstantFoldingValue = Union[CLatticeTop, MathNum]
+ConstantFoldingValue = Union[Type[CLatticeTop], Constant, Operator, BinaryOp, UnaryOp]
+
+########################################################################################
 
 
 class ConstantLattice(Lattice[ConstantFoldingValue]):
@@ -92,12 +94,17 @@ class ConstantLattice(Lattice[ConstantFoldingValue]):
 
 ########################################################################################
 
+FoldEnv = MapLatticeValue[ConstantFoldingValue]
 
-class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, ConstantFoldingValue]):
+
+class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, FoldEnv]):
     lattice = maplattice(ConstantLattice)()
 
     def initial_state(self, nodes):
-        return {node: self.lattice.top() for node in nodes}
+        return {
+            node: self.lattice.bottom() if node == 0 else self.lattice.top()
+            for node in nodes
+        }
 
     def merge(self, states):
         return self.lattice.merge_intersection(states)
@@ -105,29 +112,25 @@ class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, ConstantFoldingValu
     @gen_pass(rule_type="conversion", walk=Post, method=True)
     def _fold(self, model, operands, *, env):
         match model:
-            case MathNum():
+            case list():
+                return operands
+            case Constant() | Operator():
                 return model
+
+            case BinaryOp() if all(
+                expr != self.lattice.element_lattice.bottom()
+                for expr in operands["exprs"]
+            ):
+                return EvaluateConstant()(model)
+
+            case UnaryOp() if operands["expr"] != self.lattice.element_lattice.bottom():
+                return EvaluateConstant()(model)
 
             case Access():
                 return env.get(model.name, self.lattice.element_lattice.bottom())
 
             case Declaration():
-                if not isinstance(operands["value"], MathNum):
-                    env[model.name] = self.lattice.element_lattice.bottom()
-                    return model
-
                 env[model.name] = operands["value"]
-                return model
-
-            case dict():
-                for k, v in operands.items():
-                    if isinstance(v, MathNum):
-                        model[k] = v
-
-            case list():
-                for n, v in enumerate(operands):
-                    if isinstance(v, MathNum):
-                        model[n] = v
 
             case _:
                 return self.lattice.element_lattice.bottom()
@@ -135,7 +138,274 @@ class ConstantFolding(ForwardDataflowAnalysis[int, CFGBlock, ConstantFoldingValu
     def transfer(self, graph, node_id, state_in):
         block = graph[node_id]
 
-        state_out = {} if state_in == self.lattice.top() else state_in.copy()
+        state_out = state_in.copy() if isinstance(state_in, dict) else {}
 
         self._fold(block, env=state_out)
         return state_out
+
+
+########################################################################################
+
+
+class EvaluateConstant(RewriteRule):
+    def map_Add(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value + expr.value)
+                continue
+
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Sub(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = (
+                    Constant(value=exprs[-1].value - expr.value)
+                    if len(exprs) == 1
+                    else Constant(value=exprs[-1].value + expr.value)
+                )
+                continue
+
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Mul(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value * expr.value)
+                continue
+
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Div(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = (
+                    Constant(value=exprs[-1].value / expr.value)
+                    if len(exprs) == 1
+                    else Constant(value=exprs[-1].value * expr.value)
+                )
+                continue
+
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Pow(self, model):
+        exprs = []
+        stop = False
+
+        for expr in reversed(model.exprs):
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=expr.value ** exprs[-1].value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=reversed(exprs))
+
+    def map_UnaryOp(self, model):
+        if isinstance(model.expr, Constant):
+            return Constant(
+                value={Pos: operator.pos, Neg: operator.neg, Not: operator.not_}[
+                    model.__class__
+                ](model.expr.value)
+            )
+
+    def map_And(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value and expr.value)
+                continue
+
+            exprs.append(expr)
+
+        if any(e == Constant(value=False) for e in exprs):
+            return Constant(value=False)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Or(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value or expr.value)
+                continue
+
+            exprs.append(expr)
+
+        if any(e == Constant(value=True) for e in exprs):
+            return Constant(value=True)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Xor(self, model):
+        exprs = []
+
+        for expr in model.exprs:
+            if exprs and isinstance(exprs[-1], Constant) and isinstance(expr, Constant):
+                exprs[-1] = Constant(value=exprs[-1].value ^ expr.value)
+                continue
+
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Eq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value == expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Neq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value != expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Lt(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value < expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Leq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value <= expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Gt(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value > expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+    def map_Geq(self, model):
+        exprs = []
+        stop = False
+
+        for expr in model.exprs:
+            if (
+                exprs
+                and not stop
+                and isinstance(exprs[-1], Constant)
+                and isinstance(expr, Constant)
+            ):
+                exprs[-1] = Constant(value=exprs[-1].value >= expr.value)
+                continue
+
+            if exprs:
+                stop = True
+            exprs.append(expr)
+
+        return exprs[0] if len(exprs) == 1 else model.__class__(exprs=exprs)
+
+
+class ConstantFoldingRule(EvaluateConstant, RewriteRule):
+    def __init__(self, fold_res):
+        super().__init__()
+
+        self.fold_res = fold_res
+
+    def map_CFGBlock(self, model):
+        self._current_block = model.register_id
+
+    def map_Access(self, model):
+        if (
+            value := self.fold_res.in_states[self._current_block].get(model.name, None)
+        ) not in [CInvalid, None]:
+            return value
