@@ -149,7 +149,7 @@ class SerializeAnalog(ConversionRule):
         return "continue"
 
     def map_Evolve(self, model: Evolve, operands):
-        if model.jumps.values:
+        if model.jumps:
             return f"evolve({operands['hamiltonian']}, {operands['jumps']}, {operands['duration']}, {operands['targets']})"
 
         return f"evolve({operands['hamiltonian']}, {operands['duration']}, {operands['targets']})"
