@@ -62,9 +62,9 @@ from oqd_core.interface.analog import (
     QuantumRegister,
     RuntimeVar,
     Sub,
+    SupportedBuiltinFuncs,
     While,
     Xor,
-    SupportedBuiltinFuncs
 )
 
 ########################################################################################

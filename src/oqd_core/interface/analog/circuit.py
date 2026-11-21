@@ -33,7 +33,7 @@ class AnalogCircuit(TypeReflectBaseModel):
     Class representing a quantum information experiment represented in terms of analog operations.
 
     Attributes:
-        statements (List[Union[Measure, Evolve, Initialize]]): List of statements, including initialize, evolve, measure
+        statements (List[StatementSubtypes]): List of all statements in the program.
 
     """
 
