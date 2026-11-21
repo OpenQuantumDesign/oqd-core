@@ -14,7 +14,7 @@
 
 import pytest
 
-from oqd_core.frontend.atomic import parse_atomic, serialize_atomic
+from oqd_core.atomic import atomic, parse_atomic, serialize_atomic
 from oqd_core.interface.atomic import (
     Access,
     Add,
@@ -433,3 +433,16 @@ class TestAtomicSerialize:
         serialized = serialize_atomic(circuit)
         deserialized_circuit = parse_atomic(serialized)
         assert circuit == deserialized_circuit
+
+
+@atomic
+def test_circuit(self):
+    ions = ionreg(2)
+    beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])
+    list = [1, 2, 3]
+
+
+class TestAtomicPyASTtoCFG:
+    def test_atomic_pyast_cfg(self):
+        circuit, cfg = test_circuit
+

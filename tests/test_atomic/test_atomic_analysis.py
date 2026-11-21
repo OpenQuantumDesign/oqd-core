@@ -14,7 +14,6 @@
 
 import pytest
 from oqd_compiler_infrastructure import (
-    CFG,
     CFGBlockAccumulator,
     Chain,
     RelabelCFGBlocks,
@@ -22,23 +21,14 @@ from oqd_compiler_infrastructure import (
     FixedPoint,
 )
 
-from oqd_core.compiler.atomic.conversion import AtomicCFGBuilder
 from oqd_core.analysis.dominator import PostDominatorAnalysis
 from oqd_core.analysis.atomic import ConstantFolding, ConstantFoldingRule
-from oqd_core.analysis.atomic.type_checker import AtomicTypeChecker
-from oqd_core.frontend.atomic import parse_atomic
 
 
 from oqd_core.analysis.atomic.types import (
-    TBool,
     TComplex,
     TFloat,
     TInt,
-    TList,
-    TIReg,
-    TIRegElem,
-    TPulse,
-    TBeam,
 )
 
 from oqd_core.atomic import (
