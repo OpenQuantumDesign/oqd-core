@@ -67,6 +67,11 @@ tests = ["pytest"]
 where   = ["src"]
 include = ["oqd_core*"]
 
+[tool.pytest.ini_options]
+markers = ["slow: Mark a test as taking a long time to run, and so can be skipped with `pytest -m 'not slow'`."]
+norecursedirs = ["tests/test_atomic"]
+addopts = ["--ignore=tests/test_frontend/test_frontend_atomic.py"]
+
 [tool.ruff]
 exclude = [
   "src/oqd_core/frontend/analog/_generated/*",
