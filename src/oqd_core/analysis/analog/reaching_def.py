@@ -28,17 +28,12 @@ from oqd_compiler_infrastructure import (
     gen_pass,
 )
 
+from oqd_core.analysis.utils import AnalysisError
 from oqd_core.frontend.analog import serialize_analog
 from oqd_core.interface.analog import (
     Access,
     Declaration,
 )
-
-########################################################################################
-
-
-class AvailableVariableError(Exception): ...
-
 
 ########################################################################################
 
@@ -78,6 +73,11 @@ class ReachingDefinition(
 
 ########################################################################################
 
+
+class AvailableVariableError(AnalysisError):
+    """Avaialble variable error class for Analog."""
+
+
 AvailableVariableValue = PowersetLatticeValue[str]
 
 
@@ -96,20 +96,23 @@ class AvailableVariableAnalysis(
         return self.lattice.merge_intersection(states)
 
     @gen_pass(rule_type="rewrite", walk=Post, method=True)
-    def _check_variables_available(self, expr, stmt, *, env):
+    def _check_variables_available(
+        self, expr, stmt, *, env: AvailableVariableValue, loc=Tuple[int, int]
+    ):
         if isinstance(expr, Access) and isinstance(env, set) and expr.name not in env:
             raise AvailableVariableError(
                 f"Use of variable ({expr.name}) in statement ({serialize_analog(stmt)})"
-                " that may be undefined for some path through the program"
+                " that may be undefined for some path through the program",
+                loc=loc,
             )
 
     def transfer(self, graph, node_id, state_in):
         block = graph[node_id]
 
         block_def = set()
-        for stmt in block.stmts:
+        for n, stmt in enumerate(block.stmts):
             self._check_variables_available(
-                stmt, stmt, env=self.lattice.join(block_def, state_in)
+                stmt, stmt, env=self.lattice.join(block_def, state_in), loc=(node_id, n)
             )
 
             if isinstance(stmt, Declaration):

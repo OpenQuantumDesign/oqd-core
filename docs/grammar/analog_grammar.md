@@ -31,30 +31,24 @@ The grammar supports:
 
 ### Registers, Lists, and Indexing
 
-The grammar includes register constructors and list extraction:
+The grammar includes register constructors and lists:
 
 - `quantum_register`
 - `mode_register`
 - `analog_list`
-- `analog_list_extract`
 
 ### Expressions and Operators
 
 The grammar supports:
 
-- Arithmetic precedence through `aexpr`, `mexpr`, `uexpr`, and `eexpr`
 - Boolean logic with both word and symbolic forms (`and`/`&&`, `or`/`||`, `not`/`!`)
 - Comparators (`==`, `!=`, `<`, `<=`, `>`, `>=`)
-- Arithmetic operator tokens (`+`, `-`, `*`, `/`, `^`)
-- Analog operator tokens (`%@`, `%+`, `%-`, `%*`)
+- Arithmetic operator tokens (`+`, `-`, `*`, `/`, `^`, `@`)
 
 ### Literals, Functions, and Operators
 
 The lexer defines:
-
-- Integer and float literals (`INT`, `FLOAT`)
-- Math variables (`MATH_VAR`) and imaginary literal (`IMAG`)
-- Function names (`abs`, `sin`, `cos`, `tan`, `exp`, `log`, `sinh`, `cosh`, `tanh`, `atan`, `acos`, `asin`, `atanh`, `asinh`, `acosh`, `heaviside`, `conj`, `real`, `imag`, `atan2`)
+- Function names (`min`, `max`, `abs`, `sin`, `cos`, `tan`, `exp`, `log`, `sinh`, `cosh`, `tanh`, `atan`, `acos`, `asin`, `atanh`, `asinh`, `acosh`, `heaviside`, `conj`, `real`, `imag`, `atan2`)
 - Quantum operator tokens (`%I`, `%X`, `%Y`, `%Z`, `%C`, `%A`, `%J`)
 
 ### Built-in Functions
@@ -62,24 +56,19 @@ The lexer defines:
 The grammar supports the core analog statements through `initialize`, `evolve`, and `measure`:
 
 - `initialize(targets)`
-  - `targets`: target expression (`expr`)
 - `measure(targets)`
-  - `targets`: target expression (`expr`)
 - `evolve(hamiltonian, duration, targets)`
-  - `hamiltonian`: operator expression (`expr`)
-  - `duration`: math expression (`aexpr`)
-  - `targets`: target expression (`expr`)
 
 ## Generate Parser Files for Frontend
 
-Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/analog`. Run `antlr4` on the Lexer first, and then the Parser, as the Parser depends on the Lexer.
+Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/analog/_generated`. Run `antlr4` on the Lexer first, and then the Parser, as the Parser depends on the Lexer.
 
 ```bash
 uv sync
 source .venv/bin/activate
 cd src/grammar/analog
-antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/analog AnalogLexer.g4
-antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/analog AnalogParser.g4
+antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/analog/_generated AnalogLexer.g4
+antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/analog/_generated AnalogParser.g4
 ```
 
 This generates lexer, parser, listener, and visitor artifacts used by the frontend parser pipeline.

@@ -15,21 +15,23 @@
 from functools import partial, reduce
 
 from oqd_compiler_infrastructure import Chain, Post, RewriteRule
-from oqd_core.interface.atomic.expr import MathNum, MathSub, MathVar, Pulse
-from oqd_core.interface.atomic import Declaration, IfElse, While
+
+from oqd_core.compiler.atomic.error import AtomicCompilerError
 from oqd_core.compiler.atomic.math.passes import simplify_math_expr
 from oqd_core.compiler.atomic.math.rules import SubstituteMathVar
-from oqd_core.compiler.atomic.error import AtomicCompilerError
-from oqd_core.interface.atomic.statement import SerialProtocol, ParallelProtocol
-
+from oqd_core.interface.atomic import Declaration, IfElse, While
+from oqd_core.interface.atomic.expr import MathNum, MathSub, MathVar, Pulse
+from oqd_core.interface.atomic.statement import ParallelProtocol, SerialProtocol
 
 ########################################################################################
+
 
 def _as_numeric_duration(duration):
     simplified = simplify_math_expr(duration)
     if isinstance(simplified, MathNum):
         return simplified.value
     raise AtomicCompilerError(f"Duration must be constant: {duration}")
+
 
 class ResolveNestedProtocol(RewriteRule):
     """
@@ -90,9 +92,7 @@ class ResolveNestedProtocol(RewriteRule):
             )
 
             if remainder:
-                return cut, SerialProtocol(
-                    pulses=[remainder, *model.pulses[1:]]
-                )
+                return cut, SerialProtocol(pulses=[remainder, *model.pulses[1:]])
             if model.pulses[1:]:
                 return cut, SerialProtocol(pulses=model.pulses[1:])
 
@@ -100,7 +100,7 @@ class ResolveNestedProtocol(RewriteRule):
 
         total = _as_numeric_duration(model.duration)
         cut = model.model_copy(deep=True)
-        
+
         if total == continuous_duration:
             return [cut], None
         cut.duration = MathNum(value=continuous_duration)
@@ -148,9 +148,11 @@ class ResolveNestedProtocol(RewriteRule):
                 new_statements.extend(
                     list(
                         map(
-                            lambda x: x
-                            if isinstance(x, ParallelProtocol)
-                            else ParallelProtocol(pulses=[x]),
+                            lambda x: (
+                                x
+                                if isinstance(x, ParallelProtocol)
+                                else ParallelProtocol(pulses=[x])
+                            ),
                             subprotocol.pulses,
                         )
                     )
@@ -163,13 +165,13 @@ class ResolveNestedProtocol(RewriteRule):
 
     def map_Pulse(self, model):
         return SerialProtocol(pulses=[model])
-    
+
     def map_Declaration(self, model: Declaration):
         pass
-    
+
     def map_IfElse(self, model: IfElse):
         pass
-    
+
     def map_While(self, model: While):
         pass
 
@@ -196,17 +198,17 @@ class ResolveRelativeTime(RewriteRule):
             if not model.pulses:
                 raise AtomicCompilerError("Serial block is empty.")
             return sum(self._get_segment_duration(p) for p in model.pulses)
-        
+
         if isinstance(model, ParallelProtocol):
             if not model.pulses:
                 raise AtomicCompilerError("Parallel block is empty.")
             return max(self._get_segment_duration(p) for p in model.pulses)
-        
+
         if isinstance(model, Pulse):
             return _as_numeric_duration(model.duration)
-        
+
         return 0
-    
+
     def _substitute_at(self, offset):
         return SubstituteMathVar(
             variable=MathVar(name="#s"),
@@ -225,21 +227,20 @@ class ResolveRelativeTime(RewriteRule):
             current_time += self._get_segment_duration(p)
 
         return SerialProtocol(pulses=new_pulses)
-    
+
     def map_ParallelProtocol(self, model):
         return ParallelProtocol(
             pulses=[Post(self._substitute_at(0))(p) for p in model.pulses]
         )
-    
+
     def map_Pulse(self, model):
         return Post(self._substitute_at(0))(model)
-    
+
     def map_Declaration(self, model: Declaration):
         pass
-    
+
     def map_IfElse(self, model: IfElse):
         pass
-    
+
     def map_While(self, model: While):
         pass
-

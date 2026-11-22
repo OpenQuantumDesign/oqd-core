@@ -18,6 +18,11 @@ from __future__ import annotations
 import antlr4
 from antlr4.tree.Tree import TerminalNodeImpl
 
+from oqd_core.frontend.atomic._generated import (
+    AtomicLexer,
+    AtomicParser,
+    AtomicParserVisitor,
+)
 from oqd_core.interface.atomic import (
     Access,
     AtomicCircuit,
@@ -53,10 +58,6 @@ from oqd_core.interface.atomic import (
     SerialProtocol,
     While,
 )
-
-from .AtomicLexer import AtomicLexer
-from .AtomicParser import AtomicParser
-from .AtomicParserVisitor import AtomicParserVisitor
 
 ########################################################################################
 

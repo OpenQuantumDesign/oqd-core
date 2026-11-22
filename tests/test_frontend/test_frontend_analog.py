@@ -14,56 +14,55 @@
 
 import pytest
 
-from oqd_core.frontend.analog.AnalogASTBuilder import parse_analog
+from oqd_core.analog import (
+    analog,
+    parse_analog,
+    serialize_analog,
+)
 from oqd_core.frontend.analog.AnalogParserErrorListener import AnalogParserErrorListener
 from oqd_core.frontend.analog.serialize import serialize_analog
 from oqd_core.interface.analog import (
     Access,
+    Add,
     AnalogCircuit,
     AnalogList,
-    Bool,
-    BoolAnd,
-    BoolEq,
-    BoolGreaterThan,
-    BoolGreaterThanEq,
-    BoolLessThan,
-    BoolLessThanEq,
-    BoolNot,
-    BoolNotEq,
-    BoolOr,
+    And,
+    Annihilation,
     Break,
+    BuiltinCall,
+    Complex,
+    Constant,
     Continue,
+    Creation,
     Declaration,
+    Div,
+    Eq,
     Evolve,
     Extract,
+    Geq,
+    Gt,
+    Identity,
     IfElse,
     Initialize,
-    MathAdd,
-    MathDiv,
-    MathFunc,
-    MathImag,
-    MathMul,
-    MathNum,
-    MathPow,
-    MathSub,
-    MathVar,
+    Kron,
+    Leq,
+    Lt,
     Measure,
     ModeRegister,
-    QuantumRegister,
-    While,
-)
-from oqd_core.interface.analog.expr import (
-    Annihilation,
-    Creation,
-    Identity,
-    OperatorAdd,
-    OperatorKron,
-    OperatorMul,
-    OperatorSub,
+    Mul,
+    Neg,
+    Neq,
+    Not,
+    Or,
     PauliI,
     PauliX,
     PauliY,
     PauliZ,
+    Pow,
+    QuantumRegister,
+    RuntimeVar,
+    Sub,
+    While,
 )
 
 ########################################################################################
@@ -85,24 +84,24 @@ class TestAnalogDeclarations:
         decl = circuit.statements[0]
         assert isinstance(decl, Declaration)
         assert decl.name == "x"
-        assert decl.value == MathNum(value=1)
+        assert decl.value == Constant(value=1)
 
     def test_float(self):
         circuit = parse_analog("pi = 3.14")
         decl = circuit.statements[0]
         assert isinstance(decl, Declaration)
         assert decl.name == "pi"
-        assert decl.value == MathNum(value=3.14)
+        assert decl.value == Constant(value=3.14)
 
     def test_math_var(self):
         circuit = parse_analog("omega = #omega")
         decl = circuit.statements[0]
-        assert decl.value == MathVar(name="#omega")
+        assert decl.value == RuntimeVar(name="#omega")
 
     def test_imag(self):
         circuit = parse_analog("z = 1j")
         decl = circuit.statements[0]
-        assert decl.value == MathImag()
+        assert decl.value == Constant(value=Complex(real=0, imag=1))
 
     def test_quantum_register(self):
         circuit = parse_analog("r = qreg(2)")
@@ -119,17 +118,17 @@ class TestAnalogDeclarations:
         decl = circuit.statements[0]
         assert isinstance(decl.value, AnalogList)
         assert decl.value.values == [
-            MathNum(value=1),
-            MathNum(value=2),
-            MathNum(value=3),
+            Constant(value=1),
+            Constant(value=2),
+            Constant(value=3),
         ]
 
     def test_list_extract(self):
         circuit = parse_analog("r = qreg(2)\nq0 = r[0]")
         decl = circuit.statements[1]
         assert isinstance(decl.value, Extract)
-        assert decl.value.access == Access(name="r")
-        assert decl.value.index == 0
+        assert decl.value.value == Access(name="r")
+        assert decl.value.index == Constant(value=0)
 
 
 ## Math Expressions ##
@@ -139,48 +138,50 @@ class TestAnalogMathExpressions:
     def test_addition(self):
         circuit = parse_analog("x = 1 + 2")
         decl = circuit.statements[0]
-        assert decl.value == MathAdd(expr1=MathNum(value=1), expr2=MathNum(value=2))
+        assert decl.value == Add(exprs=[Constant(value=1), Constant(value=2)])
 
     def test_subtraction(self):
         circuit = parse_analog("x = 5 - 3")
         decl = circuit.statements[0]
-        assert decl.value == MathSub(expr1=MathNum(value=5), expr2=MathNum(value=3))
+        assert decl.value == Sub(exprs=[Constant(value=5), Constant(value=3)])
 
     def test_multiplication(self):
         circuit = parse_analog("x = 2 * 3")
         decl = circuit.statements[0]
-        assert decl.value == MathMul(expr1=MathNum(value=2), expr2=MathNum(value=3))
+        assert decl.value == Mul(exprs=[Constant(value=2), Constant(value=3)])
 
     def test_division(self):
         circuit = parse_analog("x = 6 / 2")
         decl = circuit.statements[0]
-        assert decl.value == MathDiv(expr1=MathNum(value=6), expr2=MathNum(value=2))
+        assert decl.value == Div(exprs=[Constant(value=6), Constant(value=2)])
 
     def test_power(self):
         circuit = parse_analog("x = 2^3")
         decl = circuit.statements[0]
-        assert decl.value == MathPow(expr1=MathNum(value=2), expr2=MathNum(value=3))
+        assert decl.value == Pow(exprs=[Constant(value=2), Constant(value=3)])
 
     def test_negation(self):
         circuit = parse_analog("x = -1")
         decl = circuit.statements[0]
-        assert decl.value == MathMul(expr1=MathNum(value=-1), expr2=MathNum(value=1))
+        assert decl.value == Neg(expr=Constant(value=1))
 
     def test_nested_expression(self):
         circuit = parse_analog("x = 2 * 3 + 1")
         decl = circuit.statements[0]
-        expected = MathAdd(
-            expr1=MathMul(expr1=MathNum(value=2), expr2=MathNum(value=3)),
-            expr2=MathNum(value=1),
+        expected = Add(exprs=[
+            Mul(exprs=[Constant(value=2), Constant(value=3)]),
+            Constant(value=1),
+            ]
         )
         assert decl.value == expected
 
     def test_paranthesis_expression(self):
         circuit = parse_analog("x = 2 * (3 + 1)")
         decl = circuit.statements[0]
-        expected = MathMul(
-            expr1=MathNum(value=2),
-            expr2=MathAdd(expr1=MathNum(value=3), expr2=MathNum(value=1)),
+        expected = Mul(exprs=[
+            Constant(value=2),
+            Add(exprs=[Constant(value=3), Constant(value=1)]),
+            ]
         )
         assert decl.value == expected
 
@@ -211,16 +212,16 @@ class TestAnalogMathExpressions:
     def test_unary_math_function(self, func_name):
         circuit = parse_analog(f"x = {func_name}(1)")
         decl = circuit.statements[0]
-        assert isinstance(decl.value, MathFunc)
+        assert isinstance(decl.value, BuiltinCall)
         assert decl.value.func == func_name
-        assert decl.value.expr == MathNum(value=1)
+        assert decl.value.args == [Constant(value=1)]
 
     def test_atan2(self):
         circuit = parse_analog("x = atan2(1, 2)")
         decl = circuit.statements[0]
-        assert isinstance(decl.value, MathFunc)
+        assert isinstance(decl.value, BuiltinCall)
         assert decl.value.func == "atan2"
-        assert decl.value.expr == [MathNum(value=1), MathNum(value=2)]
+        assert decl.value.args == [Constant(value=1), Constant(value=2)]
 
 
 ## Bool Expressions ##
@@ -229,25 +230,25 @@ class TestAnalogMathExpressions:
 class TestAnalogBool:
     def test_true(self):
         circuit = parse_analog("x = true")
-        assert circuit.statements[0].value == Bool(value=True)
+        assert circuit.statements[0].value == Constant(value=True)
 
     def test_false(self):
         circuit = parse_analog("x = false")
-        assert circuit.statements[0].value == Bool(value=False)
+        assert circuit.statements[0].value == Constant(value=False)
 
     @pytest.mark.parametrize(
         "op, cls",
         [
-            ("==", BoolEq),
-            ("!=", BoolNotEq),
-            ("<=", BoolLessThanEq),
-            ("<", BoolLessThan),
-            ("and", BoolAnd),
-            ("&&", BoolAnd),
-            ("or", BoolOr),
-            ("||", BoolOr),
-            (">=", BoolGreaterThanEq),
-            (">", BoolGreaterThan),
+            ("==", Eq),
+            ("!=", Neq),
+            ("<=", Leq),
+            ("<", Lt),
+            ("and", And),
+            ("&&", And),
+            ("or", Or),
+            ("||", Or),
+            (">=", Geq),
+            (">", Gt),
         ],
     )
     def test_comparison(self, op, cls):
@@ -259,8 +260,8 @@ class TestAnalogBool:
     @pytest.mark.parametrize(
         "op, cls",
         [
-            ("not", BoolNot),
-            ("!", BoolNot),
+            ("not", Not),
+            ("!", Not),
         ],
     )
     def test_not(self, op, cls):
@@ -303,20 +304,20 @@ class TestAnalogOperators:
         assert circuit.statements[0].value == Identity()
 
     def test_operator_add(self):
-        circuit = parse_analog("op = %X %+ %Y")
-        assert circuit.statements[0].value == OperatorAdd(op1=PauliX(), op2=PauliY())
+        circuit = parse_analog("op = %X + %Y")
+        assert circuit.statements[0].value == Add(exprs=[PauliX(), PauliY()])
 
     def test_operator_sub(self):
-        circuit = parse_analog("op = %X %- %Y")
-        assert circuit.statements[0].value == OperatorSub(op1=PauliX(), op2=PauliY())
+        circuit = parse_analog("op = %X - %Y")
+        assert circuit.statements[0].value == Sub(exprs=[PauliX(), PauliY()])
 
     def test_operator_mul(self):
-        circuit = parse_analog("op = %X %* %Y")
-        assert circuit.statements[0].value == OperatorMul(op1=PauliX(), op2=PauliY())
+        circuit = parse_analog("op = %X * %Y")
+        assert circuit.statements[0].value == Mul(exprs=[PauliX(), PauliY()])
 
     def test_operator_kron(self):
-        circuit = parse_analog("op = %X %@ %Y")
-        assert circuit.statements[0].value == OperatorKron(op1=PauliX(), op2=PauliY())
+        circuit = parse_analog("op = %X @ %Y")
+        assert circuit.statements[0].value == Kron(exprs=[PauliX(), PauliY()])
 
 
 ## Statements ##
@@ -344,7 +345,7 @@ class TestAnalogStatements:
         statement = circuit.statements[1]
         assert isinstance(statement, Evolve)
         assert statement.hamiltonian == PauliX()
-        assert statement.duration == MathNum(value=1.0)
+        assert statement.duration == Constant(value=1.0)
         assert statement.targets == Access(name="r")
 
     def test_multiple_statements(self, register):
@@ -373,7 +374,7 @@ class TestAnalogControlFlow:
         circuit = parse_analog(program)
         ifelse = circuit.statements[1]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolGreaterThan)
+        assert isinstance(ifelse.condition, Gt)
         assert len(ifelse.then_branch) == 1
         assert ifelse.else_branch == []
 
@@ -382,7 +383,7 @@ class TestAnalogControlFlow:
         circuit = parse_analog(program)
         ifelse = circuit.statements[1]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolGreaterThan)
+        assert isinstance(ifelse.condition, Gt)
         assert len(ifelse.then_branch) == 1
         assert len(ifelse.else_branch) == 1
 
@@ -391,7 +392,7 @@ class TestAnalogControlFlow:
         circuit = parse_analog(program)
         while_statement = circuit.statements[1]
         assert isinstance(while_statement, While)
-        assert isinstance(while_statement.condition, BoolGreaterThan)
+        assert isinstance(while_statement.condition, Gt)
         assert len(while_statement.body) == 1
 
     def test_break_loop(self):
@@ -419,14 +420,14 @@ class TestAnalogControlFlow:
         circuit = parse_analog(program)
         while_statement = circuit.statements[0]
         assert isinstance(while_statement, While)
-        assert isinstance(while_statement.condition, Bool)
+        assert while_statement.condition == Constant(value=True)
         ifelse = while_statement.body[0]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolEq)
+        assert isinstance(ifelse.condition, Eq)
         assert isinstance(ifelse.then_branch[0], Declaration)
         ifelse = while_statement.body[1]
         assert isinstance(ifelse, IfElse)
-        assert isinstance(ifelse.condition, BoolEq)
+        assert isinstance(ifelse.condition, Eq)
         assert isinstance(ifelse.then_branch[0], Break)
 
 
@@ -475,7 +476,7 @@ class TestAnalogError:
     @pytest.mark.parametrize(
         "program",
         [
-            "r = qreg()",
+            "r = ",
             "list = [1, 2,",
             "initialize(?)",
             "evolve(%X, 1.0, r)!",
@@ -488,3 +489,20 @@ class TestAnalogError:
     def test_analog_error_raise(self, program):
         with pytest.raises(AnalogParserErrorListener._error_class):
             parse_analog(program)
+
+
+@analog
+def test_circuit(self):
+    q = qreg(2)
+    a = C([2, 2], 0)
+    evolve(a, 1, q)
+    r = qreg(2)
+    list = [1, 2, 3]
+    initialize(r)
+    measure(q)
+
+
+class TestAnalogPyASTtoCFG:
+    def test_analog_pyast_cfg(self):
+        circuit, cfg = test_circuit
+    

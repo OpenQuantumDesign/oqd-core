@@ -13,11 +13,19 @@
 # limitations under the License.
 
 from __future__ import annotations
+
 from collections.abc import Iterator
-from oqd_core.analysis.atomic.symbol_table import AtomicSymbolTable, target_dim
+
 from oqd_compiler_infrastructure import CFG
+
+from oqd_core.analysis.atomic.symbol_table import AtomicSymbolTable, target_dim
 from oqd_core.compiler.atomic.cfg_passes.walk import iter_stmt_blocks
-from oqd_core.interface.atomic import Declaration, ParallelProtocol, Pulse, SerialProtocol
+from oqd_core.interface.atomic import (
+    Declaration,
+    ParallelProtocol,
+    Pulse,
+    SerialProtocol,
+)
 
 __all__ = [
     "verify_pulse_target_dim",
@@ -50,4 +58,3 @@ def verify_pulse_target_dim(cfg: CFG, symbol_table: AtomicSymbolTable):
             for target in iter_pulse_targets(stmt):
                 target_dim(target, env)
     return cfg
-

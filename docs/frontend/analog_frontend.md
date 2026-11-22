@@ -8,20 +8,24 @@ The analog frontend is implemented in `src/oqd_core/frontend/analog`.
 
 These files are generated from the grammar `src/grammar/analog` using ANTLR4:
 
-- [`AnalogLexer.py`](../../src/oqd_core/frontend/analog/AnalogLexer.py)
-- [`AnalogParser.py`](../../src/oqd_core/frontend/analog/AnalogParser.py)
-- [`AnalogLexer.tokens`](../../src/oqd_core/frontend/analog/AnalogLexer.tokens)
-- [`AnalogParser.tokens`](../../src/oqd_core/frontend/analog/AnalogParser.tokens)
-- [`AnalogLexer.interp`](../../src/oqd_core/frontend/analog/AnalogLexer.interp)
-- [`AnalogParser.interp`](../../src/oqd_core/frontend/analog/AnalogParser.interp)
-- [`AnalogParserListener.py`](../../src/oqd_core/frontend/analog/AnalogParserListener.py)
-- [`AnalogParserVisitor.py`](../../src/oqd_core/frontend/analog/AnalogParserVisitor.py)
+- [`AnalogLexer.py`](../../src/oqd_core/frontend/analog/_generated/AnalogLexer.py)
+- [`AnalogParser.py`](../../src/oqd_core/frontend/analog/_generated/AnalogParser.py)
+- [`AnalogLexer.tokens`](../../src/oqd_core/frontend/analog/_generated/AnalogLexer.tokens)
+- [`AnalogParser.tokens`](../../src/oqd_core/frontend/analog/_generated/AnalogParser.tokens)
+- [`AnalogLexer.interp`](../../src/oqd_core/frontend/analog/_generated/AnalogLexer.interp)
+- [`AnalogParser.interp`](../../src/oqd_core/frontend/analog/_generated/AnalogParser.interp)
+- [`AnalogParserListener.py`](../../src/oqd_core/frontend/analog/_generated/AnalogParserListener.py)
+- [`AnalogParserVisitor.py`](../../src/oqd_core/frontend/analog/_generated/AnalogParserVisitor.py)
 
 For more details on the analog grammar, see [`analog_grammar.md`](../grammar/analog_grammar.md).
 
 ### AST Builder
 
-[`AnalogCircuitAST.py`](../../src/oqd_core/frontend/analog/AnalogCircuitAST.py) contains the implementation of the AST Builder. The `parse_analog` function uses the `AnalogASTBuilder` class to convert the analog source text into an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit]. It produces a typed AST of the source code.
+[`AnalogASTBuilder.py`](../../src/oqd_core/frontend/analog/AnalogASTBuilder.py) contains the implementation of the AST Builder. The `parse_analog` function uses the `AnalogASTBuilder` class to convert the analog source text into an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit]. It produces a typed AST of the source code.
+
+### Error Listener
+
+[`AnalogParserErrorListener.py`](../../src/oqd_core/frontend/analog/AnalogParserErrorListener.py) implements a custom error listener class for the analog interface.
 
 ### Serializer
 
@@ -40,7 +44,7 @@ from oqd_core.frontend.analog import parse_analog
 
 source = """
 q = qreg(2)
-h = %X %@ %I
+h = %X @ %I
 evolve(h, 1.0, q)
 measure(q)
 """

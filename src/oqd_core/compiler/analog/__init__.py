@@ -12,4 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-__all__ = ["passes", "rewrite", "verify", "utils"]
+from .compile import analog, compile_analog_circuit
+from .conversion import AnalogCFGBuilder, AnalogCFGtoAST, PyASTtoAnalog
+
+__all__ = [
+    "AnalogCFGBuilder",
+    "AnalogCFGtoAST",
+    "PyASTtoAnalog",
+    "analog",
+    "compile_analog_circuit",
+]
