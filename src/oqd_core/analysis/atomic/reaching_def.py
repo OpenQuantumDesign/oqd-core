@@ -28,7 +28,6 @@ from oqd_compiler_infrastructure import (
     gen_pass,
 )
 
-
 from oqd_core.analysis.utils import AnalysisError
 from oqd_core.frontend.atomic import serialize_atomic
 from oqd_core.interface.atomic import (

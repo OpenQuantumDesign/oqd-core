@@ -1,4 +1,4 @@
-The atomic frontend provides tools to convert atomic source text into a parsed tree and to convert a parsed tree back into source text.
+The atomic frontend provides tools to convert atomic source text into a typed Abstract Syntax Tree (AST) and to convert a typed AST back into source text.
 
 ## Frontend Components
 
@@ -8,24 +8,28 @@ The atomic frontend is implemented in `src/oqd_core/frontend/atomic`.
 
 These files are generated from the grammar `src/grammar/atomic` using ANTLR4:
 
-- [`AtomicLexer.py`](../../src/oqd_core/frontend/atomic/AtomicLexer.py)
-- [`AtomicParser.py`](../../src/oqd_core/frontend/atomic/AtomicParser.py)
-- [`AtomicLexer.tokens`](../../src/oqd_core/frontend/atomic/AtomicLexer.tokens)
-- [`AtomicParser.tokens`](../../src/oqd_core/frontend/atomic/AtomicParser.tokens)
-- [`AtomicLexer.interp`](../../src/oqd_core/frontend/atomic/AtomicLexer.interp)
-- [`AtomicParser.interp`](../../src/oqd_core/frontend/atomic/AtomicParser.interp)
-- [`AtomicParserListener.py`](../../src/oqd_core/frontend/atomic/AtomicParserListener.py)
-- [`AtomicParserVisitor.py`](../../src/oqd_core/frontend/atomic/AtomicParserVisitor.py)
+- [`AtomicLexer.py`](../../src/oqd_core/frontend/atomic/_generated/AtomicLexer.py)
+- [`AtomicParser.py`](../../src/oqd_core/frontend/atomic/_generated/AtomicParser.py)
+- [`AtomicLexer.tokens`](../../src/oqd_core/frontend/atomic/_generated/AtomicLexer.tokens)
+- [`AtomicParser.tokens`](../../src/oqd_core/frontend/atomic/_generated/AtomicParser.tokens)
+- [`AtomicLexer.interp`](../../src/oqd_core/frontend/atomic/_generated/AtomicLexer.interp)
+- [`AtomicParser.interp`](../../src/oqd_core/frontend/atomic/_generated/AtomicParser.interp)
+- [`AtomicParserListener.py`](../../src/oqd_core/frontend/atomic/_generated/AtomicParserListener.py)
+- [`AtomicParserVisitor.py`](../../src/oqd_core/frontend/atomic/_generated/AtomicParserVisitor.py)
 
 For more details on the atomic grammar, see [`atomic_grammar.md`](../grammar/atomic_grammar.md).
 
 ### AST Builder
 
-[`AtomicCircuitAST.py`](../../src/oqd_core/frontend/atomic/AtomicCircuitAST.py) contains the implementation of the AST Builder. The `parse_atomic` function uses the `AtomicASTBuilder` class to convert the atomic source text into an [`AtomicCircuit`][oqd_core.interface.atomic.circuit.AtomicCircuit].
+[`AtomicASTBuilder.py`](../../src/oqd_core/frontend/atomic/AtomicASTBuilder.py) contains the implementation of the AST Builder. The `parse_atomic` function uses the `AtomicASTBuilder` class to convert the atomic source text into the Atomic AST.
+
+### Error Listener
+
+[`AtomicParserErrorListener.py`](../../src/oqd_core/frontend/atomic/AtomicParserErrorListener.py) implements a custom error listener class for the atomic interface.
 
 ### Serializer
 
-[`serialize.py`](../../src/oqd_core/frontend/atomic/serialize.py) contains the implementation of the serializer. The `serialize_atomic` function uses the `SerializeAtomic` class to convert an [`AtomicCircuit`][oqd_core.interface.atomic.circuit.AtomicCircuit] into atomic source text.
+[`serialize.py`](../../src/oqd_core/frontend/atomic/serialize.py) contains the implementation of the serializer. The `serialize_atomic` function uses the `SerializeAtomic` class to convert Atomic AST into atomic source text.
 
 ## Usage of the AST Builder and Serializer
 

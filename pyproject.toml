@@ -72,6 +72,7 @@ markers = ["slow: Mark a test as taking a long time to run, and so can be skippe
 
 [tool.ruff]
 exclude = [
+  "examples/*",
   "src/oqd_core/frontend/analog/_generated/*",
   "src/oqd_core/frontend/atomic/_generated/*",
   "tests/*",

@@ -5,47 +5,7 @@ The atomic interface expresses quantum information experiments in terms of light
 Ions are implemented through ion registers and index-based extraction.
 
 - [`IonRegister`][oqd_core.interface.atomic.expr.IonRegister] creates an ion register
-- [`Extract`][oqd_core.interface.atomic.expr.Extract] accesses a target ion by index
 - [`AtomicList`][oqd_core.interface.atomic.expr.AtomicList] collects Atomic Expressions in a list
-
-## Math Expressions
-
-Atomic parameters support math expressions.
-
-### Math Primitives
-
-- [`MathNum`][oqd_core.interface.atomic.expr.MathNum] represents numeric literals in atomic math expressions.
-- [`MathImag`][oqd_core.interface.atomic.expr.MathImag] represents the imaginary unit.
-- [`MathVar`][oqd_core.interface.atomic.expr.MathVar] represents compile-time variables in expressions.
-
-### Math Operations
-
-- Addition <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.MathAdd] </div>
-- Subtraction <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.MathSub] </div>
-- Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.MathMul] </div>
-- Division <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.MathDiv] </div>
-- Exponentiation <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.MathPow] </div>
-- Named functions <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.MathFunc] </div>
-
-Compatible named functions include:
-`sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, `exp`, `log`, `real`, `imag`, `conj`, `abs`, `heaviside`.
-
-## Boolean Expressions
-
-Boolean expressions are used for conditional and loop control flow. <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.Bool] </div>
-
-### Boolean Operations
-
-- NOT <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolNot] </div>
-- AND <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolAnd] </div>
-- OR <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolOr] </div>
-- Equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolEq] </div>
-- Not equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolNotEq] </div>
-- Less than <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolLessThan] </div>
-- Less than or equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolLessThanEq] </div>
-- Greater than <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolGreaterThan] </div>
-- Greater than or equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.atomic.expr.BoolGreaterThanEq] </div>
-
 
 # Atomic Circuit
 
