@@ -488,34 +488,6 @@ DEFAULT_OP_MAPPING = {
     "%J": Identity,
 }
 
-class Creation(Ladder, AnalogExpr):
-    """
-    Class for the Creation operator in Fock space
-    """
-
-
-class Annihilation(Ladder, AnalogExpr):
-    """
-    Class for the Annihilation operator in Fock space
-    """
-
-
-class Identity(Ladder, AnalogExpr):
-    """
-    Class for the Identity operator in Fock space
-    """
-
-
-DEFAULT_OP_MAPPING = {
-    "%X": PauliX,
-    "%Y": PauliY,
-    "%Z": PauliZ,
-    "%I": PauliI,
-    "%A": Annihilation,
-    "%C": Creation,
-    "%J": Identity,
-}
-
 ########################################################################################
 
 

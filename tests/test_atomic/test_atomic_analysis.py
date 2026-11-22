@@ -155,9 +155,10 @@ class TestAtomicAssignmentAnalysis:
     )
     def test_atomic_definite_assignment_checker_error(self, program):
         circuit = parse_atomic(program)
-        with pytest.raises(AvailableVariableError):
-            cfg = AtomicCFGBuilder()(circuit)
-            AvailableVariableAnalysis().analyze(cfg)
+        cfg = AtomicCFGBuilder()(circuit)
+        checker = AvailableVariableAnalysis()
+        with pytest.raises(checker._err_collector._error_class):
+            checker.analyze(cfg)
 
 ########################################################################################
 
@@ -290,8 +291,9 @@ class TestAtomicTypeChecker:
     def test_atomic_type_checker_error(self, program):
         circuit = parse_atomic(program)
         cfg = AtomicCFGBuilder()(circuit)
-        with pytest.raises(AtomicTypeError):
-            AtomicTypeChecker().analyze(cfg)
+        checker = AtomicTypeChecker()
+        with pytest.raises(checker._err_collector._error_class):
+            checker.analyze(cfg)
 
 
 ## Bounds Checker ##
@@ -319,7 +321,7 @@ class TestAtomicBoundsChecker:
             p0 = pulse(b[0], 5e-6, r[0]) \n p1 = pulse(b[1], 5e-6, r[1])",
             "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             c = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n parallel {\n \
-            serial {\n x = pulse(b, 5e-6, r[0])\n } \n pulse(c, 4e-06, r[1]\n}",
+            serial {\n x = pulse(b, 5e-6, r[0])\n } \n pulse(c, 4e-6, r[1])\n}",
             "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
             serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])\n }\n}",
             "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
@@ -372,9 +374,10 @@ class TestAtomicBoundsChecker:
     )
     def test_atomic_bounds_checker_error(self, program):
         circuit = parse_atomic(program)
-        with pytest.raises(OutOfBoundsError):
-            cfg = AtomicCFGBuilder()(circuit)
-            AtomicBoundsChecker().analyze(cfg)
+        cfg = AtomicCFGBuilder()(circuit)
+        checker = AtomicBoundsChecker()
+        with pytest.raises(checker._err_collector._error_class):
+            checker.analyze(cfg)
 
 
 class TestAtomicFoldChecker:
@@ -411,5 +414,4 @@ class TestAtomicFoldChecker:
         assert(isinstance(decl, Declaration))
         assert(decl.value == expected)
         
-
 

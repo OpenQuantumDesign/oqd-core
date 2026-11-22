@@ -298,14 +298,8 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
             case _:
                 return self.lattice.element_lattice.bottom()
 
-
-class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
-    """Forward dataflow dimension checker over the Control Flow Graph."""
-
-    lattice = maplattice(DimensionLattice, default_mode="top")()
-
-    def _is_integer(self, expr):
-        return isinstance(expr, Constant) and type(expr.value) is int
+    def merge(self, states):
+        return self.lattice.merge_meet(states)
 
     def transfer(self, graph, node_id, state_in):
         block = graph[node_id]
