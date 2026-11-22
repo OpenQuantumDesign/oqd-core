@@ -37,19 +37,16 @@ nav:
   - Analysis:
       - Analog: analysis/analog_analysis.md
       - Atomic: analysis/atomic_analysis.md
+  
+  - Compiler:
+      - Analog: compiler/analog_compiler.md
+      - Atomic: compiler/atomic_compiler.md
 
   - API Reference:
       - Interface:
           - Analog: reference/analog_interface.md
           - Atomic: reference/atomic_interface.md
 
-      - Compiler:
-          - Analog:
-              - Compiler: reference/analog_compiler.md
-              - Canonicalization: reference/analog_canonicalization.md
-          - Atomic:
-              - Compiler: reference/atomic_compiler.md
-              - Canonicalization: reference/atomic_canonicalization.md
 
 theme:
   name: material

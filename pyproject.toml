@@ -67,20 +67,14 @@ tests = ["pytest"]
 where   = ["src"]
 include = ["oqd_core*"]
 
+[tool.pytest.ini_options]
+markers = ["slow: Mark a test as taking a long time to run, and so can be skipped with `pytest -m 'not slow'`."]
+
 [tool.ruff]
 exclude = [
-  "src/oqd_core/frontend/analog/AnalogLexer.py",
-  "src/oqd_core/frontend/analog/AnalogParser.py",
-  "src/oqd_core/frontend/analog/AnalogParserListener.py",
-  "src/oqd_core/frontend/analog/AnalogParserVisitor.py",
-  "src/oqd_core/frontend/atomic/AtomicLexer.py",
-  "src/oqd_core/frontend/atomic/AtomicParser.py",
-  "src/oqd_core/frontend/atomic/AtomicParserListener.py",
-  "src/oqd_core/frontend/atomic/AtomicParserVisitor.py",
-  "tests/test_analog/*",
-  "tests/test_atomic/*",
-  "tests/test_math/*",
-  "tests/test_serialization.py",
+  "src/oqd_core/frontend/analog/_generated/*",
+  "src/oqd_core/frontend/atomic/_generated/*",
+  "tests/*",
 ]
 
 [tool.ruff.lint]

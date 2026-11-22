@@ -134,6 +134,60 @@ class Complex(VisitableBaseModel):
     real: float
     imag: float
 
+    @classmethod
+    def cast(cls, value):
+        match value:
+            case Complex():
+                return value
+            case complex():
+                return Complex(real=value.real, imag=value.imag)
+            case float() | int():
+                return Complex(real=value.real, imag=value.imag)
+            case _:
+                raise TypeError(
+                    f"Unsupported type ({value.__class__.__name__}) for casting to Complex"
+                )
+
+    @property
+    def value(self):
+        return self.real + 1j * self.imag
+
+    def __pos__(self):
+        return self
+
+    def __neg__(self):
+        return self.cast(-self.value)
+
+    def __add__(self, other):
+        return self.cast(self.value + self.cast(other).value)
+
+    def __sub__(self, other):
+        return self.cast(self.value - self.cast(other).value)
+
+    def __mul__(self, other):
+        return self.cast(self.value * self.cast(other).value)
+
+    def __truediv__(self, other):
+        return self.cast(self.value / self.cast(other).value)
+
+    def __pow__(self, other):
+        return self.cast(self.value ** self.cast(other).value)
+
+    def __radd__(self, other):
+        return self + other
+
+    def __rsub__(self, other):
+        return self.cast(self.cast(other).value - self.value)
+
+    def __rmul__(self, other):
+        return self * other
+
+    def __rtruediv__(self, other):
+        return self.cast(self.cast(other).value / self.value)
+
+    def __rpow__(self, other):
+        return self.cast(self.cast(other).value ** self.value)
+
 
 class Constant(AnalogExpr):
     value: Union[int, float, Complex, RuntimeVar, bool]
@@ -287,6 +341,8 @@ class Geq(BinaryOp, BoolOp, ComparisonOp, AnalogExpr): ...
 
 
 SupportedBuiltinFuncs = Literal[
+    "min",
+    "max",
     "abs",
     "sin",
     "cos",
@@ -368,7 +424,8 @@ class Pauli(Operator, AbstractAnalogExpr):
 
     level1: CastAnalogExpr = Constant(value=0)
     level2: CastAnalogExpr = Constant(value=1)
-    dim: CastAnalogExpr = Constant(value=2)
+    dims: CastAnalogExpr = Constant(value=2)
+    target: CastAnalogExpr = Constant(value=0)
 
 
 class PauliI(Pauli, AnalogExpr):
@@ -400,6 +457,36 @@ class Ladder(Operator, AbstractAnalogExpr):
     Class representing a ladder operator in Fock space
     """
 
+    dims: CastAnalogExpr = Constant(value=-1)
+    target: CastAnalogExpr = Constant(value=0)
+
+class Creation(Ladder, AnalogExpr):
+    """
+    Class for the Creation operator in Fock space
+    """
+
+
+class Annihilation(Ladder, AnalogExpr):
+    """
+    Class for the Annihilation operator in Fock space
+    """
+
+
+class Identity(Ladder, AnalogExpr):
+    """
+    Class for the Identity operator in Fock space
+    """
+
+
+DEFAULT_OP_MAPPING = {
+    "%X": PauliX,
+    "%Y": PauliY,
+    "%Z": PauliZ,
+    "%I": PauliI,
+    "%A": Annihilation,
+    "%C": Creation,
+    "%J": Identity,
+}
 
 class Creation(Ladder, AnalogExpr):
     """
