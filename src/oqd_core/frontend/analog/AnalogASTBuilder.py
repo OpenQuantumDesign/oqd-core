@@ -21,6 +21,9 @@ from oqd_core.frontend.analog._generated import (
     AnalogParser,
     AnalogParserVisitor,
 )
+from oqd_core.frontend.analog.AnalogParserErrorListener import (
+    AnalogParserErrorListener,
+)
 from oqd_core.interface.analog import (
     Access,
     Add,

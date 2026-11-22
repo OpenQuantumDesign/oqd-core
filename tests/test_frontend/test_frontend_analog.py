@@ -476,7 +476,7 @@ class TestAnalogError:
     @pytest.mark.parametrize(
         "program",
         [
-            "r = qreg()",
+            "r = ",
             "list = [1, 2,",
             "initialize(?)",
             "evolve(%X, 1.0, r)!",

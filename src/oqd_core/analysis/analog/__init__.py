@@ -12,10 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .dim_checker import DimensionChecker
-from .fold import ConstantFolding
+
+from .bounds_checker import AnalogBoundsChecker, OutOfBoundsError, OutOfBoundsWarning
+from .dim_checker import DimensionChecker, DimensionError, DimensionWarning
+from .fold import ConstantFolding, ConstantFoldingRule
 from .reaching_def import (
     AvailableVariableAnalysis,
+    AvailableVariableError,
     ReachingDefinition,
 )
 from .type_checker import AnalogTypeChecker, AnalogTypeError
@@ -26,7 +29,15 @@ __all__ = [
     "ConstantFolding",
     "AnalogTypeChecker",
     "AnalogTypeError",
+    "AnalogBoundsChecker",
+    "OutOfBoundsError",
+    "OutOfBoundsWarning",
     "DimensionChecker",
+    "DimensionError",
+    "DimensionWarning",
+    "ConstantFolding",
+    "ConstantFoldingRule",
     "AvailableVariableAnalysis",
+    "AvailableVariableError",
     "ReachingDefinition",
 ]
