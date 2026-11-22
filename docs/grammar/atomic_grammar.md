@@ -35,13 +35,11 @@ The grammar includes register constructors and list extraction:
 
 - `ion_register`
 - `atomic_list`
-- `atomic_list_extract`
 
 ### Expressions and Operators
 
 The grammar supports:
 
-- Arithmetic precedence through `aexpr`, `mexpr`, `uexpr`, and `eexpr`
 - Boolean logic with both word and symbolic forms (`and`/`&&`, `or`/`||`, `not`/`!`)
 - Comparators (`==`, `!=`, `<`, `<=`, `>`, `>=`)
 - Arithmetic operator tokens (`+`, `-`, `*`, `/`, `^`)
@@ -49,26 +47,14 @@ The grammar supports:
 ### Literals, Functions, and Operators
 
 The lexer defines:
-
-- Integer and float literals (`INT`, `FLOAT`)
-- Math variables (`MATH_VAR`) and imaginary literal (`IMAG`)
-- Function names (`abs`, `sin`, `cos`, `tan`, `exp`, `log`, `sinh`, `cosh`, `tanh`, `atan`, `acos`, `asin`, `atanh`, `asinh`, `acosh`, `heaviside`, `conj`, `real`, `imag`, `atan2`)
+- Function names (`min`, `max`, `abs`, `sin`, `cos`, `tan`, `exp`, `log`, `sinh`, `cosh`, `tanh`, `atan`, `acos`, `asin`, `atanh`, `asinh`, `acosh`, `heaviside`, `conj`, `real`, `imag`, `atan2`)
 
 ### Built-in Functions
 
 The grammar supports the core atomic statements through `beam`, `pulse`, `parallel`, and `serial`.
 
 - `beam(frequency, rabi, phase, polarization, wavevector)`
-  - `frequency`: math expression (`aexpr`)
-  - `rabi`: math expression (`aexpr`)
-  - `phase`: math expression (`aexpr`)
-  - `polarization`: vector expression (`aexpr`),
-  - `wavevector`: vector expression (`aexpr`),
 - `pulse(beam, duration, target[, measured])`
-  - `beam`: beam expression (`aexpr`),
-  - `duration`: math expression (`aexpr`)
-  - `target`: target expression (`aexpr`)
-  - `measured`: boolean expression (`aexpr`), optional, defaults to `false`
 - `parallel { ... }`
   - `...`: block (`block`) containing pulse statements, pulse declarations, pulse references, and nested protocols that will be run in parallel.
 - `serial { ... }`
@@ -82,8 +68,8 @@ Run generation from the grammar directory and output generated files into `src/o
 uv sync
 source .venv/bin/activate
 cd src/grammar/atomic
-antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic AtomicLexer.g4
-antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic AtomicParser.g4
+antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic/_generated AtomicLexer.g4
+antlr4 -Dlanguage=Python3 -visitor -listener -o ../../oqd_core/frontend/atomic/_generated AtomicParser.g4
 ```
 
 This generates lexer, parser, listener, and visitor artifacts used by the frontend parser pipeline.

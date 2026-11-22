@@ -21,7 +21,7 @@ For more details on the analog grammar, see [`analog_grammar.md`](../grammar/ana
 
 ### AST Builder
 
-[`AnalogASTBuilder.py`](../../src/oqd_core/frontend/analog/AnalogASTBuilder.py) contains the implementation of the AST Builder. The `parse_analog` function uses the `AnalogASTBuilder` class to convert the analog source text into an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit]. It produces a typed AST of the source code.
+[`AnalogASTBuilder.py`](../../src/oqd_core/frontend/analog/AnalogASTBuilder.py) contains the implementation of the AST Builder. The `parse_analog` function uses the `AnalogASTBuilder` class to convert the analog source text into the Analog AST.
 
 ### Error Listener
 
@@ -29,7 +29,7 @@ For more details on the analog grammar, see [`analog_grammar.md`](../grammar/ana
 
 ### Serializer
 
-[`serialize.py`](../../src/oqd_core/frontend/analog/serialize.py) contains the implementation of the serializer. The `serialize_analog` function uses the `SerializeAnalog` class to convert an [`AnalogCircuit`][oqd_core.interface.analog.circuit.AnalogCircuit] into analog source text.
+[`serialize.py`](../../src/oqd_core/frontend/analog/serialize.py) contains the implementation of the serializer. The `serialize_analog` function uses the `SerializeAnalog` class to convert Analog AST into analog source text.
 
 ## Usage of the AST Builder and Serializer
 

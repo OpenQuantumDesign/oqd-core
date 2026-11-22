@@ -11,7 +11,6 @@ They are implemented using registers and index-based extraction:
 
 - [`QuantumRegister`][oqd_core.interface.analog.expr.QuantumRegister] creates a qubit register
 - [`ModeRegister`][oqd_core.interface.analog.expr.ModeRegister] creates a bosonic mode register
-- [`Extract`][oqd_core.interface.analog.expr.Extract] accesses a target by index
 - [`AnalogList`][oqd_core.interface.analog.expr.AnalogList] collects analog expressions in a list
 
 ## Analog Operators
@@ -37,56 +36,8 @@ The basis of operators for the bosonic degree of freedom are the ladder operator
 
 ///
 
-### Operator Operations
-
-The basis operators can be combined with the operations:
-
-- Addition <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprAdd] </div>
-
-- Subtraction <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprSub] </div>
-
-- Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprMul] </div>
-
-- Tensor Product <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.OperatorExprKron] </div>
-
-## Math Expressions
-
-Analog parameters support math expressions.
-
-### Math Primitives
-
-- [`MathNum`][oqd_core.interface.analog.expr.MathNum] represents numeric literals in analog math expressions.
-- [`MathImag`][oqd_core.interface.analog.expr.MathImag] represents the imaginary unit.
-- [`MathVar`][oqd_core.interface.analog.expr.MathVar] represents compile-time variables in expressions.
-
-### Math Operations
-
-- Addition <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.MathAdd] </div>
-- Subtraction <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.MathSub] </div>
-- Multiplication <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.MathMul] </div>
-- Division <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.MathDiv] </div>
-- Exponentiation <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.MathPow] </div>
-- Named functions <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.MathFunc] </div>
-
 Compatible named functions include:
 `sin`, `cos`, `tan`, `asin`, `acos`, `atan`, `atan2`, `sinh`, `cosh`, `tanh`, `asinh`, `acosh`, `atanh`, `exp`, `log`, `real`, `imag`, `conj`, `abs`, `heaviside`.
-
-## Boolean Expressions
-
-Boolean expressions are used for conditional and loop control flow. <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.Bool] </div>
-
-### Boolean Operations
-
-- NOT <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolNot] </div>
-- AND <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolAnd] </div>
-- OR <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolOr] </div>
-- Equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolEq] </div>
-- Not equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolNotEq] </div>
-- Less than <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolLessThan] </div>
-- Less than or equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolLessThanEq] </div>
-- Greater than <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolGreaterThan] </div>
-- Greater than or equal <div style="float:right"> [![](https://img.shields.io/badge/Implementation-7C4DFF)][oqd_core.interface.analog.expr.BoolGreaterThanEq] </div>
-
 
 # Analog Circuit
 

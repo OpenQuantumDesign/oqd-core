@@ -16,134 +16,68 @@ from __future__ import annotations
 
 from typing import Annotated, Any, List, Literal, Union
 
-import numpy as np
-from oqd_compiler_infrastructure import TypeReflectBaseModel
-from pydantic import (
-    AfterValidator,
-    BeforeValidator,
-    Discriminator,
-    NonNegativeInt,
-    Tag,
-    model_validator,
-)
+from oqd_compiler_infrastructure import TypeReflectBaseModel, VisitableBaseModel
+from pydantic import AfterValidator, BaseModel, BeforeValidator, Discriminator
+from typing_extensions import TypeAliasType
 
 ########################################################################################
 
 __all__ = [
     "AtomicExpr",
     "CastAtomicExpr",
-    "Terminal",
     "Access",
-    "MathNum",
-    "MathVar",
-    "MathImag",
-    "Bool",
-    "IonRegister",
-    "MathExpr",
-    "MathFunc",
-    "MathBinaryOp",
-    "MathAdd",
-    "MathSub",
-    "MathMul",
-    "MathDiv",
-    "MathPow",
-    "BoolAnd",
-    "BoolOr",
-    "BoolNot",
-    "BoolEq",
-    "BoolNotEq",
-    "BoolLessThan",
-    "BoolLessThanEq",
-    "BoolGreaterThan",
-    "BoolGreaterThanEq",
-    "BoolExpr",
     "AtomicList",
     "Extract",
+    "Constant",
+    "RuntimeVar",
+    "Neg",
+    "Pos",
+    "Add",
+    "Sub",
+    "Mul",
+    "Div",
+    "Pow",
+    "Not",
+    "And",
+    "Or",
+    "Xor",
+    "Eq",
+    "Neq",
+    "Lt",
+    "Leq",
+    "Gt",
+    "Geq",
+    "BuiltinCall",
+    "IonRegister",
     "Beam",
     "Pulse",
 ]
 
 ########################################################################################
 
-
 class AtomicExpr(TypeReflectBaseModel):
     @classmethod
     def cast(cls, value: Any):
-        if isinstance(value, dict):
-            return value
-        if isinstance(value, AtomicExpr):
-            return value
-        if isinstance(value, (int, float)):
-            value = MathNum(value=value)
-            return value
-        if isinstance(value, (complex, np.complex128)):
-            value = MathNum(value=value.real) + MathImag() * value.imag
-            return value
-        if isinstance(value, str) and value.startswith("#"):
-            return MathVar(name=value)
-        if isinstance(value, str):
-            return Access(name=value)
-
-        raise TypeError
-
-    def __neg__(self):
-        return MathMul(expr1=MathNum(value=-1), expr2=self)
-
-    def __pos__(self):
-        return self
-
-    def __add__(self, other):
-        return MathAdd(expr1=self, expr2=other)
-
-    def __sub__(self, other):
-        return MathSub(expr1=self, expr2=other)
-
-    def __mul__(self, other):
-        return MathMul(expr1=self, expr2=other)
-
-    def __truediv__(self, other):
-        return MathDiv(expr1=self, expr2=other)
-
-    def __pow__(self, other):
-        return MathPow(expr1=self, expr2=other)
-
-    def __radd__(self, other):
-        other = MathExpr.cast(other)
-        return other + self
-
-    def __rsub__(self, other):
-        other = MathExpr.cast(other)
-        return other - self
-
-    def __rmul__(self, other):
-        other = MathExpr.cast(other)
-        return other * self
-
-    def __rpow__(self, other):
-        other = MathExpr.cast(other)
-        return other**self
-
-    def __rtruediv__(self, other):
-        other = MathExpr.cast(other)
-        return other / self
+        match value:
+            case str() if (
+                value.startswith("#") and len(value) > 1 and value[1:].isidentifier()
+            ):
+                return RuntimeVar(name=value)
+            case str() if value.isidentifier():
+                return Access(name=value)
+            case int() | float() | bool():
+                return Constant(value=value)
+            case complex():
+                return Constant(value=Complex(real=value.real, imag=value.imag))
+            case dict() | AtomicExpr():
+                return value
+            case Complex():
+                return Constant(value=value)
+            case _:
+                raise ValueError("Failed to cast value to AtomicExpr")
 
 
-class MathExpr(AtomicExpr): ...
-
-
-class BoolExpr(AtomicExpr): ...
-
-
-class IonExpr(AtomicExpr): ...
-
-
-class CollectionExpr(AtomicExpr): ...
-
-
-class IndexingExpr(AtomicExpr): ...
-
-
-class RegisterExpr(CollectionExpr): ...
+class AbstractAtomicExpr: ...
 
 
 ########################################################################################
@@ -164,39 +98,33 @@ class Access(AtomicExpr):
 
 ########################################################################################
 
-
-class MathTerminal(MathExpr): ...
-
-
-class MathVar(MathTerminal):
-    """
-    Class representing a variable in a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Examples:
-        >>> MathVar("t")
-
-    """
-
-    name: MathVarName
+class CollectionExpr(AbstractAtomicExpr): ...
 
 
-class MathNum(MathTerminal):
-    """
-    Class representing a number in a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
-
-    value: Union[int, float]
+class IndexingExpr(AbstractAtomicExpr): ...
 
 
-class MathImag(MathTerminal):
-    """
-    Class representing the imaginary unit in a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
-    """
-
-    pass
+class AtomicList(CollectionExpr, AtomicExpr):
+    values: List[CastAtomicExpr]
 
 
-def _is_mathvarname(value: str) -> str:
+class Extract(IndexingExpr, AtomicExpr):
+    value: CastAtomicExpr
+    index: CastAtomicExpr
+
+
+########################################################################################
+
+class Complex(VisitableBaseModel):
+    real: float
+    imag: float
+
+
+class Constant(AtomicExpr):
+    value: Union[int, float, Complex, RuntimeVar, bool]
+
+
+def _is_runtimevar(value: str) -> str:
     if not value.startswith("#") or len(value) < 2 or not value[1:].isidentifier():
         raise ValueError(
             "MathVar variable must start with a '#', followed by a valid identifier"
@@ -204,44 +132,134 @@ def _is_mathvarname(value: str) -> str:
     return value
 
 
-MathVarName = Annotated[str, AfterValidator(_is_mathvarname)]
-
-########################################################################################
+RuntimeVarName = Annotated[str, AfterValidator(_is_runtimevar)]
 
 
-class Bool(BoolExpr):
-    value: bool
+class RuntimeVar(AtomicExpr):
+    name: RuntimeVarName
 
 
 ########################################################################################
 
 
-class IonRegister(RegisterExpr):
-    size: NonNegativeInt
+class UnaryOp(AbstractAtomicExpr):
+    expr: CastAtomicExpr
+
+
+ListCastAtomicExpr = TypeAliasType("ListCastAtomicExpr", "List[CastAtomicExpr]")
+
+
+class BinaryOp(BaseModel, AbstractAtomicExpr):
+    """
+    Class representing binary operations on [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
+    """
+
+    exprs: ListCastAtomicExpr
+
+
+class ArithOp(AbstractAtomicExpr): ...
+
+
+class BoolOp(AbstractAtomicExpr): ...
+
+
+class Neg(UnaryOp, ArithOp, AtomicExpr): ...
+
+
+class Pos(UnaryOp, ArithOp, AtomicExpr): ...
+
+
+class Add(BinaryOp, ArithOp, AtomicExpr):
+    """
+    Class representing the addition of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
+
+    Attributes:
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+    """
+
+
+class Sub(BinaryOp, ArithOp, AtomicExpr):
+    """
+    Class representing the subtraction of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
+
+    Attributes:
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+    """
+
+
+class Mul(BinaryOp, ArithOp, AtomicExpr):
+    """
+    Class representing the multiplication of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
+
+    Attributes:
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+    """
+
+
+class Div(BinaryOp, ArithOp, AtomicExpr):
+    """
+    Class representing the division of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
+
+    Attributes:
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+    """
+
+
+class Pow(BinaryOp, ArithOp, AtomicExpr):
+    """
+    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
+
+    Attributes:
+        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
+    """
 
 
 ########################################################################################
 
+class ComparisonOp(AbstractAtomicExpr):
+    """
+    Class representing binary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
+    """
 
-def _Terminal_discriminator(value):
-    return value["class_"] if isinstance(value, dict) else getattr(value, "class_")
+
+class Not(UnaryOp, BoolOp, AtomicExpr): ...
 
 
-Terminal = Annotated[
-    Union[
-        Annotated[Bool, Tag("Bool")],
-        Annotated[MathVar, Tag("MathVar")],
-        Annotated[MathNum, Tag("MathNum")],
-        Annotated[MathImag, Tag("MathImag")],
-        Annotated[Access, Tag("Access")],
-        Annotated[IonRegister, Tag("IonRegister")],
-    ],
-    Discriminator(discriminator=_Terminal_discriminator),
-]
+class And(BinaryOp, BoolOp, AtomicExpr): ...
+
+
+class Or(BinaryOp, BoolOp, AtomicExpr): ...
+
+
+class Xor(BinaryOp, BoolOp, AtomicExpr): ...
+
+
+class Eq(BinaryOp, BoolOp, ComparisonOp, AtomicExpr): ...
+
+
+class Neq(BinaryOp, BoolOp, ComparisonOp, AtomicExpr): ...
+
+
+class Lt(BinaryOp, BoolOp, ComparisonOp, AtomicExpr): ...
+
+
+class Leq(BinaryOp, BoolOp, ComparisonOp, AtomicExpr): ...
+
+
+class Gt(BinaryOp, BoolOp, ComparisonOp, AtomicExpr): ...
+
+
+class Geq(BinaryOp, BoolOp, ComparisonOp, AtomicExpr): ...
+
 
 ########################################################################################
 
-SupportedFuncNames = Literal[
+SupportedBuiltinFuncs = Literal[
     "abs",
     "sin",
     "cos",
@@ -262,13 +280,35 @@ SupportedFuncNames = Literal[
     "real",
     "imag",
     "atan2",
+    "round",
+    "range",
+    "flatten",
+    "print",
+    "len",
+    "_pos",
+    "_neg",
+    "_add",
+    "_sub",
+    "_mul",
+    "_div",
+    "_pow",
+    "_eq",
+    "_neq",
+    "_lt",
+    "_leq",
+    "_gt",
+    "_geq",
+    "_and",
+    "_or",
+    "_xor",
+    "_not",
 ]
 """
 List of supported functions
 """
 
 
-class MathFunc(AtomicExpr):
+class BuiltinCall(AtomicExpr):
     """
     Class representing a named function applied to a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
 
@@ -277,216 +317,17 @@ class MathFunc(AtomicExpr):
         expr (Union[CastMathExpr, List[CastMathExpr]]): Arguments of the named function
     """
 
-    func: SupportedFuncNames
-    expr: Annotated[
-        Union[
-            Annotated[CastAtomicExpr, Tag("expr")],
-            Annotated[List[CastAtomicExpr], Tag("list")],
-        ],
-        Discriminator(lambda v: "list" if isinstance(v, list) else "expr"),
-    ]
-
-    @model_validator(mode="before")
-    @classmethod
-    def args_validate(cls, data):
-        if data["func"] in [
-            "abs",
-            "sin",
-            "cos",
-            "tan",
-            "exp",
-            "log",
-            "sinh",
-            "cosh",
-            "tanh",
-            "atan",
-            "acos",
-            "asin",
-            "atanh",
-            "asinh",
-            "acosh",
-            "heaviside",
-            "conj",
-            "real",
-            "imag",
-        ]:
-            if isinstance(data["expr"], list):
-                assert len(data["expr"]) == 1, (
-                    "Attempted to apply unary function on multiple arguments"
-                )
-                data["expr"] = data["expr"][0]
-
-        if data["func"] in [
-            "atan2",
-        ]:
-            assert isinstance(data["expr"], list) and len(data["expr"]) == 2, (
-                "Attempted to apply binary function with incorrect number of arguments"
-            )
-
-        return data
-
+    func: SupportedBuiltinFuncs
+    args: List[CastAtomicExpr]
 
 ########################################################################################
 
+class RegisterExpr(AbstractAtomicExpr): ...
 
-class MathBinaryOp(MathExpr):
-    """
-    Class representing binary operations on [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
-    """
-
-    pass
-
-
-class MathAdd(MathBinaryOp):
-    """
-    Class representing the addition of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
-
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class MathSub(MathBinaryOp):
-    """
-    Class representing the subtraction of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
-
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class MathMul(MathBinaryOp):
-    """
-    Class representing the multiplication of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
-
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class MathDiv(MathBinaryOp):
-    """
-    Class representing the division of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
-
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class MathPow(MathBinaryOp):
-    """
-    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
-
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
+class IonRegister(CollectionExpr, RegisterExpr, AtomicExpr):
+    size: CastAtomicExpr
 
 ########################################################################################
-
-
-class BoolUnaryOp(BoolExpr):
-    """
-    Class representing unary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
-    """
-
-    pass
-
-
-class BoolBinaryOp(BoolExpr):
-    """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
-    """
-
-    pass
-
-
-class ComparisonOp(BoolExpr):
-    """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
-    """
-
-    pass
-
-
-class BoolNot(BoolUnaryOp):
-    expr: CastAtomicExpr
-
-
-class BoolAnd(BoolBinaryOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class BoolOr(BoolBinaryOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class BoolEq(ComparisonOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class BoolNotEq(ComparisonOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class BoolLessThan(ComparisonOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class BoolLessThanEq(ComparisonOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class BoolGreaterThan(ComparisonOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-class BoolGreaterThanEq(ComparisonOp):
-    expr1: CastAtomicExpr
-    expr2: CastAtomicExpr
-
-
-########################################################################################
-
-
-class AtomicList(CollectionExpr):
-    values: List[CastAtomicExpr]
-
-
-class Extract(IndexingExpr):
-    access: Access
-    index: NonNegativeInt
-
-
-########################################################################################
-
 
 class Beam(AtomicExpr):
     """
@@ -518,77 +359,19 @@ class Pulse(AtomicExpr):
         measured: Boolean that tracks if the pulse has been measured.
     """
 
-    beam: AtomicExprSubtypes
-    duration: AtomicExprSubtypes
-    target: AtomicExprSubtypes
-    measured: AtomicExprSubtypes
+    beam: CastAtomicExpr
+    duration: CastAtomicExpr
+    target: CastAtomicExpr
+    measured: CastAtomicExpr
 
 
 ########################################################################################
 
 
-def _AtomicExprSubtypes_discriminator(value):
-    if isinstance(value, dict):
-        class_ = value["class_"]
-    else:
-        class_ = getattr(value, "class_")
-
-    if class_ not in [
-        "BoolAnd",
-        "BoolOr",
-        "BoolNot",
-        "BoolEq",
-        "BoolNotEq",
-        "BoolLessThan",
-        "BoolLessThanEq",
-        "BoolGreaterThan",
-        "BoolGreaterThanEq",
-        "MathFunc",
-        "MathAdd",
-        "MathSub",
-        "MathMul",
-        "MathDiv",
-        "MathPow",
-        "AtomicList",
-        "Extract",
-        "Beam",
-        "Pulse",
-    ]:
-        class_ = "Terminal"
-
-    return class_
-
-
 AtomicExprSubtypes = Annotated[
-    Union[
-        Annotated[Beam, Tag("Beam")],
-        Annotated[Pulse, Tag("Pulse")],
-        Annotated[Bool, Tag("Bool")],
-        Annotated[MathVar, Tag("MathVar")],
-        Annotated[MathNum, Tag("MathNum")],
-        Annotated[MathImag, Tag("MathImag")],
-        Annotated[Access, Tag("Access")],
-        Annotated[IonRegister, Tag("IonRegister")],
-        Annotated[BoolAnd, Tag("BoolAnd")],
-        Annotated[BoolOr, Tag("BoolOr")],
-        Annotated[BoolNot, Tag("BoolNot")],
-        Annotated[BoolEq, Tag("BoolEq")],
-        Annotated[BoolNotEq, Tag("BoolNotEq")],
-        Annotated[BoolLessThan, Tag("BoolLessThan")],
-        Annotated[BoolLessThanEq, Tag("BoolLessThanEq")],
-        Annotated[BoolGreaterThan, Tag("BoolGreaterThan")],
-        Annotated[BoolGreaterThanEq, Tag("BoolGreaterThanEq")],
-        Annotated[MathFunc, Tag("MathFunc")],
-        Annotated[MathAdd, Tag("MathAdd")],
-        Annotated[MathSub, Tag("MathSub")],
-        Annotated[MathMul, Tag("MathMul")],
-        Annotated[MathDiv, Tag("MathDiv")],
-        Annotated[MathPow, Tag("MathPow")],
-        Annotated[AtomicList, Tag("AtomicList")],
-        Annotated[Extract, Tag("Extract")],
-        Annotated[Terminal, Tag("Terminal")],
-    ],
-    Discriminator(discriminator=_AtomicExprSubtypes_discriminator),
+    Union[tuple(AtomicExpr.__subclasses__())],
+    Discriminator(discriminator="class_"),
 ]
+
 
 CastAtomicExpr = Annotated[AtomicExprSubtypes, BeforeValidator(AtomicExpr.cast)]

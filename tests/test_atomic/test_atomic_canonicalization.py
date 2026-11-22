@@ -21,9 +21,9 @@ from oqd_compiler_infrastructure import (
     RelabelCFGBlocks,
 )
 
-from oqd_core.analog import (
-    parse_analog,
-    AnalogCFGBuilder,
+from oqd_core.atomic import (
+    parse_atomic,
+    AtomicCFGBuilder,
     Constant,
     Add,
     Sub,
@@ -35,7 +35,7 @@ from oqd_core.analog import (
     Declaration
 )
 
-from oqd_core.compiler.analog.canonicalization import (
+from oqd_core.compiler.atomic.canonicalization import (
     ReplaceSubtraction,
     UnaryCombination,
     CollectAssociativeOperands,
@@ -43,7 +43,7 @@ from oqd_core.compiler.analog.canonicalization import (
 )
 
 
-class TestAnalogCanonicalization:
+class TestAtomicCanonicalization:
     @pytest.mark.parametrize(
         ("source", "expected"),
         [
@@ -52,13 +52,13 @@ class TestAnalogCanonicalization:
             ("a = 1 \n b = 5 \n c = 4 \n d = b + 3 + c + 2 + 5 + a", Declaration(name="d", value=Add(exprs=[Constant(value=3), Constant(value=2), Constant(value=5), Access(name="b"), Access(name="c"), Access(name="a")]))),
         ],
     )
-    def test_analog_sort_operands(
+    def test_atomic_sort_operands(
         self, 
         source,
         expected,
     ):
-        circuit = parse_analog(source)
-        cfg = AnalogCFGBuilder()(circuit)
+        circuit = parse_atomic(source)
+        cfg = AtomicCFGBuilder()(circuit)
         cfg = Post(SortOperands())(cfg)
         assert cfg[len(cfg)-2].stmts[0] == expected
     
@@ -72,13 +72,13 @@ class TestAnalogCanonicalization:
             ("b = 2 + -(3 + 5)", Declaration(name="b", value=Add(exprs=[Constant(value=2), Neg(expr=Constant(value=3)), Neg(expr=Constant(value=5))]))),
         ],
     )
-    def test_analog_collect_assoc_operands(
+    def test_atomic_collect_assoc_operands(
         self, 
         source,
         expected,
     ):
-        circuit = parse_analog(source)
-        cfg = AnalogCFGBuilder()(circuit)
+        circuit = parse_atomic(source)
+        cfg = AtomicCFGBuilder()(circuit)
         cfg = FixedPoint(Post(CollectAssociativeOperands()))(cfg)
         assert cfg[len(cfg)-2].stmts[0] == expected
         
@@ -91,13 +91,13 @@ class TestAnalogCanonicalization:
             ("b = +2 + -3", Declaration(name="b", value=Add(exprs=[Constant(value=2), Neg(expr=Constant(value=3))]))),
         ],
     )
-    def test_analog_unary_combination(
+    def test_atomic_unary_combination(
         self, 
         source,
         expected,
     ):
-        circuit = parse_analog(source)
-        cfg = AnalogCFGBuilder()(circuit)
+        circuit = parse_atomic(source)
+        cfg = AtomicCFGBuilder()(circuit)
         cfg = FixedPoint(Post(UnaryCombination()))(cfg)
         assert cfg[len(cfg)-2].stmts[0] == expected
     
@@ -110,13 +110,13 @@ class TestAnalogCanonicalization:
             ("b = 2 / (3 - 4) / 2", Declaration(name="b", value=Mul(exprs=[Constant(value=2), Pow(exprs=[Add(exprs=[Constant(value=3), Neg(expr=Constant(value=4))]), Constant(value=-1)]), Pow(exprs=[Constant(value=2), Constant(value=-1)])]))),
         ],
     )
-    def test_analog_replace_sub(
+    def test_atomic_replace_sub(
         self, 
         source,
         expected,
     ):
-        circuit = parse_analog(source)
-        cfg = AnalogCFGBuilder()(circuit)
+        circuit = parse_atomic(source)
+        cfg = AtomicCFGBuilder()(circuit)
         cfg = FixedPoint(Post(ReplaceSubtraction()))(cfg)
         assert cfg[len(cfg)-2].stmts[0] == expected
     
@@ -128,13 +128,13 @@ class TestAnalogCanonicalization:
             ("b = 1 \n c = -b * (3 * -5) / (2 - b - 4) / 3", Declaration(name='c', value=Mul(exprs=[Constant(value=3), Constant(value=5), Access(name='b'), Pow(exprs=[Add(exprs=[Constant(value=2), Neg(expr=Access(name='b')), Neg(expr=Constant(value=4))]), Constant(value=-1)]), Pow(exprs=[Constant(value=3), Constant(value=-1)])]))),
         ],
     )
-    def test_analog_canonicalization_all(
+    def test_atomic_canonicalization_all(
         self, 
         source,
         expected,
     ):
-        circuit = parse_analog(source)
-        cfg = AnalogCFGBuilder()(circuit)
+        circuit = parse_atomic(source)
+        cfg = AtomicCFGBuilder()(circuit)
         passes = Chain(
             SortOperands(),
             CollectAssociativeOperands(),

@@ -460,7 +460,6 @@ class Ladder(Operator, AbstractAnalogExpr):
     dims: CastAnalogExpr = Constant(value=-1)
     target: CastAnalogExpr = Constant(value=0)
 
-
 class Creation(Ladder, AnalogExpr):
     """
     Class for the Creation operator in Fock space

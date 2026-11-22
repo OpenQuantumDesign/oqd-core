@@ -35,66 +35,39 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#terminal.
-    def enterTerminal(self, ctx:AtomicParser.TerminalContext):
+    # Enter a parse tree produced by AtomicParser#parallel_stmt.
+    def enterParallel_stmt(self, ctx:AtomicParser.Parallel_stmtContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#terminal.
-    def exitTerminal(self, ctx:AtomicParser.TerminalContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#expr.
-    def enterExpr(self, ctx:AtomicParser.ExprContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#expr.
-    def exitExpr(self, ctx:AtomicParser.ExprContext):
+    # Exit a parse tree produced by AtomicParser#parallel_stmt.
+    def exitParallel_stmt(self, ctx:AtomicParser.Parallel_stmtContext):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#cond.
-    def enterCond(self, ctx:AtomicParser.CondContext):
+    # Enter a parse tree produced by AtomicParser#serial_stmt.
+    def enterSerial_stmt(self, ctx:AtomicParser.Serial_stmtContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#cond.
-    def exitCond(self, ctx:AtomicParser.CondContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#atomic_list.
-    def enterAtomic_list(self, ctx:AtomicParser.Atomic_listContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#atomic_list.
-    def exitAtomic_list(self, ctx:AtomicParser.Atomic_listContext):
+    # Exit a parse tree produced by AtomicParser#serial_stmt.
+    def exitSerial_stmt(self, ctx:AtomicParser.Serial_stmtContext):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#declaration.
-    def enterDeclaration(self, ctx:AtomicParser.DeclarationContext):
+    # Enter a parse tree produced by AtomicParser#ifelse_stmt.
+    def enterIfelse_stmt(self, ctx:AtomicParser.Ifelse_stmtContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#declaration.
-    def exitDeclaration(self, ctx:AtomicParser.DeclarationContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#access.
-    def enterAccess(self, ctx:AtomicParser.AccessContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#access.
-    def exitAccess(self, ctx:AtomicParser.AccessContext):
+    # Exit a parse tree produced by AtomicParser#ifelse_stmt.
+    def exitIfelse_stmt(self, ctx:AtomicParser.Ifelse_stmtContext):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#atomic_list_extract.
-    def enterAtomic_list_extract(self, ctx:AtomicParser.Atomic_list_extractContext):
+    # Enter a parse tree produced by AtomicParser#while_stmt.
+    def enterWhile_stmt(self, ctx:AtomicParser.While_stmtContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#atomic_list_extract.
-    def exitAtomic_list_extract(self, ctx:AtomicParser.Atomic_list_extractContext):
+    # Exit a parse tree produced by AtomicParser#while_stmt.
+    def exitWhile_stmt(self, ctx:AtomicParser.While_stmtContext):
         pass
 
 
@@ -116,138 +89,30 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#while_stmt.
-    def enterWhile_stmt(self, ctx:AtomicParser.While_stmtContext):
+    # Enter a parse tree produced by AtomicParser#terminal.
+    def enterTerminal(self, ctx:AtomicParser.TerminalContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#while_stmt.
-    def exitWhile_stmt(self, ctx:AtomicParser.While_stmtContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#ifelse_stmt.
-    def enterIfelse_stmt(self, ctx:AtomicParser.Ifelse_stmtContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#ifelse_stmt.
-    def exitIfelse_stmt(self, ctx:AtomicParser.Ifelse_stmtContext):
+    # Exit a parse tree produced by AtomicParser#terminal.
+    def exitTerminal(self, ctx:AtomicParser.TerminalContext):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#ion_register.
-    def enterIon_register(self, ctx:AtomicParser.Ion_registerContext):
+    # Enter a parse tree produced by AtomicParser#declaration.
+    def enterDeclaration(self, ctx:AtomicParser.DeclarationContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#ion_register.
-    def exitIon_register(self, ctx:AtomicParser.Ion_registerContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#parallel_stmt.
-    def enterParallel_stmt(self, ctx:AtomicParser.Parallel_stmtContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#parallel_stmt.
-    def exitParallel_stmt(self, ctx:AtomicParser.Parallel_stmtContext):
+    # Exit a parse tree produced by AtomicParser#declaration.
+    def exitDeclaration(self, ctx:AtomicParser.DeclarationContext):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#serial_stmt.
-    def enterSerial_stmt(self, ctx:AtomicParser.Serial_stmtContext):
+    # Enter a parse tree produced by AtomicParser#access.
+    def enterAccess(self, ctx:AtomicParser.AccessContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#serial_stmt.
-    def exitSerial_stmt(self, ctx:AtomicParser.Serial_stmtContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#targets.
-    def enterTargets(self, ctx:AtomicParser.TargetsContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#targets.
-    def exitTargets(self, ctx:AtomicParser.TargetsContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_and_op.
-    def enterBool_and_op(self, ctx:AtomicParser.Bool_and_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_and_op.
-    def exitBool_and_op(self, ctx:AtomicParser.Bool_and_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_or_op.
-    def enterBool_or_op(self, ctx:AtomicParser.Bool_or_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_or_op.
-    def exitBool_or_op(self, ctx:AtomicParser.Bool_or_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_not_op.
-    def enterBool_not_op(self, ctx:AtomicParser.Bool_not_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_not_op.
-    def exitBool_not_op(self, ctx:AtomicParser.Bool_not_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_eq_op.
-    def enterBool_eq_op(self, ctx:AtomicParser.Bool_eq_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_eq_op.
-    def exitBool_eq_op(self, ctx:AtomicParser.Bool_eq_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_not_eq_op.
-    def enterBool_not_eq_op(self, ctx:AtomicParser.Bool_not_eq_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_not_eq_op.
-    def exitBool_not_eq_op(self, ctx:AtomicParser.Bool_not_eq_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_lt_op.
-    def enterBool_lt_op(self, ctx:AtomicParser.Bool_lt_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_lt_op.
-    def exitBool_lt_op(self, ctx:AtomicParser.Bool_lt_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_lte_op.
-    def enterBool_lte_op(self, ctx:AtomicParser.Bool_lte_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_lte_op.
-    def exitBool_lte_op(self, ctx:AtomicParser.Bool_lte_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_gt_op.
-    def enterBool_gt_op(self, ctx:AtomicParser.Bool_gt_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_gt_op.
-    def exitBool_gt_op(self, ctx:AtomicParser.Bool_gt_opContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#bool_gte_op.
-    def enterBool_gte_op(self, ctx:AtomicParser.Bool_gte_opContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#bool_gte_op.
-    def exitBool_gte_op(self, ctx:AtomicParser.Bool_gte_opContext):
+    # Exit a parse tree produced by AtomicParser#access.
+    def exitAccess(self, ctx:AtomicParser.AccessContext):
         pass
 
 
@@ -260,21 +125,48 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#comparators.
-    def enterComparators(self, ctx:AtomicParser.ComparatorsContext):
+    # Enter a parse tree produced by AtomicParser#arith_func.
+    def enterArith_func(self, ctx:AtomicParser.Arith_funcContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#comparators.
-    def exitComparators(self, ctx:AtomicParser.ComparatorsContext):
+    # Exit a parse tree produced by AtomicParser#arith_func.
+    def exitArith_func(self, ctx:AtomicParser.Arith_funcContext):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#math_terminal.
-    def enterMath_terminal(self, ctx:AtomicParser.Math_terminalContext):
+    # Enter a parse tree produced by AtomicParser#math_func.
+    def enterMath_func(self, ctx:AtomicParser.Math_funcContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#math_terminal.
-    def exitMath_terminal(self, ctx:AtomicParser.Math_terminalContext):
+    # Exit a parse tree produced by AtomicParser#math_func.
+    def exitMath_func(self, ctx:AtomicParser.Math_funcContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#quantum_func.
+    def enterQuantum_func(self, ctx:AtomicParser.Quantum_funcContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#quantum_func.
+    def exitQuantum_func(self, ctx:AtomicParser.Quantum_funcContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#list_func.
+    def enterList_func(self, ctx:AtomicParser.List_funcContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#list_func.
+    def exitList_func(self, ctx:AtomicParser.List_funcContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#misc_func.
+    def enterMisc_func(self, ctx:AtomicParser.Misc_funcContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#misc_func.
+    def exitMisc_func(self, ctx:AtomicParser.Misc_funcContext):
         pass
 
 
@@ -287,6 +179,60 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by AtomicParser#args.
+    def enterArgs(self, ctx:AtomicParser.ArgsContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#args.
+    def exitArgs(self, ctx:AtomicParser.ArgsContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#func.
+    def enterFunc(self, ctx:AtomicParser.FuncContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#func.
+    def exitFunc(self, ctx:AtomicParser.FuncContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#atomic_list.
+    def enterAtomic_list(self, ctx:AtomicParser.Atomic_listContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#atomic_list.
+    def exitAtomic_list(self, ctx:AtomicParser.Atomic_listContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#iexpr.
+    def enterIexpr(self, ctx:AtomicParser.IexprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#iexpr.
+    def exitIexpr(self, ctx:AtomicParser.IexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#complex.
+    def enterComplex(self, ctx:AtomicParser.ComplexContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#complex.
+    def exitComplex(self, ctx:AtomicParser.ComplexContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#math_terminal.
+    def enterMath_terminal(self, ctx:AtomicParser.Math_terminalContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#math_terminal.
+    def exitMath_terminal(self, ctx:AtomicParser.Math_terminalContext):
+        pass
+
+
     # Enter a parse tree produced by AtomicParser#pexpr.
     def enterPexpr(self, ctx:AtomicParser.PexprContext):
         pass
@@ -296,30 +242,12 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#fexpr.
-    def enterFexpr(self, ctx:AtomicParser.FexprContext):
+    # Enter a parse tree produced by AtomicParser#eexpr.
+    def enterEexpr(self, ctx:AtomicParser.EexprContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#fexpr.
-    def exitFexpr(self, ctx:AtomicParser.FexprContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#aexpr.
-    def enterAexpr(self, ctx:AtomicParser.AexprContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#aexpr.
-    def exitAexpr(self, ctx:AtomicParser.AexprContext):
-        pass
-
-
-    # Enter a parse tree produced by AtomicParser#mexpr.
-    def enterMexpr(self, ctx:AtomicParser.MexprContext):
-        pass
-
-    # Exit a parse tree produced by AtomicParser#mexpr.
-    def exitMexpr(self, ctx:AtomicParser.MexprContext):
+    # Exit a parse tree produced by AtomicParser#eexpr.
+    def exitEexpr(self, ctx:AtomicParser.EexprContext):
         pass
 
 
@@ -332,12 +260,75 @@ class AtomicParserListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by AtomicParser#eexpr.
-    def enterEexpr(self, ctx:AtomicParser.EexprContext):
+    # Enter a parse tree produced by AtomicParser#mexpr.
+    def enterMexpr(self, ctx:AtomicParser.MexprContext):
         pass
 
-    # Exit a parse tree produced by AtomicParser#eexpr.
-    def exitEexpr(self, ctx:AtomicParser.EexprContext):
+    # Exit a parse tree produced by AtomicParser#mexpr.
+    def exitMexpr(self, ctx:AtomicParser.MexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#aexpr.
+    def enterAexpr(self, ctx:AtomicParser.AexprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#aexpr.
+    def exitAexpr(self, ctx:AtomicParser.AexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#cexpr.
+    def enterCexpr(self, ctx:AtomicParser.CexprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#cexpr.
+    def exitCexpr(self, ctx:AtomicParser.CexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#eqexpr.
+    def enterEqexpr(self, ctx:AtomicParser.EqexprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#eqexpr.
+    def exitEqexpr(self, ctx:AtomicParser.EqexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#andexpr.
+    def enterAndexpr(self, ctx:AtomicParser.AndexprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#andexpr.
+    def exitAndexpr(self, ctx:AtomicParser.AndexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#xorexpr.
+    def enterXorexpr(self, ctx:AtomicParser.XorexprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#xorexpr.
+    def exitXorexpr(self, ctx:AtomicParser.XorexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#orexpr.
+    def enterOrexpr(self, ctx:AtomicParser.OrexprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#orexpr.
+    def exitOrexpr(self, ctx:AtomicParser.OrexprContext):
+        pass
+
+
+    # Enter a parse tree produced by AtomicParser#expr.
+    def enterExpr(self, ctx:AtomicParser.ExprContext):
+        pass
+
+    # Exit a parse tree produced by AtomicParser#expr.
+    def exitExpr(self, ctx:AtomicParser.ExprContext):
         pass
 
 

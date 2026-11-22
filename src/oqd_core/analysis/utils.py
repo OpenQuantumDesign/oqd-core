@@ -21,7 +21,6 @@ from typing import Annotated, Tuple, Union, get_args, get_origin
 
 ########################################################################################
 
-
 class AnalysisError(Exception):
     def __init__(
         self, msg: str = "", loc: Tuple[int | None, int | None] = (None, None)
@@ -36,7 +35,6 @@ class AnalysisError(Exception):
 
 
 class AnalysisWarning(UserWarning): ...
-
 
 ########################################################################################
 

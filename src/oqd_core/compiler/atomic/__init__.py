@@ -12,6 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import canonicalize
+# from . import canonicalize
 
-__all__ = ["canonicalize"]
+# __all__ = ["canonicalize"]
+
+from .compile import atomic, compile_atomic_circuit
+from .conversion import AtomicCFGBuilder, AtomicCFGtoAST
+from .error import AtomicCompilerError
+
+__all__ = [
+    "AtomicCFGBuilder",
+    "AtomicCFGtoAST",
+    "atomic",
+    "compile_atomic_circuit",
+    "AtomicCompilerError",
+]

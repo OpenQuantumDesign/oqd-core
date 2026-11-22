@@ -36,7 +36,6 @@ classifiers = [
 
 dependencies = [
   "pydantic>=2.10.6",
-  "oqd-compiler-infrastructure",
   "numpy",
   "scipy",
   "antlr4-tools>=0.2.2",
@@ -51,6 +50,7 @@ dependencies = [
   "mdx-truly-sane-lists>=1.3",
   "mkdocstrings[python]>=0.30.0",
   "graphviz>=0.21",
+  "oqd-compiler-infrastructure>=0.1.0",
 ]
 
 [project.optional-dependencies]
@@ -69,14 +69,12 @@ include = ["oqd_core*"]
 
 [tool.pytest.ini_options]
 markers = ["slow: Mark a test as taking a long time to run, and so can be skipped with `pytest -m 'not slow'`."]
-norecursedirs = ["tests/test_atomic"]
-addopts = ["--ignore=tests/test_frontend/test_frontend_atomic.py"]
 
 [tool.ruff]
 exclude = [
+  "examples/*",
   "src/oqd_core/frontend/analog/_generated/*",
   "src/oqd_core/frontend/atomic/_generated/*",
-  "src/oqd_core/compiler/atomic/*",
   "tests/*",
 ]
 
@@ -85,7 +83,7 @@ select  = ["E4", "E7", "E9", "F", "I"]
 fixable = ["ALL"]
 
 [tool.uv.sources]
-oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure", branch = "main" }
+oqd-compiler-infrastructure = { git = "https://github.com/openquantumdesign/oqd-compiler-infrastructure", branch = "main"}
 
 [dependency-groups]
 dev = ["jupyter>=1.1.1", "pre-commit>=4.1.0", "ruff>=0.15.9"]
