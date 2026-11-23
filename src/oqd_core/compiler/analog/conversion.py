@@ -15,6 +15,7 @@
 
 from __future__ import annotations
 
+from numpy import isin
 from functools import reduce
 
 import ast_comments as ast
@@ -327,7 +328,9 @@ class PyASTtoAnalog(ConversionRule):
         return tuple()
 
     def map_Module(self, model, operands):
-        return AnalogCircuit(statements=operands["body"][0])
+        if isinstance(operands["body"][0], list):
+            return AnalogCircuit(statements=operands["body"][0])
+        return AnalogCircuit(statements=operands["body"])
 
     def _filter_block(self, statements):
         return list(filter(lambda x: x != tuple(), statements))

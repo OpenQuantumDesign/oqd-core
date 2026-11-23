@@ -14,10 +14,13 @@
 
 import pytest
 
+import ast_comments as ast
+from oqd_compiler_infrastructure import Post
 from oqd_core.analog import (
     analog,
     parse_analog,
     serialize_analog,
+    PyASTtoAnalog
 )
 from oqd_core.frontend.analog.AnalogParserErrorListener import AnalogParserErrorListener
 from oqd_core.frontend.analog.serialize import serialize_analog
@@ -496,13 +499,64 @@ def test_circuit(self):
     q = qreg(2)
     a = C([2, 2], 0)
     evolve(a, 1, q)
+    x = X()
+    neg = -1
+    cubed = 2**3
+    cplx = 3+4j
+    pi = 3.14159
+    tau = 2 * pi
+    if False:
+        pi = 3.14
+    else:
+        pi = 3.14
+
     r = qreg(2)
     list = [1, 2, 3]
     initialize(r)
     measure(q)
+    while True:
+        c = list[0]
+        h = c == 1
+        if h: break
+    b = 0
+    list2 = [[0], [1]]
 
 
-class TestAnalogPyASTtoCFG:
+class TestAnalogPyAST:
     def test_analog_pyast_cfg(self):
         circuit, cfg = test_circuit
+    
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = qreg(2)",
+            "list = [1, 2, 3]",
+            "list2 = [[1], [2], [3]]",
+            "initialize(r)",
+            "evolve(X(), 1.0, r)",
+            "measure(r)",
+            "X = X()",
+            "Y = Y()",
+            "Z = Z()",
+            "I = I()",
+            "C = C()",
+            "A = A()",
+            "J = J()",
+            "a = sin(1)",
+            "b = tan(cos(0))",
+            "neg = -1",
+            "cubed = 2**3",
+            "cplx = 3+4j",
+            "pi = 3.14159 \ntau = 2 * pi",
+            "H_single = 0.5 * X() + 0.5 * Z()",
+            "H_pair = (X() @ I()) + (I() @ X())",
+            "H_rabi = (0.5 * __t) * (X() @ I()) + 0.5 * (I() @ Y())",
+            "x = 1 \nif x > 0: \n \ty = 2",
+            "x = 1 \nif x > 0: \n \ty = 2\nelse: \n \ty = 3\n",
+            "while True: \n \tif a == b: \n \t\tx = 0 \n \tif x == 0: break \n",
+        ],
+    )
+    def test_analog_pyast(self, program):
+        pyast = ast.parse(program)
+        circuit = Post(PyASTtoAnalog())(pyast)
     
