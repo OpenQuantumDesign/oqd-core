@@ -52,7 +52,7 @@ MULT: '*';
 DIV: '/';
 PLUS: '+';
 MINUS: '-';
-POWER: '^';
+POWER: '^' | '**';
 ASSIGN: '=';
 EQ: '==';
 NEQ: '!=';

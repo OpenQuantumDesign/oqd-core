@@ -15,7 +15,6 @@
 
 from __future__ import annotations
 
-from numpy import isin
 from functools import reduce
 
 import ast_comments as ast

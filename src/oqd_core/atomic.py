@@ -27,6 +27,7 @@ from oqd_core.analysis.atomic import (
 from oqd_core.compiler.atomic import (
     AtomicCFGBuilder,
     AtomicCFGtoAST,
+    PyASTtoAtomic,
     atomic,
     compile_atomic_circuit,
 )
@@ -95,6 +96,7 @@ __all__ = [
     "AtomicParserVisitor",
     "SerializeAtomic",
     "serialize_atomic",
+    "PyASTtoAtomic",
     "Access",
     "Add",
     "And",
