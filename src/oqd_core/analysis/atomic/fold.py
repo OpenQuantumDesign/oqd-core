@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import operator
 from typing import Type, Union
+from warnings import warn
 
 from oqd_compiler_infrastructure import (
     CFGBlock,
@@ -32,8 +33,17 @@ from oqd_compiler_infrastructure import (
     maplattice,
 )
 
-from oqd_core.analysis.utils import AnalysisError
-from oqd_core.interface.atomic import Access, Constant, Declaration, Neg, Not, Pos
+from oqd_core.analysis.utils import AnalysisError, AnalysisWarning
+from oqd_core.interface.atomic import (
+    Access,
+    BuiltinCall,
+    Constant,
+    Declaration,
+    Neg,
+    Not,
+    Pos,
+    RuntimeVar,
+)
 from oqd_core.interface.atomic.expr import BinaryOp, UnaryOp
 
 ########################################################################################
@@ -44,6 +54,9 @@ class ConstantFoldingError(AnalysisError): ...
 
 ########################################################################################
 
+class PulseDurationWarning(AnalysisWarning): ...
+
+########################################################################################
 
 class CLatticeTop(LatticeTop): ...
 
@@ -407,3 +420,38 @@ class ConstantFoldingRule(EvaluateConstant, RewriteRule):
             value := self.fold_res.in_states[self._current_block].get(model.name, None)
         ) not in [CInvalid, None]:
             return value
+
+def _is_constant_math(model) -> bool:
+    if isinstance(model, (Access, Constant)):
+        return True
+    if isinstance(model, RuntimeVar):
+        return False
+    if isinstance(model, UnaryOp):
+        return _is_constant_math(model.expr)
+    if isinstance(model, BinaryOp):
+        return all(_is_constant_math(a) for a in model.exprs)
+    if isinstance(model, BuiltinCall):
+        arg = model.args
+        if isinstance(arg, list):
+            return all(_is_constant_math(a) for a in arg)
+        return _is_constant_math(arg)
+    return True
+
+
+class ConstantDurationRule(EvaluateConstant, RewriteRule):
+    def __init__(self, fold_res):
+        super().__init__()
+
+        self.fold_res = fold_res
+
+    def map_CFGBlock(self, model):
+        self._current_block = model.register_id
+    
+    def map_Pulse(self, model):
+        if not _is_constant_math(model.duration):
+            warn(
+                "Pulse duration is not constant. Nested protocols will not be resolved.",
+                PulseDurationWarning,
+            )
+
+

@@ -147,8 +147,6 @@ class AtomicTypeChecker(ForwardDataflowAnalysis[int, CFGBlock, TypeEnv]):
         success, variable_type_mapping = self._compare_variable_type(
             signature, args, sig_args_types, args, {}, loc=loc
         )
-        # print("SUCCESS: ", success)
-        # print("SIG: ", signature)
 
         if success and all(
             [
