@@ -19,6 +19,8 @@ from oqd_compiler_infrastructure import (
     FixedPoint,
     Post,
     RelabelCFGBlocks,
+    InplacePost,
+    InplacePre,
 )
 
 from oqd_core.atomic import (
@@ -26,21 +28,30 @@ from oqd_core.atomic import (
     AtomicCFGBuilder,
     Constant,
     Add,
+    Extract,
     Sub,
     Mul,
     Pow,
     Pos,
+    Pulse,
     Neg,
     Access,
-    Declaration
+    Declaration,
+    SerialProtocol,
+    ParallelProtocol,
 )
+
+from oqd_core.analysis.dominator import PostDominatorAnalysis
+from oqd_core.analysis.atomic.fold import ConstantFolding, ConstantFoldingRule, ConstantDurationRule
 
 from oqd_core.compiler.atomic.canonicalization import (
     ReplaceSubtraction,
     UnaryCombination,
     CollectAssociativeOperands,
     SortOperands,
+    ResolveNestedProtocol,
 )
+from oqd_core.compiler.atomic import AtomicCFGtoAST
 
 
 class TestAtomicCanonicalization:
@@ -144,5 +155,69 @@ class TestAtomicCanonicalization:
         cfg = FixedPoint(Post(passes))(cfg)
         assert cfg[len(cfg)-2].stmts[0] == expected
     
+    @pytest.mark.parametrize(
+        ("source", "expected"),
+        [
+            ("r = ionreg(2) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \npulse(beam_mw, 1.0, r[0])", \
+                Pulse(beam=Access(name="beam_mw"), duration=Constant(value=1.0), target=Extract(value=Access(name="r"), index=0), measured=Constant(value=False))),
+            ("r = ionreg(3) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \nb = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \
+                \nparallel { \npulse(beam_mw, 0.0001, r[0]) \npulse(b, 0.0002, r[0]) \n }", \
+                SerialProtocol(pulses=[ParallelProtocol(pulses=[Pulse(beam=Access(name='beam_mw'), duration=Constant(value=0.0001), \
+                target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False)), Pulse(beam=Access(name='b'), \
+                duration=Constant(value=0.0001), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))]), \
+                Pulse(beam=Access(name='b'), duration=Constant(value=0.0001), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))])),
+            ("r = ionreg(3) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \nb = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \
+                \nparallel { \npulse(beam_mw, 0.0001, r[0]) \nserial { \npulse(b, 0.0002, r[0]) \n} \n }", \
+                SerialProtocol(pulses=[ParallelProtocol(pulses=[Pulse(beam=Access(name='beam_mw'), duration=Constant(value=0.0001), \
+                target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False)), Pulse(beam=Access(name='b'), \
+                duration=Constant(value=0.0001), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))]), \
+                Pulse(beam=Access(name='b'), duration=Constant(value=0.0001), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))])),
+            ("r = ionreg(3) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \nb = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \
+                \nparallel { \nserial { \npulse(beam_mw, 0.0001, r[0]) \npulse(b, 0.0002, r[0]) \n} \npulse(b, 0.0001, r[0]) \n}", \
+                SerialProtocol(pulses=[ParallelProtocol(pulses=[Pulse(beam=Access(name='beam_mw'), duration=Constant(value=0.0001), \
+                target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False)), Pulse(beam=Access(name='b'), \
+                duration=Constant(value=0.0001), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))]), \
+                Pulse(beam=Access(name='b'), duration=Constant(value=0.0002), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))])),
+        ],
+    )
+    def test_atomic_canonicalization_nested_protocol(
+        self,
+        source,
+        expected,
+    ):
+        circuit = parse_atomic(source)
+        cfg = AtomicCFGBuilder()(circuit)
+        cfg = FixedPoint(InplacePost(ResolveNestedProtocol()))(cfg)
+        assert cfg[len(cfg)-2].stmts[0] == expected
+    
+    @pytest.mark.parametrize(
+        ("source", "expected"),
+        [
+            ("r = ionreg(2) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \npulse(beam_mw, 1.0, r[0])", \
+                Pulse(beam=Access(name="beam_mw"), duration=Constant(value=1.0), target=Extract(value=Access(name="r"), index=0), measured=Constant(value=False))),
+            ("r = ionreg(3) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \nb = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \
+                \ndur = 0.0001 \nparallel { \npulse(beam_mw, dur, r[0]) \npulse(b, dur * 2, r[0]) \n }", \
+                SerialProtocol(pulses=[ParallelProtocol(pulses=[Pulse(beam=Access(name='beam_mw'), duration=Constant(value=0.0001), \
+                target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False)), Pulse(beam=Access(name='b'), \
+                duration=Constant(value=0.0001), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))]), \
+                Pulse(beam=Access(name='b'), duration=Constant(value=0.0001), target=Extract(value=Access(name='r'), index=Constant(value=0)), measured=Constant(value=False))])),
+        ],
+    )
+    def test_atomic_canonicalization_nested_protocol_with_fold(
+        self,
+        source,
+        expected,
+    ):
+        circuit = parse_atomic(source)
+        cfg = AtomicCFGBuilder()(circuit)
+
+        fold_checker = ConstantFolding()
+        fold_res = fold_checker.analyze(cfg)
+        fold_pass = FixedPoint(InplacePre(ConstantFoldingRule(fold_res=fold_res)))
+        cfg = fold_pass(cfg)
+
+        cfg = FixedPoint(InplacePost(ResolveNestedProtocol()))(cfg)
+        assert cfg[len(cfg)-2].stmts[0] == expected
 
 
+    
