@@ -131,7 +131,7 @@ class ResolveNestedProtocol(RewriteRule):
         model: The canonicalized protocol node.
 
     Assumptions:
-        None
+        Pulse durations are constant, and have been propagated through the program.
     """
 
     def __init__(self):
@@ -261,12 +261,7 @@ class ResolveNestedProtocol(RewriteRule):
                         )
                     )
                 )
-            elif isinstance(subprotocol, ParallelProtocol):
-                new_statements.append(subprotocol)
             else:
                 new_statements.append(subprotocol)
-                # new_statements.append(ParallelProtocol(pulses=[subprotocol]))
         return model.__class__(pulses=new_statements)
-
-
 
