@@ -51,6 +51,7 @@ dependencies = [
   "mkdocstrings[python]>=0.30.0",
   "graphviz>=0.21",
   "oqd-compiler-infrastructure>=0.1.0",
+  "zensical>=0.0.67",
 ]
 
 [project.optional-dependencies]
