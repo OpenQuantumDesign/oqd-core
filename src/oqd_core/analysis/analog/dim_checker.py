@@ -290,7 +290,15 @@ class DimensionChecker(ForwardDataflowAnalysis[int, CFGBlock, DimEnv]):
                 )
 
             case BuiltinCall(
-                func="sin" | "cos" | "tan" | "exp" | "log" | "sinh" | "cosh" | "tanh",
+                func="sin"
+                | "cos"
+                | "tan"
+                | "exp"
+                | "log"
+                | "sinh"
+                | "cosh"
+                | "tanh"
+                | "dag",
                 args=args,
             ):
                 return self._infer_dim(args[0], env=env, loc=loc)
