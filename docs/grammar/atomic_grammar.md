@@ -1,9 +1,7 @@
 The atomic grammar defines the text syntax for the atomic frontend.
 
-It is implemented with ANTLR4 using:
-
-- [`AtomicLexer.g4`](../../src/grammar/atomic/AtomicLexer.g4) for tokens
-- [`AtomicParser.g4`](../../src/grammar/atomic/AtomicParser.g4) for grammar rules
+It is implemented with [ANTLR4](https://www.antlr.org/).
+`AtomicLexer.g4` contains the valid token definitions in the language. `AtomicParser.g4` contains the grammar rules.
 
 ## ANTLR4 Basics
 
@@ -62,7 +60,7 @@ The grammar supports the core atomic statements through `beam`, `pulse`, `parall
 
 ## Generate Parser Files for Frontend
 
-Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/atomic`. Run `antlr4` on the Lexer first, and then the Parser, as the Parser depends on the Lexer.
+Run generation from the grammar directory and output generated files into `src/oqd_core/frontend/atomic/_generated`. Run `antlr4` on the Lexer first, and then the Parser, as the Parser depends on the Lexer.
 
 ```bash
 uv sync

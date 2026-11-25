@@ -151,7 +151,7 @@ ListCastAtomicExpr = TypeAliasType("ListCastAtomicExpr", "List[CastAtomicExpr]")
 
 class BinaryOp(BaseModel, AbstractAtomicExpr):
     """
-    Class representing binary operations on [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`AtomicExprs`][oqd_core.interface.atomic.expr.AtomicExpr] abstract syntax tree (AST) node
     """
 
     exprs: ListCastAtomicExpr
@@ -169,62 +169,24 @@ class Neg(UnaryOp, ArithOp, AtomicExpr): ...
 class Pos(UnaryOp, ArithOp, AtomicExpr): ...
 
 
-class Add(BinaryOp, ArithOp, AtomicExpr):
-    """
-    Class representing the addition of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
+class Add(BinaryOp, ArithOp, AtomicExpr): ...
 
 
-class Sub(BinaryOp, ArithOp, AtomicExpr):
-    """
-    Class representing the subtraction of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
+class Sub(BinaryOp, ArithOp, AtomicExpr): ...
 
 
-class Mul(BinaryOp, ArithOp, AtomicExpr):
-    """
-    Class representing the multiplication of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
+class Mul(BinaryOp, ArithOp, AtomicExpr): ...
 
 
-class Div(BinaryOp, ArithOp, AtomicExpr):
-    """
-    Class representing the division of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
+class Div(BinaryOp, ArithOp, AtomicExpr): ...
 
 
-class Pow(BinaryOp, ArithOp, AtomicExpr):
-    """
-    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.atomic.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr]
-    """
+class Pow(BinaryOp, ArithOp, AtomicExpr): ...
 
 
 ########################################################################################
 
-class ComparisonOp(AbstractAtomicExpr):
-    """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.atomic.expr.BoolExpr] abstract syntax tree (AST)
-    """
+class ComparisonOp(AbstractAtomicExpr): ...
 
 
 class Not(UnaryOp, BoolOp, AtomicExpr): ...
@@ -310,11 +272,11 @@ List of supported functions
 
 class BuiltinCall(AtomicExpr):
     """
-    Class representing a named function applied to a [`MathExpr`][oqd_core.interface.atomic.expr.MathExpr] abstract syntax tree (AST)
+    Class representing a named function applied to an [`AtomicExpr`][oqd_core.interface.atomic.expr.AtomicExpr] abstract syntax tree (AST) node
 
     Attributes:
         func (SupportedFuncNames): Named function to apply
-        expr (Union[CastMathExpr, List[CastMathExpr]]): Arguments of the named function
+        args (List[CastAtomicExpr]): Arguments of the named function
     """
 
     func: SupportedBuiltinFuncs

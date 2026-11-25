@@ -1,9 +1,7 @@
 The analog grammar defines the text syntax for the analog frontend.
 
-It is implemented with ANTLR4 using:
-
-- [`AnalogLexer.g4`](../../src/grammar/analog/AnalogLexer.g4) for tokens
-- [`AnalogParser.g4`](../../src/grammar/analog/AnalogParser.g4) for grammar rules
+It is implemented with [ANTLR4](https://www.antlr.org/).
+`AnalogLexer.g4` contains the valid token definitions in the language. `AnalogParser.g4` contains the grammar rules.
 
 ## ANTLR4 Basics
 
