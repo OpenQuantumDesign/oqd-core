@@ -4,13 +4,13 @@ The atomic compiler is implemented in `src/oqd_core/compiler/atomic`. The entry 
 
 For more details on the atomic analysis, see [`atomic_analysis.md`](../analysis/atomic_analysis.md).
 
-The compiler also provides the use of `@atomic` as a decorator. This feature is still under development and will be refined in future version.
+The compiler also provides the use of `@atomic` as a decorator. This converts the source code of the function and converts them into Atomic AST.
 
 ## Conversion
 
 The `AtomicCFGBuilder` class defined in [`conversion.py`](../../src/oqd_core/compiler/atomic/conversion.py) builds the CFG from an Atomic AST. The `AtomicCFGtoAST` class in the same file converts a CFG into Atomic AST. 
 
-`PyASTtoAtomic` converts Python AST into Atomic AST. This feature is still under development and will be refined in future versions.
+`PyASTtoAtomic` converts Python AST with Atomic functions into Atomic AST.
 
 ## Canonicalization Rules
 

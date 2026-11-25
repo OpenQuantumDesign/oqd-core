@@ -1,5 +1,5 @@
 from .bounds_checker import AtomicBoundsChecker, OutOfBoundsError
-from .fold import ConstantFolding, ConstantFoldingRule
+from .fold import ConstantDurationRule, ConstantFolding, ConstantFoldingRule
 from .reaching_def import (
     AvailableVariableAnalysis,
     AvailableVariableError,
@@ -11,6 +11,7 @@ from .type_checker import AtomicTypeChecker, AtomicTypeError
 
 __all__ = [
     "ConstantFolding",
+    "ConstantDurationRule",
     "AtomicTypeChecker",
     "AtomicTypeError",
     "AvailableVariableAnalysis",

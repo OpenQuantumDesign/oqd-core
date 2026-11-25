@@ -17,7 +17,7 @@
 # __all__ = ["canonicalize"]
 
 from .compile import atomic, compile_atomic_circuit
-from .conversion import AtomicCFGBuilder, AtomicCFGtoAST
+from .conversion import AtomicCFGBuilder, AtomicCFGtoAST, PyASTtoAtomic
 from .error import AtomicCompilerError
 
 __all__ = [
@@ -26,4 +26,5 @@ __all__ = [
     "atomic",
     "compile_atomic_circuit",
     "AtomicCompilerError",
+    "PyASTtoAtomic",
 ]

@@ -19,11 +19,12 @@ from oqd_compiler_infrastructure import (
     RelabelCFGBlocks,
     InplacePre,
     FixedPoint,
+    Post,
 )
 
 from oqd_core.analysis.dominator import PostDominatorAnalysis
-from oqd_core.analysis.atomic import ConstantFolding, ConstantFoldingRule
-
+from oqd_core.analysis.atomic import ConstantFolding, ConstantFoldingRule, ConstantDurationRule
+from oqd_core.analysis.atomic.fold import PulseDurationWarning
 
 from oqd_core.analysis.atomic.types import (
     TComplex,
@@ -413,5 +414,56 @@ class TestAtomicFoldChecker:
         decl = circuit.statements[0]
         assert(isinstance(decl, Declaration))
         assert(decl.value == expected)
+
+
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = ionreg(3) \n target = [r[0], r[1], r[3]]",
+            "r = ionreg(3) \n b = [beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]), \
+            beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])] \n \
+            p0 = pulse(b[0], 5e-6, r[0]) \n p1 = pulse(b[3], 5e-6, r[1])",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            c = beam(1e6, 0.5, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n parallel {\n \
+            serial {\n x = pulse(b, 5e-6, r[0])\n } \n pulse(c, 4e-6, r[3])\n}",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            serial {\n parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[2])\n }\n}",
+            "r = ionreg(3) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            p0 = pulse(beam_mw, 5e-6, r[0]) \n p1 = pulse(beam_mw, 5e-6, r[1]) \n \
+            p2 = pulse(beam_mw, 5e-6, r[3]) \n parallel {\n p0\n serial {\n p1\n p2 \n}\n}",
+            "r = ionreg(2) \n b = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            pulse(b, 1e-5, r[4], false)",
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+            dur = 5e-6 \n parallel {\n serial {\n x = pulse(beam_mw, dur, r[2])\n x\n }\n}",
+        ],
+    )
+    def test_atomic_pulse_const_duration_checker(self, program):
+        circuit = parse_atomic(program)
+        cfg = AtomicCFGBuilder()(circuit)
+        checker = ConstantFolding()
+        fold_res = checker.analyze(cfg)
+        fold_pass = FixedPoint(InplacePre(ConstantFoldingRule(fold_res=fold_res)))
+        cfg = fold_pass(cfg)
+        const_dur_pass = ConstantDurationRule(fold_res=fold_res)
+        new_cfg = const_dur_pass(cfg)
+    
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = ionreg(2) \n beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \n \
+                pulse(beam_mw, #s, r[0])",
+        ],
+    )
+    def test_atomic_pulse_const_duration_checker_warn(self, program):
+        circuit = parse_atomic(program)
+        cfg = AtomicCFGBuilder()(circuit)
+        checker = ConstantFolding()
+        fold_res = checker.analyze(cfg)
+        fold_pass = FixedPoint(InplacePre(ConstantFoldingRule(fold_res=fold_res)))
+        cfg = fold_pass(cfg)
+        const_dur_pass = Post(ConstantDurationRule(fold_res=fold_res))
+        with pytest.warns(PulseDurationWarning):
+            new_cfg = const_dur_pass(cfg)
+        
         
 

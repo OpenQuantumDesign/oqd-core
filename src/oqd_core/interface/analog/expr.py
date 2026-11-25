@@ -196,7 +196,7 @@ class Constant(AnalogExpr):
 def _is_runtimevar(value: str) -> str:
     if not value.startswith("#") or len(value) < 2 or not value[1:].isidentifier():
         raise ValueError(
-            "MathVar variable must start with a '#', followed by a valid identifier"
+            "RuntimeVar variable must start with a '#', followed by a valid identifier"
         )
     return value
 
@@ -220,7 +220,7 @@ ListCastAnalogExpr = TypeAliasType("ListCastAnalogExpr", "List[CastAnalogExpr]")
 
 class BinaryOp(BaseModel, AbstractAnalogExpr):
     """
-    Class representing binary operations on [`MathExprs`][oqd_core.interface.analog.expr.MathExpr] abstract syntax tree (AST)
+    Class representing binary operations on [`AnalogExprs`][oqd_core.interface.analog.expr.AnalogExpr] abstract syntax tree (AST)
     """
 
     exprs: ListCastAnalogExpr
@@ -238,73 +238,28 @@ class Neg(UnaryOp, ArithOp, AnalogExpr): ...
 class Pos(UnaryOp, ArithOp, AnalogExpr): ...
 
 
-class Add(BinaryOp, ArithOp, AnalogExpr):
-    """
-    Class representing the addition of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-    """
+class Add(BinaryOp, ArithOp, AnalogExpr): ...
 
 
-class Sub(BinaryOp, ArithOp, AnalogExpr):
-    """
-    Class representing the subtraction of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-    """
+class Sub(BinaryOp, ArithOp, AnalogExpr): ...
 
 
-class Mul(BinaryOp, ArithOp, AnalogExpr):
-    """
-    Class representing the multiplication of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-    """
+class Mul(BinaryOp, ArithOp, AnalogExpr): ...
 
 
-class Div(BinaryOp, ArithOp, AnalogExpr):
-    """
-    Class representing the division of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-    """
+class Div(BinaryOp, ArithOp, AnalogExpr): ...
 
 
-class Pow(BinaryOp, ArithOp, AnalogExpr):
-    """
-    Class representing the exponentiation of [`MathExprs`][oqd_core.interface.analog.expr.MathExpr]
-
-    Attributes:
-        expr1 (MathExpr): Left hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-        expr2 (MathExpr): Right hand side [`MathExpr`][oqd_core.interface.analog.expr.MathExpr]
-    """
+class Pow(BinaryOp, ArithOp, AnalogExpr): ...
 
 
-class Kron(BinaryOp, ArithOp, AnalogExpr):
-    """
-    Class representing the tensor product of [`Operators`][oqd_core.interface.analog.expr.OperatorExpr]
-
-    Attributes:
-        op1 (Operator): Left hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
-        op2 (Operator): Right hand side [`Operator`][oqd_core.interface.analog.expr.OperatorExpr]
-    """
+class Kron(BinaryOp, ArithOp, AnalogExpr): ...
 
 
 ########################################################################################
 
 
-class ComparisonOp(AbstractAnalogExpr):
-    """
-    Class representing binary operations on [`BoolExprs`][oqd_core.interface.analog.expr.BoolExpr] abstract syntax tree (AST)
-    """
+class ComparisonOp(AbstractAnalogExpr): ...
 
 
 class Not(UnaryOp, BoolOp, AnalogExpr): ...
@@ -397,11 +352,11 @@ List of supported functions
 
 class BuiltinCall(AnalogExpr):
     """
-    Class representing a named function applied to a [`MathExpr`][oqd_core.interface.analog.expr.MathExpr] abstract syntax tree (AST)
+    Class representing a named function applied to an [`AnalogExpr`][oqd_core.interface.analog.expr.AnalogExpr] abstract syntax tree (AST) node.
 
     Attributes:
         func (SupportedFuncNames): Named function to apply
-        expr (Union[CastMathExpr, List[CastMathExpr]]): Arguments of the named function
+        args (List[CastAnalogExpr]): Arguments of the named function
     """
 
     func: SupportedBuiltinFuncs
@@ -508,9 +463,9 @@ class Evolve(QuantumExpr, AnalogExpr):
     Class representing an evolution by an analog gate in the analog circuit
 
     Attributes:
-        hamiltonian (Expr): Function to evolve by
-        duration (Expr): Duration of the evolution
-        targets (Expr): Indices and Quantum objects on which to apply the Hamiltonian
+        hamiltonian (CastAnalogExpr): Function to evolve by
+        duration (CastAnalogExpr): Duration of the evolution
+        targets (CastAnalogExpr): Indices and Quantum objects on which to apply the Hamiltonian
     """
 
     hamiltonian: CastAnalogExpr

@@ -4,13 +4,13 @@ The analog compiler is implemented in `src/oqd_core/compiler/analog`. The entry 
 
 For more details on the analog analysis, see [`analog_analysis.md`](../analysis/analog_analysis.md).
 
-The compiler also provides the use of `@analog` as a decorator. This feature is still under development and will be refined in future version.
+The compiler also provides the use of `@analog` as a decorator. This converts the source code of the function and converts them into Analog AST.
 
 ## Conversion
 
 The `AnalogCFGBuilder` class defined in [`conversion.py`](../../src/oqd_core/compiler/analog/conversion.py) builds the CFG from an Analog AST. The `AnalogCFGtoAST` class in the same file converts a CFG into Analog AST. 
 
-`PyASTtoAnalog` converts Python AST into Analog AST. This feature is still under development and will be refined in future versions.
+`PyASTtoAnalog` converts Python AST with Analog functions into Analog AST.
 
 ## Canonicalization Rules
 

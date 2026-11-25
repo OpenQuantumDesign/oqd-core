@@ -14,7 +14,9 @@
 
 import pytest
 
-from oqd_core.atomic import atomic, parse_atomic, serialize_atomic
+import ast_comments as ast
+from oqd_compiler_infrastructure import Post
+from oqd_core.atomic import atomic, parse_atomic, serialize_atomic, PyASTtoAtomic
 from oqd_core.interface.atomic import (
     Access,
     Add,
@@ -418,9 +420,9 @@ class TestAtomicSerialize:
         [
             "r = ionreg(2)",
             "list = [1, 2, 3]",
-            # "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
-            # "pulse(beam_mw, 1e-5, r, true)",
-            # "parallel {\n pulse(beam_mw, 5e-6, r[0])\n pulse(beam_mw, 5e-6, r[1])}",
+            "beam_mw = beam(10000, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])\n",
+            "pulse(beam_mw, 0.0001, r, true)",
+            "parallel {\n pulse(beam_mw, 0.0005, r[0])\n pulse(beam_mw, 0.0005, r[1])}",
             "x = 1\n if (x > 0) {\n y = 2\n}",
             "x = 1\n if (x > 0) {\n y = 2\n} \n else {\n y = 3\n}",
             "n = 3\nwhile (n > 0) {\n    n = n - 1\n}",
@@ -438,11 +440,54 @@ class TestAtomicSerialize:
 @atomic
 def test_circuit(self):
     ions = ionreg(2)
+    neg = -1
+    cubed = 2**3
+    cplx = 3+4j
+    pi = 3.14159
+    tau = 2 * pi
+    if False:
+        pi = 3.14
+    else:
+        pi = 3.14
     beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])
+    pulse(beam_mw, 1, ions[0], False)
     list = [1, 2, 3]
+    while True:
+        c = list[0]
+        h = c == 1
+        if h: break
+    b = 0
+    list2 = [[0], [1]]
+    parallel(serial(pulse(beam_mw, 1, ions[0], False), pulse(beam_mw, 1, ions[1], False)), pulse(beam_mw, 1, ions[1], False))
 
 
 class TestAtomicPyASTtoCFG:
     def test_atomic_pyast_cfg(self):
         circuit, cfg = test_circuit
 
+    @pytest.mark.parametrize(
+        "program",
+        [
+            "r = ionreg(2)",
+            "list = [1, 2, 3]",
+            "list2 = [[1], [2], [3]]",
+            "a = sin(1)",
+            "b = tan(cos(0))",
+            "neg = -1",
+            "cubed = 2**3",
+            "cplx = 3+4j",
+            "pi = 3.14159 \ntau = 2 * pi",
+            "beam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])",
+            "x = 1 \nif x > 0: \n \ty = 2",
+            "x = 1 \nif x > 0: \n \ty = 2\nelse: \n \ty = 3\n",
+            "while True: \n \tif a == b: \n \t\tx = 0 \n \tif x == 0: break \n",
+            "r = ionreg(1) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]) \np0 = pulse(beam_mw, 5e-6, r[0])",
+            "r = ionreg(2) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])" \
+                "\nserial(p0 = pulse(beam_mw, 5e-6, r[0]), p1 = pulse(beam_mw, 5e-6, r[1])) ",
+            "r = ionreg(2) \nbeam_mw = beam(2e6, 0.25, 0.0, [0.0, 1.0, 0.0], [0.0, 0.0, 1.0])" \
+                "\nparallel(p0 = pulse(beam_mw, 5e-6, r[0]), p1 = pulse(beam_mw, 5e-6, r[1])) ",
+        ],
+    )
+    def test_atomic_pyast(self, program):
+        pyast = ast.parse(program)
+        circuit = Post(PyASTtoAtomic())(pyast)

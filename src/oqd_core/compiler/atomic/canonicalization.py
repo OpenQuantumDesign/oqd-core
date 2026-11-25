@@ -13,6 +13,8 @@
 # limitations under the License.
 
 
+from functools import partial, reduce
+
 from oqd_compiler_infrastructure import RewriteRule
 
 from oqd_core.atomic import (
@@ -21,9 +23,14 @@ from oqd_core.atomic import (
     Mul,
     Neg,
     Not,
+    ParallelProtocol,
     Pos,
     Pow,
+    Pulse,
+    SerialProtocol,
 )
+from oqd_core.compiler.atomic.error import AtomicCompilerError
+from oqd_core.interface.atomic import Declaration
 
 ########################################################################################
 
@@ -111,4 +118,150 @@ class SortOperands(RewriteRule):
 
         return Mul(exprs=exprs)
 
+
+
+class ResolveNestedProtocol(RewriteRule):
+    """
+    Unfolds nested protocols into a standard form with only 2 hierarchy levels, a sequential protocol of parallel protocols.
+
+    Args:
+        model: A protocol node (`Pulse`, `ParallelProtocol`, or `SerialProtocol`).
+
+    Returns:
+        model: The canonicalized protocol node.
+
+    Assumptions:
+        Pulse durations are constant, and have been propagated through the program.
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    @classmethod
+    def _get_continuous_duration(cls, model):
+        if isinstance(model, Pulse):
+            if isinstance(model.duration, Constant):
+                return model.duration.value
+
+        if isinstance(model, Declaration):
+            if isinstance(model.value.duration, Constant):
+                return model.value.duration.value
+
+        if isinstance(model, ParallelProtocol):
+            if not model.pulses:
+                raise AtomicCompilerError("Parallel block is empty.")
+            if len(model.pulses) == 1:
+                return cls._get_continuous_duration(model.pulses[0])
+
+            return min(map(cls._get_continuous_duration, model.pulses))
+
+        if isinstance(model, SerialProtocol):
+            if not model.pulses:
+                raise AtomicCompilerError("Serial block is empty.")
+            return cls._get_continuous_duration(model.pulses[0])
+
+        return model.duration
+
+    @classmethod
+    def _cut_protocol(cls, model, continuous_duration):
+        if isinstance(model, ParallelProtocol):
+            pairs = list(
+                map(
+                    partial(cls._cut_protocol, continuous_duration=continuous_duration),
+                    model.pulses,
+                )
+            )
+
+            cut = reduce(lambda x, y: x + y, map(lambda x: x[0], pairs))
+
+            remainder = [r for r in map(lambda x: x[1], pairs) if r is not None]
+
+            if remainder:
+                return cut, ParallelProtocol(pulses=remainder)
+
+            return cut, None
+
+        if isinstance(model, SerialProtocol):
+            cut, remainder = cls._cut_protocol(
+                model.pulses[0], continuous_duration=continuous_duration
+            )
+
+            if remainder:
+                return cut, SerialProtocol(pulses=[remainder, *model.pulses[1:]])
+            if model.pulses[1:]:
+                return cut, SerialProtocol(pulses=model.pulses[1:])
+
+            return cut, None
+        
+        if isinstance(model, Declaration):
+            total = model.value.duration.value
+        else:
+            total = model.duration.value
+
+        cut = model.model_copy(deep=True)
+
+        if total == continuous_duration:
+            return [cut], None
+        if isinstance(model, Declaration):
+            cut.value.duration = Constant(value=continuous_duration)
+            remainder = model.model_copy(deep=True)
+            remainder.value.duration = Constant(value=model.value.duration.value-continuous_duration)
+
+        else:
+            cut.duration = Constant(value=continuous_duration)
+            remainder = model.model_copy(deep=True)
+            remainder.duration = Constant(value=model.duration.value-continuous_duration)
+
+        return [cut], remainder
+
+    def map_ParallelProtocol(self, model):
+        statements = model.pulses
+        if len(statements) == 1:
+            return statements[0]
+
+        protocols = []
+        while statements:
+            continuous_duration = min(map(self._get_continuous_duration, statements))
+
+            pairs = list(
+                map(
+                    partial(
+                        self._cut_protocol, continuous_duration=continuous_duration
+                    ),
+                    statements,
+                )
+            )
+
+            protocols.append(
+                ParallelProtocol(
+                    pulses=reduce(lambda x, y: x + y, map(lambda x: x[0], pairs))
+                )
+            )
+
+            statements = [r for r in map(lambda x: x[1], pairs) if r is not None]
+
+        return SerialProtocol(pulses=protocols)
+
+    def map_SerialProtocol(self, model):
+        if len(model.pulses) == 1:
+            return model.pulses[0]
+
+        new_statements = []
+        for subprotocol in model.pulses:
+            if isinstance(subprotocol, SerialProtocol):
+                new_statements.extend(
+                    list(
+                        map(
+                            lambda x: (
+                                x
+                                if isinstance(x, ParallelProtocol)
+                                else ParallelProtocol(pulses=[x])
+                            ),
+                            subprotocol.pulses,
+                        )
+                    )
+                )
+            else:
+                new_statements.append(subprotocol)
+        return model.__class__(pulses=new_statements)
 

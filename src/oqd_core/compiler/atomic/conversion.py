@@ -47,10 +47,12 @@ from oqd_core.interface.atomic import (
     Neq,
     Not,
     Or,
+    ParallelProtocol,
     Pos,
     Pow,
     Pulse,
     RuntimeVar,
+    SerialProtocol,
     Sub,
     SupportedBuiltinFuncs,
     While,
@@ -317,7 +319,9 @@ class PyASTtoAtomic(ConversionRule):
         return tuple()
 
     def map_Module(self, model, operands):
-        return AtomicCircuit(statements=operands["body"][0])
+        if isinstance(operands["body"][0], list):
+            return AtomicCircuit(statements=operands["body"][0])
+        return AtomicCircuit(statements=operands["body"])
 
     def _filter_block(self, statements):
         return list(filter(lambda x: x != tuple(), statements))
@@ -348,13 +352,19 @@ class PyASTtoAtomic(ConversionRule):
 
         name = model.func.id
         match name:
+            case "serial":
+                return SerialProtocol(pulses=args)
+
+            case "parallel":
+                return ParallelProtocol(pulses=args)
+
             case "pulse":
                 if len(args) not in [3, 4]:
                     raise ValueError()
 
                 if len(args) == 3:
                     return Pulse(
-                        beam=args[0], duration=args[1], target=args[2], measured=0
+                        beam=args[0], duration=args[1], target=args[2], measured=False
                     )
 
                 return Pulse(
