@@ -42,7 +42,6 @@ dependencies = [
   "antlr4-python3-runtime>=4.13.2",
   "typer>=0.24.1",
   "pytest>=8.4.2",
-  "mkdocs>=1.6.1",
   "markdown>=3.8.2",
   "pymdown-extensions>=10.16.1",
   "mkdocs-material>=9.6.18",
@@ -51,6 +50,7 @@ dependencies = [
   "mkdocstrings[python]>=0.30.0",
   "graphviz>=0.21",
   "oqd-compiler-infrastructure>=0.1.0",
+  "zensical>=0.0.67",
 ]
 
 [project.optional-dependencies]

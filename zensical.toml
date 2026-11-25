@@ -1,0 +1,157 @@
+[project]
+repo_name = "OpenQuantumDesign/oqd-core"
+repo_url = "https://github.com/OpenQuantumDesign/oqd-core"
+site_name = "Open Quantum Design - Core"
+site_url = "https://docs.openquantumdesign.org/open-quantum-design-core/"
+
+copyright = "Copyright &copy; 2024-2025 Open Quantum Design"
+docs_dir = "docs"
+use_directory_urls = true
+nav = [
+    {"Get Started" = [
+        {"The Stack" = "index.md"},
+        {"Installation" = "get-started/installation.md"},
+        {"Acknowledgement" = "get-started/acknowledgement.md"}
+    ]},
+    {"Interfaces" = [
+        {"Analog" = "interfaces/analog_interface.md"},
+        {"Atomic" = "interfaces/atomic_interface.md"}
+    ]},
+    {"Grammar" = [
+        {"Analog" = "grammar/analog_grammar.md"},
+        {"Atomic" = "grammar/atomic_grammar.md"}
+    ]},
+    {"Frontend" = [
+        {"Analog" = "frontend/analog_frontend.md"},
+        {"Atomic" = "frontend/atomic_frontend.md"}
+    ]},
+    {"Analysis" = [
+        {"Analog" = "analysis/analog_analysis.md"},
+        {"Atomic" = "analysis/atomic_analysis.md"}
+    ]},
+    {"Compiler" = [
+        {"Analog" = "compiler/analog_compiler.md"},
+        {"Atomic" = "compiler/atomic_compiler.md"}
+    ]},
+    {"API Reference" = [
+        {"Interface" = [
+            {"Analog" = "reference/analog_interface.md"},
+            {"Atomic" = "reference/atomic_interface.md"}
+        ]}
+    ]}
+]
+
+extra_css = [
+    "stylesheets/headers.css",
+    "stylesheets/admonitions.css",
+    "stylesheets/brand.css",
+    "stylesheets/logo.css",
+]
+extra_javascript = [
+    "javascripts/mathjax.js",
+    "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js",
+]
+
+
+[[project.extra.social]]
+icon = "fontawesome/brands/github"
+link = "https://github.com/OpenQuantumDesign"
+name = "Open Quantum Design GitHub"
+
+[[project.extra.social]]
+icon = "fontawesome/solid/globe"
+link = "https://openquantumdesign.org"
+name = "Open Quantum Design"
+
+
+[project.theme]
+name = "material"
+logo = "img/oqd-icon.png"
+favicon = "img/oqd-icon.png"
+features = [
+    "search.suggest",
+    "search.highlight",
+    "content.tabs.link",
+    "content.tooltips",
+    "content.code.annotate",
+    "content.code.copy",
+    "content.code.select",
+    "navigation.tabs",
+    "navigation.tabs.sticky",
+    "navigation.sections",
+    "navigation.top",
+    "navigation.prune",
+    "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme = light)"
+scheme = "default"
+primary = "custom"
+accent = "custom"
+toggle.icon = "material/weather-sunny"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme = dark)"
+scheme = "slate"
+primary = "custom"
+accent = "custom"
+toggle.icon = "material/weather-night"
+toggle.name = "Switch to light mode"
+
+
+[project.markdown_extensions.attr_list]
+[project.markdown_extensions.toc]
+permalink = true
+toc_depth = 10
+
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+line_spans = "__span"
+pygments_lang_class = true
+
+[project.markdown_extensions.pymdownx.blocks.tab]
+alternate_style = true
+[project.markdown_extensions.pymdownx.inlinehilite]
+[project.markdown_extensions.pymdownx.snippets]
+[project.markdown_extensions.pymdownx.blocks.admonition]
+[project.markdown_extensions.pymdownx.blocks.details]
+[project.markdown_extensions.pymdownx.blocks.html]
+[project.markdown_extensions.pymdownx]
+superfences = { custom_fences = [
+    { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format"}
+] }
+
+[project.markdown_extensions.pymdownx.arithmatex]
+generic = true
+
+[project.markdown_extensions.mdx_truly_sane_lists]
+nested_indent = 2
+truly_sane = true
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src/"]
+import = [
+    "https://docs.python.org/3/objects.inv",
+    "https://docs.pydantic.dev/latest/objects.inv",
+    "https://pandas.pydata.org/docs/objects.inv",
+    "https://matplotlib.org/stable/objects.inv",
+    "https://numpy.org/doc/stable/objects.inv",
+]
+[project.plugins.mkdocstrings.handlers.python.options]
+show_source = true
+show_root_heading = false
+show_root_toc_entry = false
+show_symbol_type_heading = true
+show_symbol_type_toc = true
+show_submodules = true
+docstring_style = "google"
+docstring_section_style = "table"
+show_signature = true
+show_signature_annotations = true
+signature_crossrefs = true
+separate_signature = false
+group_by_category = true
+members_order = "source"
+
